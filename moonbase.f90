@@ -58,21 +58,34 @@ DOUBLE PRECISION                 , DIMENSION(:)    , POINTER :: psigij
 DOUBLE PRECISION    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: psigexj_target !individual state cross-sections
 DOUBLE PRECISION                 , DIMENSION(:)    , POINTER :: psigexj
 DOUBLE PRECISION                                   , POINTER :: ionenergy
+DOUBLE PRECISION                                   , TARGET  :: energy_target
+
+PRINT *, "here we go???"
 
 ! Calculate the initial cross-sections based on the initial ion energy
 ALLOCATE(psigmas_target(3))
 psigmas => psigmas_target
+PRINT *, 'Allocated psigmas'
 ALLOCATE(psigij_target(SIZE(o2_p_ion)))
 psigij => psigij_target
+PRINT *, 'Allocated psigijs'
 ALLOCATE(psigexj_target(SIZE(o2_p_ex)))
 psigexj => psigexj_target
+PRINT *, 'Allocated psigexjs'
+ionenergy => energy_target
 ionenergy = EINIT
+PRINT *, 'Energy initialized'
 psigmas%cross_section = 0D0
 psigij  = 0D0
 psigexj = 0D0
+PRINT *, 'Arrays initialized'
+PRINT *, 'Calling psigma_suite'
 CALL psigma_suite(ionenergy,psigmas,psigij,psigexj)
 PRINT *, "The initial proton cross-secions are:"
-PRINT *, psigmas
+DO n=1,3
+  PRINT *, psigmas(n)
+END DO
+CALL EXIT()
 
 
 
