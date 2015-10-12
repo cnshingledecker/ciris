@@ -1,0 +1,12 @@
+! This is a file containing the allowed reaction of the system. 
+! 
+! Most reactions come from Anderson 1968, as reproduced by
+! Baragiola et al. 1999.
+!
+! The format is:
+! #, REACTANT1, REACTANT2, PRODUCT1, PRODUCT2,...,BARRIER
+! 
+! NOTE: The "*" character stands for an excited species.
+! 
+! *********************************************************
+
