@@ -302,7 +302,6 @@ MODULE functiondefs
       rr    = -2.7*DLOG(eps*b)
       IF ( rr .LT. b ) GOTO 1980
       r     = rr
-       PRINT *, 'The value of r is',r
 1980  ex1   =  0.18175*EXP(-3.1998*r)
       ex2   =  0.50986*EXP(-0.94229*r)
       ex3   =  0.28022*EXP(-0.4029*r)
@@ -315,18 +314,14 @@ MODULE functiondefs
       r     = r-q
       IF ( ABS(q/r) .GT. 0.001) GOTO 1980
       roc   = -2.0*(eps-v)/v1
-!      PRINT *, 'roc=',roc
       sqe   = SQRT(eps)
-!      PRINT *, 'sqe=',sqe
       cc    = (0.011615+sqe)/(0.0071222+sqe)
       aa    = 2.0*eps*(1.0+(0.99229/sqe))*b**cc
       ff    = (SQRT(aa**2+1.0)-aa)*((9.3066+eps)/(14.813+eps))
       delta = (r-b)*aa*ff/(ff+1.0)
-!      PRINT *, 'cc=',cc,'aa=',aa,'ff=',ff,'delta=',delta
       co    = (b+delta+roc)/(r+roc)
       c2    = co*co
       s2    = 1.0-c2
-      PRINT *, 'co=',co,'c2=',c2,'s2=',s2
       theta = 2.0*ACOS(co)
       RETURN
     END SUBROUTINE magic
@@ -353,7 +348,6 @@ MODULE functiondefs
 
       p = SQRT(rn/(3.14159*(rho**(2./3.))))
       b_magic = p/a
-!      PRINT *, 'The value of b is',b
       RETURN
     END FUNCTION b_magic
 
@@ -372,7 +366,6 @@ MODULE functiondefs
       DOUBLE PRECISION             :: au
 
       au = (0.8853*A0)/(z1**0.23 + z2**0.23)
-      PRINT *, 'The screening length is',au,'Angstroms'
       RETURN
     END FUNCTION au
 
@@ -402,8 +395,6 @@ MODULE functiondefs
       fac2 = m2/(m1+m2)
       fac3 = 1./(z1+z2)
       eps = en*fac1*fac2*fac3 
-      PRINT *, 'The center of mass energy is',en*fac2
-      PRINT *, 'The reduced energy is',eps
     END FUNCTION eps
 
     FUNCTION mass_fac(m1,m2)
@@ -421,9 +412,7 @@ MODULE functiondefs
       DOUBLE PRECISION, INTENT(IN) :: m1,m2
       DOUBLE PRECISION             :: mass_fac
 
-!      PRINT *, 'Mass 1 is',M1,'and mass 2 is',M2
       mass_fac = (4.*m1*m2)/((m1+m2)**2)
-!      PRINT *, 'The mass factor is',mass_fac
       RETURN
     END FUNCTION mass_fac
 

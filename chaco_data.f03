@@ -980,7 +980,8 @@ CONTAINS
   END SUBROUTINE cern             
 
   SUBROUTINE fallout ( react_cube, matrix,  en_list, ionlist, mobile_ptr, &
-                       wait_list, wait_len, time, ev_nums,psigmas,psigij,psigexj )
+                       wait_list, wait_len, time, ev_nums,psigmas,psigij, &
+                       psigexj, ione )
   ! Purpose:
   !   To calculate the track of a particle of ionizing radiation through a 
   !  crystaline solid. 
@@ -1017,6 +1018,7 @@ CONTAINS
     TYPE(SIGMA_BOX)    , DIMENSION(:)    , POINTER :: psigmas
     DOUBLE PRECISION   , DIMENSION(:)    , POINTER :: psigij,psigexj
     INTEGER(KIND=SHORT), DIMENSION(3)              :: ev_nums !values of special pseudoreactants
+    DOUBLE PRECISION                     , POINTER :: ione
 
     !*****************!
     ! Local variables !
@@ -1041,6 +1043,8 @@ CONTAINS
     REAL(KIND=DBL)                                 :: dz ! move dist
     REAL(KIND=DBL)                                 :: dist_trav !distance travelled since last collision
     REAL(KIND=DBL)                                 :: e_loss,e_ion,e_se,e_exc,e_elast
+    REAL(KIND=DBL)                                 :: labtheta
+    CHARACTER(len=15)                              :: nature
 
 !    PRINT *, "Fallout called"
     count_count = 0
@@ -1091,7 +1095,7 @@ CONTAINS
 
 !    PRINT *, 'Starting track calculation'
 !    OPEN(UNIT=10,FILE='ion_track.csv')
-    OPEN(UNIT=10,FILE='elec_nums.csv',ACCESS='APPEND')
+    OPEN(UNIT=10,FILE='energy_accounting.csv',ACCESS='REPLACE')
     
 !    PRINT *, "File opened"
 
@@ -1118,8 +1122,8 @@ CONTAINS
 !        PRINT *, "The value of the matrix is:",matrix(z+step,y,x)
         ! If the site is occupied, then determine the type of event to occur
 !        DO WHILE ( u .EQ. 0.0 .AND. rand .EQ. 0.0 ) 
-          CALL RANDOM_NUMBER(u)
-          CALL RANDOM_NUMBER(rand)
+          u = RAND()
+          rand = RAND()
 !        END DO
 !        PRINT *, "u is ",u,"and rand is ",rand
 
@@ -1129,27 +1133,36 @@ CONTAINS
         switch = 0
         ASSOCIATE ( sigma_i => psigmas(2)%cross_section, &
                     sigma_e => psigmas(3)%cross_section )
-          IF ( u .GT. 0.0 .AND. u .LT. (sigma_i + sigma_e)/sigma_tot ) THEN
-            IF ( u .GT. 0 .AND. u .LT. sigma_i/(sigma_i + sigma_e) ) THEN
+          IF ( u .GT. 0.0 .AND. u .LE. (sigma_i + sigma_e)/sigma_tot ) THEN
+            IF ( u .GT. 0 .AND. u .LE. sigma_i/(sigma_i + sigma_e) ) THEN
               ! Ionization will occur
               num_izns = num_izns + 1
               switch = 2 
               CALL p_ion_select(psigij,e_ion,e_se)
               e_loss = e_ion + e_se
-!              PRINT *, 'Ionization occurs'
+              nature = "Ionization"
+              PRINT *, 'Secondary electron energy is:',e_se
             ELSE IF ( rand .GT. DISPROB) THEN
               ! Excitation will occur
                 num_exs = num_exs + 1
                 switch = 1 
                 CALL p_ex_select(psigexj,e_exc)
                 e_loss = e_exc
+                nature = "Excitation"
             END IF
           ELSE
             ! Elastic Collision will occur
             num_els = num_els + 1
             switch = 0 
+            CALL elastic_event(ione,e_loss,labtheta)
+            nature = "Elastic"
           END IF
         END ASSOCIATE
+!        PRINT *, "Ion energy is:",ione, "and loss is",e_loss
+        WRITE(10,*) ione,",",e_loss,",",ione-e_loss,',',nature
+        ione = ione - e_loss
+        CALL psigma_suite(ione,psigmas,psigij,psigexj)
+!        PRINT *, "New ion energy is:",ione
 !        PRINT *, "switch is ",switch
 
 !        PRINT *, "Wait_len is: ",wait_len
@@ -1174,8 +1187,8 @@ CONTAINS
   !****************************************************************************!
         ELSE IF ( switch .EQ. 2 .AND. z+step .NE. 1 .AND. z+step .NE. 2 ) THEN
 !          PRINT *, 'Ionization'
-          IF ( NSGSE .EQ. 0 ) THEN
-            num_elecs = num_elecs + 1
+          IF ( e_se .LE. ECUTOFF ) THEN
+!            num_elecs = num_elecs + 1
             CALL base_ionization( ev_coords, react_cube, matrix, en_list, &
                                   ionlist, mobile_ptr, wait_list, wait_len, &
                                   time, ev_nums, null )
@@ -1194,44 +1207,72 @@ CONTAINS
                                   time, ev_nums, null,elec_coords )
             IF ( null .EQ. 1 ) GOTO 100
             num_elecs = num_elecs + 1
-            prev = ev_coords
-            curr = elec_coords
-            next = curr 
+            curr = ev_coords
+            next = elec_coords
             sgse_counter = 0
             ion_dist = 0
 !            PRINT *, 'Starting SGSE loop'
-            DO WHILE ( sgse_counter .LT. NSGSE ) 
-              ion_dist = ion_dist + HOPDIST
-!              PRINT *, 'before transport, prev=',prev
-!              PRINT *, 'before transport, curr=',curr
-              CALL transport(prev,curr,next,matrix)
-!              PRINT *, 'after transport,next=',next
-!              PRINT *, 'matrix(next)=',matrix(next(1),next(2),next(3))
-              IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. ion_dist .GE. IONSTEP ) THEN
-                num_elecs = num_elecs + 1
-!                PRINT *, 'Calling base ionization'
-!                PRINT *, 'before base_ionization, next=',next
+            DO WHILE ( e_se .LT. ECUTOFF ) 
+
+              !Calculate electron cross_sections
+              CALL esigma_suite(e_se,esigmas,esigij,alwd_esigexj,fbdn_esigexj)
+
+              !Calculate hopping distance
+              emfp  = 1./RHO*(esigmas(2)%cross_section + esigmas(3)%cross_section)
+              p     = RAND()
+              de    = -1.*emfp*LOG(1.-p)
+              estep = INT(de/C_PR)
+
+              !Have a minumum hopping distance of 1
+              IF ( estep .EQ. 0 ) estep = 1 
+
+              DO n=1,estep
+                !Each transport hop is like one step
+                prev = curr
+                curr = next
+                CALL transport(prev,curr,next,matrix)
+              END DO
+
+              !Determine nature of event
+              erand = RAND()
+              IF ( erand .GT. 0 .AND. erand .LE. esigmas(2)%cross_section/(esigmas(2)%cross_section +&
+                   esigmas(3)%cross_section) ) THEN
+                eswitch = 1
+              ELSE
+                eswitch = 0
+              END IF
+
+              !Carry out impact collision
+              IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. eswitch .EQ. 1 ) THEN
+                !Electron impact ionization
+!                num_elecs = num_elecs + 1
                 CALL base_ionization(next, react_cube, matrix, en_list, &
                                      ionlist, mobile_ptr, wait_list, wait_len, &
                                      time, ev_nums,null )
                 IF ( null .EQ. 1 ) GOTO 100 
                 sgse_counter = sgse_counter + 1
-                ion_dist = 0 
-              ELSE IF ( matrix(next(1),next(2),next(3)) .NE. 0 ) THEN
-                CALL RANDOM_NUMBER(rand)
+                CALL e_ion_select(esigij,e_ion,ee_se)
+                ee_loss = e_ion
+              ELSE IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. eswitch .EQ. 0 ) THEN
+                !Electron impact excitation
+                rand = RAND()
                 IF ( rand .GT. DISPROB .AND. matrix(curr(1),curr(2),curr(3)) .NE. 0 ) THEN
-!                  PRINT *, matrix(next(1),next(2),next(3)),'and',matrix(curr(1),curr(2),curr(3))
                   CALL cern( null,mobile_ptr, en_list, react_cube, matrix, ev_nums, next, 1, &
                              wait_list, wait_len, time )
                 END IF
+                CALL e_ex_select(alwd_sigexj,fbdn_sigexj,e_exc)
+                ee_loss = e_exc
               END IF
-              prev = curr
-              curr = next
+
+              !Update the secondary electron energy
+              e_se = e_se - ee_loss
             END DO
+
+            !Carrry out one more ionization corresponding to a low-energy dissociation
+
           END IF
         END IF
       ELSE
-!        PRINT *, 'Site empty'
         CONTINUE
       END IF
 
@@ -1290,7 +1331,6 @@ CONTAINS
 !    PRINT *, 'Ending Fallout'
 !    PRINT *, "**************"
 
-    WRITE(10,*) ,num_elecs,',',num_izns,',',num_exs,',',num_els
     CLOSE(10)
   END SUBROUTINE fallout
 

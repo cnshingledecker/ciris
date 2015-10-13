@@ -65,7 +65,7 @@ MODULE parameters
   INTEGER       , PARAMETER :: IONS        = 6              ! Number of anions in species list
   INTEGER       , PARAMETER :: TIME_COUNTS = 2              ! Number of times the model will check abundances
   INTEGER       , PARAMETER :: NSGSE       = 10              ! Number of second-generation secondary electrons
-  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1e4           ! Total time in s
+  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1e2           ! Total time in s
   REAL(KIND=DBL), PARAMETER :: AVAL        = 13.0
   
   !******************************************************************************

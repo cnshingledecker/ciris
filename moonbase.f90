@@ -85,7 +85,6 @@ PRINT *, "The initial proton cross-secions are:"
 DO n=1,3
   PRINT *, psigmas(n)
 END DO
-CALL EXIT()
 
 
 
@@ -248,7 +247,7 @@ DO WHILE ( time .LE. time_total )
 !    ! If the event is a proton collision, call Fallout
     CALL reactant_remove(wait_list,mindex,matrix_ptr,wait_len)
     CALL fallout( qube_ptr,matrix_ptr,en_ptr,anion_list,mobile_ptr,wait_list, &
-                  wait_len,time,ev_nums,psigmas,psigij,psigexj )
+                  wait_len,time,ev_nums,psigmas,psigij,psigexj,ionenergy )
     ! Calculate time to next cosmic-ray event 
     CALL RANDOM_NUMBER(rand)
     cr_time = -1*( LOG(rand)/cr_rate )
