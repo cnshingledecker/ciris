@@ -1040,6 +1040,7 @@ CONTAINS
     REAL(KIND=DBL)                                 :: mfp ! mean free path 
     REAL(KIND=DBL)                                 :: dz ! move dist
     REAL(KIND=DBL)                                 :: dist_trav !distance travelled since last collision
+    REAL(KIND=DBL)                                 :: e_loss,e_ion,e_se,e_exc,e_elast
 
 !    PRINT *, "Fallout called"
     count_count = 0
@@ -1123,7 +1124,7 @@ CONTAINS
 !        PRINT *, "u is ",u,"and rand is ",rand
 
   !****************************************************************************!
-  ! Determine the nature of the collision                                      !
+  ! Determine the nature of the collision and the energy lost                  !
   !****************************************************************************!
         switch = 0
         ASSOCIATE ( sigma_i => psigmas(2)%cross_section, &
@@ -1133,11 +1134,15 @@ CONTAINS
               ! Ionization will occur
               num_izns = num_izns + 1
               switch = 2 
+              CALL p_ion_select(psigij,e_ion,e_se)
+              e_loss = e_ion + e_se
 !              PRINT *, 'Ionization occurs'
             ELSE IF ( rand .GT. DISPROB) THEN
               ! Excitation will occur
                 num_exs = num_exs + 1
                 switch = 1 
+                CALL p_ex_select(psigexj,e_exc)
+                e_loss = e_exc
             END IF
           ELSE
             ! Elastic Collision will occur
@@ -2686,18 +2691,17 @@ END SUBROUTINE make_react
     IMPLICIT NONE
 
     !Data dictionary: Input parameters
-    DOUBLE PRECISION,  POINTER :: energy
-    TYPE(SIGMA_BOX),  POINTER, DIMENSION(:)  ::  psigmas
+    DOUBLE PRECISION, POINTER               :: energy
+    TYPE(SIGMA_BOX) , POINTER, DIMENSION(:) ::  psigmas
     DOUBLE PRECISION, POINTER, DIMENSION(:) :: psigij,psigexj
 
     !Data dictionary: Local variables
-    INTEGER :: n
-    DOUBLE PRECISION :: scr_len
-    DOUBLE PRECISION :: lss_en
-    DOUBLE PRECISION :: massfac
-    DOUBLE PRECISION :: sn_e
-    DOUBLE PRECISION :: sn_eps
-    !DOUBLE PRECISION :: a,j,v,o,i
+    INTEGER                                 :: n
+    DOUBLE PRECISION                        :: scr_len
+    DOUBLE PRECISION                        :: lss_en
+    DOUBLE PRECISION                        :: massfac
+    DOUBLE PRECISION                        :: sn_e
+    DOUBLE PRECISION                        :: sn_eps
 
     !(1) Calculate elastic cross-section
     !i. calculate screening length
@@ -2768,7 +2772,6 @@ END SUBROUTINE make_react
 
     !Data dictionary: Local variables
     INTEGER                                 :: n
-!    DOUBLE PRECISION                        :: i,k,kb,j,jb,jc,gs,gb,ts,ta,tb
     DOUBLE PRECISION                        :: ae,ge,tnaught,tmax
 
     !(2) Calculate ionization cross-section
@@ -3025,4 +3028,32 @@ END SUBROUTINE make_react
       END DO
     END SELECT
   END SUBROUTINE e_ex_select
+
+  SUBROUTINE elastic_event(energy,e_loss,labtheta)
+    IMPLICIT NONE
+
+    ! Data dictionary: Define calling parameters
+    DOUBLE PRECISION             , POINTER :: energy !ion energy in eV
+    DOUBLE PRECISION, INTENT(OUT)          :: e_loss !energy lost in the collision
+    DOUBLE PRECISION, INTENT(OUT)          :: labtheta !lab scattering angle
+
+    ! Data dictionary: Define local variables
+    DOUBLE PRECISION                       :: afac !screening length
+    DOUBLE PRECISION                       :: gamfac !mass factor
+    DOUBLE PRECISION                       :: e_lss !Lindhard-Scharff-Sigmund red. energy
+    DOUBLE PRECISION                       :: bfac !reduced impact parameter
+    DOUBLE PRECISION                       :: c2,s2 !cos2(cmtheta/2) and sin2(cmtheta/2)
+    DOUBLE PRECISION                       :: cmtheta !center-of-mass theta
+    DOUBLE PRECISION                       :: rn !random number
+
+    afac = au(ZP,ZO2)
+    gamfac = mass_fac(MP,MO2)
+    e_lss = eps(energy,ZP,ZO2,MP,MO2,afac)
+    rn = RAND()
+    bfac = b_magic(rn,afac,RHO2)
+    CALL magic(e_lss,bfac,c2,s2,cmtheta)
+    e_loss = t_coll(energy,gamfac,s2)
+    labtheta = lab_theta(cmtheta,MP,MO2)
+    RETURN
+  END SUBROUTINE elastic_event
 END MODULE chaco_data 

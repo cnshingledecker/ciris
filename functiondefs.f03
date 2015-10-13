@@ -389,7 +389,7 @@ MODULE functiondefs
       IMPLICIT NONE
 
       !Data dictionary: Calling parameters
-      DOUBLE PRECISION, INTENT(IN) :: en 
+      DOUBLE PRECISION, POINTER    :: en 
       DOUBLE PRECISION, INTENT(IN) :: z1,z2
       DOUBLE PRECISION, INTENT(IN) :: m1,m2
       DOUBLE PRECISION, INTENT(IN) :: au
@@ -427,7 +427,7 @@ MODULE functiondefs
       RETURN
     END FUNCTION mass_fac
 
-    FUNCTION t(e,mf,s2)
+    FUNCTION t_coll(e,mf,s2)
     !
     !  Purpose:
     !   To calculate the energy transferred in an elastic, i.e. nuclear, 
@@ -436,20 +436,20 @@ MODULE functiondefs
     !  one can calculate s2, which is the sin^2(theta/2)
     !
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
-    !! T !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! T_COLL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
 
       IMPLICIT NONE
 
       !Data dictionary: Calling parameters
-      DOUBLE PRECISION, INTENT(IN) :: e
+      DOUBLE PRECISION, POINTER    :: e
       DOUBLE PRECISION, INTENT(IN) :: mf
       DOUBLE PRECISION, INTENT(IN) :: s2
-      DOUBLE PRECISION             :: t
+      DOUBLE PRECISION             :: t_coll
 
-      t = mf*e*s2
+      t_coll = mf*e*s2
       RETURN
-    END FUNCTION t
+    END FUNCTION t_coll
 
     FUNCTION lab_theta(cmtheta,m1,m2)
     !
@@ -537,7 +537,7 @@ MODULE functiondefs
 
       sne = num/den
       RETURN
-    END FUNCTION
+    END FUNCTION sne
 
     FUNCTION pelsig(energy,sne,mf)
     !
@@ -560,7 +560,7 @@ MODULE functiondefs
 
       pelsig = (2*sne)/(mf*energy)
       RETURN
-    END FUNCTION
+    END FUNCTION pelsig
 
     FUNCTION greendutta(energy)
     !
