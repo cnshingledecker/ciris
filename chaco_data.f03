@@ -1030,21 +1030,24 @@ CONTAINS
     INTEGER                                        :: x,y,z !coordinates of cosmic-ray along track
     INTEGER                                        :: sgse_counter !counter for the number of sgse's produced
     INTEGER                                        :: count_count
-    INTEGER                                        :: step !distance the track is incremented  
-    INTEGER                                        :: switch !variable that determines the nature of collisions
+    INTEGER                                        :: step,estep !distance the track is incremented  
+    INTEGER                                        :: switch,eswitch !variable that determines the nature of collisions
     INTEGER            , DIMENSION(3)              :: dimens !dimensions of matrix
     INTEGER            , DIMENSION(3)              :: ev_coords !coordiantes of collision
     INTEGER            , DIMENSION(3)              :: elec_coords
     INTEGER            , DIMENSION(3)              :: prev, curr, next
+    REAL(KIND=DBL)                                 :: erand, emfp,de
     REAL(KIND=DBL)                                 :: p,u,rand ! rand num
     REAL(KIND=DBL)                                 :: ion_dist ! distance from last ionization
     REAL(KIND=DBL)                                 :: sigma_tot !total cross-section
     REAL(KIND=DBL)                                 :: mfp ! mean free path 
     REAL(KIND=DBL)                                 :: dz ! move dist
     REAL(KIND=DBL)                                 :: dist_trav !distance travelled since last collision
-    REAL(KIND=DBL)                                 :: e_loss,e_ion,e_se,e_exc,e_elast
+    REAL(KIND=DBL)                                 :: e_loss,e_ion,e_se,e_exc,e_elast,ee_loss
     REAL(KIND=DBL)                                 :: labtheta
+    REAL(KIND=DBL)     , DIMENSION(:)    , POINTER :: esigij,alwd_esigexj,fbdn_esigexj
     CHARACTER(len=15)                              :: nature
+    TYPE(SIGMA_BOX)    , DIMENSION(3)    , POINTER :: esigmas
 
 !    PRINT *, "Fallout called"
     count_count = 0
@@ -1171,6 +1174,7 @@ CONTAINS
   !****************************************************************************!
         IF ( switch .EQ. 0 ) THEN
 !          PRINT *, "Elastic collision"
+          !NB: FUTURE WORK TO ADD LATTICE DAMAGE
           CONTINUE
 
   !****************************************************************************!
@@ -1267,9 +1271,8 @@ CONTAINS
               !Update the secondary electron energy
               e_se = e_se - ee_loss
             END DO
-
             !Carrry out one more ionization corresponding to a low-energy dissociation
-
+            !WORK IN PROGRESS: DO LATER
           END IF
         END IF
       ELSE

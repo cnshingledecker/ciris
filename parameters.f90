@@ -56,8 +56,6 @@ MODULE parameters
   !******************************************************************************
   REAL          , PARAMETER :: TRL_NU      = 1E10           ! Trial frequency, for the rates, in 1/s
   REAL          , PARAMETER :: DISPROB     = 0.0
-  REAL          , PARAMETER :: IONSTEP     = 5           ! MFP between ionizations in cm
-  REAL          , PARAMETER :: HOPDIST     = 1           ! Average hopping distance
 
   !******************************************************************************
   ! Model Parameters 
@@ -65,8 +63,9 @@ MODULE parameters
   INTEGER       , PARAMETER :: IONS        = 6              ! Number of anions in species list
   INTEGER       , PARAMETER :: TIME_COUNTS = 2              ! Number of times the model will check abundances
   INTEGER       , PARAMETER :: NSGSE       = 10              ! Number of second-generation secondary electrons
-  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1e2           ! Total time in s
+  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D2           ! Total time in s
   REAL(KIND=DBL), PARAMETER :: AVAL        = 13.0
+  REAL(KIND=DBL), PARAMETER :: ECUTOFF     = 3D0              ! Secondary cutoff energy in eV
   
   !******************************************************************************
   ! Array Parameters 
