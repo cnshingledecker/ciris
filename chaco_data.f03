@@ -1024,6 +1024,7 @@ CONTAINS
     ! Local variables !
     !*****************!
     INTEGER(KIND=SHORT)                            :: null
+    INTEGER                                        :: n
     INTEGER                                        :: num_elecs ! number of secondary electrons pruduced
     INTEGER                                        :: num_izns
     INTEGER                                        :: num_exs, num_els
@@ -1037,17 +1038,19 @@ CONTAINS
     INTEGER            , DIMENSION(3)              :: elec_coords
     INTEGER            , DIMENSION(3)              :: prev, curr, next
     REAL(KIND=DBL)                                 :: erand, emfp,de
-    REAL(KIND=DBL)                                 :: p,u,rand ! rand num
+    REAL(KIND=DBL)                                 :: p,u,rand1 ! rand num
     REAL(KIND=DBL)                                 :: ion_dist ! distance from last ionization
     REAL(KIND=DBL)                                 :: sigma_tot !total cross-section
     REAL(KIND=DBL)                                 :: mfp ! mean free path 
     REAL(KIND=DBL)                                 :: dz ! move dist
     REAL(KIND=DBL)                                 :: dist_trav !distance travelled since last collision
-    REAL(KIND=DBL)                                 :: e_loss,e_ion,e_se,e_exc,e_elast,ee_loss
+    REAL(KIND=DBL)                                 :: e_loss,e_ion,e_se,e_exc,ee_loss
+    REAL(KIND=DBL)                                 :: ee_se
     REAL(KIND=DBL)                                 :: labtheta
+    REAL(KIND=DBL)                       , POINTER :: ese_point
     REAL(KIND=DBL)     , DIMENSION(:)    , POINTER :: esigij,alwd_esigexj,fbdn_esigexj
     CHARACTER(len=15)                              :: nature
-    TYPE(SIGMA_BOX)    , DIMENSION(3)    , POINTER :: esigmas
+    TYPE(SIGMA_BOX)    , DIMENSION(:)    , POINTER :: esigmas
 
 !    PRINT *, "Fallout called"
     count_count = 0
@@ -1098,8 +1101,8 @@ CONTAINS
 
 !    PRINT *, 'Starting track calculation'
 !    OPEN(UNIT=10,FILE='ion_track.csv')
-    OPEN(UNIT=10,FILE='energy_accounting.csv',ACCESS='REPLACE')
-    
+    OPEN(UNIT=10,FILE='energy_accounting.csv',ACCESS='APPEND',STATUS='REPLACE')
+
 !    PRINT *, "File opened"
 
   ! Repeat the section below until z + step is greater (in ml) than the
@@ -1126,7 +1129,7 @@ CONTAINS
         ! If the site is occupied, then determine the type of event to occur
 !        DO WHILE ( u .EQ. 0.0 .AND. rand .EQ. 0.0 ) 
           u = RAND()
-          rand = RAND()
+          rand1 = RAND()
 !        END DO
 !        PRINT *, "u is ",u,"and rand is ",rand
 
@@ -1145,7 +1148,7 @@ CONTAINS
               e_loss = e_ion + e_se
               nature = "Ionization"
               PRINT *, 'Secondary electron energy is:',e_se
-            ELSE IF ( rand .GT. DISPROB) THEN
+            ELSE IF ( rand1 .GT. DISPROB) THEN
               ! Excitation will occur
                 num_exs = num_exs + 1
                 switch = 1 
@@ -1206,20 +1209,20 @@ CONTAINS
             ! Call Cern to generate the first-generation secondary electron          
             ! NB: the electron should be the second product in the "prods" array
             !*******************************************************************
+            ese_point = e_se
             CALL base_ionization( ev_coords, react_cube, matrix, en_list, &
                                   ionlist, mobile_ptr, wait_list, wait_len, &
                                   time, ev_nums, null,elec_coords )
             IF ( null .EQ. 1 ) GOTO 100
-            num_elecs = num_elecs + 1
+!            num_elecs = num_elecs + 1
             curr = ev_coords
             next = elec_coords
             sgse_counter = 0
             ion_dist = 0
-!            PRINT *, 'Starting SGSE loop'
-            DO WHILE ( e_se .LT. ECUTOFF ) 
-
+            ALLOCATE( esigmas(3) )
+            DO WHILE ( ese_point .LT. ECUTOFF ) 
               !Calculate electron cross_sections
-              CALL esigma_suite(e_se,esigmas,esigij,alwd_esigexj,fbdn_esigexj)
+              CALL esigma_suite(ese_point,esigmas,esigij,alwd_esigexj,fbdn_esigexj)
 
               !Calculate hopping distance
               emfp  = 1./RHO*(esigmas(2)%cross_section + esigmas(3)%cross_section)
@@ -1254,22 +1257,22 @@ CONTAINS
                                      ionlist, mobile_ptr, wait_list, wait_len, &
                                      time, ev_nums,null )
                 IF ( null .EQ. 1 ) GOTO 100 
-                sgse_counter = sgse_counter + 1
+!                sgse_counter = sgse_counter + 1
                 CALL e_ion_select(esigij,e_ion,ee_se)
                 ee_loss = e_ion
               ELSE IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. eswitch .EQ. 0 ) THEN
                 !Electron impact excitation
-                rand = RAND()
-                IF ( rand .GT. DISPROB .AND. matrix(curr(1),curr(2),curr(3)) .NE. 0 ) THEN
+                rand1 = RAND()
+                IF ( rand1 .GT. DISPROB .AND. matrix(curr(1),curr(2),curr(3)) .NE. 0 ) THEN
                   CALL cern( null,mobile_ptr, en_list, react_cube, matrix, ev_nums, next, 1, &
                              wait_list, wait_len, time )
                 END IF
-                CALL e_ex_select(alwd_sigexj,fbdn_sigexj,e_exc)
+                CALL e_ex_select(alwd_esigexj,fbdn_esigexj,e_exc)
                 ee_loss = e_exc
               END IF
 
               !Update the secondary electron energy
-              e_se = e_se - ee_loss
+              ese_point = ese_point - ee_loss
             END DO
             !Carrry out one more ionization corresponding to a low-energy dissociation
             !WORK IN PROGRESS: DO LATER
