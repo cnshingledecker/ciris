@@ -51,40 +51,17 @@ CHARACTER(len=80)                                            :: hopping_file   !
 TYPE (wait_info)    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: wait_target
 TYPE (wait_info)                 , DIMENSION(:)    , POINTER :: wait_list      !Derived data type described in chaco_data.f90
 !*****************************Cross-Sections************************************
-TYPE (sigma_box)    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: psigmas_target ! Proton cross-sections
-TYPE (sigma_box)                 , DIMENSION(:)    , POINTER :: psigmas
-DOUBLE PRECISION    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: psigij_target
-DOUBLE PRECISION                 , DIMENSION(:)    , POINTER :: psigij
-DOUBLE PRECISION    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: psigexj_target !individual state cross-sections
-DOUBLE PRECISION                 , DIMENSION(:)    , POINTER :: psigexj
-DOUBLE PRECISION                                   , POINTER :: ionenergy
-DOUBLE PRECISION                                   , TARGET  :: energy_target
+!TYPE (sigma_box)    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: psigmas_target ! Proton cross-sections
+!TYPE (sigma_box)                 , DIMENSION(:)    , POINTER :: psigmas
+!DOUBLE PRECISION    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: psigij_target
+!DOUBLE PRECISION                 , DIMENSION(:)    , POINTER :: psigij
+!DOUBLE PRECISION    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: psigexj_target !individual state cross-sections
+!DOUBLE PRECISION                 , DIMENSION(:)    , POINTER :: psigexj
+!DOUBLE PRECISION                                   , POINTER :: ionenergy
+!DOUBLE PRECISION                                   , TARGET  :: energy_target
 
 PRINT *, "here we go???"
 
-! Calculate the initial cross-sections based on the initial ion energy
-ALLOCATE(psigmas_target(3))
-psigmas => psigmas_target
-PRINT *, 'Allocated psigmas'
-ALLOCATE(psigij_target(SIZE(o2_p_ion)))
-psigij => psigij_target
-PRINT *, 'Allocated psigijs'
-ALLOCATE(psigexj_target(SIZE(o2_p_ex)))
-psigexj => psigexj_target
-PRINT *, 'Allocated psigexjs'
-ionenergy => energy_target
-ionenergy = EINIT
-PRINT *, 'Energy initialized'
-psigmas%cross_section = 0D0
-psigij  = 0D0
-psigexj = 0D0
-PRINT *, 'Arrays initialized'
-PRINT *, 'Calling psigma_suite'
-CALL psigma_suite(ionenergy,psigmas,psigij,psigexj)
-PRINT *, "The initial proton cross-secions are:"
-DO n=1,3
-  PRINT *, psigmas(n)
-END DO
 
 
 
@@ -247,7 +224,7 @@ DO WHILE ( time .LE. time_total )
 !    ! If the event is a proton collision, call Fallout
     CALL reactant_remove(wait_list,mindex,matrix_ptr,wait_len)
     CALL fallout( qube_ptr,matrix_ptr,en_ptr,anion_list,mobile_ptr,wait_list, &
-                  wait_len,time,ev_nums,psigmas,psigij,psigexj,ionenergy )
+                  wait_len,time,ev_nums)
     ! Calculate time to next cosmic-ray event 
     CALL RANDOM_NUMBER(rand)
     cr_time = -1*( LOG(rand)/cr_rate )
