@@ -1020,7 +1020,7 @@ CONTAINS
     ! Local variables !
     !*****************!
     INTEGER(KIND=SHORT)                            :: null
-    INTEGER                                        :: n
+    INTEGER                                        :: n,nn
     INTEGER                                        :: num_elecs ! number of secondary electrons pruduced
     INTEGER                                        :: num_izns
     INTEGER                                        :: num_exs, num_els
@@ -1075,10 +1075,10 @@ CONTAINS
     psigij  = 0D0
     psigexj = 0D0
     CALL psigma_suite(ione,psigmas,psigij,psigexj)
-    PRINT *, "The initial proton cross-secions are:"
-    DO n=1,3
-      PRINT *, psigmas(n)
-    END DO
+!    PRINT *, "The initial proton cross-secions are:"
+!    DO n=1,3
+!      PRINT *, psigmas(n)
+!    END DO
 
 
 
@@ -1133,7 +1133,7 @@ CONTAINS
     num_exs     = 0
     num_els     = 0
 !    PRINT *, 'Entering main loop'
-    main_loop: DO WHILE (z .LE. dimens(1) .AND. ione .GE. 5 )
+    main_loop: DO WHILE (z .LE. dimens(1) .AND. ione .GE. PCUTOFF )
 
       count_count = count_count + 1
 !      IF ( MOD(count_count,1000) .EQ. 0 ) CALL counter(time, AB_UNIT_NUM, matrix, wait_list, 4,7) 
@@ -1162,17 +1162,17 @@ CONTAINS
           IF ( u .GT. 0.0 .AND. u .LE. (sigma_i + sigma_e)/sigma_tot ) THEN
             IF ( u .GT. 0 .AND. u .LE. sigma_i/(sigma_i + sigma_e) ) THEN
               ! Ionization will occur
-              PRINT *, 'Ionization'
+!              PRINT *, 'Ionization'
               num_izns = num_izns + 1
               switch = 2 
               CALL p_ion_select(psigij,e_ion,e_se)
               e_loss = e_ion + e_se
-              nature = "Ionization"
-              PRINT *, 'Secondary electron energy is:',e_se
+!              nature = "Ionization"
+!              PRINT *, 'Secondary electron energy is:',e_se
               ese_point => e_se
             ELSE IF ( rand1 .GT. DISPROB) THEN
               ! Excitation will occur
-              PRINT *, 'Excitation'
+!              PRINT *, 'Excitation'
                 num_exs = num_exs + 1
                 switch = 1 
                 CALL p_ex_select(psigexj,e_exc)
@@ -1181,14 +1181,14 @@ CONTAINS
             END IF
           ELSE
             ! Elastic Collision will occur
-            PRINT *, 'Elastic'
+!            PRINT *, 'Elastic'
             num_els = num_els + 1
             switch = 0 
             CALL elastic_event(ione,e_loss,labtheta)
             nature = "Elastic"
           END IF
         END ASSOCIATE
-        PRINT *, "Ion energy is:",ione, "and loss is",e_loss
+!        PRINT *, "Ion energy is:",ione, "and loss is",e_loss
 !        WRITE(10,*) ione,",",e_loss,",",ione-e_loss,',',nature
         ione = ione - e_loss
         CALL psigma_suite(ione,psigmas,psigij,psigexj)
@@ -1247,6 +1247,10 @@ CONTAINS
               PRINT *, 'The electron energy is:',ese_point
               !Calculate electron cross_sections
               CALL esigma_suite(ese_point,esigmas,esigij,alwd_esigexj,fbdn_esigexj)
+              PRINT *, 'The electron cross-sections are:'
+              DO nn=1,3
+                PRINT *, esigmas(nn)
+              END DO
 
               !Calculate hopping distance
               emfp  = 1./RHO*(esigmas(2)%cross_section + esigmas(3)%cross_section)

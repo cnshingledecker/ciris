@@ -38,8 +38,8 @@ MODULE parameters
   !******************************************************************************
   ! Diffusion Energy Fractions 
   !******************************************************************************
-  REAL          , PARAMETER :: E_SURF      = 0.5            ! Surface diffusion energy fraction
-  REAL          , PARAMETER :: E_BULK      = 0.7            ! Bulk diffusion energy fraction 
+  REAL          , PARAMETER :: E_SURF      = 0.5    ! Surface diffusion energy fraction
+  REAL          , PARAMETER :: E_BULK      = 0.7    ! Bulk diffusion energy fraction 
   
 
   !******************************************************************************
@@ -47,25 +47,26 @@ MODULE parameters
   !******************************************************************************
   ! NB: These are now obsolete, as they are calculated at the beginning of the model
   ! and after every energy loss event. 
-!  REAL          , PARAMETER :: sigma_i     = 1.68916E-16    ! Ionization proton cross-section in m^2
-!  REAL          , PARAMETER :: sigma_e     = 1.06891E-19    ! Excitation proton cross-section in m^2
-!  REAL          , PARAMETER :: sigma_el    = 7.258E-20      ! Elastic proton cross-section in m^2
+!  REAL          , PARAMETER :: sigma_i     = 1.68916E-16 ! Ionization proton cross-section in m^2
+!  REAL          , PARAMETER :: sigma_e     = 1.06891E-19 ! Excitation proton cross-section in m^2
+!  REAL          , PARAMETER :: sigma_el    = 7.258E-20   ! Elastic proton cross-section in m^2
 
   !******************************************************************************
   ! Kinetic Parameters 
   !******************************************************************************
-  REAL          , PARAMETER :: TRL_NU      = 1E10           ! Trial frequency, for the rates, in 1/s
-  REAL          , PARAMETER :: DISPROB     = 0.0
+  REAL          , PARAMETER :: TRL_NU      = 1E10     ! Trial frequency, for the rates, in 1/s
+  REAL          , PARAMETER :: DISPROB     = 0.0      ! Probability of excitative dissociation
 
   !******************************************************************************
   ! Model Parameters 
   !******************************************************************************
-  INTEGER       , PARAMETER :: IONS        = 6              ! Number of anions in species list
-  INTEGER       , PARAMETER :: TIME_COUNTS = 2              ! Number of times the model will check abundances
-  INTEGER       , PARAMETER :: NSGSE       = 10              ! Number of second-generation secondary electrons
-  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D2           ! Total time in s
-  REAL(KIND=DBL), PARAMETER :: AVAL        = 13.0
-  REAL(KIND=DBL), PARAMETER :: ECUTOFF     = 3D0              ! Secondary cutoff energy in eV
+  INTEGER       , PARAMETER :: IONS        = 6        ! Number of anions in species list
+  INTEGER       , PARAMETER :: TIME_COUNTS = 2        ! Number of times the model will check abundances
+  INTEGER       , PARAMETER :: NSGSE       = 10       ! Number of second-generation secondary electrons
+  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D2      ! Total time in s
+  REAL(KIND=DBL), PARAMETER :: AVAL        = 13.0     ! Parameter for Gamma distribution
+  REAL(KIND=DBL), PARAMETER :: ECUTOFF     = 3D0      ! Secondary cutoff energy in eV
+  REAL(KIND=DBL), PARAMETER :: PCUTOFF     = 5D0      ! Primary ion cutoff energy in eV
   
   !******************************************************************************
   ! Array Parameters 
