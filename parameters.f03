@@ -65,8 +65,8 @@ MODULE parameters
   INTEGER       , PARAMETER :: NSGSE       = 10       ! Number of second-generation secondary electrons
   REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D2      ! Total time in s
   REAL(KIND=DBL), PARAMETER :: AVAL        = 13.0     ! Parameter for Gamma distribution
-  REAL(KIND=DBL), PARAMETER :: ECUTOFF     = 3D0      ! Secondary cutoff energy in eV
-  REAL(KIND=DBL), PARAMETER :: PCUTOFF     = 5D0      ! Primary ion cutoff energy in eV
+  REAL(KIND=DBL), PARAMETER :: ECUTOFF     = 4.5D0      ! Secondary cutoff energy in eV
+  REAL(KIND=DBL), PARAMETER :: PCUTOFF     = 5.      ! Primary ion cutoff energy in eV
   
   !******************************************************************************
   ! Array Parameters 
