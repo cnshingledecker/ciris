@@ -3039,13 +3039,6 @@ END SUBROUTINE make_react
   ! Purpose:
   !   This subroutine is to determine the specific ionization state that an 
   !  inelastic collision ionizes from. 
-  !
-  ! INPUT:
-  !   An array containing the cross-sections for the distinct continuum states.
-  !
-  ! OUTPUT:
-  !   Two energies, in eV: the ionization energy from the selected continuum 
-  !  state and the kinetic energy of the secondary electron.
   !  
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !! E_ION_SELECT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -3054,73 +3047,33 @@ END SUBROUTINE make_react
 
     !Data dictionary: Calling parameters
     TYPE(sec_elec_info)                                  :: se_box
-    DOUBLE PRECISION, INTENT(OUT)                        :: e_loss
-    INTEGER, INTENT(OUT)                                 :: null
+    DOUBLE PRECISION   , INTENT(OUT)                     :: e_loss
+    INTEGER            , INTENT(OUT)                     :: null
 
     !Data dictionary: Local variables
     DOUBLE PRECISION                                     :: e_ion,e_se
+    DOUBLE PRECISION                                     :: sigtot
     DOUBLE PRECISION                                     :: prob,prevprob
     DOUBLE PRECISION                                     :: rn
-    INTEGER                                              :: n
-
-
-
-    !(4) Draw another pseudo-random number, this time from a Gamma distribution
-    !    to determine the kinetic energy of the low-energy electron.
-    !
-    !NB: The input to rgamma, aval, is a global parameter
-    e_se = rgamma(AVAL)
-    e_loss = e_ion + e_se
-    RETURN
-  END SUBROUTINE e_ion_select
-
-  SUBROUTINE e_ex_select(se_box,e_exc,null)
-  !
-  ! Purpose:
-  !   This subroutine is to determine the specific excited state that an 
-  !  inelastic collision results in the target species being promoted to. 
-  !
-  ! INPUT:
-  !   Two arrays: one containing the cross-sections for the allowed discrete 
-  !  states, and another containing the cross-sections for the forbidden states.
-  !
-  ! OUTPUT:
-  !   In eV: the excitation energy from the selected discrete state. 
-  !  
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !! E_EX_SELECT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    IMPLICIT NONE
-
-    !Data dictionary: Calling parameters
-    TYPE(sec_elec_info)                                  :: se_box
-    DOUBLE PRECISION, INTENT(OUT)                        :: e_exc
-    INTEGER, INTENT(OUT)                                 :: null
-
-    !Data dicitonary: Local variables
-    DOUBLE PRECISION                                     :: prob,prevprob,rn
-    DOUBLE PRECISION                                     :: sigtot
-    DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:)          :: arr,temparr
+    DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:)        :: arr,temparr
     INTEGER                                              :: n, arrcount,i
 
+    !Ensure that there is not a null event
     IF ( se_box%se_ineltot .EQ. 0.0 ) THEN
       null = 1
       RETURN
-    END IF
-    rn       = RAND()
-    prob = (se_box%se_alwd_extot/se_box%se_ineltot) 
-    IF ( rn .GT. prob ) THEN
-      ALLOCATE(arr(SIZE(se_box%se_fbdnsigs),2))
-      arr(:,1) = se_box%se_fbdnsigs
-      arr(:,2) = se_box%se_fbdn%wj_fbdn
-      sigtot   = se_box%se_fbdn_extot
-    ELSE
-      ALLOCATE(arr(SIZE(se_box%se_alwdsigs)))
-      arr(:,1) = se_box%se_alwdsigs
-      arr(:,2) = se_box%se_alwd%wj_alwd
-      sigtot   = se_box%se_alwd_extot
+    ELSE IF ( se_box%se_iontot .EQ. 0.0 ) THEN
+      null = 1
+      RETURN
     END IF
 
+    !Determine which type of transition will occur
+    ALLOCATE(arr(SIZE(se_box%se_ionsigs),2))
+    arr(:,1) = se_box%se_ionsigs
+    arr(:,2) = se_box%se_ionst%i_energy
+    sigtot   = se_box%se_iontot
+
+    !Populate a new array with possible transitions
     DO n=1,SIZE(arr,1)
       IF ( arr(n,1) .NE. 0.0 ) arrcount = arrcount + 1
       IF ( n .EQ. SIZE(arr,1) ) THEN
@@ -3136,8 +3089,91 @@ END SUBROUTINE make_react
       END IF
     END DO
 
-    !(2) Draw a second random number and determine the precise amount of 
-    !    energy lost.
+    !Draw a random number and determine the precise amount of energy lost.
+    rn       = RAND()
+    prevprob = 0d0
+    e_exc = 0d0 !Just to know what's happening for debugging
+    DO n=1,SIZE(temparr,1)
+      prob = (temparr(n,1)/sigtot) + prevprob
+      IF ( rn .GT. prevprob .AND. rn .LE. prob ) THEN
+        e_ion = temparr(n,2) 
+        RETURN
+      END IF
+      prevprob = prob
+    END DO
+
+    !Draw another pseudo-random number, this time from a Gamma distribution
+    !to determine the kinetic energy of the low-energy electron.
+    !
+    !NB: The input to rgamma, aval, is a global parameter
+    e_se = rgamma(AVAL)
+    e_loss = e_ion + e_se
+    RETURN
+  END SUBROUTINE e_ion_select
+
+  SUBROUTINE e_ex_select(se_box,e_exc,null)
+  !
+  ! Purpose:
+  !   This subroutine is to determine the specific excited state that an 
+  !  inelastic collision results in the target species being promoted to. 
+  !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !! E_EX_SELECT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    IMPLICIT NONE
+
+    !Data dictionary: Calling parameters
+    TYPE(sec_elec_info)                                  :: se_box
+    DOUBLE PRECISION, INTENT(OUT)                        :: e_exc
+    INTEGER, INTENT(OUT)                                 :: null
+
+    !Data dicitonary: Local variables
+    DOUBLE PRECISION                                     :: prob,prevprob,rn
+    DOUBLE PRECISION                                     :: sigtot
+    DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:)        :: arr,temparr
+    INTEGER                                              :: n, arrcount,i
+
+    !Ensure that there is not a null event
+    IF ( se_box%se_ineltot .EQ. 0.0 ) THEN
+      null = 1
+      RETURN
+    ELSE IF ( se_box%se_extot .EQ. 0.0 ) THEN
+      null = 1
+      RETURN
+    END IF
+
+    !Determine which type of transition will occur
+    rn       = RAND()
+    prob = (se_box%se_alwd_extot/se_box%se_ineltot) 
+    IF ( rn .GT. prob ) THEN
+      ALLOCATE(arr(SIZE(se_box%se_fbdnsigs),2))
+      arr(:,1) = se_box%se_fbdnsigs
+      arr(:,2) = se_box%se_fbdn%wj_fbdn
+      sigtot   = se_box%se_fbdn_extot
+    ELSE
+      ALLOCATE(arr(SIZE(se_box%se_alwdsigs)))
+      arr(:,1) = se_box%se_alwdsigs
+      arr(:,2) = se_box%se_alwd%wj_alwd
+      sigtot   = se_box%se_alwd_extot
+    END IF
+
+    !Populate a new array with possible transitions
+    DO n=1,SIZE(arr,1)
+      IF ( arr(n,1) .NE. 0.0 ) arrcount = arrcount + 1
+      IF ( n .EQ. SIZE(arr,1) ) THEN
+        ALLOCATE(temparr(arrcount,2))
+        incount = 1 
+        DO i=1,SIZE(arr,1)
+          IF ( arr(i,1) .NE. 0.0 ) THEN
+            temparr(incount,1) = arr(i,1)
+            temparr(incount,2) = arr(i,2)
+            incount = incount + 1
+          END IF
+        END DO
+      END IF
+    END DO
+
+    !Draw a random number and determine the precise amount of energy lost.
     rn       = RAND()
     prevprob = 0d0
     e_exc = 0d0 !Just to know what's happening for debugging

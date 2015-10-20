@@ -551,7 +551,7 @@ MODULE functiondefs
       RETURN
     END FUNCTION pelsig
 
-    FUNCTION greendutta(energy)
+    FUNCTION greendutta(energy,w,f,o,a,b)
     !
     !  Purpose:
     !   To calculate the Green & Dutta (1967) excitation cross-sections
@@ -571,34 +571,24 @@ MODULE functiondefs
       IMPLICIT NONE
 
       ! Data dictionary: Calling parameters
-      DOUBLE PRECISION, INTENT(IN)                               :: energy !eV
-      DOUBLE PRECISION            ,DIMENSION(SIZE(o2_e_ex_fbdn)) :: greendutta
-
-      ! Data dictionary: Local variables
-      INTEGER                                                    :: n
-      DOUBLE PRECISION                                           :: fac1,fac2,fac3
-      !DOUBLE PRECISION                                           :: w,f,o,a,b
+      DOUBLE PRECISION, INTENT(IN) :: energy !eV
+      DOUBLE PRECISION, INTENT(IN) :: w,f,o,a,b
+      DOUBLE PRECISION             :: greendutta
+      DOUBLE PRECISION             :: fac1,fac2,fac3
+      INTEGER                      :: n
       
-      DO n=1,SIZE(o2_e_ex_fbdn)
-        ASSOCIATE ( w => o2_e_ex_fbdn(n)%wj_fbdn   , &
-                    f => o2_e_ex_fbdn(n)%fj_fbdn   , &
-                    o => o2_e_ex_fbdn(n)%omega_fbdn, &
-                    a => o2_e_ex_fbdn(n)%alpha_fbdn, &
-                    b => o2_e_ex_fbdn(n)%beta_fbdn    )
-          IF ( energy .LT. w ) THEN
-            greendutta(n) = 0D0
-          ELSE
-            fac1 = (Q0*f)/(w*w)
-            fac2 = (1.-(w/energy)**a)**b
-            fac3 = (w/energy)**o
-            greendutta(n) = fac1*fac2*fac3
-          END IF
-        END ASSOCIATE
-      END DO
+      IF ( energy .LT. w ) THEN
+       greendutta  = 0D0 
+      ELSE
+        fac1       = (Q0*f)/(w*w)
+        fac2       = (1.-(w/energy)**a)**b
+        fac3       = (w/energy)**o
+        greendutta = fac1*fac2*fac3
+      END IF
       RETURN
     END FUNCTION greendutta
 
-    FUNCTION pjgsigma(energy)
+    FUNCTION pjgsigma(energy,f,w,c,a,b)
     !
     !  Purpose:
     !   To calculate the Porter, Jackman, Green (1976) excitation cross-section
@@ -617,32 +607,20 @@ MODULE functiondefs
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
       IMPLICIT NONE
 
-      ! Data dictionary: Calling parameters
       DOUBLE PRECISION, INTENT(IN)                                :: energy
-      DOUBLE PRECISION            , DIMENSION(SIZE(o2_e_ex_alwd)) :: pjgsigma
-
-      ! Data dictionary: Local variables
-      INTEGER                                                     :: n
+      DOUBLE PRECISION, INTENT(IN)                                :: f,w,c,a,b
+      DOUBLE PRECISION                                            :: pjgsigma
       DOUBLE PRECISION                                            :: num, den, insides
-      !DOUBLE PRECISION                                            :: f,w,c,a,b
+      INTEGER                                                     :: n
 
-
-      DO n=1,SIZE(o2_e_ex_alwd)
-        ASSOCIATE ( f => o2_e_ex_alwd(n)%fj_alwd   , &
-                    w => o2_e_ex_alwd(n)%wj_alwd   , &
-                    c => o2_e_ex_alwd(n)%cj_alwd   , &
-                    a => o2_e_ex_alwd(n)%alpha_alwd, &
-                    b => o2_e_ex_alwd(n)%beta_alwd    )
-          IF ( energy .LT. w ) THEN
-            pjgsigma(n) = 0D0
-          ELSE
-            num = Q0*f*(1.-(w/energy)**a)**b
-            den = energy*w
-            insides = (4.*energy*c)/w + EBASE
-            pjgsigma(n) = (num/den)*DLOG(insides)
-          END IF
-        END ASSOCIATE
-      END DO
+      IF ( energy .LT. w ) THEN
+        pjgsigma = 0D0
+      ELSE
+        num      = Q0*f*(1.-(w/energy)**a)**b
+        den      = energy*w
+        insides  = (4.*energy*c)/w + EBASE
+        pjgsigma = (num/den)*DLOG(insides)
+      END IF
       RETURN
     END FUNCTION pjgsigma
 END MODULE functiondefs 
