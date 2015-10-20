@@ -585,10 +585,14 @@ MODULE functiondefs
                     o => o2_e_ex_fbdn(n)%omega_fbdn, &
                     a => o2_e_ex_fbdn(n)%alpha_fbdn, &
                     b => o2_e_ex_fbdn(n)%beta_fbdn    )
-          fac1 = (Q0*f)/(w*w)
-          fac2 = (1.-(w/energy)**a)**b
-          fac3 = (w/energy)**o
-          greendutta(n) = fac1*fac2*fac3
+          IF ( energy .LT. w ) THEN
+            greendutta(n) = 0D0
+          ELSE
+            fac1 = (Q0*f)/(w*w)
+            fac2 = (1.-(w/energy)**a)**b
+            fac3 = (w/energy)**o
+            greendutta(n) = fac1*fac2*fac3
+          END IF
         END ASSOCIATE
       END DO
       RETURN
@@ -629,10 +633,14 @@ MODULE functiondefs
                     c => o2_e_ex_alwd(n)%cj_alwd   , &
                     a => o2_e_ex_alwd(n)%alpha_alwd, &
                     b => o2_e_ex_alwd(n)%beta_alwd    )
-          num = Q0*f*(1.-(w/energy)**a)**b
-          den = energy*w
-          insides = (4.*energy*c)/w + EBASE
-          pjgsigma(n) = (num/den)*DLOG(insides)
+          IF ( energy .LT. w ) THEN
+            pjgsigma(n) = 0D0
+          ELSE
+            num = Q0*f*(1.-(w/energy)**a)**b
+            den = energy*w
+            insides = (4.*energy*c)/w + EBASE
+            pjgsigma(n) = (num/den)*DLOG(insides)
+          END IF
         END ASSOCIATE
       END DO
       RETURN

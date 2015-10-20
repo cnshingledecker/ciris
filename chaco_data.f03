@@ -1033,6 +1033,7 @@ CONTAINS
     INTEGER            , DIMENSION(3)              :: ev_coords !coordiantes of collision
     INTEGER            , DIMENSION(3)              :: elec_coords
     INTEGER            , DIMENSION(3)              :: prev, curr, next
+    INTEGER                                        :: enull1,enull2
     REAL(KIND=DBL)                                 :: erand, emfp,de
     REAL(KIND=DBL)                                 :: p,u,rand1 ! rand num
     REAL(KIND=DBL)                                 :: ion_dist ! distance from last ionization
@@ -1133,7 +1134,7 @@ CONTAINS
     num_exs     = 0
     num_els     = 0
 !    PRINT *, 'Entering main loop'
-    main_loop: DO WHILE (z .LE. dimens(1) .AND. ione .GE. PCUTOFF )
+    main_loop: DO WHILE (z .LE. dimens(1) .AND. ione .GE. 5.0 )
 
       count_count = count_count + 1
 !      IF ( MOD(count_count,1000) .EQ. 0 ) CALL counter(time, AB_UNIT_NUM, matrix, wait_list, 4,7) 
@@ -1167,7 +1168,7 @@ CONTAINS
               switch = 2 
               CALL p_ion_select(psigij,e_ion,e_se)
               e_loss = e_ion + e_se
-!              nature = "Ionization"
+              nature = "Ionization"
 !              PRINT *, 'Secondary electron energy is:',e_se
               ese_point => e_se
             ELSE IF ( rand1 .GT. DISPROB) THEN
@@ -1188,7 +1189,7 @@ CONTAINS
             nature = "Elastic"
           END IF
         END ASSOCIATE
-!        PRINT *, "Ion energy is:",ione, "and loss is",e_loss
+!        PRINT *, "Ion energy:",ione, "loss:",e_loss,'nature:',nature
 !        WRITE(10,*) ione,",",e_loss,",",ione-e_loss,',',nature
         ione = ione - e_loss
         CALL psigma_suite(ione,psigmas,psigij,psigexj)
@@ -1242,15 +1243,21 @@ CONTAINS
             next = elec_coords
             sgse_counter = 0
             ion_dist = 0
+            enull1 = 0
+            enull2 = 0
             ALLOCATE( esigmas(3) )
-            DO WHILE ( ese_point .LT. ECUTOFF ) 
-              PRINT *, 'The electron energy is:',ese_point
+            ALLOCATE( esigij(SIZE(o2_e_ion)) )
+            ALLOCATE( alwd_esigexj(SIZE(o2_e_ex_alwd)) )
+            ALLOCATE( fbdn_esigexj(SIZE(o2_e_ex_fbdn)) )
+            DO WHILE ( ese_point .GE. ECUTOFF )
+!              PRINT *, 'The electron energy is:',ese_point
               !Calculate electron cross_sections
+              IF ( enull1 .NE. 0 .AND. enull2 .NE. 0 ) EXIT 
               CALL esigma_suite(ese_point,esigmas,esigij,alwd_esigexj,fbdn_esigexj)
-              PRINT *, 'The electron cross-sections are:'
-              DO nn=1,3
-                PRINT *, esigmas(nn)
-              END DO
+!              PRINT *, 'The electron cross-sections are:'
+!              DO nn=1,3
+!                PRINT *, esigmas(nn)
+!              END DO
 
               !Calculate hopping distance
               emfp  = 1./RHO*(esigmas(2)%cross_section + esigmas(3)%cross_section)
@@ -1286,7 +1293,7 @@ CONTAINS
                                      time, ev_nums,null )
                 IF ( null .EQ. 1 ) GOTO 100 
 !                sgse_counter = sgse_counter + 1
-                CALL e_ion_select(esigij,e_ion,ee_se)
+                CALL e_ion_select(esigij,e_ion,ee_se,enull1)
                 ee_loss = e_ion + ee_se
               ELSE IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. eswitch .EQ. 0 ) THEN
                 !Electron impact excitation
@@ -1295,12 +1302,13 @@ CONTAINS
                   CALL cern( null,mobile_ptr, en_list, react_cube, matrix, ev_nums, next, 1, &
                              wait_list, wait_len, time )
                 END IF
-                CALL e_ex_select(alwd_esigexj,fbdn_esigexj,e_exc)
+                CALL e_ex_select(alwd_esigexj,fbdn_esigexj,e_exc,enull2)
                 ee_loss = e_exc
               END IF
 
               !Update the secondary electron energy
-              ese_point = ese_point + ee_loss
+!              PRINT *, 'E_se:',ese_point,' E_loss:',ee_loss
+              ese_point = ese_point - ee_loss
             END DO
             !Carrry out one more ionization corresponding to a low-energy dissociation
             !WORK IN PROGRESS: DO LATER
@@ -1363,9 +1371,9 @@ CONTAINS
       IF ( z+step .LT. z ) GOTO 100
 
     END DO main_loop
-    PRINT *, "**************"
-    PRINT *, 'Ending Fallout'
-    PRINT *, "**************"
+!    PRINT *, "**************"
+!    PRINT *, 'Ending Fallout'
+!    PRINT *, "**************"
 
 !    CLOSE(10)
   END SUBROUTINE fallout
@@ -2820,7 +2828,7 @@ END SUBROUTINE make_react
     psigmas(3)%description    = 'Excitation'
   END SUBROUTINE psigma_suite
 
-  SUBROUTINE esigma_suite(energy,esigmas,esigij,alwd_esigexj,fbdn_esigexj)
+  SUBROUTINE esigma_suite(se_box)
   !
   ! Purpose:
   !   This subroutine is to calculate a set of ELECTRON cross-sections
@@ -2845,47 +2853,67 @@ END SUBROUTINE make_react
     IMPLICIT NONE
 
     !Data dictionary: Input parameters
-    DOUBLE PRECISION, POINTER               :: energy
-    TYPE(SIGMA_BOX) , POINTER, DIMENSION(:) :: esigmas
-    DOUBLE PRECISION, POINTER, DIMENSION(:) :: esigij,alwd_esigexj,fbdn_esigexj
+    TYPE(se_elec_info)                      :: se_box
 
     !Data dictionary: Local variables
     INTEGER                                 :: n
     DOUBLE PRECISION                        :: ae,ge,tnaught,tmax
 
 
-    esigmas(1)%cross_section = 0D0
-    esigmas(1)%description   = 'Elastic'
 
     !(2) Calculate ionization cross-section
-    DO n=1,SIZE(o2_e_ion)
-      ASSOCIATE ( i  => o2_e_ion(n)%i_energy, &
-                  k  => o2_e_ion(n)%k_ion   , &
-                  kb => o2_e_ion(n)%kb_ion  , &
-                  j  => o2_e_ion(n)%j_ion   , &
-                  jb => o2_e_ion(n)%jb_ion  , &
-                  jc => o2_e_ion(n)%jc_ion  , &
-                  gs => o2_e_ion(n)%gams_ion, &
-                  gb => o2_e_ion(n)%gamb_ion, &
-                  ts => o2_e_ion(n)%ts_ion  , &
-                  ta => o2_e_ion(n)%ta_ion  , &
-                  tb => o2_e_ion(n)%tb_ion        )
-        !i. Calculate the A(E) value from Green & Sawada
-        ae = a_gs(energy,k,kb,j,jb,jc)
-        !ii. Calculate the \Gamma(E) factor
-        ge = gamma_gs(energy,gs,gb)
-        !iii. Calculate the T_0 value
-        tnaught = t_0_gs(energy,ta,tb,ts)
-        !iv. Calculate the Tmas value
-        tmax = t_max_gs(energy,i)
-        !v. Calculate the cross-section for the state
-        esigij(n) = green_sawada(ae,ge,tmax,tnaught)
+    se_box%se_ionst = o2_e_ion
+    ALLOCATE(se_box%se_ionsigs(SIZE(se_box%se_ionst))
+    DO n=1,SIZE(se_box%se_ionst)
+      ASSOCIATE ( en  => se_box%se_energy           , & 
+                  sig => se_box%se_ionsigs(n)       , &
+                  i   => se_box%se_ionst(n)%i_energy, &
+                  k   => se_box%se_ionst(n)%k_ion   , &
+                  kb  => se_box%se_ionst(n)%kb_ion  , &
+                  j   => se_box%se_ionst(n)%j_ion   , &
+                  jb  => se_box%se_ionst(n)%jb_ion  , &
+                  jc  => se_box%se_ionst(n)%jc_ion  , &
+                  gs  => se_box%se_ionst(n)%gams_ion, &
+                  gb  => se_box%se_ionst(n)%gamb_ion, &
+                  ts  => se_box%se_ionst(n)%ts_ion  , &
+                  ta  => se_box%se_ionst(n)%ta_ion  , &
+                  tb  => se_box%se_ionst(n)%tb_ion     )
+!        PRINT *, '#',n,'For energy:',energy
+!        PRINT *, 'i=',i
+!        PRINT *, 'k=',k
+!        PRINT *, 'kb=',kb
+!        PRINT *, 'j=',j
+!        PRINT *, 'jb=',jb
+!        PRINT *, 'jc=',jc
+!        PRINT *, 'gs=',gs
+!        PRINT *, 'gb=',gb
+!        PRINT *, 'ts=',ts
+!        PRINT *, 'ta=',ta
+!        PRINT *, 'tb=',tb
+        IF ( en .LT. i ) THEN
+          sig = 0D0
+        ELSE
+          !i. Calculate the A(E) value from Green & Sawada
+          ae = a_gs(energy,k,kb,j,jb,jc)
+!          PRINT *, '#',n,' ae=',ae
+          !ii. Calculate the \Gamma(E) factor
+          ge = gamma_gs(energy,gs,gb)
+!          PRINT *, '#',n,' ge=',ge
+          !iii. Calculate the T_0 value
+          tnaught = t_0_gs(energy,ta,tb,ts)
+!          PRINT *, '#',n,' tnaught=',tnaught
+          !iv. Calculate the Tmas value
+          tmax = t_max_gs(energy,i)
+!          PRINT *, '#',n,' tmax=',tmax
+          !v. Calculate the cross-section for the state
+          sig = green_sawada(ae,ge,tmax,tnaught)
+        END IF
+!        PRINT *, 'the',n,' value of sig is:',sig
       END ASSOCIATE
     END DO
     !The total electron impact cross-section is the sum over the 
     !cross-sections for the individual states.
-    esigmas(2)%cross_section = SUM(esigij)
-    esigmas(2)%description   = 'Ionization'
+    se_box%se_iontot = SUM(se_box%se_ionsigs)
 
     !(3) Calculate allowed excitation cross-sections
     !NB: the subroutine returns an array of values, so no 
@@ -2999,7 +3027,7 @@ END SUBROUTINE make_react
     RETURN
   END SUBROUTINE p_ex_select
 
-  SUBROUTINE e_ion_select(esigij,e_ion,e_se)
+  SUBROUTINE e_ion_select(se_box,null)
   !
   ! Purpose:
   !   This subroutine is to determine the specific ionization state that an 
@@ -3020,6 +3048,8 @@ END SUBROUTINE make_react
     !Data dictionary: Calling parameters
     DOUBLE PRECISION             , POINTER, DIMENSION(:) :: esigij
     DOUBLE PRECISION, INTENT(OUT)                        :: e_ion,e_se
+    INTEGER, INTENT(OUT)                                 :: null
+
     !Data dictionary: Local variables
     DOUBLE PRECISION                                     :: prob,prevprob
     DOUBLE PRECISION                                     :: sigtot
@@ -3029,6 +3059,10 @@ END SUBROUTINE make_react
     !(1) Calculate the probabilities of each state based on the relative size
     !    of the cross-sections
     sigtot   = SUM(esigij)
+    IF ( sigtot .EQ. 0.0 ) THEN
+      null = 1
+      RETURN
+    END IF
     rn       = RAND()
     prevprob = 0d0
     e_ion = 1234567d0 !Just to know what's happening for debugging
@@ -3048,7 +3082,7 @@ END SUBROUTINE make_react
     RETURN
   END SUBROUTINE e_ion_select
 
-  SUBROUTINE e_ex_select(alwd_sigmas,fbdn_sigmas,e_exc)
+  SUBROUTINE e_ex_select(alwd_sigmas,fbdn_sigmas,e_exc,null)
   !
   ! Purpose:
   !   This subroutine is to determine the specific excited state that an 
@@ -3069,32 +3103,53 @@ END SUBROUTINE make_react
     !Data dictionary: Calling parameters
     DOUBLE PRECISION             , POINTER, DIMENSION(:) :: alwd_sigmas,fbdn_sigmas
     DOUBLE PRECISION, INTENT(OUT)                        :: e_exc
+    INTEGER, INTENT(OUT)                                 :: null
 
     !Data dicitonary: Local variables
     DOUBLE PRECISION                                     :: tot_alwd,tot_fbdn
     DOUBLE PRECISION                                     :: sigmatot
     DOUBLE PRECISION                                     :: prob,prevprob,rn
-    INTEGER                                              :: switch, n
+    DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:)          :: arr,temparr
+    INTEGER                                              :: n, arrcount,i
 
     tot_alwd = SUM(alwd_sigmas)
     tot_fbdn = SUM(fbdn_sigmas)
     sigmatot = tot_alwd + tot_fbdn
+    IF ( sigmatot .EQ. 0.0 ) THEN
+      null = 1
+      RETURN
+    END IF
     rn       = RAND()
     prob = (tot_alwd/sigmatot) 
     IF ( rn .GT. prob ) THEN
-      switch = 1 !forbidden transition
+      ALLOCATE(arr(SIZE(fbdn_sigmas)))
+      arr = fbdn_sigmas
     ELSE
-      switch = 0 !allowed transition
+      ALLOCATE(arr(SIZE(alwd_sigmas)))
+      arr = alwd_sigmas
     END IF
+
+    DO n=1,SIZE(arr)
+      IF ( arr(n) .EQ. 0.0 ) arrcount = arrcount + 1
+      IF ( n .EQ. SIZE(arr) ) THEN
+        ALLOCATE(temparr(arrcount))
+        incount = 1 
+        DO i=1,SIZE(arr)
+          IF ( arr(i) .NE. 0.0 ) THEN
+            temparr(incount) = arr(i)
+            incount = incount + 1
+          END IF
+        END DO
+      END IF
+    END DO
 
     !(2) Draw a second random number and determine the precise amount of 
     !    energy lost.
     rn       = RAND()
     prevprob = 0d0
-    e_exc = 1234567d0 !Just to know what's happening for debugging
-    SELECT CASE (switch)
-    CASE (1)
-      DO n=1,SIZE(alwd_sigmas)
+    e_exc = 0d0 !Just to know what's happening for debugging
+      PRINT *, 'Tot allowed cross-section:',tot_alwd
+      DO n=1,SIZE(temparr)
         prob = (alwd_sigmas(n)/tot_alwd) + prevprob
         IF ( rn .GT. prevprob .AND. rn .LT. prob ) THEN
           e_exc = o2_e_ex_alwd(n)%wj_alwd
@@ -3102,16 +3157,6 @@ END SUBROUTINE make_react
         END IF
         prevprob = prob
       END DO
-    CASE (2)
-      DO n=1,SIZE(fbdn_sigmas)
-        prob = (fbdn_sigmas(n)/tot_fbdn) + prevprob
-        IF ( rn .GT. prevprob .AND. rn .LT. prob ) THEN
-          e_exc = o2_e_ex_fbdn(n)%wj_fbdn
-          RETURN
-        END IF
-        prevprob = prob
-      END DO
-    END SELECT
   END SUBROUTINE e_ex_select
 
   SUBROUTINE elastic_event(energy,e_loss,labtheta)
@@ -3141,4 +3186,15 @@ END SUBROUTINE make_react
     labtheta = lab_theta(cmtheta,MP,MO2)
     RETURN
   END SUBROUTINE elastic_event
+
+  FUNCTION ecutoffcalc()
+    DOUBLE PRECISION :: ecutoffcalc
+    DOUBLE PRECISION,DIMENSION(3) :: val 
+
+    val(1)  = MINVAL(o2_e_ion%i_energy)
+    val(2)  = MINVAL(o2_e_ex_alwd%wj_alwd)
+    val(3)  = MINVAL(o2_e_ex_fbdn%wj_fbdn)
+    ecutoffcalc = MINVAL(val)
+    RETURN
+  END FUNCTION ecutoffcalc
 END MODULE chaco_data 

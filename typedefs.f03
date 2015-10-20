@@ -102,4 +102,27 @@ TYPE :: epg_ionstate
   DOUBLE PRECISION  :: i_epgion !ionization energy in eV
 END TYPE epg_ionstate
 
+TYPE :: sec_elec_info
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! Purpose: 
+  !  The purpose of this type is to contain the information relevant to a
+  ! secondary electron, viz. allowed and forbidden excitation cross-section 
+  ! info and ionization cross-section info. The energy is also contained in this
+  ! type for convenience. 
+  !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    TYPE(ionstate)     :: se_ionst !Information regarding the ionization states of the target
+    TYPE(alwd_exstate) :: se_alwd !Information on the allowed transitions of the target
+    TYPE(fbdn_exstate) :: se_fbdn !Information on the forbidden transitions of the target
+    DOUBLE PRECISION   :: se_energy !The secondary electron energy
+    DOUBLE PRECISION   :: se_iontot !Total SE ionization cross-section
+    DOUBLE PRECISION   :: se_extot !Total SE excitation cross-section
+    DOUBLE PRECISION   :: se_alwd_extot !Total allowed excitation cross-section
+    DOUBLE PRECISION   :: se_fbdn_extot !Total forbidden excitation cross_section
+    DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_ionsigs !Ionization cross-sections
+    DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_alwdsigs !Allowed excitation cross-sections
+    DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_fbdnsigs !Forbidden exc. cross-sections
+END TYPE sec_elec_info
+
+
 END MODULE typedefs
