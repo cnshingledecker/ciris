@@ -2918,17 +2918,24 @@ END SUBROUTINE make_react
     !(3) Calculate allowed excitation cross-sections
     !NB: the subroutine returns an array of values, so no 
     !    loop is required
-    alwd_esigexj = pjgsigma(energy) 
+    ALLOCATE(se_box%se_alwdsigs(SIZE(o2_e_ex_alwd))
+    se_box%se_alwdsigs = pjgsigma(se_box%se_energy) 
+    se_box%se_alwd_extot = SUM(se_box%se_alwdsigs)
 
     !(4) Calculate forbidden excitation cross-sections
     !NB: As above, no loop is required, since the subroutine
     !    returns an array of values
-    fbdn_esigexj = greendutta(energy)
+    ALLOCATE(se_box%se_fbdnsigs(SIZE(o2_e_ex_fbdn))
+    se_box%se_fbdnsigs = greendutta(se_box%se_energy) 
+    se_box%se_fbdn_extot = SUM(se_box%se_fbdnsigs)
 
     !(5) The total electron impact excitation is the sum of the 
     !    allowed and forbidden transition cross-sections
-    esigmas(3)%cross_section = SUM(alwd_esigexj) + SUM(fbdn_esigexj)
-    esigmas(3)%description   = 'Excitation'
+    se_box%extot = se_box%se_alwd_extot + se_box%se_fbdn_extot 
+
+    !(6) Calculate the total cross-section as the sum of the
+    ! constituent cross-sections
+    se_box%se_ineltot = se_box%se_iontot + se_box%se_extot
     RETURN
   END SUBROUTINE esigma_suite
 
@@ -3027,7 +3034,7 @@ END SUBROUTINE make_react
     RETURN
   END SUBROUTINE p_ex_select
 
-  SUBROUTINE e_ion_select(se_box,null)
+  SUBROUTINE e_ion_select(se_box,e_loss,null)
   !
   ! Purpose:
   !   This subroutine is to determine the specific ionization state that an 
@@ -3046,43 +3053,28 @@ END SUBROUTINE make_react
     IMPLICIT NONE
 
     !Data dictionary: Calling parameters
-    DOUBLE PRECISION             , POINTER, DIMENSION(:) :: esigij
-    DOUBLE PRECISION, INTENT(OUT)                        :: e_ion,e_se
+    TYPE(sec_elec_info)                                  :: se_box
+    DOUBLE PRECISION, INTENT(OUT)                        :: e_loss
     INTEGER, INTENT(OUT)                                 :: null
 
     !Data dictionary: Local variables
+    DOUBLE PRECISION                                     :: e_ion,e_se
     DOUBLE PRECISION                                     :: prob,prevprob
-    DOUBLE PRECISION                                     :: sigtot
     DOUBLE PRECISION                                     :: rn
     INTEGER                                              :: n
 
-    !(1) Calculate the probabilities of each state based on the relative size
-    !    of the cross-sections
-    sigtot   = SUM(esigij)
-    IF ( sigtot .EQ. 0.0 ) THEN
-      null = 1
-      RETURN
-    END IF
-    rn       = RAND()
-    prevprob = 0d0
-    e_ion = 1234567d0 !Just to know what's happening for debugging
-    DO n=1,SIZE(esigij)
-      prob = (esigij(n)/sigtot) + prevprob
-      IF ( rn .GT. prevprob .AND. rn .LT. prob ) THEN
-        e_ion = o2_e_ion(n)%i_energy
-      END IF
-      prevprob = prob
-    END DO
+
 
     !(4) Draw another pseudo-random number, this time from a Gamma distribution
     !    to determine the kinetic energy of the low-energy electron.
     !
     !NB: The input to rgamma, aval, is a global parameter
     e_se = rgamma(AVAL)
+    e_loss = e_ion + e_se
     RETURN
   END SUBROUTINE e_ion_select
 
-  SUBROUTINE e_ex_select(alwd_sigmas,fbdn_sigmas,e_exc,null)
+  SUBROUTINE e_ex_select(se_box,e_exc,null)
   !
   ! Purpose:
   !   This subroutine is to determine the specific excited state that an 
@@ -3101,42 +3093,43 @@ END SUBROUTINE make_react
     IMPLICIT NONE
 
     !Data dictionary: Calling parameters
-    DOUBLE PRECISION             , POINTER, DIMENSION(:) :: alwd_sigmas,fbdn_sigmas
+    TYPE(sec_elec_info)                                  :: se_box
     DOUBLE PRECISION, INTENT(OUT)                        :: e_exc
     INTEGER, INTENT(OUT)                                 :: null
 
     !Data dicitonary: Local variables
-    DOUBLE PRECISION                                     :: tot_alwd,tot_fbdn
-    DOUBLE PRECISION                                     :: sigmatot
     DOUBLE PRECISION                                     :: prob,prevprob,rn
-    DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:)          :: arr,temparr
+    DOUBLE PRECISION                                     :: sigtot
+    DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:)          :: arr,temparr
     INTEGER                                              :: n, arrcount,i
 
-    tot_alwd = SUM(alwd_sigmas)
-    tot_fbdn = SUM(fbdn_sigmas)
-    sigmatot = tot_alwd + tot_fbdn
-    IF ( sigmatot .EQ. 0.0 ) THEN
+    IF ( se_box%se_ineltot .EQ. 0.0 ) THEN
       null = 1
       RETURN
     END IF
     rn       = RAND()
-    prob = (tot_alwd/sigmatot) 
+    prob = (se_box%se_alwd_extot/se_box%se_ineltot) 
     IF ( rn .GT. prob ) THEN
-      ALLOCATE(arr(SIZE(fbdn_sigmas)))
-      arr = fbdn_sigmas
+      ALLOCATE(arr(SIZE(se_box%se_fbdnsigs),2))
+      arr(:,1) = se_box%se_fbdnsigs
+      arr(:,2) = se_box%se_fbdn%wj_fbdn
+      sigtot   = se_box%se_fbdn_extot
     ELSE
-      ALLOCATE(arr(SIZE(alwd_sigmas)))
-      arr = alwd_sigmas
+      ALLOCATE(arr(SIZE(se_box%se_alwdsigs)))
+      arr(:,1) = se_box%se_alwdsigs
+      arr(:,2) = se_box%se_alwd%wj_alwd
+      sigtot   = se_box%se_alwd_extot
     END IF
 
-    DO n=1,SIZE(arr)
-      IF ( arr(n) .EQ. 0.0 ) arrcount = arrcount + 1
-      IF ( n .EQ. SIZE(arr) ) THEN
-        ALLOCATE(temparr(arrcount))
+    DO n=1,SIZE(arr,1)
+      IF ( arr(n,1) .NE. 0.0 ) arrcount = arrcount + 1
+      IF ( n .EQ. SIZE(arr,1) ) THEN
+        ALLOCATE(temparr(arrcount,2))
         incount = 1 
-        DO i=1,SIZE(arr)
-          IF ( arr(i) .NE. 0.0 ) THEN
-            temparr(incount) = arr(i)
+        DO i=1,SIZE(arr,1)
+          IF ( arr(i,1) .NE. 0.0 ) THEN
+            temparr(incount,1) = arr(i,1)
+            temparr(incount,2) = arr(i,2)
             incount = incount + 1
           END IF
         END DO
@@ -3148,15 +3141,14 @@ END SUBROUTINE make_react
     rn       = RAND()
     prevprob = 0d0
     e_exc = 0d0 !Just to know what's happening for debugging
-      PRINT *, 'Tot allowed cross-section:',tot_alwd
-      DO n=1,SIZE(temparr)
-        prob = (alwd_sigmas(n)/tot_alwd) + prevprob
-        IF ( rn .GT. prevprob .AND. rn .LT. prob ) THEN
-          e_exc = o2_e_ex_alwd(n)%wj_alwd
-          RETURN
-        END IF
-        prevprob = prob
-      END DO
+    DO n=1,SIZE(temparr,1)
+      prob = (temparr(n,1)/sigtot) + prevprob
+      IF ( rn .GT. prevprob .AND. rn .LE. prob ) THEN
+        e_exc = temparr(n,2) 
+        RETURN
+      END IF
+      prevprob = prob
+    END DO
   END SUBROUTINE e_ex_select
 
   SUBROUTINE elastic_event(energy,e_loss,labtheta)

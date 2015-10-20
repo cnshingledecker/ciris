@@ -117,6 +117,7 @@ TYPE :: sec_elec_info
     DOUBLE PRECISION   :: se_energy !The secondary electron energy
     DOUBLE PRECISION   :: se_iontot !Total SE ionization cross-section
     DOUBLE PRECISION   :: se_extot !Total SE excitation cross-section
+    DOUBLE PRECISION   :: se_ineltot !Total SE inelastic cross-section
     DOUBLE PRECISION   :: se_alwd_extot !Total allowed excitation cross-section
     DOUBLE PRECISION   :: se_fbdn_extot !Total forbidden excitation cross_section
     DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_ionsigs !Ionization cross-sections
