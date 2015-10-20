@@ -2919,14 +2919,32 @@ END SUBROUTINE make_react
     !NB: the subroutine returns an array of values, so no 
     !    loop is required
     ALLOCATE(se_box%se_alwdsigs(SIZE(o2_e_ex_alwd))
-    se_box%se_alwdsigs = pjgsigma(se_box%se_energy) 
+    DO n=1,SIZE(o2_e_ex_alwd)
+      ASSOCIATE( e => se_box%se_energy            , &
+                 w => se_box%se_alwd(n)%wj_alwd   , &
+                 f => se_box%se_alwd(n)%fj_alwd   , &
+                 c => se_box%se_alwd(n)%cj_alwd   , &
+                 a => se_box%se_alwd(n)%alpha_alwd, &
+                 b => se_box%se_alwd(n)%beta_alwd    )
+        se_box%se_alwdsigs(n) = pjgsigma(e,f,w,c,a,b) 
+      END ASSOCIATE
+    END DO
     se_box%se_alwd_extot = SUM(se_box%se_alwdsigs)
 
     !(4) Calculate forbidden excitation cross-sections
     !NB: As above, no loop is required, since the subroutine
     !    returns an array of values
     ALLOCATE(se_box%se_fbdnsigs(SIZE(o2_e_ex_fbdn))
-    se_box%se_fbdnsigs = greendutta(se_box%se_energy) 
+    DO n=1,SIZE(o2_e_ex_fbdn)
+      ASSOCIATE( e => se_box%se_energy            , &
+                 w => se_box%se_fbdn(n)%wj_fbdn   , &
+                 f => se_box%se_fbdn(n)%fj_fbdn   , &
+                 o => se_box%se_fbdn(n)%omega_fbdn, &
+                 a => se_box%se_fbdn(n)%alpha_fbdn, &
+                 b => se_box%se_fbdn(n)%beta_fbdn    )
+        se_box%se_fbdnsigs(n) = greendutta(e,f,w,o,a,b) 
+      END ASSOCIATE
+    END DO
     se_box%se_fbdn_extot = SUM(se_box%se_fbdnsigs)
 
     !(5) The total electron impact excitation is the sum of the 
