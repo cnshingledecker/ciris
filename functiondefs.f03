@@ -145,8 +145,8 @@ MODULE functiondefs
       IMPLICIT NONE
 
       ! Data dictionary: declare calling parameters
-      DOUBLE PRECISION, POINTER    :: energy
       DOUBLE PRECISION             :: gamma_gs
+      DOUBLE PRECISION, INTENT(IN) :: energy
       DOUBLE PRECISION, INTENT(IN) :: gamma_s
       DOUBLE PRECISION, INTENT(IN) :: gamma_b
 
@@ -172,8 +172,8 @@ MODULE functiondefs
       IMPLICIT NONE
 
       ! Data dictionary: declare calling parameters
-      DOUBLE PRECISION, POINTER    :: energy
       DOUBLE PRECISION             :: t_0_gs
+      DOUBLE PRECISION, INTENT(IN) :: energy
       DOUBLE PRECISION, INTENT(IN) :: t_a
       DOUBLE PRECISION, INTENT(IN) :: t_b
       DOUBLE PRECISION, INTENT(IN) :: t_s
@@ -575,7 +575,6 @@ MODULE functiondefs
       DOUBLE PRECISION, INTENT(IN) :: w,f,o,a,b
       DOUBLE PRECISION             :: greendutta
       DOUBLE PRECISION             :: fac1,fac2,fac3
-      INTEGER                      :: n
       
       IF ( energy .LT. w ) THEN
        greendutta  = 0D0 
@@ -611,7 +610,6 @@ MODULE functiondefs
       DOUBLE PRECISION, INTENT(IN)                                :: f,w,c,a,b
       DOUBLE PRECISION                                            :: pjgsigma
       DOUBLE PRECISION                                            :: num, den, insides
-      INTEGER                                                     :: n
 
       IF ( energy .LT. w ) THEN
         pjgsigma = 0D0

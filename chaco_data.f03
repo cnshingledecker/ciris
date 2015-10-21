@@ -1020,7 +1020,7 @@ CONTAINS
     ! Local variables !
     !*****************!
     INTEGER(KIND=SHORT)                            :: null
-    INTEGER                                        :: n,nn
+    INTEGER                                        :: n
     INTEGER                                        :: num_elecs ! number of secondary electrons pruduced
     INTEGER                                        :: num_izns
     INTEGER                                        :: num_exs, num_els
@@ -1042,11 +1042,8 @@ CONTAINS
     REAL(KIND=DBL)                                 :: dz ! move dist
     REAL(KIND=DBL)                                 :: dist_trav !distance travelled since last collision
     REAL(KIND=DBL)                                 :: e_loss,e_ion,e_exc,ee_loss
-    REAL(KIND=DBL)                                 :: ee_se
     REAL(KIND=DBL)                                 :: labtheta
     REAL(KIND=DBL)                       , TARGET  :: e_se
-    REAL(KIND=DBL)                       , POINTER :: ese_point
-    REAL(KIND=DBL)     , DIMENSION(:)    , POINTER :: esigij,alwd_esigexj,fbdn_esigexj
     DOUBLE PRECISION                     , TARGET  :: energy_target
     DOUBLE PRECISION                     , POINTER :: ione
     DOUBLE PRECISION , ALLOCATABLE, DIMENSION(:), TARGET :: psigij_target,psigexj_target
@@ -1054,8 +1051,7 @@ CONTAINS
     CHARACTER(len=15)                              :: nature
     TYPE(SIGMA_BOX)    , ALLOCATABLE, DIMENSION(:), TARGET :: psigmas_target   
     TYPE(SIGMA_BOX)    , DIMENSION(:)    , POINTER :: psigmas
-    TYPE(SIGMA_BOX)    , DIMENSION(:)    , POINTER :: esigmas
-    TYPE(SEC_ELEC_INFO)                            :: se_box
+    TYPE(SE_INFO)                            :: se_box
 
 !    PRINT *, "Fallout called"
     count_count = 0
@@ -1246,8 +1242,12 @@ CONTAINS
             ion_dist = 0
             enull1 = 0
             enull2 = 0
+
+            !Initialize se_box
+            CALL se_info_init(se_box)
+            PRINT *, 'Starting new SE calc'
             DO WHILE ( se_box%se_energy .GE. ECUTOFF )
-!              PRINT *, 'The electron energy is:',ese_point
+              PRINT *, se_box%se_energy
               !Calculate electron cross_sections
               IF ( enull1 .NE. 0 .AND. enull2 .NE. 0 ) EXIT 
               CALL esigma_suite(se_box)
@@ -1306,8 +1306,14 @@ CONTAINS
 !              PRINT *, 'E_se:',ese_point,' E_loss:',ee_loss
               se_box%se_energy = se_box%se_energy - ee_loss
             END DO
+
+            !**********************************************************************
             !Carrry out one more ionization corresponding to a low-energy dissociation
             !WORK IN PROGRESS: DO LATER
+            !**********************************************************************
+
+            !Manual garbage collection
+            CALL se_info_garbage(se_box)
           END IF
         END IF
       ELSE
@@ -1317,6 +1323,7 @@ CONTAINS
           CONTINUE
         END IF
       END IF
+
 
       !********************!
       ! Track Plotting bit !
@@ -2849,7 +2856,7 @@ END SUBROUTINE make_react
     IMPLICIT NONE
 
     !Data dictionary: Input parameters
-    TYPE(se_elec_info)                      :: se_box
+    TYPE(se_info)                      :: se_box
 
     !Data dictionary: Local variables
     INTEGER                                 :: n
@@ -2858,11 +2865,8 @@ END SUBROUTINE make_react
 
 
     !(2) Calculate ionization cross-section
-    se_box%se_ionst = o2_e_ion
-    ALLOCATE(se_box%se_ionsigs(SIZE(se_box%se_ionst))
     DO n=1,SIZE(se_box%se_ionst)
       ASSOCIATE ( en  => se_box%se_energy           , & 
-                  sig => se_box%se_ionsigs(n)       , &
                   i   => se_box%se_ionst(n)%i_energy, &
                   k   => se_box%se_ionst(n)%k_ion   , &
                   kb  => se_box%se_ionst(n)%kb_ion  , &
@@ -2873,7 +2877,8 @@ END SUBROUTINE make_react
                   gb  => se_box%se_ionst(n)%gamb_ion, &
                   ts  => se_box%se_ionst(n)%ts_ion  , &
                   ta  => se_box%se_ionst(n)%ta_ion  , &
-                  tb  => se_box%se_ionst(n)%tb_ion     )
+                  tb  => se_box%se_ionst(n)%tb_ion  , &
+                  sig => se_box%se_ionsigs(n)          ) 
 !        PRINT *, '#',n,'For energy:',energy
 !        PRINT *, 'i=',i
 !        PRINT *, 'k=',k
@@ -2890,16 +2895,16 @@ END SUBROUTINE make_react
           sig = 0D0
         ELSE
           !i. Calculate the A(E) value from Green & Sawada
-          ae = a_gs(energy,k,kb,j,jb,jc)
+          ae = a_gs(en,k,kb,j,jb,jc)
 !          PRINT *, '#',n,' ae=',ae
           !ii. Calculate the \Gamma(E) factor
-          ge = gamma_gs(energy,gs,gb)
+          ge = gamma_gs(en,gs,gb)
 !          PRINT *, '#',n,' ge=',ge
           !iii. Calculate the T_0 value
-          tnaught = t_0_gs(energy,ta,tb,ts)
+          tnaught = t_0_gs(en,ta,tb,ts)
 !          PRINT *, '#',n,' tnaught=',tnaught
           !iv. Calculate the Tmas value
-          tmax = t_max_gs(energy,i)
+          tmax = t_max_gs(en,i)
 !          PRINT *, '#',n,' tmax=',tmax
           !v. Calculate the cross-section for the state
           sig = green_sawada(ae,ge,tmax,tnaught)
@@ -2914,7 +2919,6 @@ END SUBROUTINE make_react
     !(3) Calculate allowed excitation cross-sections
     !NB: the subroutine returns an array of values, so no 
     !    loop is required
-    ALLOCATE(se_box%se_alwdsigs(SIZE(o2_e_ex_alwd))
     DO n=1,SIZE(o2_e_ex_alwd)
       ASSOCIATE( e => se_box%se_energy            , &
                  w => se_box%se_alwd(n)%wj_alwd   , &
@@ -2930,7 +2934,6 @@ END SUBROUTINE make_react
     !(4) Calculate forbidden excitation cross-sections
     !NB: As above, no loop is required, since the subroutine
     !    returns an array of values
-    ALLOCATE(se_box%se_fbdnsigs(SIZE(o2_e_ex_fbdn))
     DO n=1,SIZE(o2_e_ex_fbdn)
       ASSOCIATE( e => se_box%se_energy            , &
                  w => se_box%se_fbdn(n)%wj_fbdn   , &
@@ -2945,7 +2948,7 @@ END SUBROUTINE make_react
 
     !(5) The total electron impact excitation is the sum of the 
     !    allowed and forbidden transition cross-sections
-    se_box%extot = se_box%se_alwd_extot + se_box%se_fbdn_extot 
+    se_box%se_extot = se_box%se_alwd_extot + se_box%se_fbdn_extot 
 
     !(6) Calculate the total cross-section as the sum of the
     ! constituent cross-sections
@@ -3060,17 +3063,18 @@ END SUBROUTINE make_react
     IMPLICIT NONE
 
     !Data dictionary: Calling parameters
-    TYPE(sec_elec_info)                                  :: se_box
+    TYPE(se_info)                                  :: se_box
     DOUBLE PRECISION   , INTENT(OUT)                     :: e_loss
     INTEGER            , INTENT(OUT)                     :: null
 
     !Data dictionary: Local variables
-    DOUBLE PRECISION                                     :: e_ion,e_se
+    DOUBLE PRECISION                                     :: e_ion,e_se,e_exc
     DOUBLE PRECISION                                     :: sigtot
     DOUBLE PRECISION                                     :: prob,prevprob
     DOUBLE PRECISION                                     :: rn
     DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:)        :: arr,temparr
     INTEGER                                              :: n, arrcount,i
+    INTEGER                                              :: incount
 
     !Ensure that there is not a null event
     IF ( se_box%se_ineltot .EQ. 0.0 ) THEN
@@ -3080,6 +3084,10 @@ END SUBROUTINE make_react
       null = 1
       RETURN
     END IF
+
+    !Initialize values
+    e_ion = 0D0
+    e_se  = 0D0
 
     !Determine which type of transition will occur
     ALLOCATE(arr(SIZE(se_box%se_ionsigs),2))
@@ -3137,7 +3145,7 @@ END SUBROUTINE make_react
     IMPLICIT NONE
 
     !Data dictionary: Calling parameters
-    TYPE(sec_elec_info)                                  :: se_box
+    TYPE(se_info)                                  :: se_box
     DOUBLE PRECISION, INTENT(OUT)                        :: e_exc
     INTEGER, INTENT(OUT)                                 :: null
 
@@ -3146,6 +3154,7 @@ END SUBROUTINE make_react
     DOUBLE PRECISION                                     :: sigtot
     DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:)        :: arr,temparr
     INTEGER                                              :: n, arrcount,i
+    INTEGER                                              :: incount
 
     !Ensure that there is not a null event
     IF ( se_box%se_ineltot .EQ. 0.0 ) THEN
@@ -3165,7 +3174,7 @@ END SUBROUTINE make_react
       arr(:,2) = se_box%se_fbdn%wj_fbdn
       sigtot   = se_box%se_fbdn_extot
     ELSE
-      ALLOCATE(arr(SIZE(se_box%se_alwdsigs)))
+      ALLOCATE(arr(SIZE(se_box%se_alwdsigs),2))
       arr(:,1) = se_box%se_alwdsigs
       arr(:,2) = se_box%se_alwd%wj_alwd
       sigtot   = se_box%se_alwd_extot
@@ -3239,4 +3248,46 @@ END SUBROUTINE make_react
     ecutoffcalc = MINVAL(val)
     RETURN
   END FUNCTION ecutoffcalc
+
+  SUBROUTINE se_info_init(se_box)
+    TYPE(se_info) :: se_box
+
+    IF ( ALLOCATED(se_box%se_ionst) .EQV. .FALSE. ) THEN
+      !Initialize the ionization arrays
+      ALLOCATE(se_box%se_ionst(SIZE(o2_e_ion)))
+      se_box%se_ionst = o2_e_ion
+      ALLOCATE(se_box%se_ionsigs(SIZE(se_box%se_ionst)))
+
+      !Initialize allowed excitation arrays
+      ALLOCATE(se_box%se_alwd(SIZE(o2_e_ex_alwd)))
+      se_box%se_alwd = o2_e_ex_alwd
+      ALLOCATE(se_box%se_alwdsigs(SIZE(o2_e_ex_alwd)))
+
+      !Initialize forbidden excitation arrays
+      ALLOCATE(se_box%se_fbdn(SIZE(o2_e_ex_fbdn)))
+      se_box%se_fbdn = o2_e_ex_fbdn
+      ALLOCATE(se_box%se_fbdnsigs(SIZE(o2_e_ex_fbdn)))
+      RETURN
+    ELSE
+      RETURN
+    END IF
+  END SUBROUTINE se_info_init
+
+  SUBROUTINE se_info_garbage(se_box)
+    TYPE(se_info) :: se_box
+
+    IF ( ALLOCATED(se_box%se_ionst) .EQV. .TRUE. ) THEN
+      DEALLOCATE(se_box%se_ionst)
+      DEALLOCATE(se_box%se_ionsigs)
+      DEALLOCATE(se_box%se_alwd)
+      DEALLOCATE(se_box%se_alwdsigs)
+      DEALLOCATE(se_box%se_fbdn)
+      DEALLOCATE(se_box%se_fbdnsigs)
+      RETURN
+    ELSE
+      RETURN
+    END IF
+  END SUBROUTINE se_info_garbage
+
+
 END MODULE chaco_data 
