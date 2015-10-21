@@ -1055,6 +1055,7 @@ CONTAINS
     TYPE(SIGMA_BOX)    , ALLOCATABLE, DIMENSION(:), TARGET :: psigmas_target   
     TYPE(SIGMA_BOX)    , DIMENSION(:)    , POINTER :: psigmas
     TYPE(SIGMA_BOX)    , DIMENSION(:)    , POINTER :: esigmas
+    TYPE(SEC_ELEC_INFO)                            :: se_box
 
 !    PRINT *, "Fallout called"
     count_count = 0
@@ -1170,7 +1171,7 @@ CONTAINS
               e_loss = e_ion + e_se
               nature = "Ionization"
 !              PRINT *, 'Secondary electron energy is:',e_se
-              ese_point => e_se
+              se_box%se_energy = e_se
             ELSE IF ( rand1 .GT. DISPROB) THEN
               ! Excitation will occur
 !              PRINT *, 'Excitation'
@@ -1219,7 +1220,7 @@ CONTAINS
   !****************************************************************************!
         ELSE IF ( switch .EQ. 2 .AND. z+step .NE. 1 .AND. z+step .NE. 2 ) THEN
 !          PRINT *, 'Ionization'
-          IF ( ese_point .LE. ECUTOFF ) THEN
+          IF ( se_box%se_energy .LE. ECUTOFF ) THEN
 !            num_elecs = num_elecs + 1
             CALL base_ionization( ev_coords, react_cube, matrix, en_list, &
                                   ionlist, mobile_ptr, wait_list, wait_len, &
@@ -1245,22 +1246,18 @@ CONTAINS
             ion_dist = 0
             enull1 = 0
             enull2 = 0
-            ALLOCATE( esigmas(3) )
-            ALLOCATE( esigij(SIZE(o2_e_ion)) )
-            ALLOCATE( alwd_esigexj(SIZE(o2_e_ex_alwd)) )
-            ALLOCATE( fbdn_esigexj(SIZE(o2_e_ex_fbdn)) )
-            DO WHILE ( ese_point .GE. ECUTOFF )
+            DO WHILE ( se_box%se_energy .GE. ECUTOFF )
 !              PRINT *, 'The electron energy is:',ese_point
               !Calculate electron cross_sections
               IF ( enull1 .NE. 0 .AND. enull2 .NE. 0 ) EXIT 
-              CALL esigma_suite(ese_point,esigmas,esigij,alwd_esigexj,fbdn_esigexj)
+              CALL esigma_suite(se_box)
 !              PRINT *, 'The electron cross-sections are:'
 !              DO nn=1,3
 !                PRINT *, esigmas(nn)
 !              END DO
 
               !Calculate hopping distance
-              emfp  = 1./RHO*(esigmas(2)%cross_section + esigmas(3)%cross_section)
+              emfp  = 1./RHO*(se_box%se_ineltot)
               p     = RAND()
               de    = -1.*emfp*LOG(1.-p)
               estep = INT(de/C_PR)
@@ -1277,8 +1274,7 @@ CONTAINS
 
               !Determine nature of event
               erand = RAND()
-              IF ( erand .GT. 0 .AND. erand .LE. esigmas(2)%cross_section/(esigmas(2)%cross_section +&
-                   esigmas(3)%cross_section) ) THEN
+              IF ( erand .GT. 0 .AND. erand .LE. (se_box%se_iontot/se_box%se_ineltot) ) THEN
                 eswitch = 1
               ELSE
                 eswitch = 0
@@ -1293,8 +1289,8 @@ CONTAINS
                                      time, ev_nums,null )
                 IF ( null .EQ. 1 ) GOTO 100 
 !                sgse_counter = sgse_counter + 1
-                CALL e_ion_select(esigij,e_ion,ee_se,enull1)
-                ee_loss = e_ion + ee_se
+                CALL e_ion_select(se_box,e_ion,enull1)
+                ee_loss = e_ion 
               ELSE IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. eswitch .EQ. 0 ) THEN
                 !Electron impact excitation
                 rand1 = RAND()
@@ -1302,13 +1298,13 @@ CONTAINS
                   CALL cern( null,mobile_ptr, en_list, react_cube, matrix, ev_nums, next, 1, &
                              wait_list, wait_len, time )
                 END IF
-                CALL e_ex_select(alwd_esigexj,fbdn_esigexj,e_exc,enull2)
+                CALL e_ex_select(se_box,e_exc,enull2)
                 ee_loss = e_exc
               END IF
 
               !Update the secondary electron energy
 !              PRINT *, 'E_se:',ese_point,' E_loss:',ee_loss
-              ese_point = ese_point - ee_loss
+              se_box%se_energy = se_box%se_energy - ee_loss
             END DO
             !Carrry out one more ionization corresponding to a low-energy dissociation
             !WORK IN PROGRESS: DO LATER
