@@ -1,5 +1,4 @@
 MODULE typedefs
-  USE PARAMETERS
 
 TYPE :: wait_info
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -7,7 +6,7 @@ TYPE :: wait_info
   !   This derived data type is designed to contain
   !  the information related to species waiting times
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  REAL(KIND=DBL)      :: wait_time !waiting time
+  DOUBLE PRECISION    :: wait_time !waiting time
   INTEGER             :: i,j,k     !coordinates in matrix
   INTEGER             :: sp_num    !species identifier
   INTEGER             :: act_type  !1 => hopping, 0 => desorption

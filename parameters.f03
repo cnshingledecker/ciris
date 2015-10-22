@@ -1,5 +1,4 @@
 MODULE parameters
-  IMPLICIT NONE
   SAVE
 
   !******************************************************************************
@@ -56,6 +55,18 @@ MODULE parameters
   !******************************************************************************
   REAL          , PARAMETER :: TRL_NU      = 1E10     ! Trial frequency, for the rates, in 1/s
   REAL          , PARAMETER :: DISPROB     = 0.0      ! Probability of excitative dissociation
+  DOUBLE PRECISION, PARAMETER :: ZP=1.
+  DOUBLE PRECISION, PARAMETER :: ZO1=8.
+  DOUBLE PRECISION, PARAMETER :: ZO2=16.
+  DOUBLE PRECISION, PARAMETER :: ENERG =100*1E3 !1.602E-14 !in eV 
+  DOUBLE PRECISION, PARAMETER :: MP=1 !Ion mass in amu 
+  DOUBLE PRECISION, PARAMETER :: MO2=16 !Target mass in amu
+  DOUBLE PRECISION, PARAMETER :: A0=0.529177 !Bohr radius in Angstroms 
+  DOUBLE PRECISION, PARAMETER :: ECHARG2 = 14.39 !Square of the electron charge in eV*Angstroms 
+  DOUBLE PRECISION, PARAMETER :: Q0=6.513E-14 ! (eV*cm)**2
+  DOUBLE PRECISION, PARAMETER :: PI=4.D0*DATAN(1.D0)
+  DOUBLE PRECISION, PARAMETER :: EBASE=EXP(1.D0)
+
 
   !******************************************************************************
   ! Model Parameters 

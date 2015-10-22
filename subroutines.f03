@@ -1,8 +1,9 @@
-MODULE chaco_data
+MODULE subroutines 
   USE parameters
   USE typedefs
   USE functiondefs
   USE mc_toolbox
+  USE specdata
 
 
 CONTAINS
@@ -3238,16 +3239,6 @@ END SUBROUTINE make_react
     RETURN
   END SUBROUTINE elastic_event
 
-  FUNCTION ecutoffcalc()
-    DOUBLE PRECISION :: ecutoffcalc
-    DOUBLE PRECISION,DIMENSION(3) :: val 
-
-    val(1)  = MINVAL(o2_e_ion%i_energy)
-    val(2)  = MINVAL(o2_e_ex_alwd%wj_alwd)
-    val(3)  = MINVAL(o2_e_ex_fbdn%wj_fbdn)
-    ecutoffcalc = MINVAL(val)
-    RETURN
-  END FUNCTION ecutoffcalc
 
   SUBROUTINE se_info_init(se_box)
     TYPE(se_info) :: se_box
@@ -3288,6 +3279,4 @@ END SUBROUTINE make_react
       RETURN
     END IF
   END SUBROUTINE se_info_garbage
-
-
-END MODULE chaco_data 
+END MODULE subroutines 

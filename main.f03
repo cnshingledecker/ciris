@@ -1,5 +1,5 @@
-PROGRAM moonbase 
-  USE chaco_data
+PROGRAM main 
+  USE subroutines 
   USE parameters
   USE typedefs
   USE functiondefs
@@ -293,4 +293,4 @@ PRINT *, "wait_list is size ",SIZEOF(wait_list)
 !DEALLOCATE(wait_target,matrix_ptr)
 NULLIFY ( wait_list,mobile_ptr,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len ) 
 DEALLOCATE( qube, sp_list, en_list, matrix,mobile_list,wait_target )
-END PROGRAM moonbase
+END PROGRAM main
