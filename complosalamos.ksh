@@ -4,3 +4,4 @@
 make
 gfortran -c specdata.f03
 make
+make clean
