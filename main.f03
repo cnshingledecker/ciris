@@ -276,12 +276,10 @@ CLOSE(1013)
 !CLOSE(1012)
 
 
+PRINT *, "****************"
+PRINT *, "ENDING LOSALAMOS"
+PRINT *, "****************"
 
-PRINT *, "LEAVING THE MOONBASE!!!!!!"
-PRINT *, "3"
-PRINT *, "2"
-PRINT *, "1"
-PRINT *, "BLASTOFF!!!!!!!"
 CALL counter( time, AB_UNIT_NUM,matrix_ptr,wait_list,4,7)
 CLOSE(1009)
 CLOSE(1011)
