@@ -64,8 +64,8 @@ t1 = 0
 ! Open files 
 hopping_file = "hopping_data.txt"
 OPEN(UNIT=1009,FILE="abundance.csv",POSITION='APPEND', STATUS='REPLACE')
-OPEN(UNIT=1011,FILE=hopping_file)
-OPEN(UNIT=1013,FILE="time_data.csv")
+!OPEN(UNIT=1011,FILE=hopping_file)
+!OPEN(UNIT=1013,FILE="time_data.csv")
 
 ! Nullify pointers
 NULLIFY ( wait_list,mobile_ptr,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len ) 
@@ -209,7 +209,7 @@ DO WHILE ( time .LE. time_total )
 
 
   time_check = time_check + 1  
-  IF ( MOD(time_check,100) .EQ. 0 ) THEN
+  IF ( MOD(time_check,10) .EQ. 0 ) THEN
     CALL counter( time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7)
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
@@ -221,15 +221,15 @@ DO WHILE ( time .LE. time_total )
 !  IF ( MOD(time_check,1000000) .EQ. 0 ) CALL counter( count_num, matrix_ptr )
 END DO
 
-OPEN(UNIT=1013,FILE="wait_list_flaw.txt")
-DO n=1,wait_len
-  IF ( wait_list(n)%sp_num .NE. 20 ) THEN
-    IF ( matrix_ptr(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k) .NE. n ) THEN
-      WRITE(1013,*) matrix_ptr(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k),", ",n,",",wait_len
-    END IF
-  END IF
-END DO
-CLOSE(1013)
+!OPEN(UNIT=1013,FILE="wait_list_flaw.txt")
+!DO n=1,wait_len
+!  IF ( wait_list(n)%sp_num .NE. 20 ) THEN
+!    IF ( matrix_ptr(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k) .NE. n ) THEN
+!      WRITE(1013,*) matrix_ptr(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k),", ",n,",",wait_len
+!    END IF
+!  END IF
+!END DO
+!CLOSE(1013)
 
 !OPEN(UNIT=1012,FILE="final_wait_list.txt")
 !DO n=1,wait_len+1
@@ -243,8 +243,8 @@ PRINT *, "****************"
 
 CALL counter( time, AB_UNIT_NUM,matrix_ptr,wait_list,4,7)
 CLOSE(1009)
-CLOSE(1011)
-CLOSE(1013)
+!CLOSE(1011)
+!CLOSE(1013)
 
 PRINT *, "wait_len is: ",wait_len
 PRINT *, "matrix is size ",SIZEOF(matrix)

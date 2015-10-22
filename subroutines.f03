@@ -1079,26 +1079,16 @@ CONTAINS
 !      PRINT *, psigmas(n)
 !    END DO
 
-
-
     ! Calculate the total cross-section and the mean free path
     ! Note, sigma_i is the inelastic ionization cross-section and
     ! sigma_e is the inelastic excitation cross section
     sigma_tot = SUM(psigmas%cross_section) 
-!    PRINT *, 'sigma_tot=',sigma_tot
     mfp       = 1./(rho*sigma_tot)
-!    PRINT *, 'mfp=',mfp
-
-
-!    PRINT *, "Cross sections calculated"
 
   ! Get dimensions of matrix
     dimens(1) = SIZE(matrix,1)
     dimens(2) = SIZE(matrix,2)
     dimens(3) = SIZE(matrix,3)
-
-!    PRINT *, "Dimensions of matrix determined in fallout"
-
 
   !****************************************************************************!
   ! Determine random entry site                                                !
@@ -1120,10 +1110,6 @@ CONTAINS
     dz        = 0
     step      = 0
 
-!    PRINT *, 'Starting track calculation'
-
-!    PRINT *, "File opened"
-
   ! Repeat the section below until z + step is greater (in ml) than the
   ! thickness of the ice
     count_count = 0
@@ -1131,13 +1117,10 @@ CONTAINS
     num_izns    = 0
     num_exs     = 0
     num_els     = 0
-!    PRINT *, 'Entering main loop'
+    
     main_loop: DO WHILE (z .LE. dimens(1) .AND. ione .GE. 5.0 )
-
       count_count = count_count + 1
 !      IF ( MOD(count_count,1000) .EQ. 0 ) CALL counter(time, AB_UNIT_NUM, matrix, wait_list, 4,7) 
-
-!      PRINT *, "Now in main loop"
       ! Define event coords
       ev_coords(1) = z+step
       ev_coords(2) = y
@@ -1147,8 +1130,8 @@ CONTAINS
 !        PRINT *, "The value of the matrix is:",matrix(z+step,y,x)
         ! If the site is occupied, then determine the type of event to occur
 !        DO WHILE ( u .EQ. 0.0 .AND. rand .EQ. 0.0 ) 
-          u = RAND()
-          rand1 = RAND()
+        u = RAND()
+        rand1 = RAND()
 !        END DO
 !        PRINT *, "u is ",u,"and rand is ",rand
 
@@ -1161,26 +1144,22 @@ CONTAINS
           IF ( u .GT. 0.0 .AND. u .LE. (sigma_i + sigma_e)/sigma_tot ) THEN
             IF ( u .GT. 0 .AND. u .LE. sigma_i/(sigma_i + sigma_e) ) THEN
               ! Ionization will occur
-!              PRINT *, 'Ionization'
               num_izns = num_izns + 1
               switch = 2 
               CALL p_ion_select(psigij,e_ion,e_se)
               e_loss = e_ion + e_se
               nature = "Ionization"
-!              PRINT *, 'Secondary electron energy is:',e_se
               se_box%se_energy = e_se
             ELSE IF ( rand1 .GT. DISPROB) THEN
               ! Excitation will occur
-!              PRINT *, 'Excitation'
-                num_exs = num_exs + 1
-                switch = 1 
-                CALL p_ex_select(psigexj,e_exc)
-                e_loss = e_exc
-                nature = "Excitation"
+              num_exs = num_exs + 1
+              switch = 1 
+              CALL p_ex_select(psigexj,e_exc)
+              e_loss = e_exc
+              nature = "Excitation"
             END IF
           ELSE
             ! Elastic Collision will occur
-!            PRINT *, 'Elastic'
             num_els = num_els + 1
             switch = 0 
             CALL elastic_event(ione,e_loss,labtheta)
@@ -1191,10 +1170,7 @@ CONTAINS
 !        WRITE(10,*) ione,",",e_loss,",",ione-e_loss,',',nature
         ione = ione - e_loss
         CALL psigma_suite(ione,psigmas,psigij,psigexj)
-!        PRINT *, "New ion energy is:",ione
-!        PRINT *, "switch is ",switch
 
-!        PRINT *, "Wait_len is: ",wait_len
   !****************************************************************************!
   ! Elastic collision                                                          ! 
   !****************************************************************************!
@@ -1207,7 +1183,6 @@ CONTAINS
   ! Excitation                                                                 !
   !****************************************************************************!
         ELSE IF ( switch .EQ. 1 ) THEN ! Dissociate target species on track and place prods
-!          PRINT *, 'Excitation'
           CALL cern( null,mobile_ptr, en_list, react_cube, matrix, ev_nums, ev_coords, switch, &
                      wait_list, wait_len, time )
  
@@ -1216,9 +1191,7 @@ CONTAINS
   ! Ionization                                                                 ! 
   !****************************************************************************!
         ELSE IF ( switch .EQ. 2 .AND. z+step .NE. 1 .AND. z+step .NE. 2 ) THEN
-!          PRINT *, 'Ionization'
           IF ( se_box%se_energy .LE. ECUTOFF ) THEN
-!            num_elecs = num_elecs + 1
             CALL base_ionization( ev_coords, react_cube, matrix, en_list, &
                                   ionlist, mobile_ptr, wait_list, wait_len, &
                                   time, ev_nums, null )
@@ -1236,7 +1209,6 @@ CONTAINS
                                   ionlist, mobile_ptr, wait_list, wait_len, &
                                   time, ev_nums, null,elec_coords )
             IF ( null .EQ. 1 ) GOTO 100
-!            num_elecs = num_elecs + 1
             curr = ev_coords
             next = elec_coords
             sgse_counter = 0
@@ -1246,9 +1218,8 @@ CONTAINS
 
             !Initialize se_box
             CALL se_info_init(se_box)
-            PRINT *, 'Starting new SE calc'
             DO WHILE ( se_box%se_energy .GE. ECUTOFF )
-              PRINT *, se_box%se_energy
+!              PRINT *, se_box%se_energy
               !Calculate electron cross_sections
               IF ( enull1 .NE. 0 .AND. enull2 .NE. 0 ) EXIT 
               CALL esigma_suite(se_box)
@@ -1284,12 +1255,10 @@ CONTAINS
               !Carry out impact collision
               IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. eswitch .EQ. 1 ) THEN
                 !Electron impact ionization
-!                num_elecs = num_elecs + 1
                 CALL base_ionization(next, react_cube, matrix, en_list, &
                                      ionlist, mobile_ptr, wait_list, wait_len, &
                                      time, ev_nums,null )
                 IF ( null .EQ. 1 ) GOTO 100 
-!                sgse_counter = sgse_counter + 1
                 CALL e_ion_select(se_box,e_ion,enull1)
                 ee_loss = e_ion 
               ELSE IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. eswitch .EQ. 0 ) THEN
@@ -1302,7 +1271,6 @@ CONTAINS
                 CALL e_ex_select(se_box,e_exc,enull2)
                 ee_loss = e_exc
               END IF
-
               !Update the secondary electron energy
 !              PRINT *, 'E_se:',ese_point,' E_loss:',ee_loss
               se_box%se_energy = se_box%se_energy - ee_loss
@@ -1340,11 +1308,8 @@ CONTAINS
 !        WRITE (10,*) z+step, ', 100' 
 !      END IF
 
-
-
       ! Increment z for next cycle
       z = z + step
-
 
       ! Call a random number between [0,1)
       100 CALL RANDOM_NUMBER(p)
@@ -3238,7 +3203,6 @@ END SUBROUTINE make_react
     labtheta = lab_theta(cmtheta,MP,MO2)
     RETURN
   END SUBROUTINE elastic_event
-
 
   SUBROUTINE se_info_init(se_box)
     TYPE(se_info) :: se_box
