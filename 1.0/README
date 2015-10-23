@@ -1,0 +1,11 @@
+VERSION 1.0 NOTES:
+
+1. Kinchin-Pease damage calculations are not included, since the solids are 
+   assumed to be thin and elastic collisions are assumed to be non-important
+
+2. Eventually, add one more "round" for the secondary electrons after they
+   drop below the ECUTOFF to simulate low-energy processes. 
+
+3. It SHOULD be programmed in that secondary electrons can not do more damage
+   than they have energy for. 
+
