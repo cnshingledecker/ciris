@@ -53,8 +53,8 @@ MODULE parameters
   !******************************************************************************
   ! Kinetic Parameters 
   !******************************************************************************
-  REAL          , PARAMETER :: TRL_NU      = 1E10     ! Trial frequency, for the rates, in 1/s
-  REAL          , PARAMETER :: DISPROB     = 0.0      ! Probability of excitative dissociation
+  DOUBLE PRECISION, PARAMETER :: TRL_NU      = 1E10     ! Trial frequency, for the rates, in 1/s
+  DOUBLE PRECISION, PARAMETER :: DISPROB     = 1.0      ! Probability of excitative dissociation
   DOUBLE PRECISION, PARAMETER :: ZP=1.
   DOUBLE PRECISION, PARAMETER :: ZO1=8.
   DOUBLE PRECISION, PARAMETER :: ZO2=16.
