@@ -1026,10 +1026,9 @@ CONTAINS
     INTEGER                                        :: num_izns
     INTEGER                                        :: num_exs, num_els
     INTEGER                                        :: x,y,z !coordinates of cosmic-ray along track
-    INTEGER                                        :: sgse_counter !counter for the number of sgse's produced
     INTEGER                                        :: count_count
     INTEGER                                        :: step,estep !distance the track is incremented  
-    INTEGER                                        :: switch,eswitch !variable that determines the nature of collisions
+    INTEGER                                        :: switch,eswitch 
     INTEGER            , DIMENSION(3)              :: dimens !dimensions of matrix
     INTEGER            , DIMENSION(3)              :: ev_coords !coordiantes of collision
     INTEGER            , DIMENSION(3)              :: elec_coords
@@ -1047,20 +1046,23 @@ CONTAINS
     REAL(KIND=DBL)                       , TARGET  :: e_se
     DOUBLE PRECISION                     , TARGET  :: energy_target
     DOUBLE PRECISION                     , POINTER :: ione
-    DOUBLE PRECISION , ALLOCATABLE, DIMENSION(:), TARGET :: psigij_target,psigexj_target
     DOUBLE PRECISION   , DIMENSION(:)    , POINTER :: psigij,psigexj
     CHARACTER(len=15)                              :: nature
-    TYPE(SIGMA_BOX)    , ALLOCATABLE, DIMENSION(:), TARGET :: psigmas_target   
     TYPE(SIGMA_BOX)    , DIMENSION(:)    , POINTER :: psigmas
-    TYPE(SE_INFO)                            :: se_box
-
-!    PRINT *, "Fallout called"
-    count_count = 0
+    TYPE(SE_INFO)                                  :: se_box
+    !*************************************************************************
+    !Proton cross-section data, to be phased out and replaced with a struct as 
+    !with se_box
+    !*************************************************************************
+    DOUBLE PRECISION   , DIMENSION(:), ALLOCATABLE, TARGET :: psigij_target,psigexj_target
+    TYPE(SIGMA_BOX)    , DIMENSION(:), ALLOCATABLE, TARGET :: psigmas_target   
 
 
     !****************************************************************************!
     ! Preliminary  calculations                                                  !
     !****************************************************************************!
+
+    count_count = 0
     ! Calculate the initial cross-sections based on the initial ion energy
     ALLOCATE(psigmas_target(3))
     psigmas => psigmas_target
