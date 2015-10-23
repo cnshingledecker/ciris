@@ -1,70 +1,8 @@
 MODULE functiondefs 
   USE parameters
   USE typedefs
-  ! Parameters
-  DOUBLE PRECISION, PARAMETER :: ZP=1.
-  DOUBLE PRECISION, PARAMETER :: ZO1=8.
-  DOUBLE PRECISION, PARAMETER :: ZO2=16.
-  DOUBLE PRECISION, PARAMETER :: ENERG =100*1E3 !1.602E-14 !in eV 
-  DOUBLE PRECISION, PARAMETER :: MP=1 !Ion mass in amu 
-  DOUBLE PRECISION, PARAMETER :: MO2=16 !Target mass in amu
-  DOUBLE PRECISION, PARAMETER :: A0=0.529177 !Bohr radius in Angstroms 
-  DOUBLE PRECISION, PARAMETER :: ECHARG2 = 14.39 !Square of the electron charge in eV*Angstroms 
-  DOUBLE PRECISION, PARAMETER :: Q0=6.513E-14 ! (eV*cm)**2
-  DOUBLE PRECISION, PARAMETER :: PI=4.D0*DATAN(1.D0)
-  DOUBLE PRECISION, PARAMETER :: EBASE=EXP(1.D0)
 
-  ! Excitation parameters for molecular oxygen (H+)
-  ! Values taken from Edgar, Porter, and Green 1974
-  TYPE(EPG_EXSTATE), PARAMETER, DIMENSION(5) :: o2_p_ex=(/    &
-    EPG_EXSTATE("a\;^1\Delta_g",0.092,2.50E3,0.5,3.0,0.98)  , &
-    EPG_EXSTATE("b\;^1\Sigma_g^+",0.109,4.19E3,0.5,3.0,1.64), &
-    EPG_EXSTATE("A\;^3\Sigma_u^+",0.57,17.6E3,0.5,0.9,4.5)  , &
-    EPG_EXSTATE("B\;^3\Sigma_u^-",4.73,51.7E3,0.5,0.75,8.4) , &
-    EPG_EXSTATE("9.9 eV state",0.83,80.7E3,0.5,0.85,9.9)      &
-  /)
-
-  ! Ionization parameters for molecular oxygen (H+)
-  ! Values taken from Edgar, Porter, and Green 1974
-  TYPE(EPG_IONSTATE), PARAMETER, DIMENSION(7) :: o2_p_ion=(/            &
-    EPG_IONSTATE("X\;^2\Pi_g",9.56D0,45.8D3,0.61D0,1.26D0,12.1D0)     , &
-    EPG_IONSTATE("a\;^4\Pi_u",5.38D0,127.1D3,1.1D0,0.58D0,16.1D0)     , &
-    EPG_IONSTATE("A\;^2\Pi_g",5.25D0,170.3D3,1.1D0,0.60D0,16.9D0)     , &
-    EPG_IONSTATE("b\;^4\Sigma_g^-",3.19D0,142.4D3,1.1D0,0.58D0,18.2D0), &
-    EPG_IONSTATE("B\;State",0.94D0,140.8D3,1.1D0,0.58D0,23.0D0)       , &
-    EPG_IONSTATE("O^+\;^4S",15.6D0,56.0D3,1.2D0,0.72D0,18.0D0)        , &
-    EPG_IONSTATE("O^+\;^2D",8.75D0,57.0D3,1.2D0,0.72D0,22.0D0)          &
-  /)
    
-  ! Excitation parameters for molecular oxygen by electrons (e-)
-  ! Values taken from Porter, Jackman, Green 1976
-  !****************************************************************************!
-  !**********************Allowed Transitions***********************************!
-  !****************************************************************************!
-  TYPE(ALWD_EXSTATE), PARAMETER, DIMENSION(2)   :: o2_e_ex_alwd=(/     &
-    ALWD_EXSTATE("B\;^3\Sigma_u^-",8.4,0.254,0.037,1.19,2.31,3.35,0.5),&
-    ALWD_EXSTATE("9.9 eV state",9.9,0.0285,0.622,1.38,3.44,4.44,0.5)   &
-  /)
-  !****************************************************************************!
-  !***********************Forbidden Transitions********************************!
-  !****************************************************************************!
-  TYPE(FBDN_EXSTATE), PARAMETER, DIMENSION(3)   :: o2_e_ex_fbdn=(/ &
-    FBDN_EXSTATE("b\;^1\Sigma_g^+",1.64,0.0005,3.0,3.0,1.0)      , &
-    FBDN_EXSTATE("a\;^1\Delta_g",0.98,0.0005,3.0,3.0,1.0)        , &
-    FBDN_EXSTATE("A\;^3\Sigma_u^+",4.5,0.021,0.9,1.0,1.0)          &
-  /)
-
-  ! Ionization parameters for molecular oxygen by electrons (e-)
-  ! Values taken from Jackman Garvey, Green 1977
-  TYPE(IONSTATE), PARAMETER, DIMENSION(7)   :: o2_e_ion=(/                                   &
-    IONSTATE("X\;^2\Pi_g",12.1,0.475,0.0,3.760,0.0,0.0,18.50,12.10,1.860,1000.0,24.20)     , &
-    IONSTATE("a\;^4\Pi_u",16.1,1.129,0.0,3.760,0.0,0.0,18.50,16.10,1.860,1000.0,32.20)     , &
-    IONSTATE("A\;^2\Pi_u",16.9,1.129,0.0,3.760,0.0,0.0,18.50,16.90,1.860,1000.0,33.80)     , &
-    IONSTATE("b\;^4\Sigma_g^-",18.2,1.010,0.0,3.760,0.0,0.0,18.50,18.20,1.860,1000.0,36.40), &
-    IONSTATE("B\;^2\Sigma_g^-",20.0,0.653,0.0,3.760,0.0,0.0,18.50,20.30,1.860,1000.0,40.60), &
-    IONSTATE("c\;^4\Sigma_u^-",23.0,0.950,0.0,3.760,0.0,0.0,18.50,23.00,1.860,1000.0,46.00), &
-    IONSTATE("37-eV state",37.0,0.594,0.0,3.760,0.0,0.0,18.50,37.00,1.860,1000.0,74.00)      &
-  /)
 
   CONTAINS
     FUNCTION green_mcneal(energy,a,j,nu,omega,z,i)
@@ -145,8 +83,8 @@ MODULE functiondefs
       IMPLICIT NONE
 
       ! Data dictionary: declare calling parameters
-      DOUBLE PRECISION, POINTER    :: energy
       DOUBLE PRECISION             :: gamma_gs
+      DOUBLE PRECISION, INTENT(IN) :: energy
       DOUBLE PRECISION, INTENT(IN) :: gamma_s
       DOUBLE PRECISION, INTENT(IN) :: gamma_b
 
@@ -172,8 +110,8 @@ MODULE functiondefs
       IMPLICIT NONE
 
       ! Data dictionary: declare calling parameters
-      DOUBLE PRECISION, POINTER    :: energy
       DOUBLE PRECISION             :: t_0_gs
+      DOUBLE PRECISION, INTENT(IN) :: energy
       DOUBLE PRECISION, INTENT(IN) :: t_a
       DOUBLE PRECISION, INTENT(IN) :: t_b
       DOUBLE PRECISION, INTENT(IN) :: t_s
@@ -302,7 +240,6 @@ MODULE functiondefs
       rr    = -2.7*DLOG(eps*b)
       IF ( rr .LT. b ) GOTO 1980
       r     = rr
-       PRINT *, 'The value of r is',r
 1980  ex1   =  0.18175*EXP(-3.1998*r)
       ex2   =  0.50986*EXP(-0.94229*r)
       ex3   =  0.28022*EXP(-0.4029*r)
@@ -315,18 +252,14 @@ MODULE functiondefs
       r     = r-q
       IF ( ABS(q/r) .GT. 0.001) GOTO 1980
       roc   = -2.0*(eps-v)/v1
-!      PRINT *, 'roc=',roc
       sqe   = SQRT(eps)
-!      PRINT *, 'sqe=',sqe
       cc    = (0.011615+sqe)/(0.0071222+sqe)
       aa    = 2.0*eps*(1.0+(0.99229/sqe))*b**cc
       ff    = (SQRT(aa**2+1.0)-aa)*((9.3066+eps)/(14.813+eps))
       delta = (r-b)*aa*ff/(ff+1.0)
-!      PRINT *, 'cc=',cc,'aa=',aa,'ff=',ff,'delta=',delta
       co    = (b+delta+roc)/(r+roc)
       c2    = co*co
       s2    = 1.0-c2
-      PRINT *, 'co=',co,'c2=',c2,'s2=',s2
       theta = 2.0*ACOS(co)
       RETURN
     END SUBROUTINE magic
@@ -353,7 +286,6 @@ MODULE functiondefs
 
       p = SQRT(rn/(3.14159*(rho**(2./3.))))
       b_magic = p/a
-!      PRINT *, 'The value of b is',b
       RETURN
     END FUNCTION b_magic
 
@@ -372,7 +304,6 @@ MODULE functiondefs
       DOUBLE PRECISION             :: au
 
       au = (0.8853*A0)/(z1**0.23 + z2**0.23)
-      PRINT *, 'The screening length is',au,'Angstroms'
       RETURN
     END FUNCTION au
 
@@ -389,7 +320,7 @@ MODULE functiondefs
       IMPLICIT NONE
 
       !Data dictionary: Calling parameters
-      DOUBLE PRECISION, INTENT(IN) :: en 
+      DOUBLE PRECISION, POINTER    :: en 
       DOUBLE PRECISION, INTENT(IN) :: z1,z2
       DOUBLE PRECISION, INTENT(IN) :: m1,m2
       DOUBLE PRECISION, INTENT(IN) :: au
@@ -402,8 +333,6 @@ MODULE functiondefs
       fac2 = m2/(m1+m2)
       fac3 = 1./(z1+z2)
       eps = en*fac1*fac2*fac3 
-      PRINT *, 'The center of mass energy is',en*fac2
-      PRINT *, 'The reduced energy is',eps
     END FUNCTION eps
 
     FUNCTION mass_fac(m1,m2)
@@ -421,13 +350,11 @@ MODULE functiondefs
       DOUBLE PRECISION, INTENT(IN) :: m1,m2
       DOUBLE PRECISION             :: mass_fac
 
-!      PRINT *, 'Mass 1 is',M1,'and mass 2 is',M2
       mass_fac = (4.*m1*m2)/((m1+m2)**2)
-!      PRINT *, 'The mass factor is',mass_fac
       RETURN
     END FUNCTION mass_fac
 
-    FUNCTION t(e,mf,s2)
+    FUNCTION t_coll(e,mf,s2)
     !
     !  Purpose:
     !   To calculate the energy transferred in an elastic, i.e. nuclear, 
@@ -436,20 +363,20 @@ MODULE functiondefs
     !  one can calculate s2, which is the sin^2(theta/2)
     !
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
-    !! T !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! T_COLL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
 
       IMPLICIT NONE
 
       !Data dictionary: Calling parameters
-      DOUBLE PRECISION, INTENT(IN) :: e
+      DOUBLE PRECISION, POINTER    :: e
       DOUBLE PRECISION, INTENT(IN) :: mf
       DOUBLE PRECISION, INTENT(IN) :: s2
-      DOUBLE PRECISION             :: t
+      DOUBLE PRECISION             :: t_coll
 
-      t = mf*e*s2
+      t_coll = mf*e*s2
       RETURN
-    END FUNCTION t
+    END FUNCTION t_coll
 
     FUNCTION lab_theta(cmtheta,m1,m2)
     !
@@ -537,7 +464,7 @@ MODULE functiondefs
 
       sne = num/den
       RETURN
-    END FUNCTION
+    END FUNCTION sne
 
     FUNCTION pelsig(energy,sne,mf)
     !
@@ -560,9 +487,9 @@ MODULE functiondefs
 
       pelsig = (2*sne)/(mf*energy)
       RETURN
-    END FUNCTION
+    END FUNCTION pelsig
 
-    FUNCTION greendutta(energy)
+    FUNCTION greendutta(energy,w,f,o,a,b)
     !
     !  Purpose:
     !   To calculate the Green & Dutta (1967) excitation cross-sections
@@ -582,30 +509,23 @@ MODULE functiondefs
       IMPLICIT NONE
 
       ! Data dictionary: Calling parameters
-      DOUBLE PRECISION, INTENT(IN)                               :: energy !eV
-      DOUBLE PRECISION            ,DIMENSION(SIZE(o2_e_ex_fbdn)) :: greendutta
-
-      ! Data dictionary: Local variables
-      INTEGER                                                    :: n
-      DOUBLE PRECISION                                           :: fac1,fac2,fac3
-      !DOUBLE PRECISION                                           :: w,f,o,a,b
+      DOUBLE PRECISION, INTENT(IN) :: energy !eV
+      DOUBLE PRECISION, INTENT(IN) :: w,f,o,a,b
+      DOUBLE PRECISION             :: greendutta
+      DOUBLE PRECISION             :: fac1,fac2,fac3
       
-      DO n=1,SIZE(o2_e_ex_fbdn)
-        ASSOCIATE ( w => o2_e_ex_fbdn(n)%wj_fbdn   , &
-                    f => o2_e_ex_fbdn(n)%fj_fbdn   , &
-                    o => o2_e_ex_fbdn(n)%omega_fbdn, &
-                    a => o2_e_ex_fbdn(n)%alpha_fbdn, &
-                    b => o2_e_ex_fbdn(n)%beta_fbdn    )
-          fac1 = (Q0*f)/(w*w)
-          fac2 = (1.-(w/energy)**a)**b
-          fac3 = (w/energy)**o
-          greendutta(n) = fac1*fac2*fac3
-        END ASSOCIATE
-      END DO
+      IF ( energy .LT. w ) THEN
+       greendutta  = 0D0 
+      ELSE
+        fac1       = (Q0*f)/(w*w)
+        fac2       = (1.-(w/energy)**a)**b
+        fac3       = (w/energy)**o
+        greendutta = fac1*fac2*fac3
+      END IF
       RETURN
     END FUNCTION greendutta
 
-    FUNCTION pjgsigma(energy)
+    FUNCTION pjgsigma(energy,f,w,c,a,b)
     !
     !  Purpose:
     !   To calculate the Porter, Jackman, Green (1976) excitation cross-section
@@ -624,28 +544,19 @@ MODULE functiondefs
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
       IMPLICIT NONE
 
-      ! Data dictionary: Calling parameters
       DOUBLE PRECISION, INTENT(IN)                                :: energy
-      DOUBLE PRECISION            , DIMENSION(SIZE(o2_e_ex_alwd)) :: pjgsigma
-
-      ! Data dictionary: Local variables
-      INTEGER                                                     :: n
+      DOUBLE PRECISION, INTENT(IN)                                :: f,w,c,a,b
+      DOUBLE PRECISION                                            :: pjgsigma
       DOUBLE PRECISION                                            :: num, den, insides
-      !DOUBLE PRECISION                                            :: f,w,c,a,b
 
-
-      DO n=1,SIZE(o2_e_ex_alwd)
-        ASSOCIATE ( f => o2_e_ex_alwd(n)%fj_alwd   , &
-                    w => o2_e_ex_alwd(n)%wj_alwd   , &
-                    c => o2_e_ex_alwd(n)%cj_alwd   , &
-                    a => o2_e_ex_alwd(n)%alpha_alwd, &
-                    b => o2_e_ex_alwd(n)%beta_alwd    )
-          num = Q0*f*(1.-(w/energy)**a)**b
-          den = energy*w
-          insides = (4.*energy*c)/w + EBASE
-          pjgsigma(n) = (num/den)*DLOG(insides)
-        END ASSOCIATE
-      END DO
+      IF ( energy .LT. w ) THEN
+        pjgsigma = 0D0
+      ELSE
+        num      = Q0*f*(1.-(w/energy)**a)**b
+        den      = energy*w
+        insides  = (4.*energy*c)/w + EBASE
+        pjgsigma = (num/den)*DLOG(insides)
+      END IF
       RETURN
     END FUNCTION pjgsigma
 END MODULE functiondefs 

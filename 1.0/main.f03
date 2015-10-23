@@ -1,9 +1,9 @@
-PROGRAM moonbase 
-  USE chaco_data
-  USE parameters
-  USE typedefs
-  USE functiondefs
+PROGRAM main 
 
+USE subroutines 
+USE parameters
+USE typedefs
+USE functiondefs
 IMPLICIT NONE
 
 !******************************************************************************
@@ -50,31 +50,10 @@ CHARACTER(len=80)                                            :: reactions_file !
 CHARACTER(len=80)                                            :: hopping_file   ! File containing hopping data
 TYPE (wait_info)    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: wait_target
 TYPE (wait_info)                 , DIMENSION(:)    , POINTER :: wait_list      !Derived data type described in chaco_data.f90
-!*****************************Cross-Sections************************************
-TYPE (sigma_box)    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: psigmas_target ! Proton cross-sections
-TYPE (sigma_box)                 , DIMENSION(:)    , POINTER :: psigmas
-DOUBLE PRECISION    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: psigij_target
-DOUBLE PRECISION                 , DIMENSION(:)    , POINTER :: psigij
-DOUBLE PRECISION    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: psigexj_target !individual state cross-sections
-DOUBLE PRECISION                 , DIMENSION(:)    , POINTER :: psigexj
-DOUBLE PRECISION                                   , POINTER :: ionenergy
 
-! Calculate the initial cross-sections based on the initial ion energy
-ALLOCATE(psigmas_target(3))
-psigmas => psigmas_target
-ALLOCATE(psigij_target(SIZE(o2_p_ion)))
-psigij => psigij_target
-ALLOCATE(psigexj_target(SIZE(o2_p_ex)))
-psigexj => psigexj_target
-ionenergy = EINIT
-psigmas%cross_section = 0D0
-psigij  = 0D0
-psigexj = 0D0
-CALL psigma_suite(ionenergy,psigmas,psigij,psigexj)
-PRINT *, "The initial proton cross-secions are:"
-PRINT *, psigmas
-
-
+PRINT *, "*************************"
+PRINT *, "***STARTING SIMULATION***"
+PRINT *, "*************************"
 
 time_check = 0
 time_diff = 0
@@ -85,13 +64,11 @@ t1 = 0
 ! Open files 
 hopping_file = "hopping_data.txt"
 OPEN(UNIT=1009,FILE="abundance.csv",POSITION='APPEND', STATUS='REPLACE')
-OPEN(UNIT=1011,FILE=hopping_file)
-OPEN(UNIT=1013,FILE="time_data.csv")
-
+!OPEN(UNIT=1011,FILE=hopping_file)
+!OPEN(UNIT=1013,FILE="time_data.csv")
 
 ! Nullify pointers
 NULLIFY ( wait_list,mobile_ptr,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len ) 
-
 
 ! Allocate and associate mobile list and ptr
 ALLOCATE ( mobile_list(1) ) 
@@ -123,7 +100,6 @@ CLOSE(2)
 !******************************************************************************
 ! Create the Reaction Array 
 !******************************************************************************
-
 ! Note, currently ions is somewhat of a magic number
 ALLOCATE( qube(lines_spec,lines_spec,3), sp_list(lines_spec), en_list(lines_spec,3), anion_target(ions) )
 sp_list = "0"
@@ -131,15 +107,12 @@ anion_list => anion_target
 CALL qbert(qube,lines_spec,lines_react,en_list,species_file,reactions_file,sp_list ,ions, anion_list)
 
 ! Associate the pointer to the qube 
-!ALLOCATE( qube_ptr(SIZE(qube,1),SIZE(qube,2),SIZE(qube,3) ) )
 qube_ptr => qube
 
 ! Associate the pointer to en_list
-!ALLOCATE( en_ptr(SIZE(en_list,1),SIZE(en_list,2)) )
 en_ptr => en_list
 
 ! Associate the species list pointer
-!ALLOCATE( sp_ptr(lines_spec) )
 sp_ptr => sp_list
 
 
@@ -151,14 +124,13 @@ CALL lookup( 'e'  , lines_spec, sp_list, ev_nums(3) )
 !******************************************************************************
 ! Calculate the dimensions of the matrix 
 !******************************************************************************
-
 dimens(1) = FLOOR(THICK/C_PR)
 dimens(2) = FLOOR(EDGE/BDIM)
 dimens(3) = dimens(2) !FLOOR(edge/a)
+
 !******************************************************************************
 ! Create the matrix 
 !******************************************************************************
-
 ALLOCATE ( matrix( dimens(1),dimens(2),dimens(3) ) )
 matrix = 0
 
@@ -167,66 +139,46 @@ FORALL ( i=1:dimens(1),j=1:dimens(2),k=1:dimens(3), MOD(k,2) .EQ. 1 .AND. MOD(j,
 END FORALL
 
 ! Associate the pointer to the matrix
-!ALLOCATE( matrix_ptr(dimens(1),dimens(2),dimens(3)) )
 matrix_ptr => matrix
 
 ! Initialize wait list to have nothing in it
 ALLOCATE( wait_target(SIZE(matrix)/3) )
-!ALLOCATE( wait_list(SIZE(matrix)/3) ) 
 wlen_target = 0
-wait_len => wlen_target
+wait_len  => wlen_target
 wait_list => wait_target
 wait_list%wait_time = 0.0
+wait_list%i         = 0
+wait_list%j         = 0
+wait_list%k         = 0
+wait_list%sp_num    = 0
+wait_list%act_type  = 0
 
-wait_list%i = 0
-wait_list%j = 0
-wait_list%k = 0
-wait_list%sp_num = 0
-wait_list%act_type = 0
 !******************************************************************************
 ! Calculate initial waiting times 
 !******************************************************************************
-
-! Initialize time
 time = 0.0
 
 ! Call random seed
 CALL RANDOM_SEED()
 
 ! Find species number for cosmic ray
-cr_num = ev_nums(2)
-
+cr_num  = ev_nums(2)
 cr_rate = cr_flux*area
 CALL RANDOM_NUMBER(rand)
 cr_time = -1*( LOG(rand)/cr_rate )
 
 ! Populate wait_list with cr arrival time
-wait_len = wait_len + 1
-wait_list(wait_len)%wait_time   = cr_time + time
-wait_list(wait_len)%sp_num   = cr_num
+wait_len                      = wait_len + 1
+wait_list(wait_len)%wait_time = cr_time + time
+wait_list(wait_len)%sp_num    = cr_num
 
 ! Write first line in abundance.out file
 !WRITE(1009,*) '  [TIME]                        ','[FLUENCE]                                    ','[O]            ','[O3]'
 CALL COUNTER(time,AB_UNIT_NUM,matrix_ptr,wait_list,4,7)
 
-
 !******************************************************************************
 ! Begin the simulation 
 !******************************************************************************
-
-! Initialize time to 0
-
-! To test, call Fallout once
-!CALL fallout( qube_ptr,matrix_ptr,en_ptr,anion_list,mobile_ptr,wait_list,wait_len,time, ev_nums )
-! Write wait_list data to file
-!OPEN(UNIT=1012,FILE="initial_wait_list.txt")
-!DO n=1,wait_len+1
-!  WRITE(1012,*) wait_list(n)
-!END DO
-!CLOSE(1012)
-
- 
-! Begin simulation
 !counter = 0
 DO WHILE ( time .LE. time_total )
   ! Read the top of the waiting list
@@ -235,7 +187,7 @@ DO WHILE ( time .LE. time_total )
 !    ! If the event is a proton collision, call Fallout
     CALL reactant_remove(wait_list,mindex,matrix_ptr,wait_len)
     CALL fallout( qube_ptr,matrix_ptr,en_ptr,anion_list,mobile_ptr,wait_list, &
-                  wait_len,time,ev_nums,psigmas,psigij,psigexj )
+                  wait_len,time,ev_nums)
     ! Calculate time to next cosmic-ray event 
     CALL RANDOM_NUMBER(rand)
     cr_time = -1*( LOG(rand)/cr_rate )
@@ -257,7 +209,7 @@ DO WHILE ( time .LE. time_total )
 
 
   time_check = time_check + 1  
-  IF ( MOD(time_check,100) .EQ. 0 ) THEN
+  IF ( MOD(time_check,10) .EQ. 0 ) THEN
     CALL counter( time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7)
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
@@ -269,16 +221,15 @@ DO WHILE ( time .LE. time_total )
 !  IF ( MOD(time_check,1000000) .EQ. 0 ) CALL counter( count_num, matrix_ptr )
 END DO
 
-OPEN(UNIT=1013,FILE="wait_list_flaw.txt")
-DO n=1,wait_len
-  IF ( wait_list(n)%sp_num .NE. 20 ) THEN
-    IF ( matrix_ptr(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k) .NE. n ) THEN
-      WRITE(1013,*) matrix_ptr(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k),", ",n,",",wait_len
-    END IF
-  END IF
-END DO
-CLOSE(1013)
-
+!OPEN(UNIT=1013,FILE="wait_list_flaw.txt")
+!DO n=1,wait_len
+!  IF ( wait_list(n)%sp_num .NE. 20 ) THEN
+!    IF ( matrix_ptr(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k) .NE. n ) THEN
+!      WRITE(1013,*) matrix_ptr(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k),", ",n,",",wait_len
+!    END IF
+!  END IF
+!END DO
+!CLOSE(1013)
 
 !OPEN(UNIT=1012,FILE="final_wait_list.txt")
 !DO n=1,wait_len+1
@@ -286,24 +237,18 @@ CLOSE(1013)
 !END DO
 !CLOSE(1012)
 
+PRINT *, "****************"
+PRINT *, "ENDING LOSALAMOS"
+PRINT *, "****************"
 
-
-PRINT *, "LEAVING THE MOONBASE!!!!!!"
-PRINT *, "3"
-PRINT *, "2"
-PRINT *, "1"
-PRINT *, "BLASTOFF!!!!!!!"
 CALL counter( time, AB_UNIT_NUM,matrix_ptr,wait_list,4,7)
 CLOSE(1009)
-CLOSE(1011)
-CLOSE(1013)
+!CLOSE(1011)
+!CLOSE(1013)
 
-!CALL chess(10,matrix_ptr)
 PRINT *, "wait_len is: ",wait_len
 PRINT *, "matrix is size ",SIZEOF(matrix)
 PRINT *, "wait_list is size ",SIZEOF(wait_list)
-!NULLIFY(wait_list,matrix_ptr)
-!DEALLOCATE(wait_target,matrix_ptr)
 NULLIFY ( wait_list,mobile_ptr,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len ) 
 DEALLOCATE( qube, sp_list, en_list, matrix,mobile_list,wait_target )
-END PROGRAM moonbase
+END PROGRAM main

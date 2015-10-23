@@ -1,5 +1,4 @@
 MODULE typedefs
-  USE PARAMETERS
 
 TYPE :: wait_info
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -7,7 +6,7 @@ TYPE :: wait_info
   !   This derived data type is designed to contain
   !  the information related to species waiting times
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  REAL(KIND=DBL)      :: wait_time !waiting time
+  DOUBLE PRECISION    :: wait_time !waiting time
   INTEGER             :: i,j,k     !coordinates in matrix
   INTEGER             :: sp_num    !species identifier
   INTEGER             :: act_type  !1 => hopping, 0 => desorption
@@ -101,5 +100,29 @@ TYPE :: epg_ionstate
   DOUBLE PRECISION  :: omega_epgion
   DOUBLE PRECISION  :: i_epgion !ionization energy in eV
 END TYPE epg_ionstate
+
+TYPE :: se_info
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! Purpose: 
+  !  The purpose of this type is to contain the information relevant to a
+  ! secondary electron, viz. allowed and forbidden excitation cross-section 
+  ! info and ionization cross-section info. The energy is also contained in this
+  ! type for convenience. 
+  !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    TYPE(ionstate), ALLOCATABLE, DIMENSION(:) :: se_ionst !Information regarding the ionization states of the target
+    TYPE(alwd_exstate), ALLOCATABLE, DIMENSION(:) :: se_alwd !Information on the allowed transitions of the target
+    TYPE(fbdn_exstate), ALLOCATABLE, DIMENSION(:) :: se_fbdn !Information on the forbidden transitions of the target
+    DOUBLE PRECISION   :: se_energy !The secondary electron energy
+    DOUBLE PRECISION   :: se_iontot !Total SE ionization cross-section
+    DOUBLE PRECISION   :: se_extot !Total SE excitation cross-section
+    DOUBLE PRECISION   :: se_ineltot !Total SE inelastic cross-section
+    DOUBLE PRECISION   :: se_alwd_extot !Total allowed excitation cross-section
+    DOUBLE PRECISION   :: se_fbdn_extot !Total forbidden excitation cross_section
+    DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_ionsigs !Ionization cross-sections
+    DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_alwdsigs !Allowed excitation cross-sections
+    DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_fbdnsigs !Forbidden exc. cross-sections
+END TYPE se_info
+
 
 END MODULE typedefs

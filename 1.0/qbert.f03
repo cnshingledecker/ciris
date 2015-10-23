@@ -33,7 +33,7 @@
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 SUBROUTINE qbert(qube,nlines1,nlines2,energy_array,species_file,reactions_file,speciesList,i_num,anions)
-USE chaco_data
+USE subroutines 
 USE parameters
 
 IMPLICIT NONE
