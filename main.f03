@@ -209,7 +209,7 @@ DO WHILE ( time .LE. time_total )
 
 
   time_check = time_check + 1  
-  IF ( MOD(time_check,1000) .EQ. 0 ) THEN
+  IF ( MOD(time_check,100) .EQ. 0 ) THEN
     CALL counter( time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7)
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
@@ -247,8 +247,8 @@ CLOSE(1009)
 !CLOSE(1013)
 
 PRINT *, "wait_len is: ",wait_len
-PRINT *, "matrix is size ",SIZEOF(matrix)
-PRINT *, "wait_list is size ",SIZEOF(wait_list)
+PRINT *, "Number of normal sites is:",SIZE(matrix)/3
+PRINT *, "wait_list is size ",SIZE(wait_list)
 NULLIFY ( wait_list,mobile_ptr,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len ) 
 DEALLOCATE( qube, sp_list, en_list, matrix,mobile_list,wait_target )
 END PROGRAM main
