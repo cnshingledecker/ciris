@@ -28,8 +28,8 @@ MODULE parameters
   !******************************************************************************
   ! Physical Conditions 
   !******************************************************************************
-  REAL(KIND=DBL)  , PARAMETER :: THICK       = 1.0e-7 !1.0e-5 ! Thickness of the ice in m
-  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 1.0e-7 !1.0e-7 ! The edge of the crystal in m 
+  REAL(KIND=DBL)  , PARAMETER :: THICK       = 1.0e-5 !1.0e-5 ! Thickness of the ice in cm
+  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 1.0e-5 !1.0e-7 ! The edge of the crystal in cm 
   REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0          ! Kinetic temperature in Kelvin
   REAL(KIND=DBL)  , PARAMETER :: AREA        = EDGE*EDGE      ! Area of irradiated surface in cm 
   REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 3.8E12         ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
@@ -75,7 +75,7 @@ MODULE parameters
   INTEGER       , PARAMETER :: IONS        = 6     ! Number of anions in species list
   INTEGER       , PARAMETER :: TIME_COUNTS = 2     ! Times the model will check abundances
   INTEGER       , PARAMETER :: NSUBEX      = 1     ! Number of sub-excitation interactions 
-  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D5   ! Total time in s
+  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D3   ! Total time in s
   REAL(KIND=DBL), PARAMETER :: AVAL        = 13.0  ! Parameter for Gamma distribution
   REAL(KIND=DBL), PARAMETER :: ECUTOFF     = 4.5D0 ! Secondary cutoff energy in eV
   REAL(KIND=DBL), PARAMETER :: PCUTOFF     = 5D0   ! Primary ion cutoff energy in eV
