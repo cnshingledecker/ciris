@@ -207,7 +207,7 @@ DO WHILE ( time .LE. time_total )
 
 
   time_check = time_check + 1  
-  IF ( MOD(time_check,100) .EQ. 0 ) THEN
+  IF ( MOD(time_check,1000) .EQ. 0 ) THEN
     CALL counter( time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7)
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
