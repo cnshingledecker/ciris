@@ -28,11 +28,12 @@ MODULE parameters
   !******************************************************************************
   ! Physical Conditions 
   !******************************************************************************
-  REAL            , PARAMETER :: THICK       = 1.0e-7 !1.0e-5 ! Thickness of the ice in m
-  REAL            , PARAMETER :: EDGE        = 1.0e-7 !1.0e-7 ! The edge of the crystal in m 
-  REAL            , PARAMETER :: KIN_TEMP    = 5              ! Kinetic temperature in Kelvin
-  REAL            , PARAMETER :: CR_FLUX     = 3.8E12         ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
-  REAL            , PARAMETER :: AREA        = 1E-12          ! Area of irradiated surface in cm 
+  REAL(KIND=DBL)  , PARAMETER :: THICK       = 1.0e-7 !1.0e-5 ! Thickness of the ice in m
+  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 1.0e-7 !1.0e-7 ! The edge of the crystal in m 
+  REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0          ! Kinetic temperature in Kelvin
+  REAL(KIND=DBL)  , PARAMETER :: AREA        = EDGE*EDGE      ! Area of irradiated surface in cm 
+  REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 3.8E12         ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
+  REAL(KIND=DBL)  , PARAMETER :: CR_RATE     = CR_FLUX*AREA    ! Rate of proton arrival
 
   !******************************************************************************
   ! Diffusion Energy Fractions 

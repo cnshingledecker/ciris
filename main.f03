@@ -32,7 +32,6 @@ INTEGER                                                      :: result
 INTEGER                                                      :: time_check     ! DEBUGGING VAR
 REAL                , ALLOCATABLE, DIMENSION(:,:)  , TARGET  :: en_list
 REAL                             , DIMENSION(:,:)  , POINTER :: en_ptr         ! Pointer to en_list
-REAL(KIND=DBL)                                               :: cr_rate        ! Rate of proton arrival
 REAL(KIND=DBL)                                               :: cr_time        ! Time till next proton collision
 REAL(KIND=DBL)                                               :: rand           ! Random number
 REAL(KIND=DBL)                                     , TARGET  :: time_target    ! Target for time pointer
@@ -56,10 +55,10 @@ PRINT *, "***STARTING SIMULATION***"
 PRINT *, "*************************"
 
 time_check = 0
-time_diff = 0
-cpu_total = 0
-t2 = 0
-t1 = 0
+time_diff  = 0
+cpu_total  = 0
+t2         = 0
+t1         = 0
 
 ! Open files 
 hopping_file = "hopping_data.txt"
@@ -163,9 +162,8 @@ CALL RANDOM_SEED()
 
 ! Find species number for cosmic ray
 cr_num  = ev_nums(2)
-cr_rate = cr_flux*area
 CALL RANDOM_NUMBER(rand)
-cr_time = -1*( LOG(rand)/cr_rate )
+cr_time = -1*( LOG(rand)/CR_RATE )
 
 ! Populate wait_list with cr arrival time
 wait_len                      = wait_len + 1
