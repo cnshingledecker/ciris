@@ -22,8 +22,8 @@ MODULE parameters
   REAL            , PARAMETER :: ADIM        = 9.225e-10      !    "
   REAL            , PARAMETER :: BETACRYS    = 85.05          ! Beta parameter in deg
   REAL            , PARAMETER :: C_PR        = CDIM*COS(90-BETACRYS) ! Actual height of the crystal cube
-  REAL            , PARAMETER :: RHO         = 4.78E27        ! Crystal density in m^-3
-  DOUBLE PRECISION, PARAMETER :: RHO2        =0.0286 !in Angstrom^-3
+  REAL            , PARAMETER :: RHO         = 1.313E22 !4.78E27        ! Crystal density in m^-3
+  DOUBLE PRECISION, PARAMETER :: RHO2        = 0.01313  !0.0286         !in Angstrom^-3
 
   !******************************************************************************
   ! Physical Conditions 
