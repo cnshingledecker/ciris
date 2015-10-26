@@ -71,13 +71,13 @@ MODULE parameters
   !******************************************************************************
   ! Model Parameters 
   !******************************************************************************
-  INTEGER       , PARAMETER :: IONS        = 6        ! Number of anions in species list
-  INTEGER       , PARAMETER :: TIME_COUNTS = 2        ! Number of times the model will check abundances
-  INTEGER       , PARAMETER :: NSGSE       = 10       ! Number of second-generation secondary electrons
-  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D5      ! Total time in s
-  REAL(KIND=DBL), PARAMETER :: AVAL        = 13.0     ! Parameter for Gamma distribution
-  REAL(KIND=DBL), PARAMETER :: ECUTOFF     = 4.5D0      ! Secondary cutoff energy in eV
-  REAL(KIND=DBL), PARAMETER :: PCUTOFF     = 5.      ! Primary ion cutoff energy in eV
+  INTEGER       , PARAMETER :: IONS        = 6     ! Number of anions in species list
+  INTEGER       , PARAMETER :: TIME_COUNTS = 2     ! Times the model will check abundances
+  INTEGER       , PARAMETER :: NSUBEX      = 1     ! Number of sub-excitation interactions 
+  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D5   ! Total time in s
+  REAL(KIND=DBL), PARAMETER :: AVAL        = 13.0  ! Parameter for Gamma distribution
+  REAL(KIND=DBL), PARAMETER :: ECUTOFF     = 4.5D0 ! Secondary cutoff energy in eV
+  REAL(KIND=DBL), PARAMETER :: PCUTOFF     = 5D0   ! Primary ion cutoff energy in eV
   
   !******************************************************************************
   ! Array Parameters 

@@ -1021,7 +1021,7 @@ CONTAINS
     ! Local variables !
     !*****************!
     INTEGER(KIND=SHORT)                            :: null
-    INTEGER                                        :: n
+    INTEGER                                        :: n,nn,jj
     INTEGER                                        :: num_elecs ! number of secondary electrons pruduced
     INTEGER                                        :: num_izns
     INTEGER                                        :: num_exs, num_els
@@ -1211,23 +1211,28 @@ CONTAINS
                                   ionlist, mobile_ptr, wait_list, wait_len, &
                                   time, ev_nums, null,elec_coords )
             IF ( null .EQ. 1 ) GOTO 100
-            curr = ev_coords
-            next = elec_coords
+            !*******************************************************************
+            ! Electron Impact Processes
+            !*******************************************************************
+            ! Note: 
+            !  The processes in the following loop correspond to conventional 
+            ! processes such as electron-impact excitation and ionization. These
+            ! types of collisional events are treated semi-classically.  
+            !*******************************************************************
+            curr     = ev_coords
+            next     = elec_coords
             ion_dist = 0
-            enull1 = 0
-            enull2 = 0
-
+            enull1   = 0
+            enull2   = 0
             !Initialize se_box
             CALL se_info_init(se_box)
             DO WHILE ( se_box%se_energy .GE. ECUTOFF )
-!              PRINT *, se_box%se_energy
-              !Calculate electron cross_sections
+              !If the electron no longer has sufficient 
+              !energy, exit the loop.
               IF ( enull1 .NE. 0 .AND. enull2 .NE. 0 ) EXIT 
+
+              !Calculate electron cross_sections
               CALL esigma_suite(se_box)
-!              PRINT *, 'The electron cross-sections are:'
-!              DO nn=1,3
-!                PRINT *, esigmas(nn)
-!              END DO
 
               !Calculate hopping distance
               emfp  = 1./RHO*(se_box%se_ineltot)
@@ -1277,10 +1282,29 @@ CONTAINS
               se_box%se_energy = se_box%se_energy - ee_loss
             END DO
 
-            !**********************************************************************
-            !Carrry out one more ionization corresponding to a low-energy dissociation
-            !WORK IN PROGRESS: DO LATER
-            !**********************************************************************
+            !*******************************************************************
+            ! Sub-Excitation Processes
+            !*******************************************************************
+            ! Note: 
+            !  The processes in the following loop correspond to low-energy, or 
+            ! sub-excitation processes, in which the electron has lost enough energy
+            ! to be unable to excite the target efficiently.
+            !*******************************************************************
+            DO nn=1,NSUBEX !NSUBEX is the number of sub-excitation collisions
+              DO jj=1,estep
+                prev = curr
+                curr = next
+                CALL transport(prev,curr,next,matrix)
+              END DO
+              IF ( matrix(next(1),next(2),next(3)) .NE. 0 ) THEN
+                !Carry out dissociate electron attachment
+                !NB: In the model, this is functionally identical to 
+                !an ordinary ionization
+                CALL base_ionization(next, react_cube, matrix, en_list, &
+                                     ionlist, mobile_ptr, wait_list, wait_len, &
+                                     time, ev_nums,null )
+              END IF
+            END DO
 
             !Manual garbage collection
             CALL se_info_garbage(se_box)
