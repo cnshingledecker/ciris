@@ -1213,7 +1213,6 @@ CONTAINS
             IF ( null .EQ. 1 ) GOTO 100
             curr = ev_coords
             next = elec_coords
-            sgse_counter = 0
             ion_dist = 0
             enull1 = 0
             enull2 = 0
