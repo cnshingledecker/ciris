@@ -4,8 +4,8 @@
   #FC = ifort
 
 # Flags
-  #FCFLAGS = -O0 -g -pg -static-libgcc -march=native -fbounds-check -Wall
-  FCFLAGS = -march=native -O3 -ffast-math -static-libgcc
+  FCFLAGS = -g -pg -static-libgcc -march=native -fbounds-check -Wall
+  #FCFLAGS = -march=native -O3 -ffast-math -static-libgcc
 
 OBJECTS = qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o specdata.o
 
