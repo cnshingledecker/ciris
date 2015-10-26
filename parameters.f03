@@ -17,13 +17,13 @@ MODULE parameters
   !******************************************************************************
   ! Matrix/Crystal Structure Parameters 
   !******************************************************************************
-  REAL            , PARAMETER :: CDIM        = 3.414e-10      ! Crystal dimension in m
-  REAL            , PARAMETER :: BDIM        = 6.668e-10      !    "
-  REAL            , PARAMETER :: ADIM        = 9.225e-10      !    "
+  REAL            , PARAMETER :: CDIM        = 3.414e-8      ! Crystal dimension in cm
+  REAL            , PARAMETER :: BDIM        = 6.668e-8      !    "
+  REAL            , PARAMETER :: ADIM        = 9.225e-8      !    "
   REAL            , PARAMETER :: BETACRYS    = 85.05          ! Beta parameter in deg
   REAL            , PARAMETER :: C_PR        = CDIM*COS(90-BETACRYS) ! Actual height of the crystal cube
-  REAL            , PARAMETER :: RHO         = 1.313E22 !4.78E27        ! Crystal density in m^-3
-  DOUBLE PRECISION, PARAMETER :: RHO2        = 0.01313  !0.0286         !in Angstrom^-3
+  REAL            , PARAMETER :: RHO         = 1.313E22 !4.78E27  ! Crystal density in cm^-3
+  DOUBLE PRECISION, PARAMETER :: RHO2        = 0.01313  !0.0286   !in Angstrom^-3
 
   !******************************************************************************
   ! Physical Conditions 
@@ -33,7 +33,7 @@ MODULE parameters
   REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0          ! Kinetic temperature in Kelvin
   REAL(KIND=DBL)  , PARAMETER :: AREA        = EDGE*EDGE      ! Area of irradiated surface in cm 
   REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 3.8E12         ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
-  REAL(KIND=DBL)  , PARAMETER :: CR_RATE     = CR_FLUX*AREA    ! Rate of proton arrival
+  REAL(KIND=DBL)  , PARAMETER :: CR_RATE     = CR_FLUX*AREA   ! Rate of proton arrival
 
   !******************************************************************************
   ! Diffusion Energy Fractions 
