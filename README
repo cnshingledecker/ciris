@@ -28,9 +28,9 @@ VERSION 1.1 NOTES:
 1. Kinchin-Pease damage calculations are not included, since the solids are 
    assumed to be thin and elastic collisions are assumed to be non-important
 
-2. Eventually, add one more "round" for the secondary electrons after they
+2. DONE!! Eventually, add one more "round" for the secondary electrons after they
    drop below the ECUTOFF to simulate low-energy processes. 
 
-3. Add analytics to get geminacy and eV/species.
+3. Add analytics to get geminacy and eV/species as well as W-value
 
 4. Play around with excitation dissociation.

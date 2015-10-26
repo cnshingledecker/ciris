@@ -1290,21 +1290,23 @@ CONTAINS
             ! sub-excitation processes, in which the electron has lost enough energy
             ! to be unable to excite the target efficiently.
             !*******************************************************************
-            DO nn=1,NSUBEX !NSUBEX is the number of sub-excitation collisions
-              DO jj=1,estep
-                prev = curr
-                curr = next
-                CALL transport(prev,curr,next,matrix)
+            IF ( NSUBEX .NE. 0 ) THEN
+              DO nn=1,NSUBEX !NSUBEX is the number of sub-excitation collisions
+                DO jj=1,estep
+                  prev = curr
+                  curr = next
+                  CALL transport(prev,curr,next,matrix)
+                END DO
+                IF ( matrix(next(1),next(2),next(3)) .NE. 0 ) THEN
+                  !Carry out dissociate electron attachment
+                  !NB: In the model, this is functionally identical to 
+                  !an ordinary ionization
+                  CALL base_ionization(next, react_cube, matrix, en_list, &
+                                       ionlist, mobile_ptr, wait_list, wait_len, &
+                                       time, ev_nums,null )
+                END IF
               END DO
-              IF ( matrix(next(1),next(2),next(3)) .NE. 0 ) THEN
-                !Carry out dissociate electron attachment
-                !NB: In the model, this is functionally identical to 
-                !an ordinary ionization
-                CALL base_ionization(next, react_cube, matrix, en_list, &
-                                     ionlist, mobile_ptr, wait_list, wait_len, &
-                                     time, ev_nums,null )
-              END IF
-            END DO
+            END IF
 
             !Manual garbage collection
             CALL se_info_garbage(se_box)
