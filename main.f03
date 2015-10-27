@@ -33,7 +33,7 @@ INTEGER                                                      :: time_check     !
 REAL                , ALLOCATABLE, DIMENSION(:,:)  , TARGET  :: en_list
 REAL                             , DIMENSION(:,:)  , POINTER :: en_ptr         ! Pointer to en_list
 REAL(KIND=DBL)                                               :: cr_time        ! Time till next proton collision
-REAL(KIND=DBL)                                               :: rand           ! Random number
+REAL(KIND=DBL)                                               :: rndnum         ! Random number
 REAL(KIND=DBL)                                     , TARGET  :: time_target    ! Target for time pointer
 REAL(KIND=DBL)                                     , POINTER :: time           ! Current simulation time
 REAL(KIND=DBL)                                               :: time_step      ! Time between abundance checks
@@ -176,8 +176,8 @@ CALL RANDOM_SEED()
 
 ! Find species number for cosmic ray
 cr_num  = ev_nums(2)
-CALL RANDOM_NUMBER(rand)
-cr_time = -1*( LOG(rand)/CR_RATE )
+rndnum  = RAND()
+cr_time = -1*( DLOG(rndnum)/CR_RATE )
 
 ! Populate wait_list with cr arrival time
 wait_len                      = wait_len + 1
@@ -202,8 +202,8 @@ DO WHILE ( time .LE. time_total )
     CALL fallout( qube_ptr,matrix_ptr,en_ptr,anion_list,mobile_ptr,wait_list, &
                   wait_len,time,ev_nums)
     ! Calculate time to next cosmic-ray event 
-    CALL RANDOM_NUMBER(rand)
-    cr_time = -1*( LOG(rand)/cr_rate )
+    rndnum  = RAND()
+    cr_time = -1*( DLOG(rndnum)/cr_rate )
     ! Populate wait_list with new time
     wait_len = wait_len + 1
     wait_list(wait_len)%wait_time   = cr_time + time
