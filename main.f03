@@ -123,8 +123,8 @@ CALL lookup( 'e'  , lines_spec, sp_list, ev_nums(3) )
 !******************************************************************************
 ! Calculate the dimensions of the matrix 
 !******************************************************************************
-dimens(1) = FLOOR(THICK/C_PR)
-dimens(2) = FLOOR(EDGE/BDIM)
+dimens(1) = NTHICK !FLOOR(THICK/C_PR)
+dimens(2) = NEDGE !FLOOR(EDGE/BDIM)
 dimens(3) = dimens(2) !FLOOR(edge/a)
 
 !******************************************************************************

@@ -17,12 +17,12 @@ MODULE parameters
   !******************************************************************************
   ! Matrix/Crystal Structure Parameters 
   !******************************************************************************
-  REAL            , PARAMETER :: CDIM        = 3.414e-8      ! Crystal dimension in cm
-  REAL            , PARAMETER :: BDIM        = 6.668e-8      !    "
-  REAL            , PARAMETER :: ADIM        = 9.225e-8      !    "
-  REAL            , PARAMETER :: BETACRYS    = 85.05          ! Beta parameter in deg
-  REAL            , PARAMETER :: C_PR        = CDIM*COS(90-BETACRYS) ! Actual height of the crystal cube
-  REAL            , PARAMETER :: RHO         = 1.313E22 !4.78E27  ! Crystal density in cm^-3
+  REAL(KIND=DBL)  , PARAMETER :: CDIM        = 3.414e-8      ! Crystal dimension in cm
+  REAL(KIND=DBL)  , PARAMETER :: BDIM        = 6.668e-8      !    "
+  REAL(KIND=DBL)  , PARAMETER :: ADIM        = 9.225e-8      !    "
+  REAL(KIND=DBL)  , PARAMETER :: BETACRYS    = 85.05          ! Beta parameter in deg
+  REAL(KIND=DBL)  , PARAMETER :: C_PR        = CDIM*COS(90-BETACRYS) ! Actual height of the crystal cube
+  REAL(KIND=DBL)  , PARAMETER :: RHO         = 1.313E22 !4.78E27  ! Crystal density in cm^-3
   DOUBLE PRECISION, PARAMETER :: RHO2        = 0.01313  !0.0286   !in Angstrom^-3
 
   !******************************************************************************
@@ -34,6 +34,10 @@ MODULE parameters
   REAL(KIND=DBL)  , PARAMETER :: AREA        = EDGE*EDGE      ! Area of irradiated surface in cm 
   REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 3.8E12         ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
   REAL(KIND=DBL)  , PARAMETER :: CR_RATE     = CR_FLUX*AREA   ! Rate of proton arrival
+  REAL(KIND=DBL)  , PARAMETER :: NELEM       = 3.0*RHO*(THICK*EDGE*EDGE) !Total matrix elements
+  REAL(KIND=DBL)  , PARAMETER :: TER         = THICK/EDGE !Thick to edge ratio
+  REAL(KIND=DBL)  , PARAMETER :: NEDGE       = (NELEM/TER)**(1./3.) !Edge elements
+  REAL(KIND=DBL)  , PARAMETER :: NTHICK      = NEDGE*TER !Thickness elements
 
   !******************************************************************************
   ! Diffusion Energy Fractions 
@@ -75,7 +79,7 @@ MODULE parameters
   INTEGER       , PARAMETER :: IONS        = 6     ! Number of anions in species list
   INTEGER       , PARAMETER :: TIME_COUNTS = 2     ! Times the model will check abundances
   INTEGER       , PARAMETER :: NSUBEX      = 1     ! Number of sub-excitation interactions 
-  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D3   ! Total time in s
+  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D5   ! Total time in s
   REAL(KIND=DBL), PARAMETER :: AVAL        = 13.0  ! Parameter for Gamma distribution
   REAL(KIND=DBL), PARAMETER :: ECUTOFF     = 4.5D0 ! Secondary cutoff energy in eV
   REAL(KIND=DBL), PARAMETER :: PCUTOFF     = 5D0   ! Primary ion cutoff energy in eV
