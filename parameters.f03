@@ -32,7 +32,7 @@ MODULE parameters
   REAL(KIND=DBL)  , PARAMETER :: EDGE        = 1.0e-5 !1.0e-7 ! The edge of the crystal in cm 
   REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0          ! Kinetic temperature in Kelvin
   REAL(KIND=DBL)  , PARAMETER :: AREA        = EDGE*EDGE      ! Area of irradiated surface in cm 
-  REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 3.8E12         ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
+  REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 1.0D11         ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
   REAL(KIND=DBL)  , PARAMETER :: CR_RATE     = CR_FLUX*AREA   ! Rate of proton arrival
   REAL(KIND=DBL)  , PARAMETER :: NELEM       = 3.0*RHO*(THICK*EDGE*EDGE) !Total matrix elements
   REAL(KIND=DBL)  , PARAMETER :: TER         = THICK/EDGE !Thick to edge ratio

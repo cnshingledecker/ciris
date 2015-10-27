@@ -49,10 +49,24 @@ CHARACTER(len=80)                                            :: reactions_file !
 CHARACTER(len=80)                                            :: hopping_file   ! File containing hopping data
 TYPE (wait_info)    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: wait_target
 TYPE (wait_info)                 , DIMENSION(:)    , POINTER :: wait_list      !Derived data type described in chaco_data.f90
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!! DEBUGGING/ANALYTICS VARIABLES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+INTEGER(KIND=LONG)                                           :: numprotons
+INTEGER(KIND=LONG)                                           :: numo2, numo3
+DOUBLE PRECISION                                   , POINTER :: p_e_loss
+DOUBLE PRECISION                                   , POINTER :: disc_fluence
 
 PRINT *, "*************************"
 PRINT *, "***STARTING SIMULATION***"
 PRINT *, "*************************"
+
+! Initialize analytics and debugging vals
+numprotons = 0
+!numo2      = 0
+!numo3      = 0
+!p_e_loss   = 0D0
+!disc_fluence = 0D0
 
 time_check = 0
 time_diff  = 0
@@ -182,7 +196,8 @@ DO WHILE ( time .LE. time_total )
   ! Read the top of the waiting list
   CALL roll_call( wait_list, time, wait_len, mindex )
   IF ( wait_list(mindex)%sp_num .EQ. cr_num ) THEN
-!    ! If the event is a proton collision, call Fallout
+    ! If the event is a proton collision, call Fallout
+    numprotons = numprotons + 1
     CALL reactant_remove(wait_list,mindex,matrix_ptr,wait_len)
     CALL fallout( qube_ptr,matrix_ptr,en_ptr,anion_list,mobile_ptr,wait_list, &
                   wait_len,time,ev_nums)
@@ -211,7 +226,7 @@ DO WHILE ( time .LE. time_total )
     CALL counter( time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7)
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
-    PRINT *, "Time =", time, "|*| cpu_total =", cpu_total !, "|*| Clock_diff =",t2-t1 
+    PRINT *, "Time =", time, "|*| Fluence =", numprotons/AREA !, "|*| Clock_diff =",t2-t1 
 !    WRITE(1013, *) time,",", time-time_diff,",", t2-t1,",",cpu_total 
     time_diff = time
     t1 = t2
