@@ -186,7 +186,7 @@ wait_list(wait_len)%sp_num    = cr_num
 
 ! Write first line in abundance.out file
 !WRITE(1009,*) '  [TIME]                        ','[FLUENCE]                                    ','[O]            ','[O3]'
-CALL COUNTER(time,AB_UNIT_NUM,matrix_ptr,wait_list,4,7)
+CALL COUNTER(numprotons,time,AB_UNIT_NUM,matrix_ptr,wait_list,4,7)
 
 !******************************************************************************
 ! Begin the simulation 
@@ -223,7 +223,7 @@ DO WHILE ( time .LE. time_total )
 
   time_check = time_check + 1  
   IF ( MOD(time_check,1000) .EQ. 0 ) THEN
-    CALL counter( time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7)
+    CALL counter( numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7)
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
     PRINT *, "Time =", time, "|*| Fluence =", numprotons/AREA !, "|*| Clock_diff =",t2-t1 
@@ -254,7 +254,7 @@ PRINT *, "****************"
 PRINT *, "ENDING LOSALAMOS"
 PRINT *, "****************"
 
-CALL counter( time, AB_UNIT_NUM,matrix_ptr,wait_list,4,7)
+CALL counter( numprotons,time, AB_UNIT_NUM,matrix_ptr,wait_list,4,7)
 CLOSE(1009)
 !CLOSE(1011)
 !CLOSE(1013)
