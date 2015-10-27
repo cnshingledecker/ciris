@@ -2388,7 +2388,7 @@ SUBROUTINE minmod ( wait_list, mindex, wait_len )
   END DO
 END SUBROUTINE minmod 
 
-SUBROUTINE counter(time, unit_num, matrix,wait_list,sp1,sp2)
+SUBROUTINE counter(numprotons,time, unit_num, matrix,wait_list,sp1,sp2)
 !
 ! Purpose: 
 !   The purpose of this subroutine is to count
@@ -2406,6 +2406,7 @@ SUBROUTINE counter(time, unit_num, matrix,wait_list,sp1,sp2)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   IMPLICIT NONE
 
+  INTEGER(KIND=LONG) , INTENT(IN)                            :: numprotons
   INTEGER            , INTENT(IN)                            :: unit_num
   INTEGER                                                    :: i,j,k
   INTEGER                                                    :: sp1_count, sp2_count
@@ -2438,7 +2439,7 @@ SUBROUTINE counter(time, unit_num, matrix,wait_list,sp1,sp2)
     END DO
   END DO
 
-  WRITE(unit_num,*) time,',', cr_flux*time,',',sp1_count,',',sp2_count
+  WRITE(unit_num,*) time,',', numprotons/AREA,',',sp1_count,',',sp2_count
 
 END SUBROUTINE counter
 
