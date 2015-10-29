@@ -1,5 +1,19 @@
 MODULE typedefs
 
+
+TYPE :: react_analysis
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! Purpose: 
+  !   This derived data type keeps track of the number of times a certain
+  !  species is made or destroyed and which reaction was responsible.
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        INTEGER                                     :: r1 !reactant 1
+        INTEGER                                     :: r2 !reactant 2
+        INTEGER             , DIMENSION(3)          :: prods !products of the reaction
+        TYPE(react_analysis)              , POINTER :: rct_ptr
+END TYPE react_analysis
+
+
 TYPE :: wait_info
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! Purpose: 

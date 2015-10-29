@@ -53,9 +53,30 @@ TYPE (wait_info)                 , DIMENSION(:)    , POINTER :: wait_list      !
 !!!!!!!!!!!!!!!!!! DEBUGGING/ANALYTICS VARIABLES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 INTEGER(KIND=LONG)                                           :: numprotons
-INTEGER(KIND=LONG)                                           :: numo2, numo3
+INTEGER                                                      :: istat
 DOUBLE PRECISION                                   , POINTER :: p_e_loss
 DOUBLE PRECISION                                   , POINTER :: disc_fluence
+TYPE(react_analysis)                               , POINTER :: o3_made_hd
+TYPE(react_analysis)                               , POINTER :: o3_made_tl
+TYPE(react_analysis)                               , POINTER :: o3_made_tmp
+
+IF ( .NOT. ASSOCIATED(o3_made_hd) ) THEN
+        ALLOCATE(o3_made_hd, STAT=istat)
+        o3_made_tl => o3_made_hd
+        NULLIFY(o3_made_tl%rct_ptr)
+        o3_made_tl%r1    = 0
+        o3_made_tl%r2    = 0
+        o3_made_tl%prods = 0
+ELSE
+        ALLOCATE(o3_made_tl%rct_ptr,STAT=istat)
+        o3_made_tl => o3_made_tl%rct_ptr
+        NULLIFY(o3_made_tl%rct_ptr)
+        o3_made_tl%r1    = 0
+        o3_made_tl%r2    = 0
+        o3_made_tl%prods = 0
+END IF
+
+PRINT *, o3_made_hd%prods
 
 PRINT *, "*************************"
 PRINT *, "***STARTING SIMULATION***"
@@ -222,7 +243,7 @@ DO WHILE ( time .LE. time_total )
 
 
   time_check = time_check + 1  
-  IF ( MOD(time_check,1000) .EQ. 0 ) THEN
+  IF ( MOD(time_check,1) .EQ. 0 ) THEN
     CALL counter( numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7)
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)

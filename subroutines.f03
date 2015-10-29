@@ -1026,6 +1026,7 @@ CONTAINS
     INTEGER                                        :: num_izns
     INTEGER                                        :: num_exs, num_els
     INTEGER                                        :: x,y,z !coordinates of cosmic-ray along track
+    INTEGER                                        :: exitcount
     INTEGER                                        :: count_count
     INTEGER                                        :: step,estep !distance the track is incremented  
     INTEGER                                        :: switch,eswitch 
@@ -1056,6 +1057,7 @@ CONTAINS
     !*************************************************************************
     DOUBLE PRECISION   , DIMENSION(:), ALLOCATABLE, TARGET :: psigij_target,psigexj_target
     TYPE(SIGMA_BOX)    , DIMENSION(:), ALLOCATABLE, TARGET :: psigmas_target   
+    INTEGER :: thinghit
 
 
     !****************************************************************************!
@@ -1128,6 +1130,11 @@ CONTAINS
       ev_coords(2) = y
       ev_coords(3) = x
 
+      thinghit = matrix(ev_coords(1),ev_coords(2),ev_coords(3))
+
+      !Debugging command
+!      IF (matrix(ev_coords(1),ev_coords(2),ev_coords(3)) .EQ. -7 ) GOTO 100
+
       IF ( matrix(z+step,y,x) .NE. 0 ) THEN
 !        PRINT *, "The value of the matrix is:",matrix(z+step,y,x)
         ! If the site is occupied, then determine the type of event to occur
@@ -1152,10 +1159,17 @@ CONTAINS
               e_loss = e_ion + e_se
               nature = "Ionization"
               se_box%se_energy = e_se
-            ELSE IF ( rand1 .GT. DISPROB) THEN
+              !**********************
+              ! For debugging \/ \/
+              !**********************
+!              se_box%se_energy = 0D0
+            ELSE IF ( rand1 .GT. DISPROB .OR. thinghit .EQ. -1 ) THEN
               ! Excitation will occur
               num_exs = num_exs + 1
               switch = 1 
+              IF ( thinghit .EQ. -7 ) switch = 0
+              !\/ For debugging \/
+!              switch = 2
               CALL p_ex_select(psigexj,e_exc)
               e_loss = e_exc
               nature = "Excitation"
@@ -1173,6 +1187,8 @@ CONTAINS
         ione = ione - e_loss
         CALL psigma_suite(ione,psigmas,psigij,psigexj)
 
+        !Debugging
+!        switch = 2
   !****************************************************************************!
   ! Elastic collision                                                          ! 
   !****************************************************************************!
@@ -1219,6 +1235,9 @@ CONTAINS
             ! processes such as electron-impact excitation and ionization. These
             ! types of collisional events are treated semi-classically.  
             !*******************************************************************
+            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            ! ELECTRON_IMPACT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             curr     = ev_coords
             next     = elec_coords
             ion_dist = 0
@@ -1290,23 +1309,34 @@ CONTAINS
             ! sub-excitation processes, in which the electron has lost enough energy
             ! to be unable to excite the target efficiently.
             !*******************************************************************
+            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            ! SUB_EXCITATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!            PRINT *, 'Starting sub_excitation process'
             IF ( NSUBEX .NE. 0 ) THEN
-              DO nn=1,NSUBEX !NSUBEX is the number of sub-excitation collisions
+              nn = 0
+              exitcount = 0
+!              PRINT *, 'nn=',nn
+              DO WHILE ( nn .LT. NSUBEX .AND. exitcount .LT. NEXIT) !NSUBEX is the number of sub-excitation collisions
+!                PRINT *, 'exitcount=',exitcount
+                exitcount = exitcount + 1
                 DO jj=1,estep
                   prev = curr
                   curr = next
                   CALL transport(prev,curr,next,matrix)
                 END DO
-                IF ( matrix(next(1),next(2),next(3)) .NE. 0 ) THEN
+                IF ( matrix(next(1),next(2),next(3)) .EQ. -1 ) THEN
                   !Carry out dissociate electron attachment
                   !NB: In the model, this is functionally identical to 
                   !an ordinary ionization
                   CALL base_ionization(next, react_cube, matrix, en_list, &
                                        ionlist, mobile_ptr, wait_list, wait_len, &
                                        time, ev_nums,null )
+                  nn = nn + 1
                 END IF
               END DO
             END IF
+!            PRINT *, 'Finishing sub_excitation processes'
 
             !Manual garbage collection
             CALL se_info_garbage(se_box)
@@ -2414,8 +2444,13 @@ SUBROUTINE counter(numprotons,time, unit_num, matrix,wait_list,sp1,sp2)
   INTEGER                        , DIMENSION(3)              :: dimens
   INTEGER                        , DIMENSION(:,:,:), POINTER :: matrix
   REAL(KIND=DBL)                                   , POINTER :: time
+  REAL(KIND=DBL)                                             :: volume
+  REAL(KIND=DBL)                                             :: denom
   TYPE(wait_info)                , DIMENSION(:)    , POINTER :: wait_list
 
+
+  volume = THICK*EDGE*EDGE
+  denom = volume*1E20
   sp1_count = 0
   sp2_count = 0
  
@@ -2439,7 +2474,7 @@ SUBROUTINE counter(numprotons,time, unit_num, matrix,wait_list,sp1,sp2)
     END DO
   END DO
 
-  WRITE(unit_num,*) time,',', numprotons/AREA,',',sp1_count,',',sp2_count
+  WRITE(unit_num,*) time,',', numprotons/AREA,',',sp1_count/denom,',',sp2_count/denom,',',numprotons
 
 END SUBROUTINE counter
 
