@@ -32,7 +32,7 @@ MODULE parameters
   REAL(KIND=DBL)  , PARAMETER :: EDGE        = 1.0e-5 !1.0e-7 ! The edge of the crystal in cm 
   REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0          ! Kinetic temperature in Kelvin
   REAL(KIND=DBL)  , PARAMETER :: AREA        = EDGE*EDGE      ! Area of irradiated surface in cm 
-  REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 1.0D11         ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
+  REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 1.0D7         ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
   REAL(KIND=DBL)  , PARAMETER :: CR_RATE     = CR_FLUX*AREA   ! Rate of proton arrival
   REAL(KIND=DBL)  , PARAMETER :: NELEM       = 3.0*RHO*(THICK*EDGE*EDGE) !Total matrix elements
   REAL(KIND=DBL)  , PARAMETER :: TER         = THICK/EDGE !Thick to edge ratio
@@ -59,7 +59,7 @@ MODULE parameters
   ! Kinetic Parameters 
   !******************************************************************************
   DOUBLE PRECISION, PARAMETER :: TRL_NU      = 1E10     ! Trial frequency, for the rates, in 1/s
-  DOUBLE PRECISION, PARAMETER :: DISPROB     = 1.0      ! Probability of excitative dissociation
+  DOUBLE PRECISION, PARAMETER :: DISPROB     = 0D0      ! Probability of excitative dissociation
   DOUBLE PRECISION, PARAMETER :: ZP=1.
   DOUBLE PRECISION, PARAMETER :: ZO1=8.
   DOUBLE PRECISION, PARAMETER :: ZO2=16.
@@ -78,16 +78,17 @@ MODULE parameters
   !******************************************************************************
   INTEGER       , PARAMETER :: IONS        = 6     ! Number of anions in species list
   INTEGER       , PARAMETER :: TIME_COUNTS = 2     ! Times the model will check abundances
-  INTEGER       , PARAMETER :: NSUBEX      = 10     ! Number of sub-excitation interactions 
+  INTEGER       , PARAMETER :: NSUBEX      = 5     ! Number of sub-excitation interactions 
+  INTEGER       , PARAMETER :: NEXIT       = 100
   REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D5   ! Total time in s
-  REAL(KIND=DBL), PARAMETER :: AVAL        = 20.0  ! Parameter for Gamma distribution
-  REAL(KIND=DBL), PARAMETER :: ECUTOFF     = 4.5D0 ! Secondary cutoff energy in eV
+  REAL(KIND=DBL), PARAMETER :: AVAL        = 30.0  ! Parameter for Gamma distribution
+  REAL(KIND=DBL), PARAMETER :: ECUTOFF     = 4.5D3 ! Secondary cutoff energy in eV
   REAL(KIND=DBL), PARAMETER :: PCUTOFF     = 5D0   ! Primary ion cutoff energy in eV
   
   !******************************************************************************
   ! Array Parameters 
   !******************************************************************************
-  INTEGER       , PARAMETER, DIMENSION(1) ::  FAST_REACTS = (/ 4 /) 
+  INTEGER       , PARAMETER, DIMENSION(1) ::  FAST_REACTS = (/ 4 /)  !4
 
   !******************************************************************************
   ! Output File Unit Numbers 
