@@ -725,7 +725,7 @@ CONTAINS
     END IF 
   END SUBROUTINE bresenham
 
-  SUBROUTINE cern ( null,mobile_list, en_list, react_cube, matrix, event_num, &
+  SUBROUTINE cern ( debug, null,mobile_list, en_list, react_cube, matrix, event_num, &
                     event_coords, switch, wait_list, wait_len, time, elec_coords )
   ! 
   ! Purpose:
@@ -750,6 +750,7 @@ CONTAINS
     ! Input and output !
     !******************!
 
+    LOGICAL            , INTENT(IN)                                          :: debug !print reactions if true
     INTEGER(KIND=SHORT), INTENT(INOUT)                                       :: null
     INTEGER            , INTENT(IN)    , DIMENSION(3)                        :: event_coords !coordinated of collision
     INTEGER            , INTENT(IN)                                          :: switch !type of event
@@ -839,6 +840,11 @@ CONTAINS
     prods = 0
     prods = react_cube(r1,r2,:) ! populate the product array
 !    PRINT *, "The products of the reaction are: ",prods
+
+    !If debug is switched on, print the reactants and products
+    IF ( debug .EQV. .TRUE. ) THEN
+      WRITE(777,*) r1,',',r2,',',prods(1),',',prods(2),',',prods(3)
+    END IF
 
     IF ( prods(1) .EQ. 0 ) THEN
       PRINT *, 'Uh-oh, we have a problem in Cern!'
@@ -980,7 +986,7 @@ CONTAINS
     END IF
   END SUBROUTINE cern             
 
-  SUBROUTINE fallout ( react_cube, matrix,  en_list, ionlist, mobile_ptr, &
+  SUBROUTINE fallout ( debug, react_cube, matrix,  en_list, ionlist, mobile_ptr, &
                        wait_list, wait_len, time, ev_nums)
   ! Purpose:
   !   To calculate the track of a particle of ionizing radiation through a 
@@ -1007,6 +1013,7 @@ CONTAINS
     !******************!
     ! Input and output !
     !******************!
+    LOGICAL                                        :: debug
     INTEGER                              , POINTER :: wait_len
     INTEGER            , DIMENSION(:)    , POINTER :: mobile_ptr !pointer with mobile species list
     INTEGER            , DIMENSION(:)    , POINTER :: ionlist !list of anionic species
@@ -1201,7 +1208,7 @@ CONTAINS
   ! Excitation                                                                 !
   !****************************************************************************!
         ELSE IF ( switch .EQ. 1 ) THEN ! Dissociate target species on track and place prods
-          CALL cern( null,mobile_ptr, en_list, react_cube, matrix, ev_nums, ev_coords, switch, &
+          CALL cern( debug,null,mobile_ptr, en_list, react_cube, matrix, ev_nums, ev_coords, switch, &
                      wait_list, wait_len, time )
  
           IF ( null .EQ. 1 ) RETURN
@@ -1210,7 +1217,7 @@ CONTAINS
   !****************************************************************************!
         ELSE IF ( switch .EQ. 2 .AND. z+step .NE. 1 .AND. z+step .NE. 2 ) THEN
           IF ( se_box%se_energy .LE. ECUTOFF ) THEN
-            CALL base_ionization( ev_coords, react_cube, matrix, en_list, &
+            CALL base_ionization( debug,ev_coords, react_cube, matrix, en_list, &
                                   ionlist, mobile_ptr, wait_list, wait_len, &
                                   time, ev_nums, null )
             IF ( null .EQ. 1 ) RETURN
@@ -1223,7 +1230,7 @@ CONTAINS
             ! Call Cern to generate the first-generation secondary electron          
             ! NB: the electron should be the second product in the "prods" array
             !*******************************************************************
-            CALL base_ionization( ev_coords, react_cube, matrix, en_list, &
+            CALL base_ionization( debug,ev_coords, react_cube, matrix, en_list, &
                                   ionlist, mobile_ptr, wait_list, wait_len, &
                                   time, ev_nums, null,elec_coords )
             IF ( null .EQ. 1 ) GOTO 100
@@ -1280,7 +1287,7 @@ CONTAINS
               !Carry out impact collision
               IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. eswitch .EQ. 1 ) THEN
                 !Electron impact ionization
-                CALL base_ionization(next, react_cube, matrix, en_list, &
+                CALL base_ionization(debug, next, react_cube, matrix, en_list, &
                                      ionlist, mobile_ptr, wait_list, wait_len, &
                                      time, ev_nums,null )
                 IF ( null .EQ. 1 ) GOTO 100 
@@ -1290,7 +1297,7 @@ CONTAINS
                 !Electron impact excitation
                 rand1 = RAND()
                 IF ( rand1 .GT. DISPROB .AND. matrix(curr(1),curr(2),curr(3)) .NE. 0 ) THEN
-                  CALL cern( null,mobile_ptr, en_list, react_cube, matrix, ev_nums, next, 1, &
+                  CALL cern( debug,null,mobile_ptr, en_list, react_cube, matrix, ev_nums, next, 1, &
                              wait_list, wait_len, time )
                 END IF
                 CALL e_ex_select(se_box,e_exc,enull2)
@@ -1329,7 +1336,7 @@ CONTAINS
                   !Carry out dissociate electron attachment
                   !NB: In the model, this is functionally identical to 
                   !an ordinary ionization
-                  CALL base_ionization(next, react_cube, matrix, en_list, &
+                  CALL base_ionization(debug,next, react_cube, matrix, en_list, &
                                        ionlist, mobile_ptr, wait_list, wait_len, &
                                        time, ev_nums,null )
                   nn = nn + 1
@@ -1790,7 +1797,8 @@ SUBROUTINE action_figure ( wait_list, index, rand_num, E_list )
   END IF
 END SUBROUTINE action_figure
 
-SUBROUTINE meta_hop ( mindex, react_ptr, matrix_ptr, E_list, wait_list, mobile_ptr,result, wait_len, time ) 
+SUBROUTINE meta_hop ( debug, mindex, react_ptr, matrix_ptr, E_list, wait_list, mobile_ptr, &
+                      result, wait_len, time ) 
 !
 ! Purpose: 
 !  The purpose of this subroutine is to serve as
@@ -1830,6 +1838,7 @@ SUBROUTINE meta_hop ( mindex, react_ptr, matrix_ptr, E_list, wait_list, mobile_p
   IMPLICIT NONE
 
   ! Data dictionary: variables passed to and by the subroutine
+  LOGICAL            , INTENT(IN)                             :: debug
   INTEGER            , INTENT(IN)                             :: mindex !index of the moving species in wait_list
   INTEGER                                           , POINTER :: wait_len !length of non-zero elements of wait_list
   INTEGER                         , DIMENSION(:)    , POINTER :: mobile_ptr !mobile species list
@@ -1946,7 +1955,7 @@ SUBROUTINE meta_hop ( mindex, react_ptr, matrix_ptr, E_list, wait_list, mobile_p
 !        PRINT *, "Right before reaction, i, j, k are ",i,j,k
 !        PRINT *, "The value of the matrix at that point is ",matrix_ptr(i,j,k)
 !        PRINT *, 'Calling reaction in meta_hop'
-        CALL reaction ( mobile_ptr,react_ptr, E_list, matrix_ptr, wait_list, wait_len, &
+        CALL reaction( debug, mobile_ptr,react_ptr, E_list, matrix_ptr, wait_list, wait_len, &
                         time, i, j, k, i_hop, j_hop, k_hop  ) 
         result = 2
 !        WRITE(1015,*) mindex,"reacts"
@@ -1956,7 +1965,7 @@ SUBROUTINE meta_hop ( mindex, react_ptr, matrix_ptr, E_list, wait_list, mobile_p
 !    CLOSE(1015)
 END SUBROUTINE meta_hop
 
-SUBROUTINE reaction( mobile_list, qube, E_list, matrix,  wait_list, wait_len, time, i_re, j_re, &
+SUBROUTINE reaction( debug,mobile_list, qube, E_list, matrix,  wait_list, wait_len, time, i_re, j_re, &
                      k_re, i_re2, j_re2, k_re2, ion_coords, anion_list)
 !
 ! Purpose: 
@@ -1976,6 +1985,7 @@ SUBROUTINE reaction( mobile_list, qube, E_list, matrix,  wait_list, wait_len, ti
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   IMPLICIT NONE
 
+  LOGICAL            , INTENT(IN)                                       :: debug !debug if true
   INTEGER            , INTENT(IN)                                       :: i_re,j_re,k_re
   INTEGER            , INTENT(IN)                                       :: i_re2,j_re2,k_re2
   INTEGER(KIND=SHORT)                                                   :: null
@@ -2020,6 +2030,11 @@ SUBROUTINE reaction( mobile_list, qube, E_list, matrix,  wait_list, wait_len, ti
   END IF
   
   prods = qube(r1,r2,:)
+
+  !Print debug info to file if second reactant is O3 and debug set to on
+  IF ( debug .EQV. .TRUE. ) THEN   
+    WRITE(777,*) r1,',',r2,',',prods(1),',',prods(2),',',prods(3)
+  END IF
 
   IF ( prods(1) .EQ. 0 ) THEN
     PRINT *, 'Uh-oh, we have a problem in Reaction!'
@@ -2098,7 +2113,7 @@ SUBROUTINE reaction( mobile_list, qube, E_list, matrix,  wait_list, wait_len, ti
       END IF
     END IF
 
-    IF ( ANY(fast_reacts .EQ. prods(1)) ) CALL make_react(mobile_list, qube, &
+    IF ( ANY(fast_reacts .EQ. prods(1)) ) CALL make_react(debug,mobile_list, qube, &
                                                           E_list, matrix, &
                                                           wait_list, wait_len, &
                                                           time, i_re2,j_re2,k_re2)
@@ -2134,7 +2149,7 @@ SUBROUTINE reaction( mobile_list, qube, E_list, matrix,  wait_list, wait_len, ti
     END IF
 
     ! Make prods(1) react if in fast react
-    IF ( ANY(fast_reacts .EQ. prods(1)) .AND. null .NE. 1 ) CALL make_react(mobile_list, qube, &
+    IF ( ANY(fast_reacts .EQ. prods(1)) .AND. null .NE. 1 ) CALL make_react(debug,mobile_list, qube, &
                                                           E_list, matrix, &
                                                           wait_list, wait_len, &
                                                           time, i_re2,j_re2,k_re2)
@@ -2165,7 +2180,7 @@ SUBROUTINE reaction( mobile_list, qube, E_list, matrix,  wait_list, wait_len, ti
     END IF
 
     ! Make prods(2) react if in fast react
-    IF ( ANY(fast_reacts .EQ. prods(2)) .AND. null .NE. 1 ) CALL make_react(mobile_list, qube, &
+    IF ( ANY(fast_reacts .EQ. prods(2)) .AND. null .NE. 1 ) CALL make_react(debug,mobile_list, qube, &
                                                           E_list, matrix, &
                                                           wait_list, wait_len, &
                                                           time, i_re,j_re,k_re)
@@ -2186,7 +2201,7 @@ SUBROUTINE reaction( mobile_list, qube, E_list, matrix,  wait_list, wait_len, ti
                     wait_list, wait_len, prod_coords, mobile_list)
     END IF
 
-    IF ( ANY(fast_reacts .EQ. prods(3)) .AND. null .NE. 1 ) CALL make_react(mobile_list, qube, &
+    IF ( ANY(fast_reacts .EQ. prods(3)) .AND. null .NE. 1 ) CALL make_react(debug,mobile_list, qube, &
                                                           E_list, matrix, &
                                                           wait_list, wait_len, &
                                                           time, prod_coords(1),&
@@ -2611,7 +2626,7 @@ SUBROUTINE transport(prev,curr,next,matrix)
   RETURN
 END SUBROUTINE transport
 
-SUBROUTINE base_ionization( ev_coords,react_cube, matrix,  en_list, ionlist, &
+SUBROUTINE base_ionization( debug, ev_coords,react_cube, matrix,  en_list, ionlist, &
                             mobile_ptr, wait_list, wait_len, time, ev_nums,null,elec_out )
   ! Purpose:
   !   To calculate the track of a particle of ionizing radiation through a 
@@ -2636,6 +2651,7 @@ SUBROUTINE base_ionization( ev_coords,react_cube, matrix,  en_list, ionlist, &
   !******************!
   ! Input and output !
   !******************!
+  LOGICAL                                        :: debug
   INTEGER                              , POINTER :: wait_len
   INTEGER            , DIMENSION(:)    , POINTER :: mobile_ptr !pointer with mobile species list
   INTEGER            , DIMENSION(:)    , POINTER :: ionlist !list of anionic species
@@ -2669,7 +2685,7 @@ SUBROUTINE base_ionization( ev_coords,react_cube, matrix,  en_list, ionlist, &
   ! NB: the electron should be the second product in the "prods" array
   ! in Cern.
 !  PRINT *, 'At the beginning of base_ionization, ev_coords are:',ev_coords
-  CALL cern( null,mobile_ptr, en_list, react_cube, matrix, ev_nums, ev_coords, switch, &
+  CALL cern( debug,null,mobile_ptr, en_list, react_cube, matrix, ev_nums, ev_coords, switch, &
              wait_list, wait_len, time, elec_coords )  
 !  PRINT *, 'After cern in base_ionization, elec_coords=',elec_coords
 !  PRINT *, 'After cern in base_ionization, null=',null
@@ -2689,7 +2705,7 @@ SUBROUTINE base_ionization( ev_coords,react_cube, matrix,  en_list, ionlist, &
 !  PRINT *, "Calling reaction for electron"
   IF ( null .EQ. 1 ) THEN ! No other reactants: have electron and cation react
 !    PRINT *, "Making electron and initial ion react"
-    CALL reaction( mobile_ptr, react_cube, en_list, matrix, wait_list, wait_len, time, &
+    CALL reaction( debug,mobile_ptr, react_cube, en_list, matrix, wait_list, wait_len, time, &
                        ev_coords(1), ev_coords(2), ev_coords(3), elec_coords(1), &
                              elec_coords(2), elec_coords(3) ) 
   ELSE 
@@ -2702,7 +2718,7 @@ SUBROUTINE base_ionization( ev_coords,react_cube, matrix,  en_list, ionlist, &
       breakout = breakout + 1
       IF ( breakout .GT. 10 ) THEN 
 !        PRINT *, 'Calling reaction in base_ionization due to breakout'
-        CALL reaction( mobile_ptr, react_cube, en_list, matrix, wait_list, wait_len, time, &
+        CALL reaction( debug,mobile_ptr, react_cube, en_list, matrix, wait_list, wait_len, time, &
                        ev_coords(1), ev_coords(2), ev_coords(3), elec_coords(1), &
                        elec_coords(2), elec_coords(3) ) 
         RETURN
@@ -2711,7 +2727,7 @@ SUBROUTINE base_ionization( ev_coords,react_cube, matrix,  en_list, ionlist, &
     ! Make the electron that has just formed react
     ! NB: Pass elec_coords and coords chosen by solarlottery
 !    PRINT *, "Calling reaction to make electron create anion"
-    CALL reaction( mobile_ptr, react_cube, en_list, matrix, wait_list, wait_len, time, &
+    CALL reaction( debug,mobile_ptr, react_cube, en_list, matrix, wait_list, wait_len, time, &
                    elec_coords(1), elec_coords(2), elec_coords(3), &
                    coords(1), coords(2), coords(3), &
                    ion_coords, ionlist )
@@ -2720,14 +2736,14 @@ SUBROUTINE base_ionization( ev_coords,react_cube, matrix,  en_list, ionlist, &
 !    PRINT *, "ion_coords are: ",ion_coords
 !    PRINT *, "ev_coords are: ",ev_coords
 !    PRINT *, 'Calling reaction in base_ionization'
-    CALL reaction( mobile_ptr,react_cube, en_list, matrix, wait_list, wait_len, time, &
+    CALL reaction( debug,mobile_ptr,react_cube, en_list, matrix, wait_list, wait_len, time, &
                    ev_coords(1), ev_coords(2), ev_coords(3), &
                    ion_coords(1), ion_coords(2), ion_coords(3) )
   END IF
 !  PRINT *, 'Ending base_ionization'
 END SUBROUTINE base_ionization
 
-RECURSIVE SUBROUTINE make_react(mobile_ptr, qube, en_list, matrix, wait_list, &
+RECURSIVE SUBROUTINE make_react(debug, mobile_ptr, qube, en_list, matrix, wait_list, &
                                 wait_len, time, i, j, k )
   ! Purpose:
   !   The purpose of this subroutine is to make certain species react as soon
@@ -2743,6 +2759,7 @@ RECURSIVE SUBROUTINE make_react(mobile_ptr, qube, en_list, matrix, wait_list, &
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   IMPLICIT NONE
 
+  LOGICAL            , INTENT(IN)                            :: debug
   INTEGER                                                    :: large_count 
   INTEGER                                                    :: small_count 
   INTEGER                                                    :: breakout
@@ -2780,7 +2797,7 @@ RECURSIVE SUBROUTINE make_react(mobile_ptr, qube, en_list, matrix, wait_list, &
     END DO
     ! Make the species react
 !    PRINT *, 'Calling reaction in make_react'
-    CALL reaction( mobile_ptr, qube, en_list, matrix, wait_list, wait_len, time, &
+    CALL reaction( debug,mobile_ptr, qube, en_list, matrix, wait_list, wait_len, time, &
                    ev_coords(1), ev_coords(2), ev_coords(3), &
                    coords(1), coords(2), coords(3))
   END IF
