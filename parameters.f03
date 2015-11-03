@@ -32,7 +32,7 @@ MODULE parameters
   REAL(KIND=DBL)  , PARAMETER :: EDGE        = 1.0e-5 !1.0e-7 ! The edge of the crystal in cm 
   REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0          ! Kinetic temperature in Kelvin
   REAL(KIND=DBL)  , PARAMETER :: AREA        = EDGE*EDGE      ! Area of irradiated surface in cm 
-  REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 1.0D7         ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
+  REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 1.0D12         ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
   REAL(KIND=DBL)  , PARAMETER :: CR_RATE     = CR_FLUX*AREA   ! Rate of proton arrival
   REAL(KIND=DBL)  , PARAMETER :: NELEM       = 3.0*RHO*(THICK*EDGE*EDGE) !Total matrix elements
   REAL(KIND=DBL)  , PARAMETER :: TER         = THICK/EDGE !Thick to edge ratio
@@ -80,7 +80,7 @@ MODULE parameters
   INTEGER       , PARAMETER :: TIME_COUNTS = 2     ! Times the model will check abundances
   INTEGER       , PARAMETER :: NSUBEX      = 5     ! Number of sub-excitation interactions 
   INTEGER       , PARAMETER :: NEXIT       = 100
-  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D5   ! Total time in s
+  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D2   ! Total time in s
   REAL(KIND=DBL), PARAMETER :: AVAL        = 30.0  ! Parameter for Gamma distribution
   REAL(KIND=DBL), PARAMETER :: ECUTOFF     = 4.5D3 ! Secondary cutoff energy in eV
   REAL(KIND=DBL), PARAMETER :: PCUTOFF     = 5D0   ! Primary ion cutoff energy in eV
