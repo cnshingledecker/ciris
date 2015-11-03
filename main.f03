@@ -56,27 +56,11 @@ INTEGER(KIND=LONG)                                           :: numprotons
 INTEGER                                                      :: istat
 DOUBLE PRECISION                                   , POINTER :: p_e_loss
 DOUBLE PRECISION                                   , POINTER :: disc_fluence
-TYPE(react_analysis)                               , POINTER :: o3_made_hd
-TYPE(react_analysis)                               , POINTER :: o3_made_tl
-TYPE(react_analysis)                               , POINTER :: o3_made_tmp
+LOGICAL                                                      :: debug
 
-IF ( .NOT. ASSOCIATED(o3_made_hd) ) THEN
-        ALLOCATE(o3_made_hd, STAT=istat)
-        o3_made_tl => o3_made_hd
-        NULLIFY(o3_made_tl%rct_ptr)
-        o3_made_tl%r1    = 0
-        o3_made_tl%r2    = 0
-        o3_made_tl%prods = 0
-ELSE
-        ALLOCATE(o3_made_tl%rct_ptr,STAT=istat)
-        o3_made_tl => o3_made_tl%rct_ptr
-        NULLIFY(o3_made_tl%rct_ptr)
-        o3_made_tl%r1    = 0
-        o3_made_tl%r2    = 0
-        o3_made_tl%prods = 0
-END IF
+!To enable debugging outputs, set debug to true
+debug = .TRUE.
 
-PRINT *, o3_made_hd%prods
 
 PRINT *, "*************************"
 PRINT *, "***STARTING SIMULATION***"
@@ -100,6 +84,8 @@ hopping_file = "hopping_data.txt"
 OPEN(UNIT=1009,FILE="abundance.csv",POSITION='APPEND', STATUS='REPLACE')
 !OPEN(UNIT=1011,FILE=hopping_file)
 !OPEN(UNIT=1013,FILE="time_data.csv")
+!Below for debugging and analytics
+IF ( debug .EQV. .TRUE. ) OPEN(UNIT=777,FILE='reaction_analytics.csv',STATUS='REPLACE',POSITION='APPEND')
 
 ! Nullify pointers
 NULLIFY ( wait_list,mobile_ptr,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len ) 
@@ -220,7 +206,7 @@ DO WHILE ( time .LE. time_total )
     ! If the event is a proton collision, call Fallout
     numprotons = numprotons + 1
     CALL reactant_remove(wait_list,mindex,matrix_ptr,wait_len)
-    CALL fallout( qube_ptr,matrix_ptr,en_ptr,anion_list,mobile_ptr,wait_list, &
+    CALL fallout( debug, qube_ptr,matrix_ptr,en_ptr,anion_list,mobile_ptr,wait_list, &
                   wait_len,time,ev_nums)
     ! Calculate time to next cosmic-ray event 
     rndnum  = RAND()
@@ -233,7 +219,7 @@ DO WHILE ( time .LE. time_total )
     ! If it is a regular species, decide it hopping or desorption
     IF ( wait_list(mindex)%act_type .EQ. 1 ) THEN
       ! The species hops
-      CALL meta_hop( mindex,qube_ptr,matrix_ptr,en_ptr,wait_list,mobile_ptr,result,wait_len,time )
+      CALL meta_hop( debug,mindex,qube_ptr,matrix_ptr,en_ptr,wait_list,mobile_ptr,result,wait_len,time )
     ELSE
       ! The species desorbs
       matrix_ptr( wait_list(mindex)%i,wait_list(mindex)%j,wait_list(mindex)%k ) = 0
@@ -279,6 +265,7 @@ CALL counter( numprotons,time, AB_UNIT_NUM,matrix_ptr,wait_list,4,7)
 CLOSE(1009)
 !CLOSE(1011)
 !CLOSE(1013)
+IF ( debug .EQV. .TRUE. ) CLOSE(777)
 
 PRINT *, "wait_len is: ",wait_len
 PRINT *, "Number of normal sites is:",SIZE(matrix)/3
