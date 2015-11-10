@@ -1067,6 +1067,8 @@ CONTAINS
     INTEGER :: thinghit
 
 
+    !PRINT *, 'Starting Fallout'
+
     !****************************************************************************!
     ! Preliminary  calculations                                                  !
     !****************************************************************************!
@@ -1101,6 +1103,8 @@ CONTAINS
     dimens(2) = SIZE(matrix,2)
     dimens(3) = SIZE(matrix,3)
 
+ !   PRINT *, 'Dimens are:',dimens
+
   !****************************************************************************!
   ! Determine random entry site                                                !
   !****************************************************************************!
@@ -1112,7 +1116,7 @@ CONTAINS
     y = 1 + FLOOR( dimens(2)*u )
     z = 1 
   
-!    PRINT *, "The entry site is:",x,y,z
+ !   PRINT *, "The entry site is:",x,y,z
   !****************************************************************************!
   ! Beginning of track event calculation                                       !
   !****************************************************************************!
@@ -1149,7 +1153,6 @@ CONTAINS
         u = RAND()
         rand1 = RAND()
 !        END DO
-!        PRINT *, "u is ",u,"and rand is ",rand
 
   !****************************************************************************!
   ! Determine the nature of the collision and the energy lost                  !
@@ -1196,6 +1199,7 @@ CONTAINS
 
         !Debugging
 !        switch = 2
+!        PRINT *, 'The value of the switch is:',switch
   !****************************************************************************!
   ! Elastic collision                                                          ! 
   !****************************************************************************!
@@ -1216,12 +1220,15 @@ CONTAINS
   ! Ionization                                                                 ! 
   !****************************************************************************!
         ELSE IF ( switch .EQ. 2 .AND. z+step .NE. 1 .AND. z+step .NE. 2 ) THEN
+ !         PRINT *, 'SE energy is',se_box%se_energy
           IF ( se_box%se_energy .LE. ECUTOFF ) THEN
+ !           PRINT *, 'SE energy is less than or equal to cutoff'
             CALL base_ionization( debug,ev_coords, react_cube, matrix, en_list, &
                                   ionlist, mobile_ptr, wait_list, wait_len, &
                                   time, ev_nums, null )
             IF ( null .EQ. 1 ) RETURN
           ELSE
+  !          PRINT *, 'SE energy above ecutoff'
             !*******************************************************************
             !
             ! Generate secondary electrons/electron track
@@ -1230,9 +1237,11 @@ CONTAINS
             ! Call Cern to generate the first-generation secondary electron          
             ! NB: the electron should be the second product in the "prods" array
             !*******************************************************************
+ !           PRINT *, 'Calling base ionization'
             CALL base_ionization( debug,ev_coords, react_cube, matrix, en_list, &
                                   ionlist, mobile_ptr, wait_list, wait_len, &
                                   time, ev_nums, null,elec_coords )
+ !           PRINT *, 'Base ionization called, null=',null
             IF ( null .EQ. 1 ) GOTO 100
             !*******************************************************************
             ! Electron Impact Processes
@@ -1252,6 +1261,7 @@ CONTAINS
             enull2   = 0
             !Initialize se_box
             CALL se_info_init(se_box)
+    !        PRINT *, 'Electron box initialized, calling loop'
             DO WHILE ( se_box%se_energy .GE. ECUTOFF )
               !If the electron no longer has sufficient 
               !energy, exit the loop.
@@ -1319,13 +1329,13 @@ CONTAINS
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             ! SUB_EXCITATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!            PRINT *, 'Starting sub_excitation process'
+     !       PRINT *, 'Starting sub_excitation process'
             IF ( NSUBEX .NE. 0 ) THEN
               nn = 0
               exitcount = 0
-!              PRINT *, 'nn=',nn
+       !       PRINT *, 'nn=',nn
               DO WHILE ( nn .LT. NSUBEX .AND. exitcount .LT. NEXIT) !NSUBEX is the number of sub-excitation collisions
-!                PRINT *, 'exitcount=',exitcount
+      !          PRINT *, 'exitcount=',exitcount
                 exitcount = exitcount + 1
                 DO jj=1,estep
                   prev = curr
@@ -1343,7 +1353,7 @@ CONTAINS
                 END IF
               END DO
             END IF
-!            PRINT *, 'Finishing sub_excitation processes'
+        !    PRINT *, 'Finishing sub_excitation processes'
 
             !Manual garbage collection
             CALL se_info_garbage(se_box)
@@ -2678,6 +2688,7 @@ SUBROUTINE base_ionization( debug, ev_coords,react_cube, matrix,  en_list, ionli
   INTEGER, DIMENSION(6,4)                        :: large_temp 
   INTEGER, DIMENSION(4,4)                        :: small_temp 
  
+!  PRINT *, 'Now in base_ionization'
   ! Switch = 2 => ionization
   switch = 2
 
@@ -2697,27 +2708,29 @@ SUBROUTINE base_ionization( debug, ev_coords,react_cube, matrix,  en_list, ionli
 
   ! Find a potential reaction partners for electron
   ! NB: Pass elec_coords to lookaroundyou
-!  PRINT *, 'Calling lookaroundyou'
+ ! PRINT *, 'Calling lookaroundyou'
 !  PRINT *, 'In base_ionization, elec_coords=',elec_coords
   CALL lookaroundyou( react_cube, matrix, elec_coords, null, small_count, &
                       large_count, small_temp, large_temp, wait_list )
 
-!  PRINT *, "Calling reaction for electron"
+  !PRINT *, "Calling reaction for electron"
   IF ( null .EQ. 1 ) THEN ! No other reactants: have electron and cation react
-!    PRINT *, "Making electron and initial ion react"
+    !PRINT *, "Making electron and initial ion react"
     CALL reaction( debug,mobile_ptr, react_cube, en_list, matrix, wait_list, wait_len, time, &
                        ev_coords(1), ev_coords(2), ev_coords(3), elec_coords(1), &
                              elec_coords(2), elec_coords(3) ) 
   ELSE 
    ! Choose one at random
-!    PRINT *, "Calling solarlottery"
+    !PRINT *, "Calling solarlottery"
     breakout = 0
     DO 
+      !PRINT *, 'Actually calling solarlottery'
       CALL solarlottery( small_count,large_count,small_temp,large_temp,coords )
       IF ( matrix(coords(1),coords(2),coords(3)) .NE.  matrix(ev_coords(1),ev_coords(2),ev_coords(3)) ) EXIT 
       breakout = breakout + 1
-      IF ( breakout .GT. 10 ) THEN 
-!        PRINT *, 'Calling reaction in base_ionization due to breakout'
+      !PRINT *, 'breakout is:',breakout
+      IF ( breakout .GE. 10 ) THEN 
+        !PRINT *, 'Calling reaction in base_ionization due to breakout'
         CALL reaction( debug,mobile_ptr, react_cube, en_list, matrix, wait_list, wait_len, time, &
                        ev_coords(1), ev_coords(2), ev_coords(3), elec_coords(1), &
                        elec_coords(2), elec_coords(3) ) 
@@ -2726,21 +2739,21 @@ SUBROUTINE base_ionization( debug, ev_coords,react_cube, matrix,  en_list, ionli
     END DO
     ! Make the electron that has just formed react
     ! NB: Pass elec_coords and coords chosen by solarlottery
-!    PRINT *, "Calling reaction to make electron create anion"
+    !PRINT *, "Calling reaction to make electron create anion"
     CALL reaction( debug,mobile_ptr, react_cube, en_list, matrix, wait_list, wait_len, time, &
                    elec_coords(1), elec_coords(2), elec_coords(3), &
                    coords(1), coords(2), coords(3), &
                    ion_coords, ionlist )
     ! Recombine the ions
-!    PRINT *, "Recombining ions"
-!    PRINT *, "ion_coords are: ",ion_coords
-!    PRINT *, "ev_coords are: ",ev_coords
-!    PRINT *, 'Calling reaction in base_ionization'
+    !PRINT *, "Recombining ions"
+    !PRINT *, "ion_coords are: ",ion_coords
+    !PRINT *, "ev_coords are: ",ev_coords
+    !PRINT *, 'Calling reaction in base_ionization'
     CALL reaction( debug,mobile_ptr,react_cube, en_list, matrix, wait_list, wait_len, time, &
                    ev_coords(1), ev_coords(2), ev_coords(3), &
                    ion_coords(1), ion_coords(2), ion_coords(3) )
   END IF
-!  PRINT *, 'Ending base_ionization'
+  !PRINT *, 'Ending base_ionization'
 END SUBROUTINE base_ionization
 
 RECURSIVE SUBROUTINE make_react(debug, mobile_ptr, qube, en_list, matrix, wait_list, &
@@ -2909,6 +2922,12 @@ END SUBROUTINE make_react
     DOUBLE PRECISION                        :: ae,ge,tnaught,tmax
 
 
+    !(1) Initialize variables
+    n = 0
+    ae = 0
+    ge = 0
+    tnaught = 0
+    tmax = 0
 
     !(2) Calculate ionization cross-section
     DO n=1,SIZE(se_box%se_ionst)
@@ -3030,11 +3049,20 @@ END SUBROUTINE make_react
     DOUBLE PRECISION                                     :: rn
     INTEGER                                              :: n
 
+    !(0) Initialize variables
+    prob     = 0D0
+    prevprob = 0d0
+    sigtot   = 0D0
+    rn       = 0D0
+    n        = 0
+    e_ion    = 0D0
+    e_se     = 0D0
+
+
     !(1) Calculate the probabilities of each state based on the relative size
     !    of the cross-sections
     sigtot   = SUM(psigij)
     rn       = RAND()
-    prevprob = 0d0
     e_ion = 1234567d0 !Just to know what's happening for debugging
     DO n=1,SIZE(psigij)
       prob = (psigij(n)/sigtot) + prevprob
@@ -3079,6 +3107,14 @@ END SUBROUTINE make_react
     DOUBLE PRECISION                                     :: sigtot,rn
     DOUBLE PRECISION                                     :: prevprob,prob
     INTEGER                                              :: n
+ 
+    !(0) Initialize variables
+    e_exc    = 0D0
+    sigtot   = 0D0
+    rn       = 0D0
+    prevprob = 0D0
+    prob     = 0D0
+    n        = 0
 
     !(1) Calculate the probabilities of each state based on the relative size
     !    of the cross-sections
@@ -3123,6 +3159,7 @@ END SUBROUTINE make_react
     INTEGER                                              :: incount
 
     !Ensure that there is not a null event
+    null = 0
     IF ( se_box%se_ineltot .EQ. 0.0 ) THEN
       null = 1
       RETURN
@@ -3134,9 +3171,18 @@ END SUBROUTINE make_react
     !Initialize values
     e_ion = 0D0
     e_se  = 0D0
+    e_exc = 0D0
+    e_loss = 0D0
 
-    !Determine which type of transition will occur
+    !Initialize integers
+    n        = 0
+    arrcount = 0
+    i        = 0
+    incount  = 0
+
+    !DETERMINE WHICH TYPE OF TRANSITION WILL OCCUR
     ALLOCATE(arr(SIZE(se_box%se_ionsigs),2))
+    arr = 0
     arr(:,1) = se_box%se_ionsigs
     arr(:,2) = se_box%se_ionst%i_energy
     sigtot   = se_box%se_iontot
@@ -3146,6 +3192,7 @@ END SUBROUTINE make_react
       IF ( arr(n,1) .NE. 0.0 ) arrcount = arrcount + 1
       IF ( n .EQ. SIZE(arr,1) ) THEN
         ALLOCATE(temparr(arrcount,2))
+        temparr = 0
         incount = 1 
         DO i=1,SIZE(arr,1)
           IF ( arr(i,1) .NE. 0.0 ) THEN
@@ -3160,7 +3207,7 @@ END SUBROUTINE make_react
     !Draw a random number and determine the precise amount of energy lost.
     rn       = RAND()
     prevprob = 0d0
-    e_exc = 0d0 !Just to know what's happening for debugging
+    prob     = 0D0
     DO n=1,SIZE(temparr,1)
       prob = (temparr(n,1)/sigtot) + prevprob
       IF ( rn .GT. prevprob .AND. rn .LE. prob ) THEN
@@ -3202,6 +3249,17 @@ END SUBROUTINE make_react
     INTEGER                                              :: n, arrcount,i
     INTEGER                                              :: incount
 
+
+    !Initialize values
+    e_exc = 0D0
+    prob  = 0D0
+    prevprob = 0D0
+    rn       = 0D0
+    n        = 0
+    arrcount = 0
+    i        = 0
+    incount  = 0
+
     !Ensure that there is not a null event
     IF ( se_box%se_ineltot .EQ. 0.0 ) THEN
       null = 1
@@ -3216,11 +3274,13 @@ END SUBROUTINE make_react
     prob = (se_box%se_alwd_extot/se_box%se_ineltot) 
     IF ( rn .GT. prob ) THEN
       ALLOCATE(arr(SIZE(se_box%se_fbdnsigs),2))
+      arr = 0
       arr(:,1) = se_box%se_fbdnsigs
       arr(:,2) = se_box%se_fbdn%wj_fbdn
       sigtot   = se_box%se_fbdn_extot
     ELSE
       ALLOCATE(arr(SIZE(se_box%se_alwdsigs),2))
+      arr = 0
       arr(:,1) = se_box%se_alwdsigs
       arr(:,2) = se_box%se_alwd%wj_alwd
       sigtot   = se_box%se_alwd_extot
@@ -3231,6 +3291,7 @@ END SUBROUTINE make_react
       IF ( arr(n,1) .NE. 0.0 ) arrcount = arrcount + 1
       IF ( n .EQ. SIZE(arr,1) ) THEN
         ALLOCATE(temparr(arrcount,2))
+        temparr = 0
         incount = 1 
         DO i=1,SIZE(arr,1)
           IF ( arr(i,1) .NE. 0.0 ) THEN

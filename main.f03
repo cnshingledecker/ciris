@@ -229,7 +229,7 @@ DO WHILE ( time .LE. time_total )
 
 
   time_check = time_check + 1  
-  IF ( MOD(time_check,1) .EQ. 0 ) THEN
+  IF ( MOD(time_check,10000) .EQ. 0 ) THEN
     CALL counter( numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7)
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
@@ -238,7 +238,7 @@ DO WHILE ( time .LE. time_total )
     time_diff = time
     t1 = t2
   END IF
-!  IF ( MOD(time_check,1000000) .EQ. 0 ) CALL counter( count_num, matrix_ptr )
+!  IF ( MOD(time_check,100) .EQ. 0 ) CALL counter( count_num, matrix_ptr )
 END DO
 
 !OPEN(UNIT=1013,FILE="wait_list_flaw.txt")

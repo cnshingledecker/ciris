@@ -1,11 +1,11 @@
 # Compiler
-  #FC = gfortran
-  FC = gfortran5
+  FC = gfortran
+  #FC = gfortran5
   #FC = ifort
 
 # Flags
-  #FCFLAGS = -g -pg -static-libgcc -march=native -fbounds-check -Wall
-  FCFLAGS = -march=native -O3 -ffast-math -static-libgcc
+  FCFLAGS = -g -pg -static-libgcc -march=native -fbounds-check -Wall
+  #FCFLAGS = -march=native -O3 -ffast-math -static-libgcc
 
 OBJECTS = qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o specdata.o
 
@@ -41,6 +41,7 @@ subroutines.o: subroutines.f03 mc_toolbox.o typedefs.o functiondefs.o parameters
 
 mc_toolbox.o: mc_toolbox.f03
 <<<<<<< HEAD
+<<<<<<< HEAD
 	$(FC) -c $< 
 
 functiondefs.o: functiondefs.f03 parameters.o typedefs.o
@@ -50,6 +51,8 @@ functiondefs.o: functiondefs.f03 parameters.o typedefs.o
 parameters.o: parameters.f03 
 	$(FC) -c $< 
 =======
+=======
+>>>>>>> added 1.2 branch: initialized values in functiondefs
 	$(FC) -c mc_toolbox.f03 
 
 functiondefs.o: functiondefs.f03 parameters.o typedefs.o
@@ -58,7 +61,10 @@ functiondefs.o: functiondefs.f03 parameters.o typedefs.o
 
 parameters.o: parameters.f03 
 	$(FC) -c parameters.f03 
+<<<<<<< HEAD
 >>>>>>> created 1.1
+=======
+>>>>>>> added 1.2 branch: initialized values in functiondefs
 
 #parameters.mod: parameters.f03  parameters.o 
 #	@true

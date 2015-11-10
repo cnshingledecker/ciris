@@ -34,6 +34,12 @@ MODULE functiondefs
       DOUBLE PRECISION             :: numerator
       DOUBLE PRECISION             :: denominator
 
+      ! Initialize values
+      green_mcneal = 0
+      numerator    = 0
+      denominator  = 0
+
+      ! Perform calculation
       numerator    = ((z*a)**omega)*((energy - (i))**omega)
       numerator    = numerator*1.E-16
       denominator  = (j**(omega + nu)) + (energy**(omega+nu))
@@ -64,7 +70,13 @@ MODULE functiondefs
       ! Data dictionary: declare local vals
       DOUBLE PRECISION             :: factor1
       DOUBLE PRECISION             :: factor2
+      
+      ! Initialize values
+      a_gs = 0
+      factor1 = 0
+      factor2 = 0
 
+      ! Carry out computation
       factor1 = (k/energy + k_b)
       factor2 = energy/j + j_b + j_c/energy
       a_gs    = factor1*DLOG(factor2)
@@ -92,6 +104,12 @@ MODULE functiondefs
       DOUBLE PRECISION             :: numerator
       DOUBLE PRECISION             :: denominator
 
+      ! Initialize variables
+      gamma_gs = 0
+      numerator = 0
+      denominator = 0
+   
+      ! Perform calculation
       numerator   = gamma_s*energy
       denominator = energy + gamma_b
       gamma_gs    = numerator/denominator
@@ -119,6 +137,11 @@ MODULE functiondefs
       ! Data dictionary: declare local vals
       DOUBLE PRECISION             :: bracket
 
+      ! Initialize values
+      t_0_gs = 0
+      bracket = 0
+
+      ! Perform calculation
       bracket = t_a/(energy + t_b)
       t_0_gs  = t_s - bracket
       RETURN
@@ -140,6 +163,10 @@ MODULE functiondefs
       DOUBLE PRECISION, INTENT(IN) :: energy 
       DOUBLE PRECISION, INTENT(IN) :: i
 
+      ! Initialize values
+      t_max_gs = 0
+
+      ! Perform calculation
       t_max_gs = 0.5*(energy - i)
       RETURN
     END FUNCTION t_max_gs
@@ -167,6 +194,13 @@ MODULE functiondefs
       DOUBLE PRECISION             :: paren
       DOUBLE PRECISION             :: insides
 
+      ! Initialize values
+      green_sawada = 0
+      bracket = 0
+      paren = 0
+      insides = 0
+
+      ! Perform calculation
       bracket = (t_max - t_0)/gamma_fac
       paren   = t_0/gamma_fac
       insides = DTAN(bracket) + DTAN(paren)
@@ -195,6 +229,12 @@ MODULE functiondefs
       REAL             :: part1
       REAL             :: part2
 
+      ! Initialize values
+      ne_mg = 0
+      part1 = 0
+      part2 = 0
+
+      ! Perform calculation
       part1 = ATAN((t_max - t_0)/gamma_fac)
       part2 = ATAN(t_0/gamma_fac)
       ne_mg = gamma_fac*(part1 + part2)
