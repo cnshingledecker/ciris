@@ -22,7 +22,7 @@ INTEGER                                            , POINTER :: wait_len       !
 INTEGER(KIND=SHORT)              , DIMENSION(3)              :: ev_nums
 INTEGER                                                      :: mindex
 INTEGER                          , DIMENSION(3)              :: dimens         ! Dimensions of the matrix
-INTEGER                                                      :: n,i,j,k          ! Counters
+INTEGER                                                      :: i,j,k          ! Counters
 INTEGER                                                      :: err1, err2     ! Error numbers for the files
 INTEGER                                                      :: cr_num         ! species number for cosmic rays
 INTEGER(KIND=SHORT)                                          :: lines_spec     ! Number of lines in species file
@@ -53,9 +53,6 @@ TYPE (wait_info)                 , DIMENSION(:)    , POINTER :: wait_list      !
 !!!!!!!!!!!!!!!!!! DEBUGGING/ANALYTICS VARIABLES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 INTEGER(KIND=LONG)                                           :: numprotons
-INTEGER                                                      :: istat
-DOUBLE PRECISION                                   , POINTER :: p_e_loss
-DOUBLE PRECISION                                   , POINTER :: disc_fluence
 LOGICAL                                                      :: debug
 
 !To enable debugging outputs, set debug to true

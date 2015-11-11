@@ -1789,9 +1789,9 @@ SUBROUTINE action_figure ( wait_list, index, rand_num, E_list )
 
   ! Data dictionary
   INTEGER       , INTENT(IN)                          :: index !index of species to  
-  REAL                                                :: b_1 !thermal surface hopping rate
-  REAL                                                :: b_2 !surface desorption rate
-  REAL                                                :: comp_val !comparison value, to determine which action occurs
+  REAL(KIND=DBL)                                      :: b_1 !thermal surface hopping rate
+  REAL(KIND=DBL)                                      :: b_2 !surface desorption rate
+  REAL(KIND=DBL)                                      :: comp_val !to determine which action occurs
   REAL(KIND=DBL), INTENT(IN)                          :: rand_num
   REAL                      , DIMENSION(:,:), POINTER :: E_list
   TYPE (wait_info)          , DIMENSION(:)  , POINTER :: wait_list
@@ -2387,10 +2387,10 @@ SUBROUTINE wait_calc ( wait_list, index, E_list, time )
   INTEGER       , INTENT(IN)                           :: index     !index of species 
   REAL(KIND=DBL)                             , POINTER :: time      !total simulation time
   REAL(KIND=DBL)                                       :: rand_num  !pseudorandom number 
-  REAL                                                 :: b_1       !surface thermal hopping rate
-  REAL                                                 :: b_2       !surface desorption rate
-  REAL                                                 :: b_3       !bulk diffusion rate
-  REAL                                                 :: b         !total rate, from CH14
+  REAL(KIND=DBL)                                       :: b_1       !surface thermal hopping rate
+  REAL(KIND=DBL)                                       :: b_2       !surface desorption rate
+  REAL(KIND=DBL)                                       :: b_3       !bulk diffusion rate
+  REAL(KIND=DBL)                                       :: b         !total rate, from CH14
   REAL                       , DIMENSION(:,:), POINTER :: E_list    !binding/diffusion energy list
   TYPE (wait_info)           , DIMENSION(:)  , POINTER :: wait_list !list of mobile species
 

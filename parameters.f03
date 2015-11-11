@@ -35,9 +35,9 @@ MODULE parameters
   REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 1.0D12         ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
   REAL(KIND=DBL)  , PARAMETER :: CR_RATE     = CR_FLUX*AREA   ! Rate of proton arrival
   REAL(KIND=DBL)  , PARAMETER :: NELEM       = 3.0*RHO*(THICK*EDGE*EDGE) !Total matrix elements
-  REAL(KIND=DBL)  , PARAMETER :: TER         = THICK/EDGE !Thick to edge ratio
-  REAL(KIND=DBL)  , PARAMETER :: NEDGE       = (NELEM/TER)**(1./3.) !Edge elements
-  REAL(KIND=DBL)  , PARAMETER :: NTHICK      = NEDGE*TER !Thickness elements
+  REAL            , PARAMETER :: TER         = THICK/EDGE !Thick to edge ratio
+  INTEGER         , PARAMETER :: NEDGE       = FLOOR((NELEM/TER)**(1./3.)) !Edge elements
+  INTEGER         , PARAMETER :: NTHICK      = FLOOR(NEDGE*TER) !Thickness elements
 
   !******************************************************************************
   ! Diffusion Energy Fractions 
@@ -71,7 +71,7 @@ MODULE parameters
   INTEGER       , PARAMETER :: TIME_COUNTS = 2     ! Times the model will check abundances
   INTEGER       , PARAMETER :: NSUBEX      = 500     ! Number of sub-excitation interactions 
   INTEGER       , PARAMETER :: NEXIT       = 10*NSUBEX
-  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D1   ! Total time in s
+  REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D2   ! Total time in s
   REAL(KIND=DBL), PARAMETER :: AVAL        = 30.0  ! Parameter for Gamma distribution
   REAL(KIND=DBL), PARAMETER :: ECUTOFF     = 4.5D0 ! Secondary cutoff energy in eV
   REAL(KIND=DBL), PARAMETER :: PCUTOFF     = 5.0D0 ! Primary ion cutoff energy in eV
