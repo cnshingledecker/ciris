@@ -274,6 +274,31 @@ MODULE functiondefs
       DOUBLE PRECISION              :: delta
       DOUBLE PRECISION              :: co
 
+
+      ! Initialize values
+      c2    = 0
+      s2    = 0
+      theta = 0
+      r     = 0
+      rr    = 0
+      ex1   = 0
+      ex2   = 0
+      ex3   = 0
+      ex4   = 0
+      v     = 0
+      v1    = 0
+      fr    = 0
+      fr1   = 0
+      q     = 0
+      roc   = 0
+      sqe   = 0
+      cc    = 0
+      aa    = 0
+      ff    = 0
+      delta = 0
+      co    = 0
+
+      ! Perform calculation
       r     = b
       rr    = -2.7*DLOG(eps*b)
       IF ( rr .LT. b ) GOTO 1980
@@ -311,7 +336,7 @@ MODULE functiondefs
     !  number and a screening length.
     !
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
-    !! B !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! B_MAGIC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
       IMPLICIT NONE
 
@@ -324,6 +349,12 @@ MODULE functiondefs
       !Data dictionary: Local variables
       DOUBLE PRECISION             :: p
 
+
+      ! Initialize values
+      b_magic = 0
+      p       = 0
+
+      ! Perform calculation
       p = SQRT(rn/(3.14159*(rho**(2./3.))))
       b_magic = p/a
       RETURN
@@ -343,6 +374,11 @@ MODULE functiondefs
       DOUBLE PRECISION, INTENT(IN) :: z1,z2
       DOUBLE PRECISION             :: au
 
+
+      ! Initialize values
+      au = 0
+
+      ! Perform calculation
       au = (0.8853*A0)/(z1**0.23 + z2**0.23)
       RETURN
     END FUNCTION au
@@ -369,6 +405,13 @@ MODULE functiondefs
       !Data dictionary: Local variables
       DOUBLE PRECISION             :: fac1,fac2,fac3
 
+      ! Initialize values
+      eps = 0
+      fac1 = 0
+      fac2 = 0
+      fac3 = 0
+
+      ! Perform calculation
       fac1 = au/ECHARG2
       fac2 = m2/(m1+m2)
       fac3 = 1./(z1+z2)
@@ -390,6 +433,11 @@ MODULE functiondefs
       DOUBLE PRECISION, INTENT(IN) :: m1,m2
       DOUBLE PRECISION             :: mass_fac
 
+
+      ! Initialize values
+      mass_fac = 0
+
+      ! Perform calculation
       mass_fac = (4.*m1*m2)/((m1+m2)**2)
       RETURN
     END FUNCTION mass_fac
@@ -414,6 +462,11 @@ MODULE functiondefs
       DOUBLE PRECISION, INTENT(IN) :: s2
       DOUBLE PRECISION             :: t_coll
 
+
+      ! Initialize values
+      t_coll = 0
+
+      ! Perform calculation
       t_coll = mf*e*s2
       RETURN
     END FUNCTION t_coll
@@ -438,6 +491,12 @@ MODULE functiondefs
       !Data dictionary: Local variables
       DOUBLE PRECISION             :: insides
 
+
+      ! Initialize values
+      lab_theta = 0
+      insides   = 0
+
+      ! Perform calculation
       insides = SIN(cmtheta)/(COS(cmtheta)+(m1/m2))
       lab_theta = ATAN(insides)
       RETURN
@@ -462,6 +521,15 @@ MODULE functiondefs
       DOUBLE PRECISION             :: num
       DOUBLE PRECISION             :: den1,den2,den3,den
 
+      ! Initialize values
+      sneps = 0
+      num   = 0
+      den1  = 0
+      den2  = 0
+      den3  = 0
+      den   = 0
+
+      ! Perform calculation
       IF ( eps .LE. 30. ) THEN
         num = DLOG(1.+1.1383*eps)
         den1 = eps
@@ -496,6 +564,13 @@ MODULE functiondefs
       !Data dictionary: Local variables
       DOUBLE PRECISION             :: num,den
       DOUBLE PRECISION             :: den1,den2
+
+      ! Initialize values
+      sne  = 0
+      num  = 0
+      den  = 0
+      den1 = 0
+      den2 = 0
   
       num = (8.462E-15)*z1*z2*m1*sneps
       den1 = m1 + m2
@@ -525,6 +600,10 @@ MODULE functiondefs
       DOUBLE PRECISION, INTENT(IN) :: mf
       DOUBLE PRECISION             :: pelsig
 
+      ! Initialize values
+      pelsig = 0
+
+      ! Perform calculation
       pelsig = (2*sne)/(mf*energy)
       RETURN
     END FUNCTION pelsig
@@ -552,8 +631,17 @@ MODULE functiondefs
       DOUBLE PRECISION, INTENT(IN) :: energy !eV
       DOUBLE PRECISION, INTENT(IN) :: w,f,o,a,b
       DOUBLE PRECISION             :: greendutta
+
+      ! Local variables
       DOUBLE PRECISION             :: fac1,fac2,fac3
+
+      ! Initialize values
+      greendutta = 0
+      fac1       = 0
+      fac2       = 0
+      fac3       = 0
       
+      ! Perform calculation
       IF ( energy .LT. w ) THEN
        greendutta  = 0D0 
       ELSE
@@ -584,11 +672,21 @@ MODULE functiondefs
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
       IMPLICIT NONE
 
+      ! Calling parameters
       DOUBLE PRECISION, INTENT(IN)                                :: energy
       DOUBLE PRECISION, INTENT(IN)                                :: f,w,c,a,b
       DOUBLE PRECISION                                            :: pjgsigma
+
+      ! Local variables
       DOUBLE PRECISION                                            :: num, den, insides
 
+      ! Initialize values
+      pjgsigma = 0
+      num      = 0
+      den      = 0
+      insides  = 0
+
+      ! Perform calculation
       IF ( energy .LT. w ) THEN
         pjgsigma = 0D0
       ELSE

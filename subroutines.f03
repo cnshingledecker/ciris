@@ -1158,6 +1158,10 @@ CONTAINS
   ! Determine the nature of the collision and the energy lost                  !
   !****************************************************************************!
         switch = 0
+        e_loss = 0
+        e_ion  = 0
+        e_exc  = 0
+        e_se   = 0
         ASSOCIATE ( sigma_i => psigmas(2)%cross_section, &
                     sigma_e => psigmas(3)%cross_section )
           IF ( u .GT. 0.0 .AND. u .LE. (sigma_i + sigma_e)/sigma_tot ) THEN
@@ -1259,6 +1263,12 @@ CONTAINS
             ion_dist = 0
             enull1   = 0
             enull2   = 0
+            emfp     = 0
+            p        = 0
+            de       = 0
+            estep    = 0
+            eswitch  = 0
+            ee_loss  = 0
             !Initialize se_box
             CALL se_info_init(se_box)
     !        PRINT *, 'Electron box initialized, calling loop'
@@ -2922,6 +2932,7 @@ END SUBROUTINE make_react
     DOUBLE PRECISION                        :: ae,ge,tnaught,tmax
 
 
+    !(0) Initialize se_box
     !(1) Initialize variables
     n = 0
     ae = 0
@@ -3348,21 +3359,33 @@ END SUBROUTINE make_react
   SUBROUTINE se_info_init(se_box)
     TYPE(se_info) :: se_box
 
+    !(1) Initialize scalar values
+    se_box%se_energy     = 0
+    se_box%se_iontot     = 0
+    se_box%se_extot      = 0
+    se_box%se_ineltot    = 0
+    se_box%se_alwd_extot = 0
+    se_box%se_fbdn_extot = 0
+
+    !(2) Initialize vector values
     IF ( ALLOCATED(se_box%se_ionst) .EQV. .FALSE. ) THEN
       !Initialize the ionization arrays
       ALLOCATE(se_box%se_ionst(SIZE(o2_e_ion)))
       se_box%se_ionst = o2_e_ion
       ALLOCATE(se_box%se_ionsigs(SIZE(se_box%se_ionst)))
+      se_box%se_ionsigs = 0
 
       !Initialize allowed excitation arrays
       ALLOCATE(se_box%se_alwd(SIZE(o2_e_ex_alwd)))
       se_box%se_alwd = o2_e_ex_alwd
       ALLOCATE(se_box%se_alwdsigs(SIZE(o2_e_ex_alwd)))
+      se_box%se_alwdsigs = 0
 
       !Initialize forbidden excitation arrays
       ALLOCATE(se_box%se_fbdn(SIZE(o2_e_ex_fbdn)))
       se_box%se_fbdn = o2_e_ex_fbdn
       ALLOCATE(se_box%se_fbdnsigs(SIZE(o2_e_ex_fbdn)))
+      se_box%se_fbdnsigs = 0
       RETURN
     ELSE
       RETURN
