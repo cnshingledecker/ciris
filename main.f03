@@ -22,7 +22,7 @@ INTEGER                                            , POINTER :: wait_len       !
 INTEGER(KIND=SHORT)              , DIMENSION(3)              :: ev_nums
 INTEGER                                                      :: mindex
 INTEGER                          , DIMENSION(3)              :: dimens         ! Dimensions of the matrix
-INTEGER                                                      :: n,i,j,k          ! Counters
+INTEGER                                                      :: i,j,k          ! Counters
 INTEGER                                                      :: err1, err2     ! Error numbers for the files
 INTEGER                                                      :: cr_num         ! species number for cosmic rays
 INTEGER(KIND=SHORT)                                          :: lines_spec     ! Number of lines in species file
@@ -53,9 +53,6 @@ TYPE (wait_info)                 , DIMENSION(:)    , POINTER :: wait_list      !
 !!!!!!!!!!!!!!!!!! DEBUGGING/ANALYTICS VARIABLES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 INTEGER(KIND=LONG)                                           :: numprotons
-INTEGER                                                      :: istat
-DOUBLE PRECISION                                   , POINTER :: p_e_loss
-DOUBLE PRECISION                                   , POINTER :: disc_fluence
 LOGICAL                                                      :: debug
 
 !To enable debugging outputs, set debug to true
@@ -229,7 +226,7 @@ DO WHILE ( time .LE. time_total )
 
 
   time_check = time_check + 1  
-  IF ( MOD(time_check,1) .EQ. 0 ) THEN
+  IF ( MOD(time_check,10000) .EQ. 0 ) THEN
     CALL counter( numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7)
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
@@ -238,7 +235,7 @@ DO WHILE ( time .LE. time_total )
     time_diff = time
     t1 = t2
   END IF
-!  IF ( MOD(time_check,1000000) .EQ. 0 ) CALL counter( count_num, matrix_ptr )
+!  IF ( MOD(time_check,100) .EQ. 0 ) CALL counter( count_num, matrix_ptr )
 END DO
 
 !OPEN(UNIT=1013,FILE="wait_list_flaw.txt")

@@ -35,9 +35,9 @@ MODULE parameters
   REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 1.0D12         ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
   REAL(KIND=DBL)  , PARAMETER :: CR_RATE     = CR_FLUX*AREA   ! Rate of proton arrival
   REAL(KIND=DBL)  , PARAMETER :: NELEM       = 3.0*RHO*(THICK*EDGE*EDGE) !Total matrix elements
-  REAL(KIND=DBL)  , PARAMETER :: TER         = THICK/EDGE !Thick to edge ratio
-  REAL(KIND=DBL)  , PARAMETER :: NEDGE       = (NELEM/TER)**(1./3.) !Edge elements
-  REAL(KIND=DBL)  , PARAMETER :: NTHICK      = NEDGE*TER !Thickness elements
+  REAL            , PARAMETER :: TER         = THICK/EDGE !Thick to edge ratio
+  INTEGER         , PARAMETER :: NEDGE       = FLOOR((NELEM/TER)**(1./3.)) !Edge elements
+  INTEGER         , PARAMETER :: NTHICK      = FLOOR(NEDGE*TER) !Thickness elements
 
   !******************************************************************************
   ! Diffusion Energy Fractions 
@@ -47,19 +47,10 @@ MODULE parameters
   
 
   !******************************************************************************
-  ! Cross-sections 
-  !******************************************************************************
-  ! NB: These are now obsolete, as they are calculated at the beginning of the model
-  ! and after every energy loss event. 
-!  REAL          , PARAMETER :: sigma_i     = 1.68916E-16 ! Ionization proton cross-section in m^2
-!  REAL          , PARAMETER :: sigma_e     = 1.06891E-19 ! Excitation proton cross-section in m^2
-!  REAL          , PARAMETER :: sigma_el    = 7.258E-20   ! Elastic proton cross-section in m^2
-
-  !******************************************************************************
   ! Kinetic Parameters 
   !******************************************************************************
   DOUBLE PRECISION, PARAMETER :: TRL_NU      = 1E10     ! Trial frequency, for the rates, in 1/s
-  DOUBLE PRECISION, PARAMETER :: DISPROB     = 0D0      ! Probability of excitative dissociation
+  DOUBLE PRECISION, PARAMETER :: DISPROB     = 0.5D0      ! Probability of excitative dissociation
   DOUBLE PRECISION, PARAMETER :: ZP=1.
   DOUBLE PRECISION, PARAMETER :: ZO1=8.
   DOUBLE PRECISION, PARAMETER :: ZO2=16.
@@ -78,17 +69,17 @@ MODULE parameters
   !******************************************************************************
   INTEGER       , PARAMETER :: IONS        = 6     ! Number of anions in species list
   INTEGER       , PARAMETER :: TIME_COUNTS = 2     ! Times the model will check abundances
-  INTEGER       , PARAMETER :: NSUBEX      = 5     ! Number of sub-excitation interactions 
-  INTEGER       , PARAMETER :: NEXIT       = 100
+  INTEGER       , PARAMETER :: NSUBEX      = 500     ! Number of sub-excitation interactions 
+  INTEGER       , PARAMETER :: NEXIT       = 10*NSUBEX
   REAL(KIND=DBL), PARAMETER :: TIME_TOTAL  = 1D2   ! Total time in s
   REAL(KIND=DBL), PARAMETER :: AVAL        = 30.0  ! Parameter for Gamma distribution
-  REAL(KIND=DBL), PARAMETER :: ECUTOFF     = 4.5D3 ! Secondary cutoff energy in eV
-  REAL(KIND=DBL), PARAMETER :: PCUTOFF     = 5D0   ! Primary ion cutoff energy in eV
+  REAL(KIND=DBL), PARAMETER :: ECUTOFF     = 4.5D0 ! Secondary cutoff energy in eV
+  REAL(KIND=DBL), PARAMETER :: PCUTOFF     = 5.0D0 ! Primary ion cutoff energy in eV
   
   !******************************************************************************
   ! Array Parameters 
   !******************************************************************************
-  INTEGER       , PARAMETER, DIMENSION(1) ::  FAST_REACTS = (/ 4 /)  !4
+  INTEGER       , DIMENSION(1) ::  FAST_REACTS = (/ 21 /)  !4
 
   !******************************************************************************
   ! Output File Unit Numbers 
