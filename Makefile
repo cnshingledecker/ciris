@@ -21,14 +21,8 @@ main.o: main.f03 subroutines.o parameters.o typedefs.o functiondefs.o
 typedefs.o: typedefs.f03
 	$(FC) -c typedefs.f03
 
-typedefs.mod: typedefs.f03 typedefs.o
-	@true
-
 specdata.o: specdata.f03 typedefs.o
 	$(FC) -c -M specdata.f03 
-
-specdata.mod: specdata.f03 specdata.o
-	@true
 
 qbert.o: qbert.f03 subroutines.o parameters.o
 	$(FC) -c qbert.f03
@@ -46,8 +40,5 @@ functiondefs.o: functiondefs.f03 parameters.o typedefs.o
 parameters.o: parameters.f03 
 	$(FC) -c parameters.f03 
 
-parameters.mod: parameters.f03  parameters.o 
-	@true
-
 clean:
-	rm -f *.mod *.o
+	rm -f *.mod *.o a.out
