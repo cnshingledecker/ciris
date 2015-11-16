@@ -265,10 +265,10 @@ CLOSE(1009)
 !CLOSE(1013)
 IF ( debug .EQV. .TRUE. ) CLOSE(777)
 
-PRINT *, "wait_len is: ",wait_len
-PRINT *, "Number of normal sites is:",SIZE(matrix)/3
-PRINT *, "wait_list is size ",SIZE(wait_list)
-PRINT *, 'Area is:',AREA
+!PRINT *, "wait_len is: ",wait_len
+!PRINT *, "Number of normal sites is:",SIZE(matrix)/3
+!PRINT *, "wait_list is size ",SIZE(wait_list)
+!PRINT *, 'Area is:',AREA
 NULLIFY ( wait_list,mobile_ptr,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len ) 
 DEALLOCATE( qube, sp_list, en_list, matrix,mobile_list,wait_target )
 END PROGRAM main

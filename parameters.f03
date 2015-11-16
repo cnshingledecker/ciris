@@ -72,7 +72,7 @@ MODULE parameters
   INTEGER         , PARAMETER :: NSUBEX      = 1                           ! Number of sub-excitation interactions 
   INTEGER         , PARAMETER :: NEXIT       = 10*NSUBEX                   ! Max sub-ex loop iters
   REAL            , PARAMETER :: STEPFAC     = 0.1                         ! Determines freq. between colls.
-  REAL(KIND=DBL)  , PARAMETER :: TIME_TOTAL  = 1D4                         ! Total time in s
+  REAL(KIND=DBL)  , PARAMETER :: TIME_TOTAL  = 1D3                         ! Total time in s
   REAL(KIND=DBL)  , PARAMETER :: AVAL        = 50                          ! Parameter for Gamma distribution
   REAL(KIND=DBL)  , PARAMETER :: ECUTOFF     = 4.5D0                       ! Secondary cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: PCUTOFF     = 5.0D0                       ! Primary ion cutoff energy in eV
