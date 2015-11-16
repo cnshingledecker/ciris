@@ -1,6 +1,5 @@
 # Compiler
   FC = gfortran
-  #FC = gfortran5
   #FC = ifort
 
 # Flags

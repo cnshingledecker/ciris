@@ -1102,8 +1102,7 @@ CONTAINS
     dimens(1) = SIZE(matrix,1)
     dimens(2) = SIZE(matrix,2)
     dimens(3) = SIZE(matrix,3)
-
- !   PRINT *, 'Dimens are:',dimens
+!   PRINT *, 'Dimens are:',dimens
 
   !****************************************************************************!
   ! Determine random entry site                                                !
@@ -1116,7 +1115,7 @@ CONTAINS
     y = 1 + FLOOR( dimens(2)*u )
     z = 1 
   
- !   PRINT *, "The entry site is:",x,y,z
+!    PRINT *, "The entry site is:",x,y,z
   !****************************************************************************!
   ! Beginning of track event calculation                                       !
   !****************************************************************************!
@@ -1134,17 +1133,17 @@ CONTAINS
     num_els     = 0
     
     main_loop: DO WHILE (z .LE. dimens(1) .AND. ione .GE. 5.0 )
+!      PRINT *, 'Now entering loop: z=',z,' and dimens(1)=',dimens(1),' and step=',step
       count_count = count_count + 1
 !      IF ( MOD(count_count,1000) .EQ. 0 ) CALL counter(time, AB_UNIT_NUM, matrix, wait_list, 4,7) 
       ! Define event coords
       ev_coords(1) = z+step
       ev_coords(2) = y
       ev_coords(3) = x
+!      PRINT *, 'The event coords are:',ev_coords
 
       thinghit = matrix(ev_coords(1),ev_coords(2),ev_coords(3))
 
-      !Debugging command
-!      IF (matrix(ev_coords(1),ev_coords(2),ev_coords(3)) .EQ. -7 ) GOTO 100
 
       IF ( matrix(z+step,y,x) .NE. 0 ) THEN
 !        PRINT *, "The value of the matrix is:",matrix(z+step,y,x)
@@ -1153,6 +1152,7 @@ CONTAINS
         u = RAND()
         rand1 = RAND()
 !        END DO
+     
 
   !****************************************************************************!
   ! Determine the nature of the collision and the energy lost                  !
@@ -1177,13 +1177,10 @@ CONTAINS
               ! For debugging \/ \/
               !**********************
 !              se_box%se_energy = 0D0
-            ELSE IF ( rand1 .GT. DISPROB .OR. thinghit .EQ. -1 ) THEN
+            ELSE IF ( rand1 .LE. DISPROB .OR. ANY(FRAGILE .EQ. -1*thinghit) ) THEN
               ! Excitation will occur
               num_exs = num_exs + 1
               switch = 1 
-              IF ( thinghit .EQ. -7 ) switch = 0
-              !\/ For debugging \/
-!              switch = 2
               CALL p_ex_select(psigexj,e_exc)
               e_loss = e_exc
               nature = "Excitation"
@@ -1226,13 +1223,13 @@ CONTAINS
         ELSE IF ( switch .EQ. 2 .AND. z+step .NE. 1 .AND. z+step .NE. 2 ) THEN
  !         PRINT *, 'SE energy is',se_box%se_energy
           IF ( se_box%se_energy .LE. ECUTOFF ) THEN
- !           PRINT *, 'SE energy is less than or equal to cutoff'
+            !PRINT *, 'SE energy is less than or equal to cutoff'
             CALL base_ionization( debug,ev_coords, react_cube, matrix, en_list, &
                                   ionlist, mobile_ptr, wait_list, wait_len, &
                                   time, ev_nums, null )
             IF ( null .EQ. 1 ) RETURN
           ELSE
-  !          PRINT *, 'SE energy above ecutoff'
+            !PRINT *, 'SE energy above ecutoff'
             !*******************************************************************
             !
             ! Generate secondary electrons/electron track
@@ -1241,11 +1238,11 @@ CONTAINS
             ! Call Cern to generate the first-generation secondary electron          
             ! NB: the electron should be the second product in the "prods" array
             !*******************************************************************
- !           PRINT *, 'Calling base ionization'
+            !PRINT *, 'Calling base ionization'
             CALL base_ionization( debug,ev_coords, react_cube, matrix, en_list, &
                                   ionlist, mobile_ptr, wait_list, wait_len, &
                                   time, ev_nums, null,elec_coords )
- !           PRINT *, 'Base ionization called, null=',null
+            !PRINT *, 'Base ionization called, null=',null
             IF ( null .EQ. 1 ) GOTO 100
             !*******************************************************************
             ! Electron Impact Processes
@@ -1271,8 +1268,9 @@ CONTAINS
             ee_loss  = 0
             !Initialize se_box
             CALL se_info_init(se_box)
-    !        PRINT *, 'Electron box initialized, calling loop'
+            !PRINT *, 'se energy is:',se_box%se_energy,' and ECUTOFF is',ECUTOFF
             DO WHILE ( se_box%se_energy .GE. ECUTOFF )
+              !PRINT *, 'Electron box initialized, calling loop'
               !If the electron no longer has sufficient 
               !energy, exit the loop.
               IF ( enull1 .NE. 0 .AND. enull2 .NE. 0 ) EXIT 
@@ -1281,7 +1279,7 @@ CONTAINS
               CALL esigma_suite(se_box)
 
               !Calculate hopping distance
-              emfp  = 1./RHO*(se_box%se_ineltot)
+              emfp  = 1./(RHO*(se_box%se_ineltot))
               p     = RAND()
               de    = -1.*emfp*LOG(1.-p)
               estep = INT(de/C_PR)
@@ -1305,8 +1303,10 @@ CONTAINS
               END IF
 
               !Carry out impact collision
+              !PRINT *, 'matrix in main seloop is', matrix(next(1),next(2),next(3))
               IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. eswitch .EQ. 1 ) THEN
                 !Electron impact ionization
+                !PRINT *, 'EII'
                 CALL base_ionization(debug, next, react_cube, matrix, en_list, &
                                      ionlist, mobile_ptr, wait_list, wait_len, &
                                      time, ev_nums,null )
@@ -1315,8 +1315,13 @@ CONTAINS
                 ee_loss = e_ion 
               ELSE IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. eswitch .EQ. 0 ) THEN
                 !Electron impact excitation
+                !PRINT *, 'EIE'
                 rand1 = RAND()
-                IF ( rand1 .GT. DISPROB .AND. matrix(curr(1),curr(2),curr(3)) .NE. 0 ) THEN
+                IF ( rand1 .GT. DISPROB .AND. matrix(curr(1),curr(2),curr(3)).NE. 0 ) THEN               
+                  CALL cern( debug,null,mobile_ptr, en_list, react_cube, matrix, ev_nums, next, 1, &
+                             wait_list, wait_len, time )
+                ELSE IF ( ANY( FRAGILE .EQ. -1*matrix(curr(1),curr(2),curr(3))  ) ) THEN
+                  ! Test for fragile species 
                   CALL cern( debug,null,mobile_ptr, en_list, react_cube, matrix, ev_nums, next, 1, &
                              wait_list, wait_len, time )
                 END IF
@@ -1343,19 +1348,23 @@ CONTAINS
             IF ( NSUBEX .NE. 0 ) THEN
               nn = 0
               exitcount = 0
-       !       PRINT *, 'nn=',nn
+              
               DO WHILE ( nn .LT. NSUBEX .AND. exitcount .LT. NEXIT) !NSUBEX is the number of sub-excitation collisions
-      !          PRINT *, 'exitcount=',exitcount
+                !PRINT *, 'nn=',nn
+                !PRINT *, 'exitcount=',exitcount
                 exitcount = exitcount + 1
-                DO jj=1,estep
+                !DO jj=1,estep
                   prev = curr
                   curr = next
                   CALL transport(prev,curr,next,matrix)
-                END DO
-                IF ( matrix(next(1),next(2),next(3)) .EQ. -1 ) THEN
+                !END DO
+                !PRINT *, 'matrix in subexloop=',matrix(next(1),next(2),next(3))
+                IF ( matrix(next(1),next(2),next(3)) .NE. 0 ) THEN
+                  !PRINT *, 'Hit!'
                   !Carry out dissociate electron attachment
                   !NB: In the model, this is functionally identical to 
                   !an ordinary ionization
+
                   CALL base_ionization(debug,next, react_cube, matrix, en_list, &
                                        ionlist, mobile_ptr, wait_list, wait_len, &
                                        time, ev_nums,null )
@@ -1413,7 +1422,7 @@ CONTAINS
       ! Determine whether or not the site is occupied by dividing the 
       ! Delta z by the height of the crystal cube, i.e. \Delta ml = 
       ! \Delta z(m) * (1ml/c(m))
-      step = INT(dz/c_pr)
+      step = INT(STEPFAC*(dz/c_pr))
             
       ! Make sure the next site is different than the previous one
       IF ( z+step .EQ. z ) THEN 
@@ -1421,12 +1430,13 @@ CONTAINS
       END IF
 
       ! Make sure the site is greater than the previous one
-      IF ( z+step .LT. z ) GOTO 100
+      IF (step .LE. 0. ) GOTO 100
+      IF (z+step .GE. dimens(1) ) RETURN
 
     END DO main_loop
-!    PRINT *, "**************"
-!    PRINT *, 'Ending Fallout'
-!    PRINT *, "**************"
+    PRINT *, "**************"
+    PRINT *, 'Ending Fallout'
+    PRINT *, "**************"
 
 !    CLOSE(10)
   END SUBROUTINE fallout
@@ -3074,6 +3084,7 @@ END SUBROUTINE make_react
     !    of the cross-sections
     sigtot   = SUM(psigij)
     rn       = RAND()
+
     e_ion = 1234567d0 !Just to know what's happening for debugging
     DO n=1,SIZE(psigij)
       prob = (psigij(n)/sigtot) + prevprob
@@ -3329,6 +3340,14 @@ END SUBROUTINE make_react
   END SUBROUTINE e_ex_select
 
   SUBROUTINE elastic_event(energy,e_loss,labtheta)
+  !
+  ! Purpose:
+  !   This subroutine is to determine the specific amount of energy lost by an
+  !  ion in an elastic collisional event.
+  !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !! ELASTIC_EVENT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
     ! Data dictionary: Define calling parameters
@@ -3357,10 +3376,17 @@ END SUBROUTINE make_react
   END SUBROUTINE elastic_event
 
   SUBROUTINE se_info_init(se_box)
+  !
+  ! Purpose:
+  !   This subroutine is to set up the se_info struct, which should only have 
+  !  an energy assigned at the time of calling.
+  !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !! SE_INFO_INIT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     TYPE(se_info) :: se_box
 
     !(1) Initialize scalar values
-    se_box%se_energy     = 0
     se_box%se_iontot     = 0
     se_box%se_extot      = 0
     se_box%se_ineltot    = 0
@@ -3393,6 +3419,13 @@ END SUBROUTINE make_react
   END SUBROUTINE se_info_init
 
   SUBROUTINE se_info_garbage(se_box)
+  !
+  ! Purpose:
+  !   This subroutine is to garbage collect the memory used in the se_info struct
+  !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !! SE_INFO_GARBAGE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     TYPE(se_info) :: se_box
 
     IF ( ALLOCATED(se_box%se_ionst) .EQV. .TRUE. ) THEN

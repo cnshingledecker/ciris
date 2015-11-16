@@ -76,7 +76,7 @@ MODULE functiondefs
       factor1 = 0
       factor2 = 0
 
-      ! Carry out computation
+	  ! Carry out computation
       factor1 = (k/energy + k_b)
       factor2 = energy/j + j_b + j_c/energy
       a_gs    = factor1*DLOG(factor2)

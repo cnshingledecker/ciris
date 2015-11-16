@@ -56,7 +56,7 @@ INTEGER(KIND=LONG)                                           :: numprotons
 LOGICAL                                                      :: debug
 
 !To enable debugging outputs, set debug to true
-debug = .TRUE.
+debug = .FALSE.
 
 
 PRINT *, "*************************"
@@ -141,9 +141,10 @@ CALL lookup( 'e'  , lines_spec, sp_list, ev_nums(3) )
 !******************************************************************************
 ! Calculate the dimensions of the matrix 
 !******************************************************************************
-dimens(1) = NTHICK !FLOOR(THICK/C_PR)
-dimens(2) = NEDGE !FLOOR(EDGE/BDIM)
-dimens(3) = dimens(2) !FLOOR(edge/a)
+dimens(1) = NTHICK 
+dimens(2) = NEDGE
+dimens(3) = dimens(2) 
+PRINT *, 'In main, the dimens are:',dimens
 
 !******************************************************************************
 ! Create the matrix 
@@ -226,7 +227,7 @@ DO WHILE ( time .LE. time_total )
 
 
   time_check = time_check + 1  
-  IF ( MOD(time_check,10000) .EQ. 0 ) THEN
+  IF ( MOD(time_check,1000) .EQ. 0 ) THEN
     CALL counter( numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7)
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
@@ -235,7 +236,7 @@ DO WHILE ( time .LE. time_total )
     time_diff = time
     t1 = t2
   END IF
-!  IF ( MOD(time_check,100) .EQ. 0 ) CALL counter( count_num, matrix_ptr )
+!  IF ( MOD(time_check,1000) .EQ. 0 ) CALL counter( count_num, matrix_ptr )
 END DO
 
 !OPEN(UNIT=1013,FILE="wait_list_flaw.txt")
