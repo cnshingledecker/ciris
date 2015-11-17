@@ -14,7 +14,7 @@ import sys,math,random,os,subprocess
 
 contFile = 'parameters.f03' #File to be edited
 exFile = 'losalamos'        #Binary to run
-Nruns = 1000                 #Number of simulation runs
+Nruns = 2                 #Number of simulation runs
 baserep = 'sim_no'
 
 #Writing file format parameters
@@ -58,6 +58,11 @@ for j in range(0,Nruns):
     cmd = 'cp * ./' + temp_path + '/'
     os.system(cmd)
 
+    #Change into new directory
+    os.chdir(temp_path)
+    os.system('echo $PWD')
+
+
     #Get random numbers
     r1 = random.random()
     r2 = random.random()
@@ -91,19 +96,14 @@ for j in range(0,Nruns):
         fragile = "(/ 7  /)"
     else:
         fragile = "(/ 21 /)"
-    
-
-    #Change into new directory
-    os.chdir(temp_path)
-    os.system('echo $PWD')
 
     #Edit the input files
     infile = contFile
-    i = 0
-    inf =  open(infile,'r')
-    lines = inf.readlines()
+    i      = 0
+    inf    = open(infile,'r')
+    lines  = inf.readlines()
     inf.close()
-    outf = open(infile,'w')
+    outf   = open(infile,'w')
     for line in lines:
         i = i + 1
         # Change trlnu
@@ -132,7 +132,7 @@ for j in range(0,Nruns):
             else:
                 outf.write(newline)
         elif i == 76:
-            newline = line[:lnstart] + '%2.2f' % aval + line[lnend-2:]
+            newline = line[:lnstart] + '%1.1e' % aval + line[lnend:]
             if debug==True:
                 print aval
                 print line
@@ -172,15 +172,18 @@ for j in range(0,Nruns):
       cmd = './'  + exFile
       subprocess.call(cmd,shell=True)
 
-      #Change back into home directory
-      os.chdir('..')
-      newdir = baserep + str(j)
-      os.mkdir(newdir)
-      cmd = 'cp ./temp/abundance.csv ./' + newdir + '/'
-      os.system(cmd)
-      cmd =  'cp ./temp/parameters.f03 ./' + newdir + '/'  
-      os.system(cmd)
-      cmd = 'rm -rf temp/'
-      os.system(cmd)
+    #Change back into home directory
+    os.chdir('..')
+    newdir = baserep + str(j)
+    
+    os.mkdir(newdir)
+    cmd = 'cp ./temp/abundance.csv ./' + newdir + '/'
+    os.system(cmd)
+    cmd =  'cp ./temp/parameters.f03 ./' + newdir + '/'  
+    os.system(cmd)
+    cmd = 'cp ./quickplot.p ./' + newdir + '/'
+    os.system(cmd)
+    cmd = 'rm -rf temp/'
+    os.system(cmd)
 
 print 'Ending simulation runs'
