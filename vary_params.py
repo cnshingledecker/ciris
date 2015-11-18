@@ -14,7 +14,7 @@ import sys,math,random,os,subprocess
 
 contFile = 'parameters.f03' #File to be edited
 exFile = 'losalamos'        #Binary to run
-Nruns = 2                 #Number of simulation runs
+Nruns = 1000                 #Number of simulation runs
 baserep = 'sim_no'
 
 #Writing file format parameters

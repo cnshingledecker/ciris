@@ -2520,6 +2520,10 @@ SUBROUTINE counter(numprotons,time, unit_num, matrix,wait_list,sp1,sp2)
   END DO
 
   WRITE(unit_num,*) time,',', numprotons/AREA,',',sp1_count/denom,',',sp2_count/denom,',',numprotons
+  IF ( (sp2_count/denom) .GE. ABCUTOFF ) THEN
+    PRINT *, 'O3 abundance above cutoff value: Exiting!'
+    CALL EXIT()
+  END IF
 
 END SUBROUTINE counter
 

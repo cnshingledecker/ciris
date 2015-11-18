@@ -89,5 +89,11 @@ MODULE parameters
   INTEGER, DIMENSION(1)       :: FAST_REACTS = (/ 21 /)                    ! 4 ! Species that react upon formation
   INTEGER, DIMENSION(1)       :: FRAGILE     = (/ 21 /)                    ! 7 ! Species that dissociate easily
 
+  !******************************************************************************
+  ! Model Stop Parameters
+  !******************************************************************************
+  REAL(KIND=DBL)  , PARAMETER :: ABCUTOFF    = 5.0                         ! Exits if O3 abs. goes above this value
+
+
 
 END MODULE parameters 
