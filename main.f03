@@ -9,10 +9,9 @@ IMPLICIT NONE
 !******************************************************************************
 ! Data dictionary
 !******************************************************************************
+INTEGER                                                      :: n
 INTEGER             , ALLOCATABLE, DIMENSION(:,:,:), TARGET  :: matrix         ! Ice-mantle matrix
-INTEGER             , ALLOCATABLE, DIMENSION(:)    , TARGET  :: mobile_list    ! List of mobile species
 INTEGER(KIND=SHORT) , ALLOCATABLE, DIMENSION(:,:,:), TARGET  :: qube
-INTEGER                          , DIMENSION(:)    , POINTER :: mobile_ptr     ! Pointer of mobile species 
 INTEGER             , ALLOCATABLE, DIMENSION(:)    , TARGET  :: anion_target
 INTEGER                          , DIMENSION(:)    , POINTER :: anion_list     ! List of anionic species
 INTEGER                          , DIMENSION(:,:,:), POINTER :: matrix_ptr     ! Pointer to the matrix
@@ -53,10 +52,8 @@ TYPE (wait_info)                 , DIMENSION(:)    , POINTER :: wait_list      !
 !!!!!!!!!!!!!!!!!! DEBUGGING/ANALYTICS VARIABLES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 INTEGER(KIND=LONG)                                           :: numprotons
-LOGICAL                                                      :: debug
 
 !To enable debugging outputs, set debug to true
-debug = .TRUE.
 
 
 PRINT *, "*************************"
@@ -82,16 +79,11 @@ OPEN(UNIT=1009,FILE="abundance.csv",POSITION='APPEND', STATUS='REPLACE')
 !OPEN(UNIT=1011,FILE=hopping_file)
 !OPEN(UNIT=1013,FILE="time_data.csv")
 !Below for debugging and analytics
-IF ( debug .EQV. .TRUE. ) OPEN(UNIT=777,FILE='reaction_analytics.csv',STATUS='REPLACE',POSITION='APPEND')
+IF ( DEBUG .EQV. .TRUE. ) OPEN(UNIT=777,FILE='reaction_analytics.csv',STATUS='REPLACE',POSITION='APPEND')
 
 ! Nullify pointers
-NULLIFY ( wait_list,mobile_ptr,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len ) 
+NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len ) 
 
-! Allocate and associate mobile list and ptr
-ALLOCATE ( mobile_list(1) ) 
-mobile_list = (/ 4 /)
-!ALLOCATE( mobile_ptr(SIZE(mobile_list)) )
-mobile_ptr => mobile_list
 
 ! Associate time value
 time => time_target
@@ -123,6 +115,8 @@ sp_list = "0"
 anion_list => anion_target
 CALL qbert(qube,lines_spec,lines_react,en_list,species_file,reactions_file,sp_list ,ions, anion_list)
 
+PRINT *, 'The anion list is:',anion_list
+
 ! Associate the pointer to the qube 
 qube_ptr => qube
 
@@ -141,9 +135,10 @@ CALL lookup( 'e'  , lines_spec, sp_list, ev_nums(3) )
 !******************************************************************************
 ! Calculate the dimensions of the matrix 
 !******************************************************************************
-dimens(1) = NTHICK !FLOOR(THICK/C_PR)
-dimens(2) = NEDGE !FLOOR(EDGE/BDIM)
-dimens(3) = dimens(2) !FLOOR(edge/a)
+dimens(1) = NTHICK 
+dimens(2) = NEDGE
+dimens(3) = dimens(2) 
+PRINT *, 'In main, the dimens are:',dimens
 
 !******************************************************************************
 ! Create the matrix 
@@ -203,7 +198,7 @@ DO WHILE ( time .LE. time_total )
     ! If the event is a proton collision, call Fallout
     numprotons = numprotons + 1
     CALL reactant_remove(wait_list,mindex,matrix_ptr,wait_len)
-    CALL fallout( debug, qube_ptr,matrix_ptr,en_ptr,anion_list,mobile_ptr,wait_list, &
+    CALL fallout( qube_ptr,matrix_ptr,en_ptr,anion_list,wait_list, &
                   wait_len,time,ev_nums)
     ! Calculate time to next cosmic-ray event 
     rndnum  = RAND()
@@ -216,7 +211,7 @@ DO WHILE ( time .LE. time_total )
     ! If it is a regular species, decide it hopping or desorption
     IF ( wait_list(mindex)%act_type .EQ. 1 ) THEN
       ! The species hops
-      CALL meta_hop( debug,mindex,qube_ptr,matrix_ptr,en_ptr,wait_list,mobile_ptr,result,wait_len,time )
+      CALL meta_hop( mindex,qube_ptr,matrix_ptr,en_ptr,wait_list,result,wait_len,time )
     ELSE
       ! The species desorbs
       matrix_ptr( wait_list(mindex)%i,wait_list(mindex)%j,wait_list(mindex)%k ) = 0
@@ -226,7 +221,7 @@ DO WHILE ( time .LE. time_total )
 
 
   time_check = time_check + 1  
-  IF ( MOD(time_check,10000) .EQ. 0 ) THEN
+  IF ( MOD(time_check,100) .EQ. 0 ) THEN
     CALL counter( numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7)
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
@@ -235,7 +230,7 @@ DO WHILE ( time .LE. time_total )
     time_diff = time
     t1 = t2
   END IF
-!  IF ( MOD(time_check,100) .EQ. 0 ) CALL counter( count_num, matrix_ptr )
+!  IF ( MOD(time_check,1000) .EQ. 0 ) CALL counter( count_num, matrix_ptr )
 END DO
 
 !OPEN(UNIT=1013,FILE="wait_list_flaw.txt")
@@ -248,11 +243,11 @@ END DO
 !END DO
 !CLOSE(1013)
 
-!OPEN(UNIT=1012,FILE="final_wait_list.txt")
-!DO n=1,wait_len+1
-!  WRITE(1012,*) wait_list(n)
-!END DO
-!CLOSE(1012)
+OPEN(UNIT=1012,FILE="final_wait_list.txt")
+DO n=1,wait_len+1
+  WRITE(1012,*) wait_list(n)
+END DO
+CLOSE(1012)
 
 PRINT *, "****************"
 PRINT *, "ENDING LOSALAMOS"
@@ -262,12 +257,12 @@ CALL counter( numprotons,time, AB_UNIT_NUM,matrix_ptr,wait_list,4,7)
 CLOSE(1009)
 !CLOSE(1011)
 !CLOSE(1013)
-IF ( debug .EQV. .TRUE. ) CLOSE(777)
+IF ( DEBUG .EQV. .TRUE. ) CLOSE(777)
 
-PRINT *, "wait_len is: ",wait_len
-PRINT *, "Number of normal sites is:",SIZE(matrix)/3
-PRINT *, "wait_list is size ",SIZE(wait_list)
-PRINT *, 'Area is:',AREA
-NULLIFY ( wait_list,mobile_ptr,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len ) 
-DEALLOCATE( qube, sp_list, en_list, matrix,mobile_list,wait_target )
+!PRINT *, "wait_len is: ",wait_len
+!PRINT *, "Number of normal sites is:",SIZE(matrix)/3
+!PRINT *, "wait_list is size ",SIZE(wait_list)
+!PRINT *, 'Area is:',AREA
+NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len ) 
+DEALLOCATE( qube, sp_list, en_list, matrix,wait_target )
 END PROGRAM main
