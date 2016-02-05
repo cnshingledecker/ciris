@@ -2073,6 +2073,11 @@ SUBROUTINE reaction( qube, E_list, matrix,  wait_list, wait_len, time, i_re, j_r
     IF ( rnum .LE. O_O2_BRANCHING ) THEN
       prods = (/ 4, 1, 0 /)
     END IF
+  ELSE IF ( r1 .EQ. 2 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 2 ) THEN
+    rnum = RAND()
+    IF ( rnum .LE. O2_ION_BRANCHING ) THEN
+      prods = (/ 1, 1, 0 /)
+    END IF
   END IF
 
 
