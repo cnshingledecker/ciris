@@ -33,7 +33,7 @@
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 SUBROUTINE qbert(qube,nlines1,nlines2,energy_array,species_file,reactions_file,speciesList,i_num,anions)
-USE subroutines 
+USE subroutines
 USE parameters
 
 IMPLICIT NONE
@@ -65,11 +65,11 @@ REAL                                                           :: Aqbert, Bqbert
 INTEGER(KIND=SHORT)           , DIMENSION(3)                   :: temp_prods
 
 
-! Initialize values 
+! Initialize values
 qube = 0
 Aqbert = 0
 Bqbert = 0
-Cqbert = 0 
+Cqbert = 0
 
 ! Open files
 OPEN (UNIT=1,FILE=species_file,STATUS='OLD',ACTION='READ',IOSTAT=ierror1)
@@ -94,7 +94,7 @@ fileopen: IF ( ierror1 .EQ. 0 .AND. ierror2 .EQ. 0 ) THEN
     IF ( ierror1 .NE. 0 ) STOP "Error reading species file."
   END DO
 
-  
+
 !  PRINT *, 'in qbert, anion_num =',anion_num
   i_count = 1
   DO n=1,nlines1
@@ -107,7 +107,7 @@ fileopen: IF ( ierror1 .EQ. 0 .AND. ierror2 .EQ. 0 ) THEN
   END DO
 
 
-  ! Read the contents of the r?eactions file and make the reactionCube
+  ! Read the contents of the reactions file and make the reactionCube
   qubemake: DO n1=1,nlines2
     READ(2,*,IOSTAT=ierror2) r_array(n1,1), r_array(n1,2), r_array(n1,3), &
                              r_array(n1,4), r_array(n1,5)
@@ -140,7 +140,7 @@ END IF fileopen
 
   ! Order the products of the reaction by binding energies in descending order
   DO j=1,nlines1
-    DO i=1,nlines1 
+    DO i=1,nlines1
       temp_prods = qube(i,j,:)
       IF (temp_prods(1) .NE. 0 ) THEN
         Aqbert = energy_array(temp_prods(1),1)
@@ -158,10 +158,10 @@ END IF fileopen
       qube(i,j,:) = temp_prods
       Aqbert = 0
       Bqbert = 0
-      Cqbert = 0 
-    END DO 
+      Cqbert = 0
+    END DO
   END DO
-       
+
 
 END SUBROUTINE qbert
 
@@ -172,10 +172,10 @@ SUBROUTINE sort_energies( prods, A_en, B_en, C_en )
    INTEGER(KIND=SHORT), INTENT(INOUT), DIMENSION(3) :: prods
    INTEGER(KIND=SHORT)               , DIMENSION(3) :: temp
    REAL               , INTENT(IN)                  :: A_en, B_en, C_en
-   
+
    IF ( A_en .GT. B_en ) THEN
      IF ( A_en .GT. C_en ) THEN
-       IF ( B_en .GT. C_en ) THEN 
+       IF ( B_en .GT. C_en ) THEN
          ! A > B > C
          temp(1) = prods(1)
          temp(2) = prods(2)
@@ -196,7 +196,7 @@ SUBROUTINE sort_energies( prods, A_en, B_en, C_en )
     IF ( B_en .GT. C_en ) THEN
       IF ( A_en .GT. C_en ) THEN
         ! B > A > C
-        temp(1) = prods(2) 
+        temp(1) = prods(2)
         temp(2) = prods(1)
         temp(3) = prods(3)
       ELSE

@@ -1,6 +1,6 @@
-PROGRAM main 
+PROGRAM main
 
-USE subroutines 
+USE subroutines
 USE parameters
 USE typedefs
 USE functiondefs
@@ -73,7 +73,7 @@ cpu_total  = 0
 t2         = 0
 t1         = 0
 
-! Open files 
+! Open files
 hopping_file = "hopping_data.txt"
 OPEN(UNIT=1009,FILE="abundance.csv",POSITION='APPEND', STATUS='REPLACE')
 !OPEN(UNIT=1011,FILE=hopping_file)
@@ -82,7 +82,7 @@ OPEN(UNIT=1009,FILE="abundance.csv",POSITION='APPEND', STATUS='REPLACE')
 IF ( DEBUG .EQV. .TRUE. ) OPEN(UNIT=777,FILE='reaction_analytics.csv',STATUS='REPLACE',POSITION='APPEND')
 
 ! Nullify pointers
-NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len ) 
+NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len )
 
 
 ! Associate time value
@@ -94,20 +94,20 @@ t1 = 0
 
 ! Initialize count_num
 count_num = 1
-cpu_max_time = 100.0 
+cpu_max_time = 100.0
 cpu_total = 0
 
-species_file = 'species.d'                                                   
-reactions_file = 'reactions.d'                                             
-OPEN (UNIT=1, FILE=species_file, STATUS='OLD', ACTION='READ', IOSTAT=err1)      
-OPEN (UNIT=2, FILE=reactions_file, STATUS='OLD', ACTION='READ', IOSTAT=err2)       
-CALL linecount(1,err1,lines_spec)                                             
-CALL linecount(2,err2,lines_react)     
+species_file = 'species.dat'
+reactions_file = 'reactions.dat'
+OPEN (UNIT=1, FILE=species_file, STATUS='OLD', ACTION='READ', IOSTAT=err1)
+OPEN (UNIT=2, FILE=reactions_file, STATUS='OLD', ACTION='READ', IOSTAT=err2)
+CALL linecount(1,err1,lines_spec)
+CALL linecount(2,err2,lines_react)
 CLOSE(1)
 CLOSE(2)
 
 !******************************************************************************
-! Create the Reaction Array 
+! Create the Reaction Array
 !******************************************************************************
 ! Note, currently ions is somewhat of a magic number
 ALLOCATE( qube(lines_spec,lines_spec,3), sp_list(lines_spec), en_list(lines_spec,3), anion_target(ions) )
@@ -117,7 +117,7 @@ CALL qbert(qube,lines_spec,lines_react,en_list,species_file,reactions_file,sp_li
 
 PRINT *, 'The anion list is:',anion_list
 
-! Associate the pointer to the qube 
+! Associate the pointer to the qube
 qube_ptr => qube
 
 ! Associate the pointer to en_list
@@ -128,25 +128,25 @@ sp_ptr => sp_list
 
 
 ! Lookup to numbers of CRP and electron in the listj
-CALL lookup( "CRP", lines_spec, sp_list, ev_nums(2))  
-CALL lookup( '*'  , lines_spec, sp_list, ev_nums(1) ) 
+CALL lookup( "CRP", lines_spec, sp_list, ev_nums(2))
+CALL lookup( '*'  , lines_spec, sp_list, ev_nums(1) )
 CALL lookup( 'e'  , lines_spec, sp_list, ev_nums(3) )
- 
+
 !******************************************************************************
-! Calculate the dimensions of the matrix 
+! Calculate the dimensions of the matrix
 !******************************************************************************
-dimens(1) = NTHICK 
+dimens(1) = NTHICK
 dimens(2) = NEDGE
-dimens(3) = dimens(2) 
+dimens(3) = dimens(2)
 PRINT *, 'In main, the dimens are:',dimens
 
 !******************************************************************************
-! Create the matrix 
+! Create the matrix
 !******************************************************************************
 ALLOCATE ( matrix( dimens(1),dimens(2),dimens(3) ) )
 matrix = 0
 
-FORALL ( i=1:dimens(1),j=1:dimens(2),k=1:dimens(3), MOD(k,2) .EQ. 1 .AND. MOD(j,2) .EQ. 1) 
+FORALL ( i=1:dimens(1),j=1:dimens(2),k=1:dimens(3), MOD(k,2) .EQ. 1 .AND. MOD(j,2) .EQ. 1)
   matrix(i,j,k) = -1
 END FORALL
 
@@ -166,7 +166,7 @@ wait_list%sp_num    = 0
 wait_list%act_type  = 0
 
 !******************************************************************************
-! Calculate initial waiting times 
+! Calculate initial waiting times
 !******************************************************************************
 time = 0.0
 
@@ -188,7 +188,7 @@ wait_list(wait_len)%sp_num    = cr_num
 CALL COUNTER(numprotons,time,AB_UNIT_NUM,matrix_ptr,wait_list,4,7)
 
 !******************************************************************************
-! Begin the simulation 
+! Begin the simulation
 !******************************************************************************
 !counter = 0
 DO WHILE ( time .LE. time_total )
@@ -200,14 +200,14 @@ DO WHILE ( time .LE. time_total )
     CALL reactant_remove(wait_list,mindex,matrix_ptr,wait_len)
     CALL fallout( qube_ptr,matrix_ptr,en_ptr,anion_list,wait_list, &
                   wait_len,time,ev_nums)
-    ! Calculate time to next cosmic-ray event 
+    ! Calculate time to next cosmic-ray event
     rndnum  = RAND()
     cr_time = -1*( DLOG(rndnum)/cr_rate )
     ! Populate wait_list with new time
     wait_len = wait_len + 1
     wait_list(wait_len)%wait_time   = cr_time + time
     wait_list(wait_len)%sp_num   = cr_num
-  ELSE 
+  ELSE
     ! If it is a regular species, decide it hopping or desorption
     IF ( wait_list(mindex)%act_type .EQ. 1 ) THEN
       ! The species hops
@@ -215,18 +215,18 @@ DO WHILE ( time .LE. time_total )
     ELSE
       ! The species desorbs
       matrix_ptr( wait_list(mindex)%i,wait_list(mindex)%j,wait_list(mindex)%k ) = 0
-      CALL reactant_remove(wait_list,mindex,matrix_ptr,wait_len)  
+      CALL reactant_remove(wait_list,mindex,matrix_ptr,wait_len)
     END IF
-  END IF 
+  END IF
 
 
-  time_check = time_check + 1  
+  time_check = time_check + 1
   IF ( MOD(time_check,100) .EQ. 0 ) THEN
     CALL counter( numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7)
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
-    PRINT *, "Time =", time, "|*| Fluence =", numprotons/AREA !, "|*| Clock_diff =",t2-t1 
-!    WRITE(1013, *) time,",", time-time_diff,",", t2-t1,",",cpu_total 
+    PRINT *, "Time =", time, "|*| Fluence =", numprotons/AREA !, "|*| Clock_diff =",t2-t1
+!    WRITE(1013, *) time,",", time-time_diff,",", t2-t1,",",cpu_total
     time_diff = time
     t1 = t2
   END IF
@@ -263,6 +263,6 @@ IF ( DEBUG .EQV. .TRUE. ) CLOSE(777)
 !PRINT *, "Number of normal sites is:",SIZE(matrix)/3
 !PRINT *, "wait_list is size ",SIZE(wait_list)
 !PRINT *, 'Area is:',AREA
-NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len ) 
+NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len )
 DEALLOCATE( qube, sp_list, en_list, matrix,wait_target )
 END PROGRAM main
