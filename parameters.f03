@@ -49,7 +49,7 @@ MODULE parameters
   !******************************************************************************
   ! Kinetic Parameters 
   !******************************************************************************
-  DOUBLE PRECISION, PARAMETER :: TRL_NU      = 1E12                        ! Trial frequency, for the rates, in 1/s
+  DOUBLE PRECISION, PARAMETER :: TRL_NU      = 1E11                        ! Trial frequency, for the rates, in 1/s
   DOUBLE PRECISION, PARAMETER :: DISPROB     = 0.5                           ! Probability of excitative dissociation
   DOUBLE PRECISION, PARAMETER :: ZP          = 1.D0                        ! Proton number
   DOUBLE PRECISION, PARAMETER :: ZO1         = 8.D0                        ! Atomic oxygen proton number
@@ -76,7 +76,7 @@ MODULE parameters
   REAL(KIND=DBL)  , PARAMETER :: AVAL        = 15                           ! Parameter for Gamma distribution
   REAL(KIND=DBL)  , PARAMETER :: ECUTOFF     = 4.5D0                       ! Secondary cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: PCUTOFF     = 5.0D0                       ! Primary ion cutoff energy in eV
-  REAL            , PARAMETER :: O_O2_BRANCHING = 0.2
+  REAL            , PARAMETER :: O_O2_BRANCHING   = 0.0
   REAL            , PARAMETER :: O2_ION_BRANCHING = 0.8
 
   !******************************************************************************
@@ -89,7 +89,7 @@ MODULE parameters
   ! Array Parameters 
   !******************************************************************************
   INTEGER, DIMENSION(1)       :: FAST_REACTS = (/ 21 /)                    ! 4 ! Species that react upon formation
-  INTEGER, DIMENSION(1)       :: FRAGILE     = (/ 7 /)                    ! 7 ! Species that dissociate easily
+  INTEGER, DIMENSION(1)       :: FRAGILE     = (/ 21 /)                    ! 7 ! Species that dissociate easily
   INTEGER, DIMENSION(1)       :: MOBILE_LIST = (/ 4 /)
 
   LOGICAL, PARAMETER :: SECELEC = .TRUE.

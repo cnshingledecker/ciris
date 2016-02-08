@@ -1,5 +1,5 @@
 GFORTRAN module version '10' created from functiondefs.f03
-MD5:b9a2235fa0194a1d98be967d790c7ec8 -- If you edit this, you'll get what you deserve.
+MD5:21b27d7dab291da302dcd6aec511610e -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () ()
 () () () ())
@@ -339,7 +339,7 @@ UNKNOWN-PROC UNKNOWN IMPLICIT-SAVE 0 0) (REAL 4 0 0 0 REAL ()) 0 0 () (
 CONSTANT (REAL 4 0 0 0 REAL ()) 0 '0.cccccd0@0') () 0 () () () 0 0)
 191 'o_o2_branching' 'parameters' '' 1 ((PARAMETER UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN IMPLICIT-SAVE 0 0) (REAL 4 0 0 0 REAL ()) 0 0 () (
-CONSTANT (REAL 4 0 0 0 REAL ()) 0 '0.3333334@0') () 0 () () () 0 0)
+CONSTANT (REAL 4 0 0 0 REAL ()) 0 '0.0000000@0') () 0 () () () 0 0)
 192 'parameters' 'parameters' '' 1 ((MODULE UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN UNKNOWN 0 0) (UNKNOWN 0 0 0 0 UNKNOWN ()) 0 0 () () 0 () () () 0
 0)
@@ -418,7 +418,7 @@ CONSTANT (REAL 8 0 0 0 REAL ()) 0 '0.186a0000000000@5') () 0 () () () 0
 0)
 248 'trl_nu' 'parameters' '' 1 ((PARAMETER UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN IMPLICIT-SAVE 0 0) (REAL 8 0 0 0 REAL ()) 0 0 () (CONSTANT (
-REAL 8 0 0 0 REAL ()) 0 '0.e8d4a500000000@10') () 0 () () () 0 0)
+REAL 8 0 0 0 REAL ()) 0 '0.174876e0000000@10') () 0 () () () 0 0)
 249 'typedefs' 'typedefs' '' 1 ((MODULE UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN UNKNOWN 0 0) (UNKNOWN 0 0 0 0 UNKNOWN ()) 0 0 () () 0 () () () 0
 0)

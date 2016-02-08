@@ -1,5 +1,5 @@
 GFORTRAN module version '10' created from subroutines.f03
-MD5:57532f6a017f5d3dbdb347d944595b60 -- If you edit this, you'll get what you deserve.
+MD5:8b84eb513c6424c18b481cd0ecc79623 -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () ()
 () () () ())
@@ -645,7 +645,7 @@ CONSTANT (INTEGER 4 0 0 0 INTEGER ()) 0 '1') (CONSTANT (INTEGER 4 0 0 0
 INTEGER ()) 0 '7')) 0 () () () 0 0)
 355 'o_o2_branching' 'parameters' '' 1 ((PARAMETER UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN IMPLICIT-SAVE 0 0) (REAL 4 0 0 0 REAL ()) 0 0 () (
-CONSTANT (REAL 4 0 0 0 REAL ()) 0 '0.3333334@0') () 0 () () () 0 0)
+CONSTANT (REAL 4 0 0 0 REAL ()) 0 '0.0000000@0') () 0 () () () 0 0)
 356 'p_ex_select' 'subroutines' '' 1 ((PROCEDURE UNKNOWN-INTENT
 MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE ALWAYS_EXPLICIT) (UNKNOWN 0 0 0
 0 UNKNOWN ()) 357 0 (358 359) () 0 () () () 0 0)
@@ -779,7 +779,7 @@ MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE ALWAYS_EXPLICIT) (UNKNOWN 0 0 0
 0 UNKNOWN ()) 496 0 (497 498 499 500) () 0 () () () 0 0)
 501 'trl_nu' 'parameters' '' 1 ((PARAMETER UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN IMPLICIT-SAVE 0 0) (REAL 8 0 0 0 REAL ()) 0 0 () (CONSTANT (
-REAL 8 0 0 0 REAL ()) 0 '0.e8d4a500000000@10') () 0 () () () 0 0)
+REAL 8 0 0 0 REAL ()) 0 '0.174876e0000000@10') () 0 () () () 0 0)
 502 'typedefs' 'typedefs' '' 1 ((MODULE UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN UNKNOWN 0 0) (UNKNOWN 0 0 0 0 UNKNOWN ()) 0 0 () () 0 () () () 0
 0)
