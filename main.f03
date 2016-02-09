@@ -185,7 +185,7 @@ wait_list(wait_len)%sp_num    = cr_num
 
 ! Write first line in abundance.out file
 !WRITE(1009,*) '  [TIME]                        ','[FLUENCE]                                    ','[O]            ','[O3]'
-CALL COUNTER(numprotons,time,AB_UNIT_NUM,matrix_ptr,wait_list,4,7)
+CALL COUNTER(numprotons,time,AB_UNIT_NUM,matrix_ptr,wait_list,4,7,wait_len)
 
 !******************************************************************************
 ! Begin the simulation
@@ -209,23 +209,24 @@ DO WHILE ( time .LE. time_total )
     wait_list(wait_len)%sp_num   = cr_num
   ELSE
     ! If it is a regular species, decide it hopping or desorption
-    IF ( wait_list(mindex)%act_type .EQ. 1 ) THEN
-      ! The species hops
+    SELECT CASE (wait_list(mindex)%act_type)
+    CASE(1) ! The species hops
       CALL meta_hop( mindex,qube_ptr,matrix_ptr,en_ptr,wait_list,result,wait_len,time )
-    ELSE
-      ! The species desorbs
+    CASE(2) ! The species desorbs
       matrix_ptr( wait_list(mindex)%i,wait_list(mindex)%j,wait_list(mindex)%k ) = 0
       CALL reactant_remove(wait_list,mindex,matrix_ptr,wait_len)
-    END IF
+    CASE(3) ! The species reacts quickly
+      CALL fast_reaction(mindex,wait_len,matrix_ptr,qube_ptr,en_ptr,time,wait_list)
+    END SELECT
   END IF
 
 
   time_check = time_check + 1
   IF ( MOD(time_check,100) .EQ. 0 ) THEN
-    CALL counter( numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7)
+    CALL counter( numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7,wait_len)
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
-    PRINT *, "Time =", time, "|*| Fluence =", numprotons/AREA !, "|*| Clock_diff =",t2-t1
+    !PRINT *, "Time =", time, "|*| Fluence =", numprotons/AREA !, "|*| Clock_diff =",t2-t1
 !    WRITE(1013, *) time,",", time-time_diff,",", t2-t1,",",cpu_total
     time_diff = time
     t1 = t2
@@ -253,7 +254,7 @@ PRINT *, "****************"
 PRINT *, "ENDING LOSALAMOS"
 PRINT *, "****************"
 
-CALL counter( numprotons,time, AB_UNIT_NUM,matrix_ptr,wait_list,4,7)
+CALL counter( numprotons,time, AB_UNIT_NUM,matrix_ptr,wait_list,4,7,wait_len)
 CLOSE(1009)
 !CLOSE(1011)
 !CLOSE(1013)

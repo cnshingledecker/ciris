@@ -891,7 +891,6 @@ CONTAINS
          wait_list(wait_len)%sp_num = prods(1)
          CALL wait_calc( wait_list, wait_len, en_list, time )
          matrix(i_re2,j_re2,k_re2) = wait_len
-!         PRINT *, 'In cern, coords are:',i_re2,j_re2,k_re2,' and wait_len=',wait_len
       ELSE ! Reactant 2 mobile, modify its row but with same coordinates
         wait_list(matrix_num)%sp_num = prods(1)
         CALL wait_calc(wait_list,matrix_num,en_list,time)
@@ -910,17 +909,14 @@ CONTAINS
       i_pr = coords(1)
       j_pr = coords(2)
       k_pr = coords(3)
-!      PRINT *, 'After Krell, coords are:',coords
       IF ( null .EQ. 0 ) THEN
         CONTINUE
       ELSE IF (null .EQ. 1 ) THEN
-!        PRINT *, 'NULL EVENT!!! Rolling back reaction.'
         IF ( ANY( MOBILE_LIST .EQ. prods(1) ) ) THEN ! Product 1 was mobile
           IF ( matrix_num .LT. 0 ) THEN ! Immobile species at event coords
             CALL reactant_remove( wait_list, wait_len,matrix, wait_len )
             matrix(i_re2,j_re2,k_re2) = original_value
           ELSE ! Reactant 2 was mobile, restore its row with new wait time
-!            PRINT *, 'reactant 2 was mobile at matrix_num=',matrix_num,' and sp_num',r2
             wait_list(matrix_num)%sp_num = r2
             CALL wait_calc(wait_list,r2,en_list,time)
           END IF
@@ -931,24 +927,18 @@ CONTAINS
             wait_list(wait_len)%j = j_re2
             wait_list(wait_len)%k = k_re2
             wait_list(wait_len)%sp_num = r2
-!            PRINT *, "Calling wait_calc in cern 1.2"
-!            PRINT *, 'matrix_num is:',matrix_num
-!            PRINT *, 'wait_len is:',wait_len
-!            PRINT *, 'r2 is:',r2
             CALL wait_calc( wait_list, wait_len, en_list, time )
             matrix(i_re2,j_re2,k_re2) = wait_len
           ELSE
             matrix(i_re2,j_re2,k_re2) = original_value
           END IF
         END IF
-!        PRINT *, 'Returning to calling subroutine'
         RETURN ! go back to calling program after resetting reactants
       END IF
     END IF
 
     ! Place 2nd product
     IF ( ANY( MOBILE_LIST .EQ. prods(2) ) .AND. prods(2) .NE. 0 ) THEN ! Mobile product
-!      PRINT *, 'Mobile 2nd product here!!!'
       wait_len = wait_len + 1 ! Increase wait_list length by one
       wait_list(wait_len)%i = i_pr
       wait_list(wait_len)%j = j_pr
@@ -962,20 +952,16 @@ CONTAINS
 
     ! Save the coords of the electron, if necessary
     IF ( prods(2) .EQ. event_num(3) .AND. PRESENT(elec_coords) ) THEN
-!      PRINT *, 'Ding!'
       elec_coords(1) = i_pr
       elec_coords(2) = j_pr
       elec_coords(3) = k_pr
     END IF
 
-!    PRINT *, 'ev_coords=',event_coords
-!    PRINT *, 'elec_coords=',elec_coords
 
     ! Place 3rd product if necessary
     IF ( prods(3) .NE. 0 ) THEN
 !      PRINT *, 'Calling krell for 3rd product in cern'
       CALL krell( event_coords, coords, matrix,null )
-!      PRINT *, 'Krell coords are:',coords
       i_pr = coords(1)
       j_pr = coords(2)
       k_pr = coords(3)
@@ -1457,7 +1443,8 @@ CONTAINS
   !  coordinates.
   !
   ! Note:
-  !   For an explanation of phantom sites, see phantom.txt file
+  !   null = 1 => no empty sites
+  !   null = 0 => empty site available
   !
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !! KRELL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1787,7 +1774,8 @@ SUBROUTINE action_figure ( wait_list, index, rand_num, E_list )
 !  thermal hopping. The values of the flag are:
 !
 !  -- act_type = 1 => thermal hopping
-!  -- act_type = 0 => desorption
+!  -- act_type = 2 => desorption
+!  -- act_type = 3 => fast reaction
 !
 ! Note:
 !  This subroutine is only called in the case of
@@ -1827,12 +1815,17 @@ SUBROUTINE action_figure ( wait_list, index, rand_num, E_list )
       wait_list(index)%act_type = 1
     ELSE
       ! Desorption occurs
-      wait_list(index)%act_type = 0
+      wait_list(index)%act_type = 2
     END IF
   ELSE
   ! (1b) Species is in the bulk
     ! Only hopping (diffusion) can occur
     wait_list(index)%act_type = 1
+  END IF
+
+  ! If the species is in fast reacting
+  IF( ANY(FAST_REACTS .EQ. wait_list(index)%sp_num) ) THEN
+    wait_list(index)%act_type = 3
   END IF
 END SUBROUTINE action_figure
 
@@ -2071,8 +2064,9 @@ SUBROUTINE reaction( qube, E_list, matrix,  wait_list, wait_len, time, i_re, j_r
   prods = qube(r1,r2,:)
 
   !****************************************************************************
+  !****BRANCHING_RATIOS********************************************************
   !****************************************************************************
-  !VERY TEMPORARY FIX TO SIMULATE BRANCHING RATIOS: FIX ASAP!!!
+  !VERY TEMPORARY FIX TO SIMULATE BRANCHING RATIOS: FIX!!!
   !****************************************************************************
   !****************************************************************************
   IF ( r1 .EQ. 4 .AND. r2 .EQ. 1 .OR. r1 .EQ. 1 .AND. r2 .EQ. 4 ) THEN
@@ -2087,6 +2081,8 @@ SUBROUTINE reaction( qube, E_list, matrix,  wait_list, wait_len, time, i_re, j_r
       prods = (/ 1, 1, 0 /)
     END IF
   END IF
+  !****************************************************************************
+  !****************************************************************************
 
     IF ( r2 .EQ. 0 ) THEN
       OPEN(UNIT=1013,FILE="test_wrong_spaces.txt")
@@ -2212,11 +2208,6 @@ SUBROUTINE reaction( qube, E_list, matrix,  wait_list, wait_len, time, i_re, j_r
     prod_coords(1,2) = j_re2
     prod_coords(1,3) = k_re2
 
-    IF ( ANY(fast_reacts .EQ. prods(1)) ) CALL make_react(qube, &
-                                                          E_list, matrix, &
-                                                          wait_list, wait_len, &
-                                                          time, i_re2,j_re2,k_re2)
-
   CASE (2)
     !***************************************************************************
     ! 2 or more products
@@ -2246,12 +2237,6 @@ SUBROUTINE reaction( qube, E_list, matrix,  wait_list, wait_len, time, i_re, j_r
     prod_coords(1,1) = i_re2
     prod_coords(1,2) = j_re2
     prod_coords(1,3) = k_re2
-
-    ! Make prods(1) react if in fast react
-    IF ( ANY(fast_reacts .EQ. prods(1)) .AND. null .NE. 1 ) CALL make_react(qube, &
-                                                          E_list, matrix, &
-                                                          wait_list, wait_len, &
-                                                          time, i_re2,j_re2,k_re2)
 
 
     !***************************************************************************
@@ -2285,12 +2270,6 @@ SUBROUTINE reaction( qube, E_list, matrix,  wait_list, wait_len, time, i_re, j_r
     prod_coords(2,2) = j_re
     prod_coords(2,3) = k_re
 
-    ! Make prods(2) react if in fast react
-    IF ( ANY(fast_reacts .EQ. prods(2)) .AND. null .NE. 1 ) CALL make_react(qube, &
-                                                          E_list, matrix, &
-                                                          wait_list, wait_len, &
-                                                          time, i_re,j_re,k_re)
-
 
     !***************************************************************************
     ! Place 3rd product if necessary
@@ -2306,13 +2285,6 @@ SUBROUTINE reaction( qube, E_list, matrix,  wait_list, wait_len, time, i_re, j_r
       prod_coords(3,1) = third_coords(1)
       prod_coords(3,2) = third_coords(2)
       prod_coords(3,3) = third_coords(3)
-
-      IF ( ANY(fast_reacts .EQ. prods(3)) .AND. null .NE. 1 ) CALL make_react(qube, &
-                                                          E_list, matrix, &
-                                                          wait_list, wait_len, &
-                                                          time, third_coords(1),&
-                                                          third_coords(2),&
-                                                          third_coords(3))
 
     END IF
   END SELECT
@@ -2548,7 +2520,7 @@ SUBROUTINE minmod ( wait_list, mindex, wait_len )
   END DO
 END SUBROUTINE minmod
 
-SUBROUTINE counter(numprotons,time, unit_num, matrix,wait_list,sp1,sp2)
+SUBROUTINE counter(numprotons,time, unit_num, matrix,wait_list,sp1,sp2,wait_len)
 !
 ! Purpose:
 !   The purpose of this subroutine is to count
@@ -2573,10 +2545,12 @@ SUBROUTINE counter(numprotons,time, unit_num, matrix,wait_list,sp1,sp2)
   INTEGER            , INTENT(IN)                            :: sp1, sp2
   INTEGER                        , DIMENSION(3)              :: dimens
   INTEGER                        , DIMENSION(:,:,:), POINTER :: matrix
+  INTEGER                              , POINTER :: wait_len
   REAL(KIND=DBL)                                   , POINTER :: time
   REAL(KIND=DBL)                                             :: volume
   REAL(KIND=DBL)                                             :: denom
   TYPE(wait_info)                , DIMENSION(:)    , POINTER :: wait_list
+  CHARACTER(len=80)                                          :: varfmt
 
 
   volume = THICK*EDGE*EDGE
@@ -2607,6 +2581,8 @@ SUBROUTINE counter(numprotons,time, unit_num, matrix,wait_list,sp1,sp2)
   END DO
 
   WRITE(unit_num,*) time,',', numprotons/AREA,',',sp1_count/denom,',',sp2_count/denom,',',numprotons
+  varfmt = "(A5,ES10.4,A8,ES10.4,A9,ES10.4,A16,I10)"
+  PRINT varfmt, "TIME=",time," :: [O]=",sp1_count/denom," :: [O3]=",sp2_count/denom," :: WAIT LENGTH=",wait_len
 
 END SUBROUTINE counter
 
@@ -3538,4 +3514,82 @@ END SUBROUTINE make_react
       RETURN
     END IF
   END SUBROUTINE se_info_garbage
+
+  SUBROUTINE fast_reaction(spec_index,wait_len,matrix,react_cube,en_list,time,wait_list)
+  !
+  ! Purpose:
+  !   This subroutine is designed for those species that react quickly with the
+  !   surrounding matrix. Such species are specified in the parameters.f03 file
+  !   and are given a special react type when they are formed.
+  !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !! FAST_REACTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !******************!
+    ! Input and output !
+    !******************!
+    INTEGER                                        :: spec_index !index of fast-reacting species
+    INTEGER                              , POINTER :: wait_len
+    INTEGER            , DIMENSION(:,:,:), POINTER :: matrix !ice-mantle matrix
+    INTEGER(KIND=SHORT), DIMENSION(:,:,:), POINTER :: react_cube !array of products/reactions
+    REAL               , DIMENSION(:,:)  , POINTER :: en_list !list of binding and desorption energies
+    REAL(KIND=DBL)                       , POINTER :: time
+    TYPE(wait_info)    , DIMENSION(:)    , POINTER :: wait_list
+
+    !*****************!
+    ! Local variables !
+    !*****************!
+    INTEGER(KIND=SHORT)                            :: null_1,null_2 !null flag
+    INTEGER                                        :: large_count
+    INTEGER                                        :: small_count
+    INTEGER, DIMENSION(3)                          :: coords
+    INTEGER, DIMENSION(3)                          :: temp_coords
+    INTEGER, DIMENSION(6,4)                        :: large_temp
+    INTEGER, DIMENSION(4,4)                        :: small_temp
+
+    !Step i. Initialize temporary variables
+    null_1      = 0
+    null_2      = 0
+    large_count = 0
+    small_count = 0
+    coords      = 0
+    temp_coords = 0
+    large_temp  = 0
+    small_temp  = 0
+
+    !Step ii. Get coords from struct
+    coords(1) = wait_list(spec_index)%i
+    coords(2) = wait_list(spec_index)%j
+    coords(3) = wait_list(spec_index)%k
+
+    !Step 1. Look around to see if there are any potential co-reactants
+    CALL lookaroundyou( react_cube, matrix, coords, null_1, small_count, &
+                        large_count, small_temp, large_temp, wait_list )
+
+    SELECT CASE (null_1)
+    CASE(0)
+    !Step 2. If there are potential co-reactants, randomly choose one and react.
+    CALL solarlottery( small_count,large_count,small_temp,large_temp,temp_coords )
+    CALL reaction( react_cube, en_list, matrix, wait_list, wait_len, time, &
+                   coords(1), coords(2), coords(3), &
+                   temp_coords(1),temp_coords(2),temp_coords(3) )
+    CASE(1)
+    !Step 3. If there are no co-reactants, look for empty species to hop to
+      CALL krell( coords, temp_coords, matrix,null_2 )
+      SELECT CASE (null_2)
+      CASE(0)
+      !Step 3a. If there is an empty site, randomly choose it and hop
+      !Update struct at same index to contain new coords
+      wait_list(spec_index)%i = temp_coords(1)
+      wait_list(spec_index)%j = temp_coords(2)
+      wait_list(spec_index)%k = temp_coords(3)
+      matrix(temp_coords(1),temp_coords(2),temp_coords(3)) = wait_list(spec_index)%sp_num !Make new site have species
+      matrix(coords(1),coords(2),coords(3)) = 0 !Make old site empty
+      CALL wait_calc(wait_list,spec_index,en_list,time) !Get new time till next attempt
+      CASE(1)
+      !Step 3b. If there are none, do nothing but be re-added to wait list
+      CALL wait_calc(wait_list,spec_index,en_list,time) !Get new time till next attempt
+      END SELECT
+    END SELECT
+  END SUBROUTINE fast_reaction
 END MODULE subroutines
