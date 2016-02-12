@@ -48,6 +48,8 @@ CHARACTER(len=80)                                            :: reactions_file !
 CHARACTER(len=80)                                            :: hopping_file   ! File containing hopping data
 TYPE (wait_info)    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: wait_target
 TYPE (wait_info)                 , DIMENSION(:)    , POINTER :: wait_list      !Derived data type described in chaco_data.f90
+INTEGER                                            , TARGET  :: o3_prod_target,o3_dest_target
+INTEGER                                            , POINTER :: o3_prod,o3_dest
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!! DEBUGGING/ANALYTICS VARIABLES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -62,6 +64,8 @@ PRINT *, "*************************"
 
 ! Initialize analytics and debugging vals
 numprotons = 0
+o3_prod_target = 0
+o3_dest_target = 0
 !numo2      = 0
 !numo3      = 0
 !p_e_loss   = 0D0
@@ -82,11 +86,15 @@ OPEN(UNIT=1009,FILE="abundance.csv",POSITION='APPEND', STATUS='REPLACE')
 IF ( DEBUG .EQV. .TRUE. ) OPEN(UNIT=777,FILE='reaction_analytics.csv',STATUS='REPLACE',POSITION='APPEND')
 
 ! Nullify pointers
-NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len )
+NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len,o3_prod,o3_dest )
 
 
 ! Associate time value
 time => time_target
+
+! Associate analytics variables
+o3_prod => o3_prod_target
+o3_dest => o3_dest_target
 
 ! Initialize time step between abundance checks
 time_step = time_total/time_counts
@@ -183,55 +191,62 @@ wait_len                      = wait_len + 1
 wait_list(wait_len)%wait_time = cr_time + time
 wait_list(wait_len)%sp_num    = cr_num
 
-! Write first line in abundance.out file
-!WRITE(1009,*) '  [TIME]                        ','[FLUENCE]                                    ','[O]            ','[O3]'
-CALL COUNTER(numprotons,time,AB_UNIT_NUM,matrix_ptr,wait_list,4,7,wait_len)
+CALL COUNTER(o3_prod,o3_dest,numprotons,time,AB_UNIT_NUM,matrix_ptr,wait_list,4,7,wait_len)
 
 !******************************************************************************
 ! Begin the simulation
 !******************************************************************************
 !counter = 0
+mindex = 1
 DO WHILE ( time .LE. time_total )
-  ! Read the top of the waiting list
-  CALL roll_call( wait_list, time, wait_len, mindex )
   IF ( wait_list(mindex)%sp_num .EQ. cr_num ) THEN
-    ! If the event is a proton collision, call Fallout
+    ! Increment proton count
     numprotons = numprotons + 1
-    CALL reactant_remove(wait_list,mindex,matrix_ptr,wait_len)
-    CALL fallout( qube_ptr,matrix_ptr,en_ptr,anion_list,wait_list, &
-                  wait_len,time,ev_nums)
     ! Calculate time to next cosmic-ray event
     rndnum  = RAND()
     cr_time = -1*( DLOG(rndnum)/cr_rate )
+    cr_time = cr_time + time
     ! Populate wait_list with new time
-    wait_len = wait_len + 1
-    wait_list(wait_len)%wait_time   = cr_time + time
-    wait_list(wait_len)%sp_num   = cr_num
+    wait_list(mindex)%wait_time   = cr_time
+    wait_list(mindex)%sp_num = cr_num
+    ! If the event is a proton collision, call Fallout
+    CALL fallout( o3_prod,o3_dest,qube_ptr,matrix_ptr,en_ptr,anion_list,wait_list, &
+                  wait_len,time,ev_nums)
+ !   GOTO 100
   ELSE
     ! If it is a regular species, decide it hopping or desorption
     SELECT CASE (wait_list(mindex)%act_type)
     CASE(1) ! The species hops
-      CALL meta_hop( mindex,qube_ptr,matrix_ptr,en_ptr,wait_list,result,wait_len,time )
+      CALL meta_hop( o3_prod,o3_dest,mindex,qube_ptr,matrix_ptr,en_ptr,wait_list,result,wait_len,time )
     CASE(2) ! The species desorbs
       matrix_ptr( wait_list(mindex)%i,wait_list(mindex)%j,wait_list(mindex)%k ) = 0
       CALL reactant_remove(wait_list,mindex,matrix_ptr,wait_len)
     CASE(3) ! The species reacts quickly
-      CALL fast_reaction(mindex,wait_len,matrix_ptr,qube_ptr,en_ptr,time,wait_list)
+      CALL fast_reaction(o3_prod,o3_dest,mindex,wait_len,matrix_ptr,qube_ptr,en_ptr,time,wait_list)
+!      CALL  make_react(o3_prod,o3_dest,qube_ptr, en_ptr, matrix_ptr, wait_list, wait_len, time,mindex )
     END SELECT
   END IF
 
 
   time_check = time_check + 1
   IF ( MOD(time_check,100) .EQ. 0 ) THEN
-    CALL counter( numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7,wait_len)
+    CALL counter( o3_prod,o3_dest,numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7,wait_len)
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
-    !PRINT *, "Time =", time, "|*| Fluence =", numprotons/AREA !, "|*| Clock_diff =",t2-t1
-!    WRITE(1013, *) time,",", time-time_diff,",", t2-t1,",",cpu_total
     time_diff = time
     t1 = t2
+    ! Reset production and destruction counters
+!    o3_prod = 0
+!    o3_dest = 0
+    CALL roll_call( wait_list, time, wait_len, mindex )
+  ELSE IF ( time_check .GT. 1E3 .AND. wait_len .LE. 5 ) THEN
+    CALL find_cr( wait_list, mindex, wait_len,  cr_num, en_ptr, time )
+  ELSE
+     CALL roll_call( wait_list, time, wait_len, mindex )
   END IF
-!  IF ( MOD(time_check,1000) .EQ. 0 ) CALL counter( count_num, matrix_ptr )
+
+  ! Get next event
+
 END DO
 
 !OPEN(UNIT=1013,FILE="wait_list_flaw.txt")
@@ -244,17 +259,22 @@ END DO
 !END DO
 !CLOSE(1013)
 
-OPEN(UNIT=1012,FILE="final_wait_list.txt")
-DO n=1,wait_len+1
+100 OPEN(UNIT=1012,FILE="wait_list.txt")
+DO n=1,wait_len
   WRITE(1012,*) wait_list(n)
 END DO
 CLOSE(1012)
+
+PRINT *, wait_len,' is wait_len'
+PRINT *, wait_list(1)
+
+
 
 PRINT *, "****************"
 PRINT *, "ENDING LOSALAMOS"
 PRINT *, "****************"
 
-CALL counter( numprotons,time, AB_UNIT_NUM,matrix_ptr,wait_list,4,7,wait_len)
+CALL counter( o3_prod,o3_dest,numprotons,time, AB_UNIT_NUM,matrix_ptr,wait_list,4,7,wait_len)
 CLOSE(1009)
 !CLOSE(1011)
 !CLOSE(1013)

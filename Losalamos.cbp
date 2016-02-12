@@ -31,7 +31,18 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="main.f95" />
+		<Unit filename="Makefile" />
+		<Unit filename="bresenham.f03" />
+		<Unit filename="functiondefs.f03" />
+		<Unit filename="main.f03" />
+		<Unit filename="mc_toolbox.f03" />
+		<Unit filename="parameters.f03" />
+		<Unit filename="qbert.f03" />
+		<Unit filename="reactions.dat" />
+		<Unit filename="specdata.f03" />
+		<Unit filename="species.dat" />
+		<Unit filename="subroutines.f03" />
+		<Unit filename="typedefs.f03" />
 		<Extensions>
 			<envvars />
 			<code_completion />
