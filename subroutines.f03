@@ -2054,7 +2054,7 @@ CONTAINS
     INTEGER            , INTENT(IN)                                       :: i_re2,j_re2,k_re2
     INTEGER(KIND=SHORT)                                                   :: null
     INTEGER                                                               :: r1,r2
-    INTEGER(KIND=SHORT)                                                   :: case_num
+    INTEGER                                                               :: case_num
     INTEGER                                                               :: index,index2
     INTEGER                                           , POINTER           :: wait_len
     INTEGER                         , DIMENSION(:,:,:), POINTER           :: matrix
@@ -2070,6 +2070,7 @@ CONTAINS
     REAL                                                                  :: rnum
     INTEGER                                                               :: i, j, k
     INTEGER                         , DIMENSION(3,3)                      :: prod_coords
+    INTEGER                                                               :: p1,p2
 
 
     ! Find the species numbers
@@ -2207,12 +2208,7 @@ CONTAINS
     !*****************************************************************************
     !****Determine Products Case**************************************************
     !*****************************************************************************
-    IF ( prods(2) .EQ. 0 ) THEN ! One product
-      case_num = 1
-    ELSE ! Two or more products
-      case_num = 2
-    END IF
-
+    CALL rtype_tree(r1,r2,prods,case_num)
 
     !*****************************************************************************
     !****Place Products***********************************************************
@@ -2222,178 +2218,372 @@ CONTAINS
       PRINT *, 'Initially matrix r2=',matrix(i_re2,j_re2,k_re2)
     END IF
     prod_coords = 0
+    p1 = prods(1)
+    p2 = prods(2)
     SELECT CASE (case_num)
     CASE (1)
       !***************************************************************************
-      ! 1 product
-      ! NB: If there is only 1 product, it goes on the hopping-to site while the
-      ! hopping-from site becomes empty
+      ! r1 = m, r2 = m, p1 = m, p2 = 0 
       !***************************************************************************
-  !    PRINT *, 'Case 1'
-  !    PRINT *, 'Coords are ',i_re,j_re,k_re
-
-      ! Clear space that r1  occupied
+      ! Place p1 at r2 site (since p1 = m, leave index2 at site as-is)
+      ! Update sp_num 
+      ! Update wait_time in wait_list
+      ! Remove r1 from list
+      ! Make r1 site empty
+      !***************************************************************************
+      wait_list(index2)%sp_num = p1
+      CALL wait_calc( wait_list,index2,E_list,time )
+      CALL reactant_remove( wait_list,index,matrix,wait_len )
       matrix(i_re,j_re,k_re) = 0
-      IF ( index .GT. 0 ) THEN
-  !      PRINT *, 'Index ',index,' > 0'
-        IF ( ANY( MOBILE_LIST .EQ. prods(1) ) ) THEN ! mobile product
-  !        PRINT *, prods(1),' is mobile'
-          wait_list(index)%i = i_re2
-          wait_list(index)%j = j_re2
-          wait_list(index)%k = k_re2
-          wait_list(index)%sp_num = prods(1)
-
-          CALL wait_calc(wait_list,index,E_list,time)
-          IF ( index2 .GT. 0 ) CALL reactant_remove(wait_list,index2,matrix,wait_len)
-          matrix(i_re2,j_re2,k_re2) = index
-        ELSE
-          IF ( index2 .EQ. wait_len ) index2 = index
-          IF ( DEBUG .EQV. .TRUE. ) THEN
-            PRINT *, 'Before rr#1, wait_len=',wait_len
-            DO n=1,wait_len
-              PRINT *, wait_list(n)
-            END DO
-            PRINT *, 'Index2=',index2,'wait_len=',wait_len
-          END IF
-          CALL reactant_remove( wait_list,index,matrix,wait_len )
-          IF ( DEBUG .EQV. .TRUE. ) THEN
-            PRINT *, 'After rr#1, wait_len=',wait_len
-            DO n=1,wait_len
-              PRINT *, wait_list(n)
-            END DO
-            PRINT *, 'Index2=',index2,'wait_len=',wait_len
-          END IF
-          IF ( index2 .GT. 0 ) CALL reactant_remove(wait_list,index2,matrix,wait_len)
-          IF ( DEBUG .EQV. .TRUE. ) THEN
-            PRINT *, 'After rr#2, wait_len=',wait_len
-            DO n=1,wait_len
-              PRINT *, wait_list(n)
-            END DO
-            PRINT *, 'Index2=',index2,'wait_len=',wait_len
-          END IF
-          matrix(i_re2,j_re2,k_re2) = -1*prods(1)
-          IF ( DEBUG .EQV. .TRUE. ) THEN
-            PRINT *, 'Afterwards matrix r1=',matrix(i_re,j_re,k_re)
-            PRINT *, 'Afterwards matrix r2=',matrix(i_re2,j_re2,k_re2)
-            DO n=1,wait_len
-              PRINT *, wait_list(n)
-            END DO
-            PRINT *, 'Index2=',index2,'wait_len=',wait_len
-          END IF
-        END IF
-      ELSE IF ( index .LT. 0 ) THEN
-        IF ( ANY( MOBILE_LIST .EQ. prods(1) ) ) THEN
-          IF ( index2 .LT. 0 ) THEN
-            wait_len = wait_len + 1
-            wait_list(wait_len)%i = i_re2
-            wait_list(wait_len)%j = j_re2
-            wait_list(wait_len)%k = k_re2
-            wait_list(wait_len)%sp_num = prods(1)
-            CALL wait_calc(wait_list,wait_len,E_list,time)
-            matrix(i_re2,j_re2,k_re2) = wait_len
-          ELSE IF ( index2 .GT. 0 ) THEN
-            wait_list(index2)%sp_num = prods(1)
-            CALL wait_calc(wait_list,index2,E_list,time)
-            matrix(i_re2,j_re2,k_re2) = index2
-          END IF
-        ELSE
-          matrix(i_re2,j_re2,k_re2) = -1*prods(1)
-          IF ( index2 .GT. 0 ) CALL reactant_remove(wait_list,index2,matrix,wait_len)
-        END IF
-      END IF
-
-
-      ! Save product coordinates
-      prod_coords(1,1) = i_re2
-      prod_coords(1,2) = j_re2
-      prod_coords(1,3) = k_re2
-
     CASE (2)
       !***************************************************************************
-      ! 2 or more products
+      ! r1 = m, r2 = m, p1 = i, p2 = 0 
       !***************************************************************************
-      ! Place 1st product
+      ! Remove r1 from list
+      ! Update index2
+      ! Remove r2 from list
+      ! Place product at r2 coords
+      ! Make r1 site empty
       !***************************************************************************
-!      PRINT *, 'Case(2), prods are:',prods
-      IF ( ANY( MOBILE_LIST .EQ. prods(1) ) ) THEN ! Mobile product
-        IF ( index2 .LT. 0 ) THEN ! Reactant 2 not mobile, add new (non-zero) row to wait_list
-          wait_len = wait_len + 1 !Increase length of wait_list by 1
-          wait_list(wait_len)%i = i_re2
-          wait_list(wait_len)%j = j_re2
-          wait_list(wait_len)%k = k_re2
-          wait_list(wait_len)%sp_num = prods(1)
-          CALL wait_calc(wait_list,wait_len,E_list,time)
-          matrix(i_re2,j_re2,k_re2) = wait_len
-        ELSE ! Reactant 2 mobile, modify its row but with same coordinates
-          wait_list(index2)%sp_num = prods(1)
-          CALL wait_calc(wait_list,index2,E_list,time)
-          IF ( index2 .GT. 0 ) THEN
-            matrix(i_re2,j_re2,k_re2) = index2
-          ELSE
-            PRINT *, 'ERROR: Index',index2,' < 0'
-          END IF
-        END IF
-      ELSE ! iImmobile product
-        IF ( index2 .GT. 0 ) CALL reactant_remove(wait_list,index2,matrix,wait_len)
-        matrix(i_re2,j_re2,k_re2) = -1*prods(1)
-      END IF
-
-      ! Save product coordinates
-      prod_coords(1,1) = i_re2
-      prod_coords(1,2) = j_re2
-      prod_coords(1,3) = k_re2
-
-
+      CALL reactant_remove(wait_list,index,matrix,wait_len)
+      index2 = matrix(i_re2,j_re2,k_re2)
+      CALL reactant_remove(wait_list,index2,matrix,wait_len)
+      matrix(i_re2,j_re2,k_re2) = -1*p1
+      matrix(i_re,j_re,k_re) = 0
+    CASE (3)
       !***************************************************************************
-      ! Place 2nd product
+      ! r1 = m, r2 = i, p1 = m, p2 = 0 
       !***************************************************************************
-      IF ( index .GT. 0 ) THEN
-        IF ( ANY( MOBILE_LIST .EQ. prods(2) ) ) THEN ! Mobile product
-          wait_list(index)%sp_num = prods(2)
-          CALL wait_calc(wait_list,index,E_list,time)
-          matrix(i_re,j_re,k_re) = index
-        ELSE ! Immobile product
-          matrix(i_re,j_re,k_re) = -1*prods(2)
-!          IF ( index .EQ. wait_len ) index = index2
-          CALL reactant_remove( wait_list,index,matrix,wait_len )
-        END IF
-      ELSE IF ( index .LT. 0 ) THEN
-        IF ( ANY( MOBILE_LIST .EQ. prods(2) ) ) THEN
-          wait_len = wait_len + 1
-          wait_list(wait_len)%i = i_re
-          wait_list(wait_len)%j = j_re
-          wait_list(wait_len)%k = k_re
-          wait_list(wait_len)%sp_num = prods(2)
-          CALL wait_calc(wait_list,wait_len,E_list,time)
-          matrix(i_re,j_re,k_re) = wait_len
-        ELSE
-          matrix(i_re,j_re,k_re) = -1*prods(2)
-        END IF
-      END IF
+      ! Place p1 at r2 site (since p1 = m, leave index2 at site as-is)
+      ! Update sp_num 
+      ! Update wait_time in wait_list
+      ! Make r1 site empty
+      !***************************************************************************
+      wait_list(index)%sp_num = p1
+      CALL wait_calc(wait_list,index,E_list,time)
+      matrix(i_re2,j_re2,k_re2) = index
+      matrix(i_re,j_re,k_re) = 0
+    CASE (4)
+      !***************************************************************************
+      ! r1 = m, r2 = i, p1 = i, p2 = 0 
+      !***************************************************************************
+      ! Remove r1 from list
+      ! Place p1 at r2
+      ! Make r1 site empty
+      !***************************************************************************
+      CALL reactant_remove(wait_list,index,matrix,wait_len)
+      matrix(i_re2,j_re2,k_re2) = -1*p1
+      matrix(i_re,j_re,k_re) = 0
+    CASE (5)
+      !***************************************************************************
+      ! r1 = i, r2 = m, p1 = m, p2 = 0 
+      !***************************************************************************
+      ! Update sp_num at index2 to p1
+      ! Call wait_calc for p1 at index2
+      ! Make r1 site empty
+      !***************************************************************************
+      wait_list(index2)%sp_num = p1
+      CALL wait_calc(wait_list,index2,E_list,time)
+      matrix(i_re,j_re,k_re) = 0
+    CASE (6)
+      !***************************************************************************
+      ! r1 = i, r2 = m, p1 = i, p2 = 0 
+      !***************************************************************************
+      ! Remove r2 from list
+      ! Place p1 at r2 site
+      ! Make r1 site empty
+      !***************************************************************************
+      CALL reactant_remove(wait_list,index2,matrix,wait_len)
+      matrix(i_re2,j_re2,k_re2) = -1*p1
+      matrix(i_re,j_re,k_re) = 0
+    CASE (7)
+      !***************************************************************************
+      ! r1 = i, r2 = i, p1 = m, p2 = 0 
+      !***************************************************************************
+      ! Increase wait_len by 1
+      ! Add p1 to wait_list at wait_len
+      ! Call wait_calc for p1
+      ! Make r2 site wait_len
+      ! Make r1 site empty
+      !***************************************************************************
+      wait_len = wait_len + 1
+      wait_list(wait_len)%sp_num = p1
+      wait_list(wait_len)%i = i_re2
+      wait_list(wait_len)%j = j_re2
+      wait_list(wait_len)%k = k_re2
+      CALL wait_calc(wait_list,wait_len,E_list,time)
+      matrix(i_re2,j_re2,k_re2) = wait_len
+      matrix(i_re,j_re,k_re) = 0
+    CASE (8)
+      !***************************************************************************
+      ! r1 = i, r2 = i, p1 = i, p2 = 0 
+      !***************************************************************************
+      ! Place p1 at r2 site
+      ! Make r1 site empty
+      !***************************************************************************
+      matrix(i_re2,j_re2,k_re2) = -1*p1
+      matrix(i_re,j_re,k_re) = 0
+    CASE (9)
+      !***************************************************************************
+      ! r1 = m, r2 = m, p1 = m, p2 = m 
+      !***************************************************************************
+      ! Make index2 spe_num = p2
+      ! Call wait_calc for index2
+      ! Make index sp_num = p1
+      ! Call wait_calc for index
+      !***************************************************************************
+      wait_list(index)%sp_num = p1
+      CALL wait_calc(wait_list,index,E_list,time)
+      wait_list(index2)%sp_num = p2
+      CALL wait_calc(wait_list,index2,E_list,time)
+    CASE (10)
+      !***************************************************************************
+      ! r1 = m, r2 = m, p1 = m, p2 = i 
+      !***************************************************************************
+      ! Relace index sp_num = p1
+      ! Call wait_calc for index p1
+      ! Remove r2 from list
+      ! Place p2 at r2 site
+      !***************************************************************************
+      wait_list(index)%sp_num = p1
+      CALL wait_calc(wait_list,index,E_list,time)
+      CALL reactant_remove(wait_list,index2,matrix,wait_len)
+      matrix(i_re2,j_re2,k_re2) = -1*p2
+    CASE (11)
+      !***************************************************************************
+      ! r1 = m, r2 = m, p1 = i, p2 = m 
+      !***************************************************************************
+      ! Replace index sp_num = p2
+      ! Call wait_calc for index p2
+      ! Remove index2 from list
+      ! Place p1 at r2 site
+      !***************************************************************************
+      wait_list(index)%sp_num = p2
+      CALL wait_calc(wait_list,index,E_list,time)
+      CALL reactant_remove(wait_list,index2,matrix,wait_len)
+      matrix(i_re2,j_re2,k_re2) = -1*p1
+    CASE (12)
+      !***************************************************************************
+      ! r1 = m, r2 = m, p1 = i, p2 = i 
+      !***************************************************************************
+      ! Remove r1 from list
+      ! Update index2
+      ! Remove r2 from list
+      ! Place p1 at r1 site
+      ! Place p2 at r2 site
+      !***************************************************************************
+      CALL reactant_remove(wait_list,index,matrix,wait_len)
+      index2 = matrix(i_re2,j_re2,k_re2)
+      CALL reactant_remove(wait_list,index2,matrix,wait_len)
+      matrix(i_re,j_re,k_re) = -1*p1
+      matrix(i_re2,j_re2,k_re2) = -1*p2
+    CASE (13)
+      !***************************************************************************
+      ! r1 = m, r2 = i, p1 = m, p2 = m 
+      !***************************************************************************
+      ! Change index sp_num = p1
+      ! Call wait_calc for p1
+      ! Increase wait_len +1 
+      ! Call wait_calc for (wait_len)
+      ! Place wait_len at r2
+      !***************************************************************************
+      wait_list(index)%sp_num = p1
+      CALL wait_calc(wait_list,index,E_list,time)
+      wait_len = wait_len + 1
+      wait_list(wait_len)%sp_num = p2
+      wait_list(wait_len)%i = i_re2
+      wait_list(wait_len)%j = j_re2
+      wait_list(wait_len)%k = k_re2
+      CALL wait_calc(wait_list,wait_len,E_list,time)
+      matrix(i_re2,j_re2,k_re2) = wait_len
+    CASE (14)
+      !***************************************************************************
+      ! r1 = m, r2 = i, p1 = m, p2 = i 
+      !***************************************************************************
+      ! Change index sp_num = p1
+      ! Call wait_calc for p1
+      ! Place p2 at r2
+      !***************************************************************************
+      wait_list(index)%sp_num    = p1
+      CALL wait_calc(wait_list,index,E_list,time)
+      matrix(i_re2,j_re2,k_re2)  = -1*p2
+    CASE (15)
+      !***************************************************************************
+      ! r1 = m, r2 = i, p1 = i, p2 = m 
+      !***************************************************************************
+      ! Change index sp_num = p2
+      ! Call wait_calc for p2
+      ! Place p1 at r2
+      !***************************************************************************
+      wait_list(index)%sp_num    = p2
+      CALL wait_calc(wait_list,index,E_list,time)
+      matrix(i_re2,j_re2,k_re2)  = -1*p1
+    CASE (16)
+      !***************************************************************************
+      ! r1 = m, r2 = i, p1 = i, p2 = i 
+      !***************************************************************************
+      ! Remove r1 from list
+      ! Place p1 at r1
+      ! Place p2 at r2
+      !***************************************************************************
+      CALL reactant_remove(wait_list,index,matrix,wait_len)
+      matrix(i_re,j_re,k_re)     = -1*p1
+      matrix(i_re2,j_re2,k_re2)  = -1*p2
+    CASE (17)
+      !***************************************************************************
+      ! r1 = i, r2 = m, p1 = m, p2 = m 
+      !***************************************************************************
+      ! Change index2 sp_num = p1
+      ! Call wait_calc for p1
+      ! Increase wait_list +1
+      ! Populate sp_num and coords for p2
+      ! Call wait_calc for p2
+      ! Matrix r1 site = wait_len
+      !***************************************************************************
+      wait_list(index2)%sp_num   = p1
+      CALL wait_calc(wait_list,index2,E_list,time)
+      wait_len                   = wait_len + 1
+      wait_list(wait_len)%sp_num = p2
+      wait_list(wait_len)%i      = i_re
+      wait_list(wait_len)%j      = j_re
+      wait_list(wait_len)%k      = k_re
+      CALL wait_calc(wait_list,wait_len,E_list,time)
+      matrix(i_re,j_re,k_re)     = wait_len
+    CASE (18)
+      !***************************************************************************
+      ! r1 = i, r2 = m, p1 = m, p2 = i 
+      !***************************************************************************
+      ! Change index2 sp_num = p1
+      ! Call wait_calc for p1
+      ! Save p2 at r1 site
+      !***************************************************************************
+      wait_list(index2)%sp_num   = p1
+      CALL wait_calc(wait_list,index2,E_list,time)
+      matrix(i_re,j_re,k_re)     = -1*p2
+    CASE (19)
+      !***************************************************************************
+      ! r1 = i, r2 = m, p1 = i, p2 = m 
+      !***************************************************************************
+      ! Change index2 sp_num = p2
+      ! Call wait_calc for p2
+      ! Place p1 at r1
+      !***************************************************************************
+      wait_list(index2)%sp_num   = p2
+      CALL wait_calc(wait_list,index2,E_list,time)
+      matrix(i_re,j_re,k_re)     = -1*p1
+    CASE (20)
+      !***************************************************************************
+      ! r1 = i, r2 = m, p1 = i, p2 = i 
+      !***************************************************************************
+      ! Remove r2 from list
+      ! Place p1 at r1
+      ! Place p2 at r2
+      !***************************************************************************
+      CALL reactant_remove(wait_list,index2,matrix,wait_len)
+      matrix(i_re,j_re,k_re)     = -1*p1
+      matrix(i_re2,j_re2,k_re2)  = -1*p2
+    CASE (21)
+      !***************************************************************************
+      ! r1 = i, r2 = i, p1 = m, p2 = m 
+      !***************************************************************************
+      ! Increase wait_len +1
+      ! Populate wait_len with p1
+      ! Call wait_calc for p1
+      ! Write wait_len at r1
+      ! Increase wait_len +1
+      ! Populate wait_len with p2
+      ! Call wait_calc for p2
+      ! Write wait_len at r2
+      !***************************************************************************
+      wait_len                   = wait_len + 1
+      wait_list(wait_len)%sp_num = p1
+      wait_list(wait_len)%i      = i_re
+      wait_list(wait_len)%j      = j_re
+      wait_list(wait_len)%k      = k_re
+      CALL wait_calc(wait_list,wait_len,E_list,time)
+      matrix(i_re,j_re,k_re)     = wait_len
+      wait_len                   = wait_len + 1
+      wait_list(wait_len)%sp_num = p2
+      wait_list(wait_len)%i      = i_re2
+      wait_list(wait_len)%j      = j_re2
+      wait_list(wait_len)%k      = k_re2
+      CALL wait_calc(wait_list,wait_len,E_list,time)
+      matrix(i_re2,j_re2,k_re2)  = wait_len
+    CASE (22)
+      !***************************************************************************
+      ! r1 = i, r2 = i, p1 = m, p2 = i 
+      !***************************************************************************
+      ! Increase wait_len +1
+      ! Populate wait_len
+      ! Call wait_calc for wait_len
+      ! Place wait_len at r1
+      ! Place p2 at r2
+      !***************************************************************************
+      wait_len                   = wait_len + 1
+      wait_list(wait_len)%sp_num = p1
+      wait_list(wait_len)%i      = i_re
+      wait_list(wait_len)%j      = j_re
+      wait_list(wait_len)%k      = k_re
+      CALL wait_calc(wait_list,wait_len,E_list,time)
+      matrix(i_re,j_re,k_re)     = wait_len
+      matrix(i_re2,j_re2,k_re2)  = -1*p2
+    CASE (23)
+      !***************************************************************************
+      ! r1 = i, r2 = i, p1 = i, p2 = m 
+      !***************************************************************************
+      ! Increase wait_len + 1
+      ! Populate wait_len
+      ! Call wait_calc for wait_len
+      ! Place wait_calc at r1
+      ! Place p1 at r2
+      !***************************************************************************
+      wait_len                   = wait_len + 1
+      wait_list(wait_len)%sp_num = p2
+      wait_list(wait_len)%i      = i_re
+      wait_list(wait_len)%j      = j_re
+      wait_list(wait_len)%k      = k_re
+      CALL wait_calc(wait_list,wait_len,E_list,time)
+      matrix(i_re,j_re,k_re)     = wait_len
+      matrix(i_re2,j_re2,k_re2)  = -1*p1
+    CASE (24)
+      !***************************************************************************
+      ! r1 = i, r2 = i, p1 = i, p2 = i 
+      !***************************************************************************
+      ! Place p1 at r1
+      ! Place p2 at r2
+      !***************************************************************************
+      matrix(i_re,j_re,k_re)     = -1*p1
+      matrix(i_re2,j_re2,k_re2)  = -1*p2
+    END SELECT
 
-      ! Save product coordinates
+    !***************************************************************************
+    ! Save product coordinates
+    !***************************************************************************
+    ! Coordinates of first product
+    prod_coords(1,1) = i_re2
+    prod_coords(1,2) = j_re2
+    prod_coords(1,3) = k_re2
+    ! Coordinates of second product
+    IF ( case_num .GT. 8 ) THEN
       prod_coords(2,1) = i_re
       prod_coords(2,2) = j_re
       prod_coords(2,3) = k_re
+    END IF
 
-
-      !***************************************************************************
-      ! Place 3rd product if necessary
-      !***************************************************************************
-      ! Find an empty location and save it to prod_coords
-      !***************************************************************************
-      IF ( prods(3) .NE. 0 ) THEN
-        ! Make sure to pass back the coords so it can be checked for ion
-        CALL thirdman(prods(3),i_re2, j_re2, k_re2, null, matrix, E_list, time, &
-                      wait_list, wait_len, third_coords)
-
-        ! Save product coordinates
-        prod_coords(3,1) = third_coords(1)
-        prod_coords(3,2) = third_coords(2)
-        prod_coords(3,3) = third_coords(3)
-
-      END IF
-    END SELECT
+    !***************************************************************************
+    ! Place 3rd product if necessary
+    !***************************************************************************
+    ! Find an empty location and save it to prod_coords
+    !***************************************************************************
+    IF ( prods(3) .NE. 0 ) THEN
+      ! Make sure to pass back the coords so it can be checked for ion
+      CALL thirdman(prods(3),i_re2, j_re2, k_re2, null, matrix, E_list, time, &
+                    wait_list, wait_len, third_coords)
+      ! Save product coordinates
+      prod_coords(3,1) = third_coords(1)
+      prod_coords(3,2) = third_coords(2)
+      prod_coords(3,3) = third_coords(3)
+    END IF
 
     !*****************************************************************************
     !****Save ion coordinates, if one of the products is an ion
@@ -3800,4 +3990,148 @@ CONTAINS
         END IF
     END DO
   END SUBROUTINE find_cr
+
+  SUBROUTINE rtype_tree(r1,r2,prods,rtype)
+  !
+  ! Purpose:
+  !  The purpose of this subroutine is to find the
+  ! type of the reaction based on the reactants and 
+  ! products.
+  !
+  !  Documentation:
+  !  DATE          PROGRAMMER           DESCRIPTION
+  !  ========      ==========           ===========
+  !  20160215      C. Shingledecker     Original code
+  !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !! RTYPE_TREE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    IMPLICIT NONE
+
+    INTEGER, INTENT(IN) :: r1,r2 ! Reactants 1 & 2
+    INTEGER, INTENT(IN), DIMENSION(3) :: prods ! Array of products
+    INTEGER, INTENT(OUT) :: rtype ! The type of the reaction
+
+    LOGICAL :: r1_m
+    LOGICAL :: r2_m
+    LOGICAL :: p1_m
+    LOGICAL :: p2_m
+    LOGICAL :: p2_0
+
+    ! Initialize logical variables to false
+    r1_m = .FALSE.
+    r2_m = .FALSE.
+    p1_m = .FALSE.
+    p2_m = .FALSE.
+    p2_0 = .FALSE.
+
+    ! Change logical variables, as appropriate
+    IF ( ANY(MOBILE_LIST .EQ. r1 ) )         r1_m = .TRUE. ! Check is r1 is mobile
+    IF ( ANY(MOBILE_LIST .EQ. r2 ) )         r2_m = .TRUE. ! Check if r2 is mobile
+    IF ( ANY(MOBILE_LIST .EQ. prods(1) ) )   p1_m = .TRUE. ! Check is p1 is mobile
+    IF ( prods(2) .EQ. 0 ) THEN                            ! Check is p2 is present
+      p2_0 = .TRUE.  ! No p2
+    ELSE
+      p2_0 = .FALSE. ! p2 exists
+      IF ( ANY(MOBILE_LIST .EQ. prods(2) ) ) p2_m = .TRUE. ! Check is p2 is mobile
+    END IF
+
+    ! Initialize type
+    rtype = 0
+
+    ! Assign type
+    IF ( r1_m .EQV. .TRUE. ) THEN         ! r1 = m
+      IF ( r2_m .EQV. .TRUE. ) THEN       ! r1 = m, r2 = m
+        IF ( p1_m .EQV. .TRUE. ) THEN     ! r1 = m, r2 = m, p1 = m
+          IF ( p2_0 .EQV. .TRUE. ) THEN   ! r1 = m, r2 = m, p1 = m, p2 = 0 (1)
+            rtype = 1
+          ELSE                          
+            IF ( p2_m .EQV. .TRUE. ) THEN ! r1 = m, r2 = m, p1 = m, p2 = m (9)
+              rtype = 9
+            ELSE                          ! r1 = m, r2 = m, p1 = m, p2 = i (10)
+              rtype = 10
+            END IF
+          END IF
+        ELSE                              ! r1 = m, r2 = m, p1 = i
+          IF ( p2_0 .EQV. .TRUE. ) THEN   ! r1 = m ,r2 = m, p1 = i,  p2 = 0 (2)
+            rtype = 2
+          ELSE  
+            IF ( p2_m .EQV. .TRUE. ) THEN
+              rtype = 11                  ! r1 = m, r2 = m, p1 = i, p2 = m (11)
+            ELSE
+              rtype = 12                  ! r1 = m, r2 = m, p1 = i, p2 = i (12) 
+            END IF
+          END IF
+        END IF
+      ELSE                                ! r1 = m, r2 = i
+        IF ( p1_m .EQV. .TRUE. ) THEN     ! r1 = m ,r2 = i, p1 = m
+          IF ( p2_0 .EQV. .TRUE. ) THEN   ! r1 = m, r2 = i, p1 = m, p2 = 0 (3)
+            rtype = 3
+          ELSE 
+            IF ( p2_m .EQV. .TRUE. ) THEN ! r1 = m, r2 = i, p1 = m, p2 = m (13)
+              rtype = 13
+            ELSE                          ! r1 = m, r2 = i, p1 = m, p2 = i (14)
+              rtype = 14
+            END IF
+          END IF
+        ELSE                              ! r1 = m, r2 = i, p1 = i
+          IF ( p2_0 .EQV. .TRUE. ) THEN   ! r1 = m, r2 = i, p1 = i, p2 = 0 (4)
+            rtype = 4
+          ELSE 
+            IF ( p2_m .EQV. .TRUE. ) THEN ! r1 = m, r2 = i, p1 = i, p2 = m (15)
+              rtype = 15
+            ELSE                          ! r1 = m, r2 = i, p1 = i, p2 = i (16)
+              rtype = 16
+            END IF
+          END IF
+        END IF
+      END IF
+    ELSE                                  ! r1 = i
+      IF ( r2_m .EQV. .TRUE. ) THEN       ! r1 = i, r2 = m
+        IF ( p1_m .EQV. .TRUE. ) THEN     ! r1 = i, r2 = m, p1 = m
+          IF ( p2_0 .EQV. .TRUE. ) THEN   ! r1 = i, r2 = m, p1 = m, p2 = 0 (5)
+            rtype = 5
+          ELSE 
+            IF ( p2_m .EQV. .TRUE. ) THEN ! r1 = i, r2 = m, p1 = m, p2 = m (17)
+              rtype = 17
+            ELSE                          ! r1 = i, r2 = m, p1 = m, p2 = i (18)
+              rtype = 18
+            END IF
+          END IF
+        ELSE                              ! r1 = i, r2 = m, p1 = i
+          IF ( p2_0 .EQV. .TRUE. ) THEN   ! r1 = i, r2 = m, p1 = i, p2 = 0 (6)
+            rtype = 6
+          ELSE 
+            IF ( p2_m .EQV. .TRUE. ) THEN ! r1 = i, r2 = m, p1 = i, p2 = m (19)
+              rtype = 19
+            ELSE                          ! r1 = i, r2 = m, p1 = i, p2 = i (20)
+              rtype = 20
+            END IF
+          END IF
+        END IF
+      ELSE                                ! r1 = i, r2 = i
+        IF ( p1_m .EQV. .TRUE. ) THEN     ! r1 = i, r2 = i, p1 = m
+          IF ( p2_0 .EQV. .TRUE. ) THEN   ! r1 = i, r2 = i, p1 = m, p2 = 0 (7)
+            rtype = 7
+          ELSE 
+            IF ( p2_m .EQV. .TRUE. ) THEN ! r1 = i, r2 = i, p1 = m, p2 = m (21)
+              rtype = 21
+            ELSE                          ! r1 = i, r2 = i, p1 = m, p2 = i (22)
+              rtype = 22
+            END IF
+          END IF
+        ELSE                              ! r1 = i, r2 = i, p1 = i
+          IF ( p2_0 .EQV. .TRUE. ) THEN   ! r1 = i, r2 = i, p1 = i, p2 = 0 (8)
+            rtype = 8
+          ELSE 
+            IF ( p2_m .EQV. .TRUE. ) THEN ! r1 = i, r2 = i, p1 = i, p2 = m (23)
+              rtype = 23
+            ELSE                          ! r1 = i, r2 = i, p1 = i, p2 = i (24)
+              rtype = 24
+            END IF
+          END IF
+        END IF
+      END IF
+    END IF
+  END SUBROUTINE rtype_tree
 END MODULE subroutines

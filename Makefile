@@ -3,8 +3,8 @@
   #FC = ifort
 
 # Flags
-  FCFLAGS = -g  -march=native -fbounds-check -Wall
-  #FCFLAGS = -march=native -O3 -ffast-math
+  #FCFLAGS = -g  -march=native -fbounds-check -Wall
+  FCFLAGS = -march=native -O3 -ffast-math
 
 OBJECTS = qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o specdata.o
 
