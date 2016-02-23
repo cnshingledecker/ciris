@@ -93,9 +93,10 @@ MODULE parameters
   !******************************************************************************
   ! Array Parameters
   !******************************************************************************
-  INTEGER, DIMENSION(1)       :: FAST_REACTS = (/ 4 /)                    ! 4 ! Species that react upon formation
-  INTEGER, DIMENSION(1)       :: FRAGILE     = (/ 7 /)                    ! 7 ! Species that dissociate easily
-  INTEGER, DIMENSION(1)       :: MOBILE_LIST = (/ 4 /)
+  INTEGER, DIMENSION(1)       :: FAST_REACTS  = (/ 4 /)                    ! 4 ! Species that react upon formation
+  INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 7 /)                    ! 7 ! Species that dissociate easily
+  INTEGER, DIMENSION(1)       :: MOBILE_LIST  = (/ 4 /)
+  INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
 
   LOGICAL, PARAMETER :: SECELEC = .TRUE.
   LOGICAL, PARAMETER :: DEBUG   = .FALSE.
