@@ -823,13 +823,15 @@ CONTAINS
       dimens(1) = SIZE(matrix,1)
       dimens(2) = SIZE(matrix,2)
       dimens(3) = SIZE(matrix,3)
-      OPEN(UNIT=1013,FILE="test_wrong_spaces.txt")
+      OPEN(UNIT=1013,FILE="cern_test_wrong_spaces.txt")
       DO k=1,dimens(3)
         DO j=1,dimens(2)
           DO i=1,dimens(1)
-            IF ( ABS(matrix(i,j,k)) .GT. wait_len ) THEN
-              WRITE(1013,*)  'Matrix=',matrix(i,j,k),'wait_list=',wait_list(matrix(i,j,k))
-              PRINT *, 'We have a wrong space:',matrix(i,j,k),' at',i,j,k
+            IF ( matrix(i,j,k) .GT. 0 ) THEN
+              IF( ANY(MOBILE_LIST .NE. wait_list(matrix(i,j,k))%sp_num ) ) THEN
+                WRITE(1013,*)  'Matrix=',matrix(i,j,k),'wait_list=',wait_list(matrix(i,j,k))
+                PRINT *, 'We have a wrong space:',matrix(i,j,k),' at',i,j,k
+              END IF
             END IF
           END DO
         END DO
@@ -2086,6 +2088,14 @@ CONTAINS
     !****************************************************************************
     !****ERROR CHECKING**********************************************************
     !****************************************************************************
+
+    ! Test to see if two reacting coordinates are the same
+    IF ( i_re .EQ. i_re2 .AND. j_re .EQ. j_re2 .AND. k_re .EQ. k_re2 ) THEN
+      PRINT *, 'In reaction: i_re = i_re2...'
+      RETURN
+    END IF
+
+    ! Test to see if second reactant is 0
     IF ( r2 .EQ. 0 ) THEN
       OPEN(UNIT=1013,FILE="test_wrong_spaces.txt")
       DO k=1,SIZE(matrix,3)
@@ -2120,7 +2130,7 @@ CONTAINS
       END IF
     END IF
 
-
+    ! Test to see if products are 0
     IF ( prods(1) .EQ. 0 ) THEN
       PRINT *, 'Uh-oh, we have a problem in Reaction!'
       PRINT *, 'r1=',r1,'r2=',r2
@@ -2264,8 +2274,7 @@ CONTAINS
     INTEGER                        , DIMENSION(:,:,:), POINTER :: matrix_rr
     TYPE (wait_info)               , DIMENSION(:)    , POINTER :: wait_list
 
-  !  OPEN(UNIT=1015,FILE="remove_row_list.txt",POSITION="append")
-!    IF ( index .EQ. 53 ) PRINT *, 'Warning in Reactant_Remove!'
+    OPEN(UNIT=1015,FILE="remove_row_list.txt",POSITION="append")
     IF ( index .NE. wait_len ) THEN
       ! Copy information in last entry to index
       wait_list(index)%wait_time    = wait_list(wait_len)%wait_time
@@ -2276,9 +2285,7 @@ CONTAINS
       wait_list(index)%act_type     = wait_list(wait_len)%act_type
 
       ! Update matrix
-      IF ( wait_list(index)%i .NE. 0 ) THEN
-        matrix_rr(wait_list(index)%i,wait_list(index)%j,wait_list(index)%k) = index
-      END IF
+      matrix_rr(wait_list(index)%i,wait_list(index)%j,wait_list(index)%k) = index
 
       ! Make info in last entry equal to 0
       wait_list(wait_len)%wait_time = 0
@@ -2290,9 +2297,15 @@ CONTAINS
 
       ! Update number of non-zero species by -1
       wait_len = wait_len - 1
-  !    WRITE(1015,*) index,",",wait_len,",",matrix_rr(wait_list(index)%i,wait_list(index)%j,wait_list(index)%k)
+      WRITE(1015,*) 'Index=',index,"wait_len=",wait_len,"matrix=",&
+                     matrix_rr(wait_list(index)%i,wait_list(index)%j,wait_list(index)%k), &
+                    'coords=', wait_list(index)%i,wait_list(index)%j,wait_list(index)%k
     ELSE IF ( index .EQ. wait_len ) THEN
       ! Make info in last entry equal to 0
+      WRITE(1015,*) 'Index=',index,"wait_len=",wait_len,"matrix=", &
+                     matrix_rr(wait_list(index)%i,wait_list(index)%j,wait_list(index)%k), &
+                    'coords=', wait_list(index)%i,wait_list(index)%j,wait_list(index)%k
+
       wait_list(wait_len)%wait_time = 0
       wait_list(wait_len)%i         = 0
       wait_list(wait_len)%j         = 0
@@ -2302,7 +2315,7 @@ CONTAINS
 
       wait_len = wait_len - 1
     END IF
-  !  CLOSE(1015)
+    CLOSE(1015)
 
   END SUBROUTINE reactant_remove
 
@@ -2425,7 +2438,7 @@ CONTAINS
     INTEGER                                          , POINTER :: o3_prod,o3_dest
     INTEGER(KIND=LONG) , INTENT(IN)                            :: numprotons
     INTEGER            , INTENT(IN)                            :: unit_num
-    INTEGER                                                    :: i,j,k
+    INTEGER                                                    :: i,j,k,nn
     INTEGER                                                    :: sp1_count, sp2_count
     INTEGER            , INTENT(IN)                            :: sp1, sp2
     INTEGER                        , DIMENSION(3)              :: dimens
@@ -2436,17 +2449,21 @@ CONTAINS
     REAL(KIND=DBL)                                             :: denom
     TYPE(wait_info)                , DIMENSION(:)    , POINTER :: wait_list
     CHARACTER(len=80)                                          :: varfmt
+    INTEGER                                                    :: wrong_count
 
 
     volume = THICK*EDGE*EDGE
     denom = volume*1E20
     sp1_count = 0
     sp2_count = 0
+    wrong_count = 0
 
     dimens(1) = SIZE(matrix,1)
     dimens(2) = SIZE(matrix,2)
     dimens(3) = SIZE(matrix,3)
 
+
+    IF ( TEST_WRONG .EQV. .TRUE. ) OPEN(UNIT=1013,FILE="counter_test_wrong_spaces.txt",STATUS='REPLACE')
     DO k = 1,dimens(3)
       DO j = 1,dimens(2)
         DO i = 1,dimens(1)
@@ -2455,15 +2472,45 @@ CONTAINS
               IF ( ABS(matrix(i,j,k)) .EQ. sp2 ) THEN
                 sp2_count = sp2_count + 1
               END IF
-            ELSE IF ( matrix(i,j,k) .GT. 0 .AND. wait_list(matrix(i,j,k))%sp_num .EQ. sp1 ) THEN
-              sp1_count = sp1_count + 1
-            ELSE IF ( matrix(i,j,k) .GT. 0 .AND. wait_list(matrix(i,j,k))%sp_num .EQ. sp2 ) THEN
-              sp2_count = sp2_count + 1
+            ELSE IF ( matrix(i,j,k) .GT. 0 ) THEN
+              IF ( wait_list(matrix(i,j,k))%sp_num .EQ. sp1 ) THEN
+                sp1_count = sp1_count + 1
+              ELSE IF ( wait_list(matrix(i,j,k))%sp_num .EQ. sp2 ) THEN
+                sp2_count = sp2_count + 1
+              END IF
+
+              IF ( TEST_WRONG .EQV. .TRUE. ) THEN
+                IF( ANY(MOBILE_LIST .NE. wait_list(matrix(i,j,k))%sp_num ) ) THEN
+                  wrong_count = wrong_count + 1
+                  WRITE(1013,*)  'Matrix=',matrix(i,j,k),'wait_list=',wait_list(matrix(i,j,k))
+                  PRINT *, 'We have a wrong space:',matrix(i,j,k),' at',i,j,k
+                END IF
+              END IF
             END IF
           END IF
         END DO
       END DO
     END DO
+
+    IF ( TEST_WRONG .EQV. .TRUE. ) THEN
+      OPEN(UNIT=1014,FILE="counter_test_wait_list.txt",STATUS='REPLACE')
+      DO nn = 1,wait_len
+        IF( matrix(wait_list(nn)%i,wait_list(nn)%j,wait_list(nn)%k) .NE. nn .AND. wait_list(nn)%sp_num .NE. 20 ) THEN
+          wrong_count = wrong_count + 1
+          WRITE(1014,*)  'Matrix=',matrix(wait_list(nn)%i,wait_list(nn)%j,wait_list(nn)%k),'wait_list=',wait_list(nn)
+          PRINT *, 'We have a list flaw at:',wait_list(nn)%i,wait_list(nn)%j,wait_list(nn)%k
+        END IF
+      END DO
+    END IF
+
+    IF ( TEST_WRONG .EQV. .TRUE. ) THEN
+      CLOSE(1013)
+      CLOSE(1014)
+      IF ( wrong_count .GT. 0 ) THEN
+        PRINT *, 'Wrong spaces found in Counter!! Exiting!!'
+        CALL EXIT()
+      END IF
+    END IF
 
     WRITE(unit_num,*) time,',', numprotons/AREA,',',sp1_count/denom,',',sp2_count/denom,',',numprotons,',' &
                       ,(REAL(o3_prod)/REAL(o3_dest))
@@ -3470,13 +3517,23 @@ CONTAINS
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****CASE (0) IN FAST REACTION*****'
     !Step 2. If there are potential co-reactants, randomly choose one and react.
     CALL solarlottery( small_count,large_count,small_temp,large_temp,temp_coords )
-      IF ( matrix(temp_coords(1),temp_coords(2),temp_coords(3)) .NE. 0 ) THEN
-        CALL reaction( o3_prod,o3_dest,react_cube, en_list, matrix, wait_list, wait_len, time, &
-                       coords(1), coords(2), coords(3), &
-                       temp_coords(1),temp_coords(2),temp_coords(3) )
+      IF ( coords(1) .EQ. temp_coords(1) .AND. &
+           coords(2) .EQ. temp_coords(2) .AND. &
+           coords(3) .EQ. temp_coords(3) )       THEN
+        PRINT *, 'coords =',coords,'= temp_coords= ', temp_coords
+        CALL wait_calc(wait_list,spec_index,en_list,time)
+        wait_list(spec_index)%act_type = 1
+        RETURN
       ELSE
+        IF ( matrix(temp_coords(1),temp_coords(2),temp_coords(3)) .NE. 0  ) THEN
+          CALL reaction( o3_prod,o3_dest,react_cube, en_list, matrix, wait_list, wait_len, time, &
+                         coords(1), coords(2), coords(3), &
+                         temp_coords(1),temp_coords(2),temp_coords(3) )
+        ELSE
         PRINT *, 'ERROR: matrix=0'
-        wait_list(spec_index)%wait_time = 10.0
+        CALL wait_calc(wait_list,spec_index,en_list,time)
+        wait_list(spec_index)%act_type = 1
+        END IF
       END IF
     CASE(1)
     !Step 3. If there are no co-reactants, look for empty species to hop to
@@ -3814,6 +3871,11 @@ CONTAINS
     p1 = prods(1)
     p2 = prods(2)
 
+ !   IF ( i_re .EQ. 340 .AND. j_re .EQ. 71 .AND. k_re .EQ. 141 ) DEBUG = .TRUE.
+ !   IF ( i_re2 .EQ. 340 .AND. j_re2 .EQ. 71 .AND. k_re2 .EQ. 141 ) DEBUG = .TRUE.
+
+    IF ( DEBUG .EQV. .TRUE.) PRINT *, 'In Place_Product, case=',casetype
+
     SELECT CASE (casetype)
     CASE (1)
       !***************************************************************************
@@ -3828,7 +3890,8 @@ CONTAINS
       wait_list(index2)%sp_num = p1
       CALL wait_calc( wait_list,index2,E_list,time )
       CALL reactant_remove( wait_list,index,matrix,wait_len )
-      matrix(i_re,j_re,k_re) = 0
+      matrix(i_re,j_re,k_re)    = 0
+      matrix(i_re2,j_re2,k_re2) = index2
     CASE (2)
       !***************************************************************************
       ! r1 = m, r2 = m, p1 = i, p2 = 0
@@ -3843,7 +3906,7 @@ CONTAINS
       index2 = matrix(i_re2,j_re2,k_re2)
       CALL reactant_remove(wait_list,index2,matrix,wait_len)
       matrix(i_re2,j_re2,k_re2) = -1*p1
-      matrix(i_re,j_re,k_re) = 0
+      matrix(i_re,j_re,k_re)    = 0
     CASE (3)
       !***************************************************************************
       ! r1 = m, r2 = i, p1 = m, p2 = 0
@@ -3856,7 +3919,7 @@ CONTAINS
       wait_list(index)%sp_num = p1
       CALL wait_calc(wait_list,index,E_list,time)
       matrix(i_re2,j_re2,k_re2) = index
-      matrix(i_re,j_re,k_re) = 0
+      matrix(i_re,j_re,k_re)    = 0
     CASE (4)
       !***************************************************************************
       ! r1 = m, r2 = i, p1 = i, p2 = 0
@@ -3867,7 +3930,7 @@ CONTAINS
       !***************************************************************************
       CALL reactant_remove(wait_list,index,matrix,wait_len)
       matrix(i_re2,j_re2,k_re2) = -1*p1
-      matrix(i_re,j_re,k_re) = 0
+      matrix(i_re,j_re,k_re)    = 0
     CASE (5)
       !***************************************************************************
       ! r1 = i, r2 = m, p1 = m, p2 = 0
@@ -3876,9 +3939,10 @@ CONTAINS
       ! Call wait_calc for p1 at index2
       ! Make r1 site empty
       !***************************************************************************
-      wait_list(index2)%sp_num = p1
+      wait_list(index2)%sp_num  = p1
       CALL wait_calc(wait_list,index2,E_list,time)
-      matrix(i_re,j_re,k_re) = 0
+      matrix(i_re,j_re,k_re)    = 0
+      matrix(i_re2,j_re2,k_re2) = index2
     CASE (6)
       !***************************************************************************
       ! r1 = i, r2 = m, p1 = i, p2 = 0
@@ -3889,7 +3953,7 @@ CONTAINS
       !***************************************************************************
       CALL reactant_remove(wait_list,index2,matrix,wait_len)
       matrix(i_re2,j_re2,k_re2) = -1*p1
-      matrix(i_re,j_re,k_re) = 0
+      matrix(i_re,j_re,k_re)    = 0
     CASE (7)
       !***************************************************************************
       ! r1 = i, r2 = i, p1 = m, p2 = 0
@@ -3907,7 +3971,7 @@ CONTAINS
       wait_list(wait_len)%k = k_re2
       CALL wait_calc(wait_list,wait_len,E_list,time)
       matrix(i_re2,j_re2,k_re2) = wait_len
-      matrix(i_re,j_re,k_re) = 0
+      matrix(i_re,j_re,k_re)    = 0
     CASE (8)
       !***************************************************************************
       ! r1 = i, r2 = i, p1 = i, p2 = 0
@@ -3916,7 +3980,7 @@ CONTAINS
       ! Make r1 site empty
       !***************************************************************************
       matrix(i_re2,j_re2,k_re2) = -1*p1
-      matrix(i_re,j_re,k_re) = 0
+      matrix(i_re,j_re,k_re)    = 0
     CASE (9)
       !***************************************************************************
       ! r1 = m, r2 = m, p1 = m, p2 = m
@@ -3930,6 +3994,8 @@ CONTAINS
       CALL wait_calc(wait_list,index,E_list,time)
       wait_list(index2)%sp_num = p2
       CALL wait_calc(wait_list,index2,E_list,time)
+      matrix(i_re,j_re,k_re)    = index
+      matrix(i_re2,j_re2,k_re2) = index2
     CASE (10)
       !***************************************************************************
       ! r1 = m, r2 = m, p1 = m, p2 = i
@@ -3943,6 +4009,7 @@ CONTAINS
       CALL wait_calc(wait_list,index,E_list,time)
       CALL reactant_remove(wait_list,index2,matrix,wait_len)
       matrix(i_re2,j_re2,k_re2) = -1*p2
+      matrix(i_re,j_re,k_re)    = index
     CASE (11)
       !***************************************************************************
       ! r1 = m, r2 = m, p1 = i, p2 = m
@@ -3956,6 +4023,7 @@ CONTAINS
       CALL wait_calc(wait_list,index,E_list,time)
       CALL reactant_remove(wait_list,index2,matrix,wait_len)
       matrix(i_re2,j_re2,k_re2) = -1*p1
+      matrix(i_re,j_re,k_re)    = index
     CASE (12)
       !***************************************************************************
       ! r1 = m, r2 = m, p1 = i, p2 = i
@@ -3969,7 +4037,7 @@ CONTAINS
       CALL reactant_remove(wait_list,index,matrix,wait_len)
       index2 = matrix(i_re2,j_re2,k_re2)
       CALL reactant_remove(wait_list,index2,matrix,wait_len)
-      matrix(i_re,j_re,k_re) = -1*p1
+      matrix(i_re,j_re,k_re)    = -1*p1
       matrix(i_re2,j_re2,k_re2) = -1*p2
     CASE (13)
       !***************************************************************************
@@ -3989,6 +4057,7 @@ CONTAINS
       wait_list(wait_len)%j = j_re2
       wait_list(wait_len)%k = k_re2
       CALL wait_calc(wait_list,wait_len,E_list,time)
+      matrix(i_re,j_re,k_re)    = index
       matrix(i_re2,j_re2,k_re2) = wait_len
     CASE (14)
       !***************************************************************************
@@ -4000,6 +4069,7 @@ CONTAINS
       !***************************************************************************
       wait_list(index)%sp_num    = p1
       CALL wait_calc(wait_list,index,E_list,time)
+      matrix(i_re,j_re,k_re)     = index
       matrix(i_re2,j_re2,k_re2)  = -1*p2
     CASE (15)
       !***************************************************************************
@@ -4011,6 +4081,7 @@ CONTAINS
       !***************************************************************************
       wait_list(index)%sp_num    = p2
       CALL wait_calc(wait_list,index,E_list,time)
+      matrix(i_re,j_re,k_re)     = index
       matrix(i_re2,j_re2,k_re2)  = -1*p1
     CASE (16)
       !***************************************************************************
@@ -4043,6 +4114,7 @@ CONTAINS
       wait_list(wait_len)%k      = k_re
       CALL wait_calc(wait_list,wait_len,E_list,time)
       matrix(i_re,j_re,k_re)     = wait_len
+      matrix(i_re2,j_re2,k_re2)  = index2
     CASE (18)
       !***************************************************************************
       ! r1 = i, r2 = m, p1 = m, p2 = i
@@ -4054,6 +4126,7 @@ CONTAINS
       wait_list(index2)%sp_num   = p1
       CALL wait_calc(wait_list,index2,E_list,time)
       matrix(i_re,j_re,k_re)     = -1*p2
+      matrix(i_re2,j_re2,k_re2)  = index2
     CASE (19)
       !***************************************************************************
       ! r1 = i, r2 = m, p1 = i, p2 = m
@@ -4065,6 +4138,7 @@ CONTAINS
       wait_list(index2)%sp_num   = p2
       CALL wait_calc(wait_list,index2,E_list,time)
       matrix(i_re,j_re,k_re)     = -1*p1
+      matrix(i_re2,j_re2,k_re2)  = index2
     CASE (20)
       !***************************************************************************
       ! r1 = i, r2 = m, p1 = i, p2 = i
@@ -4158,6 +4232,7 @@ CONTAINS
       ! NOTE: r2 is at i_re...
       wait_list(index2)%sp_num = p1
       CALL wait_calc(wait_list,index2,E_list,time)
+      matrix(i_re,j_re,k_re) = index2
     CASE (26)
       !***************************************************************************
       ! r1 = sp, r2 = m, p1 = m, p2 = m
@@ -4177,6 +4252,7 @@ CONTAINS
       wait_list(wait_len)%j = j_re2
       wait_list(wait_len)%k = k_re2
       CALL wait_calc(wait_list,wait_len,E_list,time)
+      matrix(i_re,j_re,k_re)    = index2
       matrix(i_re2,j_re2,k_re2) = wait_len
     CASE (27)
       !***************************************************************************
@@ -4189,6 +4265,7 @@ CONTAINS
       ! NOTE: r2 is at i_re...
       wait_list(index2)%sp_num = p1
       CALL wait_calc(wait_list,index2,E_list,time)
+      matrix(i_re,j_re,k_re)    = index2
       matrix(i_re2,j_re2,k_re2) = -1*p2
     CASE (28)
       !***************************************************************************
@@ -4211,6 +4288,7 @@ CONTAINS
       ! Place p1 at i_re2..
       wait_list(index2)%sp_num = p2
       CALL wait_calc(wait_list,index2,E_list,time)
+      matrix(i_re,j_re,k_re)    = index2
       matrix(i_re2,j_re2,k_re2) = -1*p1
     CASE (30)
       !***************************************************************************
@@ -4290,7 +4368,7 @@ CONTAINS
       wait_list(wait_len)%j = j_re
       wait_list(wait_len)%k = k_re
       CALL wait_calc(wait_list,wait_len,E_list,time)
-      matrix(i_re,j_re,k_re) = wait_len
+      matrix(i_re,j_re,k_re)    = wait_len
       matrix(i_re2,j_re2,k_re2) = -1*p2
     CASE (34)
       !***************************************************************************
@@ -4359,6 +4437,7 @@ CONTAINS
       ! Make sure to pass back the coords so it can be checked for ion
       CALL thirdman(prods(3),i_re, j_re, k_re, null, matrix, E_list, time, &
                     wait_list, wait_len, third_coords)
+!      IF ( third_coords(1) .EQ. 340 .AND. third_coords(2) .EQ. 71 .AND. third_coords(3) .EQ. 141 ) DEBUG = .TRUE.
       IF ( PRESENT(prod_coords) ) THEN
         ! Save product coordinates
         prod_coords(3,1) = third_coords(1)
