@@ -78,32 +78,6 @@ CONTAINS
     CLOSE(unitnum)
   END SUBROUTINE linecount
 
-  SUBROUTINE chess(edgeSize,sub_matrix)
-  !
-  ! Purpose:
-  !   This is a subroutine that prints out a section of the matrix
-  !
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! CHESS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    IMPLICIT NONE
-
-    !*****************
-    ! Input and output
-    !*****************
-    INTEGER, INTENT(IN)                                  :: edgeSize
-    INTEGER(KIND=SHORT), DIMENSION(:,:,:), POINTER       :: sub_matrix
-    INTEGER                                              :: k
-    INTEGER                                              :: j
-
-    DO k=1,edgeSize
-      DO j=1,edgeSize
-        WRITE (*,"(I5)",ADVANCE='no') sub_matrix(1,j,k)
-      END DO
-      PRINT *, ''
-    END DO
-  END SUBROUTINE chess
-
   SUBROUTINE hopping ( i_in, j_in, k_in, i_out, j_out, k_out, prob, dimens )
   !
   ! Purpose:
@@ -313,7 +287,10 @@ CONTAINS
           CALL hopping(i_re,j_re,k_re,i_re2,j_re2,k_re2,n,dimens)
 !          PRINT *, 'i_re,j_re,k_re=',i_re,j_re,k_re
 !          PRINT *, 'i_re2,j_re2,k_re2=',i_re2,j_re2,k_re2
-          IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 ) THEN
+          IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 .AND. &
+               i_re2 .NE. i_re .AND. &
+               j_re2 .NE. j_re .AND. &
+               k_re2 .NE. k_re ) THEN
           ! Determine if the hopped to species can react with the hopping species
             r1 = matrix(i_re,j_re,k_re)
             r2 = matrix(i_re2,j_re2,k_re2)
@@ -381,7 +358,10 @@ CONTAINS
           END IF
 
           ! Determine if the matrix site is occupied and can react
-          IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 ) THEN
+          IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 .AND. &
+               i_re2 .NE. i_re .AND. &
+               j_re2 .NE. j_re .AND. &
+               k_re2 .NE. k_re) THEN
             r1 = matrix(i_re,j_re,k_re)
             r2 = matrix(i_re2,j_re2,k_re2)
 !            PRINT *, 'r1=',r1,'and r2=',r2
@@ -2090,7 +2070,9 @@ CONTAINS
     !****************************************************************************
 
     ! Test to see if two reacting coordinates are the same
-    IF ( i_re .EQ. i_re2 .AND. j_re .EQ. j_re2 .AND. k_re .EQ. k_re2 ) THEN
+    IF ( i_re .EQ. i_re2 .AND. &
+         j_re .EQ. j_re2 .AND. &
+         k_re .EQ. k_re2 ) THEN
       PRINT *, 'In reaction: i_re = i_re2...'
       RETURN
     END IF
@@ -2200,7 +2182,11 @@ CONTAINS
 
    IF ( DEBUG .EQV. .TRUE. ) THEN
      PRINT *, 'Afterwards matrix r1=',matrix(i_re,j_re,k_re)
+     IF ( matrix(i_re,j_re,k_re) .GT. 0 ) PRINT *, &
+     'Wait_list at ^ is',wait_list(matrix(i_re,j_re,k_re))
      PRINT *, 'Afterwards matrix r2=',matrix(i_re2,j_re2,k_re2)
+     IF (matrix(i_re2,j_re2,k_re2) .GT. 0 ) PRINT *, &
+     'Wait_list at ^ is',wait_list(matrix(i_re2,j_re2,k_re2))
      DO n=1,3
         PRINT *,prod_coords(n,:)
      END DO
@@ -2480,7 +2466,9 @@ CONTAINS
               END IF
 
               IF ( TEST_WRONG .EQV. .TRUE. ) THEN
-                IF( ANY(MOBILE_LIST .NE. wait_list(matrix(i,j,k))%sp_num ) ) THEN
+                IF( ANY(MOBILE_LIST .EQ. wait_list(matrix(i,j,k))%sp_num ) ) THEN
+                  CONTINUE
+                ELSE
                   wrong_count = wrong_count + 1
                   WRITE(1013,*)  'Matrix=',matrix(i,j,k),'wait_list=',wait_list(matrix(i,j,k))
                   PRINT *, 'We have a wrong space:',matrix(i,j,k),' at',i,j,k
@@ -3520,7 +3508,7 @@ CONTAINS
       IF ( coords(1) .EQ. temp_coords(1) .AND. &
            coords(2) .EQ. temp_coords(2) .AND. &
            coords(3) .EQ. temp_coords(3) )       THEN
-        PRINT *, 'coords =',coords,'= temp_coords= ', temp_coords
+!        PRINT *, 'coords =',coords,'= temp_coords= ', temp_coords
         CALL wait_calc(wait_list,spec_index,en_list,time)
         wait_list(spec_index)%act_type = 1
         RETURN
@@ -3542,56 +3530,6 @@ CONTAINS
     END SELECT
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****ENDING FAST REACTION*****'
   END SUBROUTINE fast_reaction
-
-  SUBROUTINE meta_fast(o3_prod,o3_dest,spec_index,wait_len,matrix,react_cube,en_list,time,wait_list,next_cr,numprotons)
-  !
-  ! Purpose:
-  !   This subroutine is handles the treatment of species that react quickly.
-  !   It's function is to go through the wait_list when called and make the
-  !   appropriate species react until some condition is met. This condition
-  !   should be when list no longer contains fast-reacting species or only
-  !   ones that are trapped.
-  !
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !! META_FAST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    IMPLICIT NONE
-
-    INTEGER                              , POINTER :: o3_prod,o3_dest
-    INTEGER                                        :: spec_index !index of fast-reacting species
-    INTEGER                                        :: numprotons
-    INTEGER                              , POINTER :: wait_len
-    INTEGER            , DIMENSION(:,:,:), POINTER :: matrix !ice-mantle matrix
-    INTEGER(KIND=SHORT), DIMENSION(:,:,:), POINTER :: react_cube !array of products/reactions
-    REAL               , DIMENSION(:,:)  , POINTER :: en_list !list of binding and desorption energies
-    REAL(KIND=DBL)                       , POINTER :: time
-    TYPE(wait_info)    , DIMENSION(:)    , POINTER :: wait_list
-    REAL(KIND=DBL)                                 :: next_cr !the time until the next cosmic-ray/proton
-
-    REAL(KIND=DBL)                                 :: temp_time
-    INTEGER                                        :: n,loop_num
-    LOGICAL                                        :: cond
-
-    temp_time = wait_list(spec_index)%wait_time
-    cond = .TRUE.
-    loop_num = 0
-    DO WHILE ( cond .EQV. .TRUE. )
-        loop_num = loop_num + 1
-        DO n = 1, wait_len
-            IF ( wait_list(n)%act_type .EQ. 3 ) THEN
-                IF ( wait_list(n)%wait_time .GT. next_cr .OR. wait_list(n)%wait_time .GE. 100) THEN
-                  PRINT *, 'Now exiting meta_fast'
-                  cond = .FALSE.
-                  EXIT
-                END IF
-!                temp_time = temp_time + (time-wait_list(n)%wait_time)
-                CALL fast_reaction(o3_prod,o3_dest,n,wait_len,matrix,react_cube,en_list,time,wait_list)
-            END IF
-        END DO
-        CALL counter(o3_prod,o3_dest,numprotons,time, AB_UNIT_NUM, matrix,wait_list,4,7,wait_len)
-        IF ( loop_num .GE. 10 .OR. wait_len .LE. 5 ) cond = .FALSE.
-    END DO
-  END SUBROUTINE meta_fast
 
   SUBROUTINE find_cr ( wait_list, cr_index, wait_len, cr_num, en_list, time )
   !
@@ -3915,11 +3853,15 @@ CONTAINS
       ! Update sp_num
       ! Update wait_time in wait_list
       ! Make r1 site empty
+      ! Update coordinates in wait_list at index
       !***************************************************************************
       wait_list(index)%sp_num = p1
       CALL wait_calc(wait_list,index,E_list,time)
       matrix(i_re2,j_re2,k_re2) = index
       matrix(i_re,j_re,k_re)    = 0
+      wait_list(index)%i = i_re2
+      wait_list(index)%j = j_re2
+      wait_list(index)%k = k_re2
     CASE (4)
       !***************************************************************************
       ! r1 = m, r2 = i, p1 = i, p2 = 0

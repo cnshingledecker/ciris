@@ -49,7 +49,7 @@ MODULE parameters
   !******************************************************************************
   ! Kinetic Parameters
   !******************************************************************************
-  DOUBLE PRECISION, PARAMETER :: TRL_NU      = 1E11                        ! Trial frequency, for the rates, in 1/s
+  DOUBLE PRECISION, PARAMETER :: TRL_NU      = 1E12                        ! Trial frequency, for the rates, in 1/s
   DOUBLE PRECISION, PARAMETER :: DISPROB     = 0.2                           ! Probability of excitative dissociation
   DOUBLE PRECISION, PARAMETER :: ZP          = 1.D0                        ! Proton number
   DOUBLE PRECISION, PARAMETER :: ZO1         = 8.D0                        ! Atomic oxygen proton number
@@ -80,9 +80,9 @@ MODULE parameters
   !******************************************************************************
   ! Branching Ratios
   !******************************************************************************
-  REAL            , PARAMETER :: O_O2_BRANCHING     = 0.5 ! For O + O2
-  REAL            , PARAMETER :: O2_ION_BRANCHING   = 0.5 ! For O2- + O2+
-  REAL            , PARAMETER :: O_O2_ION_BRANCHING = 0.8 ! For O+ + O2- and O- + O2+
+  REAL            , PARAMETER :: O_O2_BRANCHING     = 0.0 ! For O + O2
+  REAL            , PARAMETER :: O2_ION_BRANCHING   = 0.0 ! For O2- + O2+
+  REAL            , PARAMETER :: O_O2_ION_BRANCHING = 0.0 ! For O+ + O2- and O- + O2+
 
   !******************************************************************************
   ! Output File Unit Numbers
@@ -95,8 +95,9 @@ MODULE parameters
   !******************************************************************************
   INTEGER, DIMENSION(1)       :: FAST_REACTS  = (/ 4 /)                    ! 4 ! Species that react upon formation
   INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 7 /)                    ! 7 ! Species that dissociate easily
-  INTEGER, DIMENSION(1)       :: MOBILE_LIST  = (/ 4 /)
+  INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4, 7 /)
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
+  INTEGER, PARAMETER          :: TIME_FREQ    = 1000
 
   LOGICAL, PARAMETER :: SECELEC = .TRUE.
   LOGICAL, PARAMETER :: DEBUG   = .FALSE.

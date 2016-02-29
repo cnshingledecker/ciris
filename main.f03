@@ -223,13 +223,12 @@ DO WHILE ( time .LE. time_total )
       CALL reactant_remove(wait_list,mindex,matrix_ptr,wait_len)
     CASE(3) ! The species reacts quickly
       CALL fast_reaction(o3_prod,o3_dest,mindex,wait_len,matrix_ptr,qube_ptr,en_ptr,time,wait_list)
-!      CALL  make_react(o3_prod,o3_dest,qube_ptr, en_ptr, matrix_ptr, wait_list, wait_len, time,mindex )
     END SELECT
   END IF
 
 
   time_check = time_check + 1
-  IF ( MOD(time_check,100) .EQ. 0 ) THEN
+  IF ( MOD(time_check,TIME_FREQ) .EQ. 0 ) THEN
     CALL counter( o3_prod,o3_dest,numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7,wait_len)
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
