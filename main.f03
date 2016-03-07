@@ -29,8 +29,8 @@ INTEGER(KIND=SHORT)                                          :: lines_react    !
 INTEGER                                                      :: count_num      ! Number of abundance file
 INTEGER                                                      :: result
 INTEGER                                                      :: time_check     ! DEBUGGING VAR
-REAL                , ALLOCATABLE, DIMENSION(:,:)  , TARGET  :: en_list
-REAL                             , DIMENSION(:,:)  , POINTER :: en_ptr         ! Pointer to en_list
+REAL                , ALLOCATABLE, DIMENSION(:)    , TARGET  :: en_list
+REAL                             , DIMENSION(:)    , POINTER :: en_ptr         ! Pointer to en_list
 REAL(KIND=DBL)                                               :: cr_time        ! Time till next proton collision
 REAL(KIND=DBL)                                               :: rndnum         ! Random number
 REAL(KIND=DBL)                                     , TARGET  :: time_target    ! Target for time pointer
@@ -50,6 +50,7 @@ TYPE (wait_info)    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: wait_target
 TYPE (wait_info)                 , DIMENSION(:)    , POINTER :: wait_list      !Derived data type described in chaco_data.f90
 INTEGER                                            , TARGET  :: o3_prod_target,o3_dest_target
 INTEGER                                            , POINTER :: o3_prod,o3_dest
+LOGICAL                                                      :: not_infty
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!! DEBUGGING/ANALYTICS VARIABLES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -118,7 +119,7 @@ CLOSE(2)
 ! Create the Reaction Array
 !******************************************************************************
 ! Note, currently ions is somewhat of a magic number
-ALLOCATE( qube(lines_spec,lines_spec,3), sp_list(lines_spec), en_list(lines_spec,3), anion_target(ions) )
+ALLOCATE( qube(lines_spec,lines_spec,3), sp_list(lines_spec), en_list(lines_spec), anion_target(ions) )
 sp_list = "0"
 anion_list => anion_target
 CALL qbert(qube,lines_spec,lines_react,en_list,species_file,reactions_file,sp_list ,ions, anion_list)
@@ -203,8 +204,12 @@ DO WHILE ( time .LE. time_total )
     ! Increment proton count
     numprotons = numprotons + 1
     ! Calculate time to next cosmic-ray event
-    rndnum  = RAND()
-    cr_time = -1*( DLOG(rndnum)/cr_rate )
+    not_infty = .FALSE.
+    DO WHILE ( not_infty .EQV. .FALSE. )
+      rndnum  = RAND()
+      cr_time = -1*( DLOG(rndnum)/cr_rate )
+      IF ( cr_time + time .LT. 9E6 ) not_infty = .TRUE.
+    END DO
     cr_time = cr_time + time
     ! Populate wait_list with new time
     wait_list(mindex)%wait_time   = cr_time

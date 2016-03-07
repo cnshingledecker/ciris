@@ -832,7 +832,7 @@ CONTAINS
     IF ( r1 .EQ. 1 .AND. r2 .EQ. event_num(1) .OR. r1 .EQ. event_num(1) .AND. r2 .EQ. 1 ) THEN
   !   PRINT *, "Weve got branching"
       rnum = RAND()
-      IF ( rnum .LE. DISPROB ) THEN
+      IF ( rnum .GT. DISPROB ) THEN
         prods = (/ 1, 0, 0 /)
       END IF
     END IF
@@ -2044,7 +2044,7 @@ CONTAINS
     ELSE IF ( r1 .EQ. 2 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 2 ) THEN
       rnum = RAND()
       IF ( rnum .LE. O2_ION_BRANCHING ) THEN
-        prods = (/ 4, 4, 1 /)
+        prods = (/ 7, 4, 0 /)
       END IF
     ELSE IF ( r1 .EQ. 5 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 5 ) THEN
       rnum = RAND()
@@ -2073,7 +2073,7 @@ CONTAINS
     IF ( i_re .EQ. i_re2 .AND. &
          j_re .EQ. j_re2 .AND. &
          k_re .EQ. k_re2 ) THEN
-      PRINT *, 'In reaction: i_re = i_re2...'
+!      PRINT *, 'In reaction: i_re = i_re2...'
       RETURN
     END IF
 

@@ -50,7 +50,7 @@ MODULE parameters
   ! Kinetic Parameters
   !******************************************************************************
   DOUBLE PRECISION, PARAMETER :: TRL_NU      = 1E12                        ! Trial frequency, for the rates, in 1/s
-  DOUBLE PRECISION, PARAMETER :: DISPROB     = 0.2                           ! Probability of excitative dissociation
+  DOUBLE PRECISION, PARAMETER :: DISPROB     = 0.0                           ! Probability of excitative dissociation
   DOUBLE PRECISION, PARAMETER :: ZP          = 1.D0                        ! Proton number
   DOUBLE PRECISION, PARAMETER :: ZO1         = 8.D0                        ! Atomic oxygen proton number
   DOUBLE PRECISION, PARAMETER :: ZO2         = 16.D0                       ! Molecular oxygen proton number
@@ -69,11 +69,11 @@ MODULE parameters
   !******************************************************************************
   INTEGER         , PARAMETER :: IONS        = 6                           ! Number of anions in species list
   INTEGER         , PARAMETER :: TIME_COUNTS = 2                           ! Times the model will check abundances
-  INTEGER         , PARAMETER :: NSUBEX      = 3                           ! Number of sub-excitation interactions
+  INTEGER         , PARAMETER :: NSUBEX      = 4                           ! Number of sub-excitation interactions
   INTEGER         , PARAMETER :: NEXIT       = 10*NSUBEX                   ! Max sub-ex loop iters
-  REAL            , PARAMETER :: STEPFAC     = 0.1                           ! Determines freq. between colls.
-  REAL(KIND=DBL)  , PARAMETER :: TIME_TOTAL  = 1D5                         ! Total time in s
-  REAL(KIND=DBL)  , PARAMETER :: AVAL        = 15                           ! Parameter for Gamma distribution
+  REAL            , PARAMETER :: STEPFAC     = 1                           ! Determines freq. between colls.
+  REAL(KIND=DBL)  , PARAMETER :: TIME_TOTAL  = 1D7                         ! Total time in s
+  REAL(KIND=DBL)  , PARAMETER :: AVAL        = 15                          ! Parameter for Gamma distribution
   REAL(KIND=DBL)  , PARAMETER :: ECUTOFF     = 4.5D0                       ! Secondary cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: PCUTOFF     = 5.0D0                       ! Primary ion cutoff energy in eV
 
@@ -95,12 +95,12 @@ MODULE parameters
   !******************************************************************************
   INTEGER, DIMENSION(1)       :: FAST_REACTS  = (/ 4 /)                    ! 4 ! Species that react upon formation
   INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 7 /)                    ! 7 ! Species that dissociate easily
-  INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4, 7 /)
+  INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4,7 /)
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
   INTEGER, PARAMETER          :: TIME_FREQ    = 1000
 
-  LOGICAL, PARAMETER :: SECELEC = .TRUE.
-  LOGICAL, PARAMETER :: DEBUG   = .FALSE.
+  LOGICAL, PARAMETER :: SECELEC    = .TRUE.
+  LOGICAL, PARAMETER :: DEBUG      = .FALSE.
   LOGICAL, PARAMETER :: TEST_WRONG = .FALSE.
 
 END MODULE parameters

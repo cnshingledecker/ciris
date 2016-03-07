@@ -42,7 +42,7 @@ IMPLICIT NONE
 ! Input and output
 INTEGER(KIND=SHORT), INTENT(IN)                                  :: nlines1, nlines2
 INTEGER(KIND=SHORT), INTENT(OUT), DIMENSION(nlines1,nlines1,1:3) :: qube
-REAL             , INTENT(OUT), DIMENSION(nlines1,3)           :: energy_array
+REAL             , INTENT(OUT), DIMENSION(nlines1)             :: energy_array
 CHARACTER(len=*), INTENT(OUT), DIMENSION(nlines1)              :: speciesList
 CHARACTER(len=80), INTENT(IN)                                  :: species_file
 CHARACTER(len=80), INTENT(IN)                                  :: reactions_file
@@ -84,13 +84,14 @@ fileopen: IF ( ierror1 .EQ. 0 .AND. ierror2 .EQ. 0 ) THEN
   anion_temp = 0
   speciesList = '0'
   DO n=1,nlines1
-    READ(1,*,IOSTAT=ierror1) speciesList(n), energy_array(n,1), energy_array(n,2), energy_array(n,3)
+    READ(1,*,IOSTAT=ierror1) speciesList(n), energy_array(n)
     tempName = TRIM(speciesList(n))
-    IF ( tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) == '-' ) THEN
-      anion_num = anion_num + 1
-      anion_temp(n) = n
+    IF ( tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .NE. '!' ) THEN
+      IF ( tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .EQ. '-' ) THEN
+        anion_num = anion_num + 1
+        anion_temp(n) = n
+      END IF
     END IF
-
     IF ( ierror1 .NE. 0 ) STOP "Error reading species file."
   END DO
 
@@ -143,15 +144,15 @@ END IF fileopen
     DO i=1,nlines1
       temp_prods = qube(i,j,:)
       IF (temp_prods(1) .NE. 0 ) THEN
-        Aqbert = energy_array(temp_prods(1),1)
+        Aqbert = energy_array(temp_prods(1))
       END IF
 
       IF (temp_prods(2) .NE. 0 ) THEN
-        Bqbert = energy_array(temp_prods(2),1)
+        Bqbert = energy_array(temp_prods(2))
       END IF
 
       IF (temp_prods(3) .NE. 0 ) THEN
-        Cqbert = energy_array(temp_prods(3),1)
+        Cqbert = energy_array(temp_prods(3))
       END IF
 
       CALL sort_energies(temp_prods, Aqbert, Bqbert, Cqbert)
