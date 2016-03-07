@@ -33,7 +33,7 @@
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 SUBROUTINE qbert(qube,nlines1,nlines2,energy_array,species_file,reactions_file,speciesList,i_num,anions)
-USE subroutines 
+USE subroutines
 USE parameters
 
 IMPLICIT NONE
@@ -42,7 +42,7 @@ IMPLICIT NONE
 ! Input and output
 INTEGER(KIND=SHORT), INTENT(IN)                                  :: nlines1, nlines2
 INTEGER(KIND=SHORT), INTENT(OUT), DIMENSION(nlines1,nlines1,1:3) :: qube
-REAL             , INTENT(OUT), DIMENSION(nlines1,3)           :: energy_array
+REAL             , INTENT(OUT), DIMENSION(nlines1)             :: energy_array
 CHARACTER(len=*), INTENT(OUT), DIMENSION(nlines1)              :: speciesList
 CHARACTER(len=80), INTENT(IN)                                  :: species_file
 CHARACTER(len=80), INTENT(IN)                                  :: reactions_file
@@ -65,11 +65,11 @@ REAL                                                           :: Aqbert, Bqbert
 INTEGER(KIND=SHORT)           , DIMENSION(3)                   :: temp_prods
 
 
-! Initialize values 
+! Initialize values
 qube = 0
 Aqbert = 0
 Bqbert = 0
-Cqbert = 0 
+Cqbert = 0
 
 ! Open files
 OPEN (UNIT=1,FILE=species_file,STATUS='OLD',ACTION='READ',IOSTAT=ierror1)
@@ -84,17 +84,18 @@ fileopen: IF ( ierror1 .EQ. 0 .AND. ierror2 .EQ. 0 ) THEN
   anion_temp = 0
   speciesList = '0'
   DO n=1,nlines1
-    READ(1,*,IOSTAT=ierror1) speciesList(n), energy_array(n,1), energy_array(n,2), energy_array(n,3)
+    READ(1,*,IOSTAT=ierror1) speciesList(n), energy_array(n)
     tempName = TRIM(speciesList(n))
-    IF ( tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) == '-' ) THEN
-      anion_num = anion_num + 1
-      anion_temp(n) = n
+    IF ( tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .NE. '!' ) THEN
+      IF ( tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .EQ. '-' ) THEN
+        anion_num = anion_num + 1
+        anion_temp(n) = n
+      END IF
     END IF
-
     IF ( ierror1 .NE. 0 ) STOP "Error reading species file."
   END DO
 
-  
+
 !  PRINT *, 'in qbert, anion_num =',anion_num
   i_count = 1
   DO n=1,nlines1
@@ -107,7 +108,7 @@ fileopen: IF ( ierror1 .EQ. 0 .AND. ierror2 .EQ. 0 ) THEN
   END DO
 
 
-  ! Read the contents of the r?eactions file and make the reactionCube
+  ! Read the contents of the reactions file and make the reactionCube
   qubemake: DO n1=1,nlines2
     READ(2,*,IOSTAT=ierror2) r_array(n1,1), r_array(n1,2), r_array(n1,3), &
                              r_array(n1,4), r_array(n1,5)
@@ -140,28 +141,28 @@ END IF fileopen
 
   ! Order the products of the reaction by binding energies in descending order
   DO j=1,nlines1
-    DO i=1,nlines1 
+    DO i=1,nlines1
       temp_prods = qube(i,j,:)
       IF (temp_prods(1) .NE. 0 ) THEN
-        Aqbert = energy_array(temp_prods(1),1)
+        Aqbert = energy_array(temp_prods(1))
       END IF
 
       IF (temp_prods(2) .NE. 0 ) THEN
-        Bqbert = energy_array(temp_prods(2),1)
+        Bqbert = energy_array(temp_prods(2))
       END IF
 
       IF (temp_prods(3) .NE. 0 ) THEN
-        Cqbert = energy_array(temp_prods(3),1)
+        Cqbert = energy_array(temp_prods(3))
       END IF
 
       CALL sort_energies(temp_prods, Aqbert, Bqbert, Cqbert)
       qube(i,j,:) = temp_prods
       Aqbert = 0
       Bqbert = 0
-      Cqbert = 0 
-    END DO 
+      Cqbert = 0
+    END DO
   END DO
-       
+
 
 END SUBROUTINE qbert
 
@@ -172,10 +173,10 @@ SUBROUTINE sort_energies( prods, A_en, B_en, C_en )
    INTEGER(KIND=SHORT), INTENT(INOUT), DIMENSION(3) :: prods
    INTEGER(KIND=SHORT)               , DIMENSION(3) :: temp
    REAL               , INTENT(IN)                  :: A_en, B_en, C_en
-   
+
    IF ( A_en .GT. B_en ) THEN
      IF ( A_en .GT. C_en ) THEN
-       IF ( B_en .GT. C_en ) THEN 
+       IF ( B_en .GT. C_en ) THEN
          ! A > B > C
          temp(1) = prods(1)
          temp(2) = prods(2)
@@ -196,7 +197,7 @@ SUBROUTINE sort_energies( prods, A_en, B_en, C_en )
     IF ( B_en .GT. C_en ) THEN
       IF ( A_en .GT. C_en ) THEN
         ! B > A > C
-        temp(1) = prods(2) 
+        temp(1) = prods(2)
         temp(2) = prods(1)
         temp(3) = prods(3)
       ELSE
