@@ -86,9 +86,17 @@ MODULE parameters
   !******************************************************************************
   ! Branching Ratios
   !******************************************************************************
-  REAL            , PARAMETER :: O_O2_BRANCHING     = 0.3 ! For O + O2
-  REAL            , PARAMETER :: O2_ION_BRANCHING   = 0.0 ! For O2- + O2+
-  REAL            , PARAMETER :: O_O2_ION_BRANCHING = 0.0 ! For O+ + O2- and O- + O2+
+  REAL            , PARAMETER :: O3_DIS_BRANCHING    = 0.0 ! O3 + * -> O2 + 0
+  REAL            , PARAMETER :: O2_E_BRANCHING      = 0.0 ! O2+ + e -> O2
+  REAL            , PARAMETER :: O3_E_BRANCHING      = 0.0 ! O3+ + e -> O2 + O 
+  REAL            , PARAMETER :: O3_O_BRANCHING      = 0.0 ! O3 + O -> O2 + O2
+  REAL            , PARAMETER :: O_O2_BRANCHING      = 0.0 ! O + O2 -> O + O + O
+  REAL            , PARAMETER :: O2_ION_BRANCHING    = 0.0 ! O2- + O2+ -> O3 + O
+  REAL            , PARAMETER :: O_O2_ION_BRANCHING  = 0.0 ! O+ + O2- and O- + O2+ -> O3
+  REAL            , PARAMETER :: O_O_ION_BRANCHING   = 0.0 ! O+ + O- -> O2
+  REAL            , PARAMETER :: O3_O_ION_BRANCHING  = 0.0 ! O3+ + O- or O3- + O+ -> O3 + O
+  REAL            , PARAMETER :: O3_O2_ION_BRANCHING = 0.0 ! O3+ + O2- or O3- + O2+ -> O2 + O2 + O
+  REAL            , PARAMETER :: O3_O3_ION_BRANCHING = 0.0 ! O3+ + O3- -> O3 + O2 + O
 
   !******************************************************************************
   ! Output File Unit Numbers

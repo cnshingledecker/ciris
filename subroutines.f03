@@ -833,11 +833,11 @@
       !**** BRANCHING RATIOS ******************************************************
       !****************************************************************************
       !Determine if there is dissociation
-      IF ( r1 .EQ. 1 .AND. r2 .EQ. event_num(1) .OR. r1 .EQ. event_num(1) .AND. r2 .EQ. 1 ) THEN
+      IF ( r1 .EQ. 7 .AND. r2 .EQ. event_num(1) .OR. r1 .EQ. event_num(1) .AND. r2 .EQ. 7 ) THEN
     !   PRINT *, "Weve got branching"
         rnum = RAND()
-        IF ( rnum .GT. DISPROB ) THEN
-          prods = (/ 1, 0, 0 /)
+        IF ( rnum .GT. O3_DIS_BRANCHING ) THEN
+          prods = (/ 1, 4, 0 /)
         END IF
       END IF
 
@@ -2040,7 +2040,6 @@
     !****************************************************************************
     !****************************************************************************
     IF ( r1 .EQ. 4 .AND. r2 .EQ. 1 .OR. r1 .EQ. 1 .AND. r2 .EQ. 4 ) THEN
-  !    PRINT *, "Weve got branching"
       rnum = RAND()
       IF ( rnum .LE. O_O2_BRANCHING ) THEN
         prods = (/ 4, 4, 4 /)
@@ -2048,7 +2047,7 @@
     ELSE IF ( r1 .EQ. 2 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 2 ) THEN
       rnum = RAND()
       IF ( rnum .LE. O2_ION_BRANCHING ) THEN
-        prods = (/ 4, 4, 1 /)
+        prods = (/ 7, 4, 0 /)
       END IF
     ELSE IF ( r1 .EQ. 5 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 5 ) THEN
       rnum = RAND()
@@ -2059,6 +2058,51 @@
       rnum = RAND()
       IF ( rnum .LE. O_O2_ION_BRANCHING ) THEN
         prods = (/ 7, 0, 0 /)
+      END IF
+    ELSE IF ( r1 .EQ. 5 .AND. r2 .EQ. 6 .OR. r1 .EQ. 6 .AND. r2 .EQ. 5 ) THEN
+      rnum = RAND()
+      IF ( rnum .LE. O_O_ION_BRANCHING ) THEN
+        prods = (/ 1, 0, 0 /)
+      END IF
+    ELSE IF ( r1 .EQ. 7 .AND. r2 .EQ. 4 .OR. r1 .EQ. 4 .AND. r2 .EQ. 7 ) THEN
+      rnum = RAND()
+      IF ( rnum .LE. O3_O_BRANCHING ) THEN
+        prods = (/ 1, 1, 0 /)
+      END IF
+    ELSE IF ( r1 .EQ. 8 .AND. r2 .EQ. 6 .OR. r1 .EQ. 6 .AND. r2 .EQ. 8 ) THEN
+      rnum = RAND()
+      IF ( rnum .LE. O3_O_ION_BRANCHING ) THEN
+        prods = (/ 7, 4, 0 /)
+      END IF
+    ELSE IF ( r1 .EQ. 9 .AND. r2 .EQ. 5 .OR. r1 .EQ. 5 .AND. r2 .EQ. 9 ) THEN
+      rnum = RAND()
+      IF ( rnum .LE. O3_O_ION_BRANCHING ) THEN
+        prods = (/ 7, 4, 0 /)
+      END IF
+    ELSE IF ( r1 .EQ. 8 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 8 ) THEN
+      rnum = RAND()
+      IF ( rnum .LE. O3_O2_ION_BRANCHING ) THEN
+        prods = (/ 1, 1, 4 /)
+      END IF
+    ELSE IF ( r1 .EQ. 9 .AND. r2 .EQ. 2 .OR. r1 .EQ. 2 .AND. r2 .EQ. 9 ) THEN
+      rnum = RAND()
+      IF ( rnum .LE. O3_O2_ION_BRANCHING ) THEN
+        prods = (/ 1, 1, 4 /)
+      END IF
+    ELSE IF ( r1 .EQ. 8 .AND. r2 .EQ. 9 .OR. r1 .EQ. 9 .AND. r2 .EQ. 8 ) THEN
+      rnum = RAND()
+      IF ( rnum .LE. O3_O3_ION_BRANCHING ) THEN
+        prods = (/ 7, 1, 4 /)
+      END IF
+    ELSE IF ( r1 .EQ. 2 .AND. r2 .EQ. 19 .OR. r1 .EQ. 19 .AND. r2 .EQ. 2 ) THEN
+      rnum = RAND()
+      IF ( rnum .LE. O2_E_BRANCHING ) THEN
+        prods = (/ 1, 0, 0 /)
+      END IF
+    ELSE IF ( r1 .EQ. 8 .AND. r2 .EQ. 19 .OR. r1 .EQ. 19 .AND. r2 .EQ. 8 ) THEN
+      rnum = RAND()
+      IF ( rnum .LE. O3_E_BRANCHING ) THEN
+        prods = (/ 1, 4, 0 /)
       END IF
     END IF
 
