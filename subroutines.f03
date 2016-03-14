@@ -1,956 +1,960 @@
-MODULE subroutines
-  USE parameters
-  USE typedefs
-  USE functiondefs
-  USE mc_toolbox
-  USE specdata
+  MODULE subroutines
+    USE parameters
+    USE typedefs
+    USE functiondefs
+    USE mc_toolbox
+    USE specdata
 
 
-CONTAINS
-! *********************************************************
-! ******* SUBROUTINES *************************************
-! *********************************************************
-  SUBROUTINE lookup(string, nlines, array, n)
-  !
-  ! Purpose:
-  !   This is a subroutine that compares a string value to values
-  !  in a list and gives the index of a matching result and an
-  !  error if there is no match.
-  !
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !! LOOKUP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    IMPLICIT NONE
+  CONTAINS
+  ! *********************************************************
+  ! ******* SUBROUTINES *************************************
+  ! *********************************************************
+    SUBROUTINE lookup(string, nlines, array, n)
+    !
+    ! Purpose:
+    !   This is a subroutine that compares a string value to values
+    !  in a list and gives the index of a matching result and an
+    !  error if there is no match.
+    !
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! LOOKUP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      IMPLICIT NONE
 
-    !*****************
-    ! Input and output
-    !*****************
+      !*****************
+      ! Input and output
+      !*****************
 
-    INTEGER(KIND=SHORT), INTENT(IN)                    :: nlines
-    INTEGER(KIND=SHORT), INTENT(OUT)                   :: n
-    CHARACTER(*)       , INTENT(IN)                    :: string
-    CHARACTER(len=10)  , INTENT(IN), DIMENSION(nlines) :: array
+      INTEGER            , INTENT(IN)                    :: nlines
+      INTEGER            , INTENT(OUT)                   :: n
+      CHARACTER(*)       , INTENT(IN)                    :: string
+      CHARACTER(len=10)  , INTENT(IN), DIMENSION(nlines) :: array
 
-    !****************
-    ! Local variables
-    !****************
+      !****************
+      ! Local variables
+      !****************
 
-    INTEGER(KIND=SHORT)                                :: i
-    CHARACTER(len=10)              , DIMENSION(1)      :: string_arr
+      INTEGER(KIND=SHORT)                                :: i
+      CHARACTER(len=10)              , DIMENSION(1)      :: string_arr
 
-    ! Go through the array and compare the supplied string with the
-    ! strings in the array
-    n = 0
-    string_arr = (/ string /)
-    DO i=1,nlines
-      IF ( TRIM(string_arr(1)) .EQ. TRIM(array(i)) )THEN
-        n=i
-      END IF
-    END DO
-  END SUBROUTINE lookup
-
-  SUBROUTINE linecount(unitnum, errcode, lines)
-  !
-  ! Purpose:
-  !   This subroutine simply counts the number of lines in a file.
-  !
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !! LINECOUNT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    IMPLICIT NONE
-
-    !*****************
-    ! Input and output
-    !*****************
-    INTEGER            , INTENT(IN)  :: unitnum
-    INTEGER            , INTENT(OUT) :: errcode
-    INTEGER(KIND=SHORT), INTENT(OUT) :: lines
-    INTEGER(KIND=SHORT)              :: adv
-
-    adv = 1
-    lines = 0
-    DO
-      READ(unitnum,*,IOSTAT=errcode)
-      IF ( errcode .NE. 0 ) EXIT
-      lines = lines + adv
-    END DO
-    REWIND(unitnum)
-    CLOSE(unitnum)
-  END SUBROUTINE linecount
-
-  SUBROUTINE hopping ( i_in, j_in, k_in, i_out, j_out, k_out, prob, dimens )
-  !
-  ! Purpose:
-  !   The purpose of this  is to move a species from one site to another.
-  !  It can move fr/ba/le/ri and up/down. Periodic boundary conditions are in
-  !  place such that lateral motion moves to the other side of the lattice if
-  !  it goes "overboard"
-  !
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !! HOPPING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    IMPLICIT NONE
-
-    !*****************
-    ! Input and output
-    !*****************
-
-    INTEGER            , INTENT(IN)                          :: i_in, j_in, k_in
-    INTEGER            , INTENT(OUT)                         :: i_out, j_out, k_out
-    INTEGER            , INTENT(IN)                          :: prob
-    INTEGER            , INTENT(IN), DIMENSION(3)            :: dimens !dimension of matrix
-
-
-    ! Determine the direction of travel based on input number
-    ! note that the second and third indices, j and k, are
-    ! incremented by +- 2
-    SELECT CASE (prob)
-
-
-    CASE (1)
-    ! hop back => k-2
-      IF ( k_in .EQ. 1 .OR. k_in .EQ. 2 ) THEN
-        IF ( MOD(dimens(3),2) .EQ. 1 ) THEN
-          IF ( k_in .EQ. 1 ) k_out = dimens(3)
-          IF ( k_in .EQ. 2 ) k_out = dimens(3)-1
-        ELSE
-          IF ( k_in .EQ. 1 ) k_out = dimens(3)-1
-          IF ( k_in .EQ. 2 ) k_out = dimens(3)
+      ! Go through the array and compare the supplied string with the
+      ! strings in the array
+      n = 0
+      string_arr = (/ string /)
+      DO i=1,nlines
+        IF ( TRIM(string_arr(1)) .EQ. TRIM(array(i)) )THEN
+          n=i
         END IF
-      ELSE
-        k_out = k_in-2
-      END IF
-      i_out = i_in
-      j_out = j_in
+      END DO
+    END SUBROUTINE lookup
 
-    CASE (2)
-    ! hop forward => k+2
-      IF ( k_in .EQ. dimens(3) .OR. k_in .EQ. dimens(3)-1 ) THEN
-        IF ( MOD(dimens(3),2) .EQ. 1 ) THEN
-          IF ( k_in .EQ. dimens(3) ) k_out = 1
-          IF ( k_in .EQ. dimens(3)-1 ) k_out = 2
+    SUBROUTINE linecount(unitnum, errcode, lines, header_num)
+    !
+    ! Purpose:
+    !   This subroutine simply counts the number of lines in a file.
+    !
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! LINECOUNT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      IMPLICIT NONE
+
+      !*****************
+      ! Input and output
+      !*****************
+      INTEGER            , INTENT(IN)  :: unitnum
+      INTEGER            , INTENT(OUT) :: errcode
+      INTEGER(KIND=SHORT), INTENT(OUT) :: lines
+      INTEGER(KIND=SHORT)              :: adv
+      CHARACTER(LEN=100)               :: line
+      INTEGER                          :: header_num
+
+      adv = 1
+      lines = 0
+      header_num = 0
+      DO
+        READ(unitnum,*,IOSTAT=errcode) line
+!        PRINT *, line
+        IF ( errcode .NE. 0 ) EXIT
+        IF ( line(1:1) .EQ. '!' ) header_num = header_num + 1
+        lines = lines + adv
+      END DO
+      REWIND(unitnum)
+    END SUBROUTINE linecount
+
+    SUBROUTINE hopping ( i_in, j_in, k_in, i_out, j_out, k_out, prob, dimens )
+    !
+    ! Purpose:
+    !   The purpose of this  is to move a species from one site to another.
+    !  It can move fr/ba/le/ri and up/down. Periodic boundary conditions are in
+    !  place such that lateral motion moves to the other side of the lattice if
+    !  it goes "overboard"
+    !
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! HOPPING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      IMPLICIT NONE
+
+      !*****************
+      ! Input and output
+      !*****************
+
+      INTEGER            , INTENT(IN)                          :: i_in, j_in, k_in
+      INTEGER            , INTENT(OUT)                         :: i_out, j_out, k_out
+      INTEGER            , INTENT(IN)                          :: prob
+      INTEGER            , INTENT(IN), DIMENSION(3)            :: dimens !dimension of matrix
+
+
+      ! Determine the direction of travel based on input number
+      ! note that the second and third indices, j and k, are
+      ! incremented by +- 2
+      SELECT CASE (prob)
+
+
+      CASE (1)
+      ! hop back => k-2
+        IF ( k_in .EQ. 1 .OR. k_in .EQ. 2 ) THEN
+          IF ( MOD(dimens(3),2) .EQ. 1 ) THEN
+            IF ( k_in .EQ. 1 ) k_out = dimens(3)
+            IF ( k_in .EQ. 2 ) k_out = dimens(3)-1
+          ELSE
+            IF ( k_in .EQ. 1 ) k_out = dimens(3)-1
+            IF ( k_in .EQ. 2 ) k_out = dimens(3)
+          END IF
         ELSE
-          IF ( k_in .EQ. dimens(3) ) k_out = 2
-          IF ( k_in .EQ. dimens(3)-1) k_out = 1
+          k_out = k_in-2
         END IF
-      ELSE
-        k_out = k_in + 2
-      END IF
-      i_out = i_in
-      j_out = j_in
-
-    CASE (3)
-    ! hop left => j-2
-      IF ( j_in .EQ. 1 .OR. j_in .EQ. 2 ) THEN
-        IF ( MOD(dimens(2),2) .EQ. 1 ) THEN
-          IF ( j_in .EQ. 1 ) j_out = dimens(2)
-          IF ( j_in .EQ. 2 ) j_out = dimens(2)-1
-        ELSE
-          IF ( j_in .EQ. 1 ) j_out = dimens(2)-1
-          IF ( j_in .EQ. 2 ) j_out = dimens(2)
-        END IF
-      ELSE
-        j_out = j_in-2
-      END IF
-      i_out = i_in
-      k_out = k_in
-
-    CASE (4)
-    ! hop right => j+2
-      IF ( j_in .EQ. dimens(2) .OR. j_in .EQ. dimens(2)-1 ) THEN
-        IF ( MOD(dimens(2),2) .EQ. 1 ) THEN
-          IF ( j_in .EQ. dimens(2) ) j_out = 1
-          IF ( j_in .EQ. dimens(2)-1) j_out = 2
-        ELSE
-          IF ( j_in .EQ. dimens(2)) j_out = 2
-          IF ( j_in .EQ. dimens(2)-1) j_out = 1
-        END IF
-      ELSE
-        j_out = j_in+2
-      END IF
-      i_out = i_in
-      k_out = k_in
-
-
-    CASE (5)
-    ! hop down => i+1
-    ! Hopping to the monolayer above or below the current
-    ! one involves +- 1 to the first dimension (i)
-      IF ( i_in .EQ. dimens(1) ) THEN
         i_out = i_in
-      ELSE
-        i_out = i_in+1
-      END IF
-      j_out = j_in
-      k_out = k_in
+        j_out = j_in
 
-    CASE (6)
-    ! hop up => i-1
-      IF ( i_in .EQ. 1 ) THEN
+      CASE (2)
+      ! hop forward => k+2
+        IF ( k_in .EQ. dimens(3) .OR. k_in .EQ. dimens(3)-1 ) THEN
+          IF ( MOD(dimens(3),2) .EQ. 1 ) THEN
+            IF ( k_in .EQ. dimens(3) ) k_out = 1
+            IF ( k_in .EQ. dimens(3)-1 ) k_out = 2
+          ELSE
+            IF ( k_in .EQ. dimens(3) ) k_out = 2
+            IF ( k_in .EQ. dimens(3)-1) k_out = 1
+          END IF
+        ELSE
+          k_out = k_in + 2
+        END IF
         i_out = i_in
+        j_out = j_in
+
+      CASE (3)
+      ! hop left => j-2
+        IF ( j_in .EQ. 1 .OR. j_in .EQ. 2 ) THEN
+          IF ( MOD(dimens(2),2) .EQ. 1 ) THEN
+            IF ( j_in .EQ. 1 ) j_out = dimens(2)
+            IF ( j_in .EQ. 2 ) j_out = dimens(2)-1
+          ELSE
+            IF ( j_in .EQ. 1 ) j_out = dimens(2)-1
+            IF ( j_in .EQ. 2 ) j_out = dimens(2)
+          END IF
+        ELSE
+          j_out = j_in-2
+        END IF
+        i_out = i_in
+        k_out = k_in
+
+      CASE (4)
+      ! hop right => j+2
+        IF ( j_in .EQ. dimens(2) .OR. j_in .EQ. dimens(2)-1 ) THEN
+          IF ( MOD(dimens(2),2) .EQ. 1 ) THEN
+            IF ( j_in .EQ. dimens(2) ) j_out = 1
+            IF ( j_in .EQ. dimens(2)-1) j_out = 2
+          ELSE
+            IF ( j_in .EQ. dimens(2)) j_out = 2
+            IF ( j_in .EQ. dimens(2)-1) j_out = 1
+          END IF
+        ELSE
+          j_out = j_in+2
+        END IF
+        i_out = i_in
+        k_out = k_in
+
+
+      CASE (5)
+      ! hop down => i+1
+      ! Hopping to the monolayer above or below the current
+      ! one involves +- 1 to the first dimension (i)
+        IF ( i_in .EQ. dimens(1) ) THEN
+          i_out = i_in
+        ELSE
+          i_out = i_in+1
+        END IF
+        j_out = j_in
+        k_out = k_in
+
+      CASE (6)
+      ! hop up => i-1
+        IF ( i_in .EQ. 1 ) THEN
+          i_out = i_in
+        ELSE
+          i_out = i_in-1
+        END IF
+        j_out = j_in
+        k_out = k_in
+      END SELECT
+
+    END SUBROUTINE hopping
+
+    SUBROUTINE lookaroundyou ( react_cube, matrix, coords, null, small_count, &
+                               large_count, small_arr, large_arr, wait_list )
+    !
+    ! Purpose:
+    !   This subroutine is designed to look at the surrounding spaces in a
+    !  matrix and determine if any of them are possible co-reactants for
+    !  any reactions in the network used. If there is a match, null=0,
+    !  if there is no match found, i.e. no reacting partners, null=1.
+    !
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! LOOKAROUNDYOU !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      IMPLICIT NONE
+
+      !*****************
+      ! Input and output
+      !*****************
+
+      INTEGER(KIND=SHORT), INTENT(OUT)                             :: null
+      INTEGER            , INTENT(OUT)                             :: small_count
+      INTEGER            , INTENT(OUT)                             :: large_count
+      INTEGER(KIND=SHORT)             , DIMENSION(:,:,:), POINTER  :: react_cube
+      INTEGER                         , DIMENSION(:,:,:), POINTER  :: matrix
+      INTEGER            , INTENT(OUT), DIMENSION(6,4)             :: large_arr
+      INTEGER            , INTENT(OUT), DIMENSION(4,4)             :: small_arr
+      INTEGER            , INTENT(IN) , DIMENSION(3)               :: coords
+      TYPE(wait_info)                 , DIMENSION(:)    , POINTER  :: wait_list
+
+
+      !****************
+      ! Local variables
+      !****************
+      INTEGER                                                      :: r1, r2
+      INTEGER                                                      :: i_re,j_re,k_re
+      INTEGER                                                      :: i_re2,j_re2,k_re2
+      INTEGER                                                      :: n
+      INTEGER                         , DIMENSION(3)               :: dimens
+
+
+
+      ! Initialize dimensions
+      dimens(1) = SIZE(matrix,1)
+      dimens(2) = SIZE(matrix,2)
+      dimens(3) = SIZE(matrix,3)
+
+      ! Initialize coordinates
+      i_re = coords(1)
+      j_re = coords(2)
+      k_re = coords(3)
+
+
+      ! Initialize counters
+      large_count  = 0
+      small_count = 0
+
+      ! Initialize arrays
+      large_arr = 0
+      small_arr = 0
+
+      ! Make sure the reactant isn't a zero
+  !    PRINT *, "In lookaroundyou, the dimensions of the matrix are:"
+  !    PRINT *, dimens
+
+  !    PRINT *, "The value of coords is:"
+  !    PRINT *, coords
+
+  !    PRINT *, "The value of matrix in lookaroundyou is:",matrix(i_re,j_re,k_re)
+
+  !    IF ( matrix(i_re,j_re,k_re) .EQ. 0 ) THEN
+  !      PRINT *, "***************************************"
+  !      PRINT *, "ERROR in lookaroundyou at matrix lookup"
+  !      PRINT *, " Product is zero"
+  !      PRINT *, "***************************************"
+  !    END IF
+
+
+        ! If the site is on the top or bottom layers, limit the hopping
+        n=0
+        initial_loop: DO n=1,6
+          top_bottom: IF ( i_re .EQ. 1 .AND. ( n .EQ. 5 .OR. n .EQ. 6 ) ) THEN
+            ! If on top layer, stay on top layer
+            CONTINUE
+          ELSE IF ( i_re .EQ. dimens(1) .AND. n .EQ. 6 ) THEN
+            ! Don't hop down if on bottom layer
+            CONTINUE
+          ELSE
+            CALL hopping(i_re,j_re,k_re,i_re2,j_re2,k_re2,n,dimens)
+  !          PRINT *, 'i_re,j_re,k_re=',i_re,j_re,k_re
+  !          PRINT *, 'i_re2,j_re2,k_re2=',i_re2,j_re2,k_re2
+            IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 .AND. &
+                 i_re2 .NE. i_re .AND. &
+                 j_re2 .NE. j_re .AND. &
+                 k_re2 .NE. k_re ) THEN
+            ! Determine if the hopped to species can react with the hopping species
+              r1 = matrix(i_re,j_re,k_re)
+              r2 = matrix(i_re2,j_re2,k_re2)
+              CALL canreact(r1,r2,react_cube,wait_list,null)
+              ! Determine if site is occupied and if species can react
+              IF ( null .EQ. 0 ) THEN
+                large_arr(n,4) = 1
+                large_count = large_count + 1
+              ELSE
+                large_arr(n,4) = 0
+              END IF
+
+              large_arr(n,1)=i_re2
+              large_arr(n,2)=j_re2
+              large_arr(n,3)=k_re2
+            END IF
+          END IF top_bottom
+        END DO initial_loop
+
+        ! Only look at normal sites if there are no interstitial reactants
+        IF ( large_count .GT. 0 ) THEN
+          CONTINUE
+        ELSE
+          DO n=1,4 ! Go to a phantom position
+            IF ( n .EQ. 1 ) THEN
+              IF ( j_re-1 .GT. 0           .AND. &
+                   k_re-1 .GT. 0           .AND. &
+                   k_re+1 .LE. dimens(3) ) THEN
+                CALL hopping(i_re,j_re-1,k_re+1,i_re2,j_re2,k_re2,1,dimens)
+              ELSE
+                i_re2 = i_re
+                j_re2 = 1
+                k_re2 = 2
+              END IF
+            ELSE IF ( n .EQ. 2 ) THEN
+              IF ( j_re-1 .GT. 0           .AND. &
+                   k_re-1 .GT. 0           .AND. &
+                   k_re+1 .LE. dimens(3) ) THEN
+                CALL hopping(i_re,j_re-1,k_re-1,i_re2,j_re2,k_re2,2,dimens)
+              ELSE
+                i_re2 = i_re
+                j_re2 = 1
+                k_re2 = 2
+              END IF
+            ELSE IF ( n .EQ. 3 ) THEN
+              IF ( j_re+1 .LE. dimens(2)    .AND. &
+                   k_re-1 .GT. 0            .AND. &
+                   k_re+1 .LE. dimens(3) ) THEN
+                CALL hopping(i_re,j_re+1,k_re+1,i_re2,j_re2,k_re2,1,dimens)
+              ELSE
+                i_re2 = i_re
+                j_re2 = 1
+                k_re2 = 2
+              END IF
+            ELSE
+              IF ( j_re+1 .LE. dimens(2)    .AND. &
+                   k_re-1 .GT. 0            .AND. &
+                   k_re+1 .LE. dimens(3) ) THEN
+                CALL hopping(i_re,j_re+1,k_re-1,i_re2,j_re2,k_re2,2,dimens)
+              ELSE
+                i_re2 = i_re
+                j_re2 = 1
+                k_re2 = 2
+              END IF
+            END IF
+
+            ! Determine if the matrix site is occupied and can react
+            IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 .AND. &
+                 i_re2 .NE. i_re .AND. &
+                 j_re2 .NE. j_re .AND. &
+                 k_re2 .NE. k_re) THEN
+              r1 = matrix(i_re,j_re,k_re)
+              r2 = matrix(i_re2,j_re2,k_re2)
+  !            PRINT *, 'r1=',r1,'and r2=',r2
+              CALL canreact(r1,r2,react_cube,wait_list,null)
+              IF ( null .EQ. 0 ) THEN
+                small_arr(n,4) = 1
+                small_count = small_count + 1
+              ELSE
+                small_arr(n,4) = 0
+              END IF
+              small_arr(n,1)=i_re2
+              small_arr(n,2)=j_re2
+              small_arr(n,3)=k_re2
+            ELSE
+              small_arr(n,1) = i_re
+              small_arr(n,2) = j_re
+              small_arr(n,3) = k_re
+              small_arr(n,4) = 0
+            END IF
+          END DO
+        END IF
+
+      ! Determine if there has been a null event
+      IF ( large_count .EQ. 0 .AND. small_count .EQ. 0 ) THEN
+        null = 1
       ELSE
-        i_out = i_in-1
+        null = 0
       END IF
-      j_out = j_in
-      k_out = k_in
-    END SELECT
+    END SUBROUTINE lookaroundyou
 
-  END SUBROUTINE hopping
+    SUBROUTINE solarlottery( small_count,large_count, small_temp,large_temp, coords )
+    !
+    ! Purpose:
+    !   This subroutine looks at either the interstitial or normal neighbors
+    !  that contain a potential reacion partner and chooses one at random.
+    !
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! SOLARLOTTERY !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  SUBROUTINE lookaroundyou ( react_cube, matrix, coords, null, small_count, &
-                             large_count, small_arr, large_arr, wait_list )
-  !
-  ! Purpose:
-  !   This subroutine is designed to look at the surrounding spaces in a
-  !  matrix and determine if any of them are possible co-reactants for
-  !  any reactions in the network used. If there is a match, null=0,
-  !  if there is no match found, i.e. no reacting partners, null=1.
-  !
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !! LOOKAROUNDYOU !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      IMPLICIT NONE
 
-    IMPLICIT NONE
+      !*****************
+      ! Input and output
+      !*****************
+      INTEGER            , INTENT(IN)                                :: large_count   !number of interstitial reactants
+      INTEGER            , INTENT(IN)                                :: small_count  !number of normal reactants
+      INTEGER            , INTENT(OUT), DIMENSION(3)                 :: coords   !coordinates of selected site
+      INTEGER                         , DIMENSION(6,4)               :: large_temp  !array of interstitial neighbor coords
+      INTEGER                         , DIMENSION(4,4)               :: small_temp !array of normal neighbor coords
 
-    !*****************
-    ! Input and output
-    !*****************
+      !****************
+      ! Local variables
+      !****************
+      INTEGER            , ALLOCATABLE, DIMENSION(:,:)               :: temp_arr !temporary array of coordinates
+      INTEGER                                                        :: i,n   !counters
+      INTEGER                                                        :: lucky    !index of selected coords
+      REAL                                                           :: rand     !random number
 
-    INTEGER(KIND=SHORT), INTENT(OUT)                             :: null
-    INTEGER            , INTENT(OUT)                             :: small_count
-    INTEGER            , INTENT(OUT)                             :: large_count
-    INTEGER(KIND=SHORT)             , DIMENSION(:,:,:), POINTER  :: react_cube
-    INTEGER                         , DIMENSION(:,:,:), POINTER  :: matrix
-    INTEGER            , INTENT(OUT), DIMENSION(6,4)             :: large_arr
-    INTEGER            , INTENT(OUT), DIMENSION(4,4)             :: small_arr
-    INTEGER            , INTENT(IN) , DIMENSION(3)               :: coords
-    TYPE(wait_info)                 , DIMENSION(:)    , POINTER  :: wait_list
+  !    PRINT *, "Started solarlottery"
+  !    PRINT *, "large_count is: ", large_count
+  !    PRINT *, "small_count is: ", small_count
+
+      i = 1
+      IF ( large_count .NE. 0 ) THEN ! Check if any same type reactants exist
+        ALLOCATE ( temp_arr(large_count,3) )
+        DO n=1,SIZE(large_temp,1)
+          IF ( large_temp(n,4) .NE. 0 ) THEN
+            temp_arr(i,1) = large_temp(n,1)
+            temp_arr(i,2) = large_temp(n,2)
+            temp_arr(i,3) = large_temp(n,3)
+            i = i + 1
+          ELSE
+            CONTINUE
+          END IF
+        END DO
+      ELSE ! See if any opposite type reactants exist
+        ALLOCATE ( temp_arr(small_count,3) )
+        DO n=1,SIZE(small_temp,1)
+          IF ( small_temp(n,4) .NE. 0 ) THEN
+            temp_arr(i,1) = small_temp(n,1)
+            temp_arr(i,2) = small_temp(n,2)
+            temp_arr(i,3) = small_temp(n,3)
+            i = i + 1
+          ELSE
+            CONTINUE
+          END IF
+        END DO
+      END IF
+
+  !    PRINT *, "temp_arr size is: ", SIZE(temp_arr)
+  !    PRINT *, "The contents of temp_arr are: "
+  !    DO n=1,SIZE(temp_arr,1)
+  !      PRINT *, temp_arr(n,:)
+  !    END DO
+
+      CALL RANDOM_NUMBER(rand) ! Choose a random temp_arr element
+      coords = 0
+      IF ( SIZE(temp_arr,1) .EQ. 1 ) THEN
+         coords = temp_arr(1,:)
+  !      DO n=1,3
+  !        coords(n) = temp_arr(1,n)
+  !      END DO
+      ELSE
+        lucky = INT(rand*SIZE(temp_arr,1)) + 1
+        DO n=1,3
+          coords(n) = temp_arr(lucky,n)
+        END DO
+      END IF
+  !    PRINT *, "The coords are: ",coords, "ending Solarlottery"
+
+    END SUBROUTINE solarlottery
+
+    SUBROUTINE thirdman( prod,i_re,j_re,k_re, null, matrix, en_list, time, &
+                         wait_list, wait_len, prod_coords)
+    !
+    ! Purpose:
+    !   This subroutine attempts to find an empty site to place a third product
+    !
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! THIRDMAN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      IMPLICIT NONE
+
+      !******************!
+      ! Input and output !
+      !******************!
+
+      INTEGER            , INTENT(IN)                                       :: prod !product to be placed
+      INTEGER(KIND=SHORT), INTENT(OUT)                                      :: null !error flag
+      INTEGER                                           , POINTER           :: wait_len
+      INTEGER            , INTENT(IN)                                       :: i_re,j_re,k_re !coords of original site
+      INTEGER            , INTENT(OUT), DIMENSION(3)             , OPTIONAL :: prod_coords !product placement coords
+      INTEGER                         , DIMENSION(:,:,:), POINTER           :: matrix !ice-mantle matrix
+      TYPE (wait_info)                , DIMENSION(:)    , POINTER           :: wait_list
+      REAL                            , DIMENSION(:)    , POINTER           :: en_list
+      REAL(KIND=DBL)                                    , POINTER           :: time
+
+      !*****************!
+      ! Local variables !
+      !*****************!
+
+      INTEGER                                                               :: n,m !counters
+      INTEGER                                                               :: i_pr,j_pr,k_pr !product coords
+      INTEGER                         , DIMENSION(3)                        :: dimens
 
 
-    !****************
-    ! Local variables
-    !****************
-    INTEGER                                                      :: r1, r2
-    INTEGER                                                      :: i_re,j_re,k_re
-    INTEGER                                                      :: i_re2,j_re2,k_re2
-    INTEGER                                                      :: n
-    INTEGER                         , DIMENSION(3)               :: dimens
+      ! Allocate and assign dimens pointer
+      dimens(1) = SIZE(matrix,1)
+      dimens(2) = SIZE(matrix,2)
+      dimens(3) = SIZE(matrix,3)
 
-
-
-    ! Initialize dimensions
-    dimens(1) = SIZE(matrix,1)
-    dimens(2) = SIZE(matrix,2)
-    dimens(3) = SIZE(matrix,3)
-
-    ! Initialize coordinates
-    i_re = coords(1)
-    j_re = coords(2)
-    k_re = coords(3)
-
-
-    ! Initialize counters
-    large_count  = 0
-    small_count = 0
-
-    ! Initialize arrays
-    large_arr = 0
-    small_arr = 0
-
-    ! Make sure the reactant isn't a zero
-!    PRINT *, "In lookaroundyou, the dimensions of the matrix are:"
-!    PRINT *, dimens
-
-!    PRINT *, "The value of coords is:"
-!    PRINT *, coords
-
-!    PRINT *, "The value of matrix in lookaroundyou is:",matrix(i_re,j_re,k_re)
-
-!    IF ( matrix(i_re,j_re,k_re) .EQ. 0 ) THEN
-!      PRINT *, "***************************************"
-!      PRINT *, "ERROR in lookaroundyou at matrix lookup"
-!      PRINT *, " Product is zero"
-!      PRINT *, "***************************************"
-!    END IF
-
-
-      ! If the site is on the top or bottom layers, limit the hopping
-      n=0
-      initial_loop: DO n=1,6
-        top_bottom: IF ( i_re .EQ. 1 .AND. ( n .EQ. 5 .OR. n .EQ. 6 ) ) THEN
-          ! If on top layer, stay on top layer
+      DO n=1,6
+        IF ( i_re .EQ. 1 .AND. ( n .EQ. 5 .OR. n .EQ. 6 ) ) THEN
           CONTINUE
         ELSE IF ( i_re .EQ. dimens(1) .AND. n .EQ. 6 ) THEN
           ! Don't hop down if on bottom layer
           CONTINUE
         ELSE
-          CALL hopping(i_re,j_re,k_re,i_re2,j_re2,k_re2,n,dimens)
-!          PRINT *, 'i_re,j_re,k_re=',i_re,j_re,k_re
-!          PRINT *, 'i_re2,j_re2,k_re2=',i_re2,j_re2,k_re2
-          IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 .AND. &
-               i_re2 .NE. i_re .AND. &
-               j_re2 .NE. j_re .AND. &
-               k_re2 .NE. k_re ) THEN
-          ! Determine if the hopped to species can react with the hopping species
-            r1 = matrix(i_re,j_re,k_re)
-            r2 = matrix(i_re2,j_re2,k_re2)
-            CALL canreact(r1,r2,react_cube,wait_list,null)
-            ! Determine if site is occupied and if species can react
-            IF ( null .EQ. 0 ) THEN
-              large_arr(n,4) = 1
-              large_count = large_count + 1
-            ELSE
-              large_arr(n,4) = 0
-            END IF
-
-            large_arr(n,1)=i_re2
-            large_arr(n,2)=j_re2
-            large_arr(n,3)=k_re2
+          CALL hopping(i_re,j_re,k_re,i_pr,j_pr,k_pr,n,dimens)
+          IF ( matrix(i_pr,j_pr,k_pr) .EQ. 0 ) THEN
+            GOTO 1985
           END IF
-        END IF top_bottom
-      END DO initial_loop
+        END IF
+      END DO
 
-      ! Only look at normal sites if there are no interstitial reactants
-      IF ( large_count .GT. 0 ) THEN
-        CONTINUE
-      ELSE
-        DO n=1,4 ! Go to a phantom position
-          IF ( n .EQ. 1 ) THEN
+        DO m=1,4 ! Go to a phantom position
+          SELECT CASE (m)
+          CASE (1)
             IF ( j_re-1 .GT. 0           .AND. &
                  k_re-1 .GT. 0           .AND. &
                  k_re+1 .LE. dimens(3) ) THEN
-              CALL hopping(i_re,j_re-1,k_re+1,i_re2,j_re2,k_re2,1,dimens)
+              CALL hopping(i_re,j_re-1,k_re+1,i_pr,j_pr,k_pr,1,dimens)
+              IF (matrix(i_pr,j_pr,k_pr) .EQ. 0 ) THEN
+                GOTO 1985
+              ELSE
+                CONTINUE
+              END IF
             ELSE
-              i_re2 = i_re
-              j_re2 = 1
-              k_re2 = 2
+              CONTINUE
             END IF
-          ELSE IF ( n .EQ. 2 ) THEN
+          CASE (2)
             IF ( j_re-1 .GT. 0           .AND. &
                  k_re-1 .GT. 0           .AND. &
                  k_re+1 .LE. dimens(3) ) THEN
-              CALL hopping(i_re,j_re-1,k_re-1,i_re2,j_re2,k_re2,2,dimens)
+              CALL hopping(i_re,j_re-1,k_re-1,i_pr,j_pr,k_pr,2,dimens)
+              IF (matrix(i_pr,j_pr,k_pr) .EQ. 0 ) THEN
+                GOTO 1985
+              ELSE
+                CONTINUE
+              END IF
             ELSE
-              i_re2 = i_re
-              j_re2 = 1
-              k_re2 = 2
+              CONTINUE
             END IF
-          ELSE IF ( n .EQ. 3 ) THEN
-            IF ( j_re+1 .LE. dimens(2)    .AND. &
-                 k_re-1 .GT. 0            .AND. &
+          CASE (3)
+            IF ( j_re+1 .LE. dimens(2)   .AND. &
+                 k_re-1 .GT. 0           .AND. &
                  k_re+1 .LE. dimens(3) ) THEN
-              CALL hopping(i_re,j_re+1,k_re+1,i_re2,j_re2,k_re2,1,dimens)
+              CALL hopping(i_re,j_re+1,k_re+1,i_pr,j_pr,k_pr,1,dimens)
+              IF (matrix(i_pr,j_pr,k_pr) .EQ. 0 ) THEN
+                GOTO 1985
+              ELSE
+                CONTINUE
+              END IF
             ELSE
-              i_re2 = i_re
-              j_re2 = 1
-              k_re2 = 2
+              CONTINUE
             END IF
-          ELSE
-            IF ( j_re+1 .LE. dimens(2)    .AND. &
-                 k_re-1 .GT. 0            .AND. &
+          CASE (4)
+            IF ( j_re+1 .LE. dimens(2)   .AND. &
+                 k_re-1 .GT. 0           .AND. &
                  k_re+1 .LE. dimens(3) ) THEN
-              CALL hopping(i_re,j_re+1,k_re-1,i_re2,j_re2,k_re2,2,dimens)
-            ELSE
-              i_re2 = i_re
-              j_re2 = 1
-              k_re2 = 2
-            END IF
-          END IF
-
-          ! Determine if the matrix site is occupied and can react
-          IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 .AND. &
-               i_re2 .NE. i_re .AND. &
-               j_re2 .NE. j_re .AND. &
-               k_re2 .NE. k_re) THEN
-            r1 = matrix(i_re,j_re,k_re)
-            r2 = matrix(i_re2,j_re2,k_re2)
-!            PRINT *, 'r1=',r1,'and r2=',r2
-            CALL canreact(r1,r2,react_cube,wait_list,null)
-            IF ( null .EQ. 0 ) THEN
-              small_arr(n,4) = 1
-              small_count = small_count + 1
-            ELSE
-              small_arr(n,4) = 0
-            END IF
-            small_arr(n,1)=i_re2
-            small_arr(n,2)=j_re2
-            small_arr(n,3)=k_re2
-          ELSE
-            small_arr(n,1) = i_re
-            small_arr(n,2) = j_re
-            small_arr(n,3) = k_re
-            small_arr(n,4) = 0
-          END IF
-        END DO
-      END IF
-
-    ! Determine if there has been a null event
-    IF ( large_count .EQ. 0 .AND. small_count .EQ. 0 ) THEN
-      null = 1
-    ELSE
-      null = 0
-    END IF
-  END SUBROUTINE lookaroundyou
-
-  SUBROUTINE solarlottery( small_count,large_count, small_temp,large_temp, coords )
-  !
-  ! Purpose:
-  !   This subroutine looks at either the interstitial or normal neighbors
-  !  that contain a potential reacion partner and chooses one at random.
-  !
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !! SOLARLOTTERY !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    IMPLICIT NONE
-
-    !*****************
-    ! Input and output
-    !*****************
-    INTEGER            , INTENT(IN)                                :: large_count   !number of interstitial reactants
-    INTEGER            , INTENT(IN)                                :: small_count  !number of normal reactants
-    INTEGER            , INTENT(OUT), DIMENSION(3)                 :: coords   !coordinates of selected site
-    INTEGER                         , DIMENSION(6,4)               :: large_temp  !array of interstitial neighbor coords
-    INTEGER                         , DIMENSION(4,4)               :: small_temp !array of normal neighbor coords
-
-    !****************
-    ! Local variables
-    !****************
-    INTEGER            , ALLOCATABLE, DIMENSION(:,:)               :: temp_arr !temporary array of coordinates
-    INTEGER                                                        :: i,n   !counters
-    INTEGER                                                        :: lucky    !index of selected coords
-    REAL                                                           :: rand     !random number
-
-!    PRINT *, "Started solarlottery"
-!    PRINT *, "large_count is: ", large_count
-!    PRINT *, "small_count is: ", small_count
-
-    i = 1
-    IF ( large_count .NE. 0 ) THEN ! Check if any same type reactants exist
-      ALLOCATE ( temp_arr(large_count,3) )
-      DO n=1,SIZE(large_temp,1)
-        IF ( large_temp(n,4) .NE. 0 ) THEN
-          temp_arr(i,1) = large_temp(n,1)
-          temp_arr(i,2) = large_temp(n,2)
-          temp_arr(i,3) = large_temp(n,3)
-          i = i + 1
-        ELSE
-          CONTINUE
-        END IF
-      END DO
-    ELSE ! See if any opposite type reactants exist
-      ALLOCATE ( temp_arr(small_count,3) )
-      DO n=1,SIZE(small_temp,1)
-        IF ( small_temp(n,4) .NE. 0 ) THEN
-          temp_arr(i,1) = small_temp(n,1)
-          temp_arr(i,2) = small_temp(n,2)
-          temp_arr(i,3) = small_temp(n,3)
-          i = i + 1
-        ELSE
-          CONTINUE
-        END IF
-      END DO
-    END IF
-
-!    PRINT *, "temp_arr size is: ", SIZE(temp_arr)
-!    PRINT *, "The contents of temp_arr are: "
-!    DO n=1,SIZE(temp_arr,1)
-!      PRINT *, temp_arr(n,:)
-!    END DO
-
-    CALL RANDOM_NUMBER(rand) ! Choose a random temp_arr element
-    coords = 0
-    IF ( SIZE(temp_arr,1) .EQ. 1 ) THEN
-       coords = temp_arr(1,:)
-!      DO n=1,3
-!        coords(n) = temp_arr(1,n)
-!      END DO
-    ELSE
-      lucky = INT(rand*SIZE(temp_arr,1)) + 1
-      DO n=1,3
-        coords(n) = temp_arr(lucky,n)
-      END DO
-    END IF
-!    PRINT *, "The coords are: ",coords, "ending Solarlottery"
-
-  END SUBROUTINE solarlottery
-
-  SUBROUTINE thirdman( prod,i_re,j_re,k_re, null, matrix, E_list, time, &
-                       wait_list, wait_len, prod_coords)
-  !
-  ! Purpose:
-  !   This subroutine attempts to find an empty site to place a third product
-  !
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !! THIRDMAN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    IMPLICIT NONE
-
-    !******************!
-    ! Input and output !
-    !******************!
-
-    INTEGER            , INTENT(IN)                                       :: prod !product to be placed
-    INTEGER(KIND=SHORT), INTENT(OUT)                                      :: null !error flag
-    INTEGER                                           , POINTER           :: wait_len
-    INTEGER            , INTENT(IN)                                       :: i_re,j_re,k_re !coords of original site
-    INTEGER            , INTENT(OUT), DIMENSION(3)             , OPTIONAL :: prod_coords !product placement coords
-    INTEGER                         , DIMENSION(:,:,:), POINTER           :: matrix !ice-mantle matrix
-    TYPE (wait_info)                , DIMENSION(:)    , POINTER           :: wait_list
-    REAL                            , DIMENSION(:,:)  , POINTER           :: E_list
-    REAL(KIND=DBL)                                    , POINTER           :: time
-
-    !*****************!
-    ! Local variables !
-    !*****************!
-
-    INTEGER                                                               :: n,m !counters
-    INTEGER                                                               :: i_pr,j_pr,k_pr !product coords
-    INTEGER                         , DIMENSION(3)                        :: dimens
-
-
-    ! Allocate and assign dimens pointer
-    dimens(1) = SIZE(matrix,1)
-    dimens(2) = SIZE(matrix,2)
-    dimens(3) = SIZE(matrix,3)
-
-    DO n=1,6
-      IF ( i_re .EQ. 1 .AND. ( n .EQ. 5 .OR. n .EQ. 6 ) ) THEN
-        CONTINUE
-      ELSE IF ( i_re .EQ. dimens(1) .AND. n .EQ. 6 ) THEN
-        ! Don't hop down if on bottom layer
-        CONTINUE
-      ELSE
-        CALL hopping(i_re,j_re,k_re,i_pr,j_pr,k_pr,n,dimens)
-        IF ( matrix(i_pr,j_pr,k_pr) .EQ. 0 ) THEN
-          GOTO 1985
-        END IF
-      END IF
-    END DO
-
-      DO m=1,4 ! Go to a phantom position
-        SELECT CASE (m)
-        CASE (1)
-          IF ( j_re-1 .GT. 0           .AND. &
-               k_re-1 .GT. 0           .AND. &
-               k_re+1 .LE. dimens(3) ) THEN
-            CALL hopping(i_re,j_re-1,k_re+1,i_pr,j_pr,k_pr,1,dimens)
-            IF (matrix(i_pr,j_pr,k_pr) .EQ. 0 ) THEN
-              GOTO 1985
-            ELSE
-              CONTINUE
-            END IF
-          ELSE
-            CONTINUE
-          END IF
-        CASE (2)
-          IF ( j_re-1 .GT. 0           .AND. &
-               k_re-1 .GT. 0           .AND. &
-               k_re+1 .LE. dimens(3) ) THEN
-            CALL hopping(i_re,j_re-1,k_re-1,i_pr,j_pr,k_pr,2,dimens)
-            IF (matrix(i_pr,j_pr,k_pr) .EQ. 0 ) THEN
-              GOTO 1985
-            ELSE
-              CONTINUE
-            END IF
-          ELSE
-            CONTINUE
-          END IF
-        CASE (3)
-          IF ( j_re+1 .LE. dimens(2)   .AND. &
-               k_re-1 .GT. 0           .AND. &
-               k_re+1 .LE. dimens(3) ) THEN
-            CALL hopping(i_re,j_re+1,k_re+1,i_pr,j_pr,k_pr,1,dimens)
-            IF (matrix(i_pr,j_pr,k_pr) .EQ. 0 ) THEN
-              GOTO 1985
-            ELSE
-              CONTINUE
-            END IF
-          ELSE
-            CONTINUE
-          END IF
-        CASE (4)
-          IF ( j_re+1 .LE. dimens(2)   .AND. &
-               k_re-1 .GT. 0           .AND. &
-               k_re+1 .LE. dimens(3) ) THEN
-            CALL hopping(i_re,j_re+1,k_re-1,i_pr,j_pr,k_pr,2,dimens)
-            IF (matrix(i_pr,j_pr,k_pr) .EQ. 0 ) THEN
-              GOTO 1985
+              CALL hopping(i_re,j_re+1,k_re-1,i_pr,j_pr,k_pr,2,dimens)
+              IF (matrix(i_pr,j_pr,k_pr) .EQ. 0 ) THEN
+                GOTO 1985
+              ELSE
+                GOTO 2001
+              END IF
             ELSE
               GOTO 2001
             END IF
-          ELSE
-            GOTO 2001
+          END SELECT
+
+          2001 IF ( m .EQ. 4 ) THEN
+            null = 1
+  !          PRINT *, 'No reaction possible! ERROR!!!'
+            RETURN
           END IF
-        END SELECT
+        END DO
 
-        2001 IF ( m .EQ. 4 ) THEN
-          null = 1
-!          PRINT *, 'No reaction possible! ERROR!!!'
-          RETURN
-        END IF
-      END DO
+      ! Place reactant at chosen site
+      1985 IF ( ANY( MOBILE_LIST .EQ. prod ) ) THEN
+        wait_len = wait_len + 1
+        wait_list(wait_len)%i = i_pr
+        wait_list(wait_len)%j = j_pr
+        wait_list(wait_len)%k = k_pr
+        wait_list(wait_len)%sp_num = prod
+        CALL wait_calc(wait_list,wait_len,en_list,time)
+        matrix(i_pr,j_pr,k_pr) = wait_len
+  !      PRINT *, "Placing ",prod,"at ",i_pr,j_pr,k_pr,"at index ",wait_len,&
+  !               "and ",matrix(i_pr,j_pr,k_pr),"should be ",wait_len
+      ELSE
+        matrix(i_pr,j_pr,k_pr) = -1*prod
+  !      PRINT *, "Placing ",prod,"at ",i_pr,j_pr,k_pr,&
+  !               "and ",matrix(i_pr,j_pr,k_pr),"should be ",-1*prod
+      END IF
 
-    ! Place reactant at chosen site
-    1985 IF ( ANY( MOBILE_LIST .EQ. prod ) ) THEN
-      wait_len = wait_len + 1
-      wait_list(wait_len)%i = i_pr
-      wait_list(wait_len)%j = j_pr
-      wait_list(wait_len)%k = k_pr
-      wait_list(wait_len)%sp_num = prod
-      CALL wait_calc(wait_list,wait_len,E_list,time)
-      matrix(i_pr,j_pr,k_pr) = wait_len
-!      PRINT *, "Placing ",prod,"at ",i_pr,j_pr,k_pr,"at index ",wait_len,&
-!               "and ",matrix(i_pr,j_pr,k_pr),"should be ",wait_len
-    ELSE
-      matrix(i_pr,j_pr,k_pr) = -1*prod
-!      PRINT *, "Placing ",prod,"at ",i_pr,j_pr,k_pr,&
-!               "and ",matrix(i_pr,j_pr,k_pr),"should be ",-1*prod
-    END IF
+      ! Assign output coordinates array
+      IF ( PRESENT(prod_coords) ) THEN
+        prod_coords(1) = i_pr
+        prod_coords(2) = j_pr
+        prod_coords(3) = k_pr
+      END IF
 
-    ! Assign output coordinates array
-    IF ( PRESENT(prod_coords) ) THEN
-      prod_coords(1) = i_pr
-      prod_coords(2) = j_pr
-      prod_coords(3) = k_pr
-    END IF
+    END SUBROUTINE thirdman
 
-  END SUBROUTINE thirdman
+    SUBROUTINE bresenham( x1,y1,x2,y2,track )
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! BRESENHAM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !   This subroutine uses the bresenham line algorithm results to simulate the
+    ! track of a cosmic ray or other form of irradiation in a solid represented by
+    ! a 3D crystal lattice structure with both normal and interstitial sites.
+    ! Note that here, the axes are changed such that a "slice" from top to bottom
+    ! is in the x-y plane
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      IMPLICIT NONE
 
-  SUBROUTINE bresenham( x1,y1,x2,y2,track )
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! BRESENHAM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !   This subroutine uses the bresenham line algorithm results to simulate the
-  ! track of a cosmic ray or other form of irradiation in a solid represented by
-  ! a 3D crystal lattice structure with both normal and interstitial sites.
-  ! Note that here, the axes are changed such that a "slice" from top to bottom
-  ! is in the x-y plane
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    IMPLICIT NONE
+      !*****************
+      ! Input and output
+      !*****************
 
-    !*****************
-    ! Input and output
-    !*****************
+      INTEGER, INTENT(IN)                                   :: x1,y1,x2,y2
+      INTEGER, INTENT(OUT), ALLOCATABLE, DIMENSION(:,:)     :: track
 
-    INTEGER, INTENT(IN)                                   :: x1,y1,x2,y2
-    INTEGER, INTENT(OUT), ALLOCATABLE, DIMENSION(:,:)     :: track
+      !****************
+      ! Local variables
+      !****************
+      INTEGER                                               :: dx, dy, i, e
+      INTEGER                                               :: incx,incy,inc1,inc2
+      INTEGER                                               :: x,y
 
-    !****************
-    ! Local variables
-    !****************
-    INTEGER                                               :: dx, dy, i, e
-    INTEGER                                               :: incx,incy,inc1,inc2
-    INTEGER                                               :: x,y
+      dx = x2 - x1
+      dy = y2 - y1
 
-    dx = x2 - x1
-    dy = y2 - y1
+      IF ( dx .LT. 0 ) dx = -dx
+      IF ( dy .LT. 0 ) dy = -dy
+      incx=1
+      IF ( x2 .LT. x1 ) incx = -1
+      incy = 1
+      IF ( y2 .LT. y1 ) incy = -1
+      x = x1
+      y = y1
 
-    IF ( dx .LT. 0 ) dx = -dx
-    IF ( dy .LT. 0 ) dy = -dy
-    incx=1
-    IF ( x2 .LT. x1 ) incx = -1
-    incy = 1
-    IF ( y2 .LT. y1 ) incy = -1
-    x = x1
-    y = y1
-
-    IF ( dx .GT. dy ) THEN
-      ALLOCATE(track(dx+1,2))
-!      PRINT *, x,y
-      track(1,1) = x
-      track(1,2) = y
-      e = 2*dy - dx
-      inc1 = 2*(dy-dx)
-      inc2 = 2*dy
-      DO i=0,dx-1
-        IF ( e .GE. 0 ) THEN
-          y = y + incy
-          e = e + inc1
-        ELSE
-          e = e + inc2
-        END IF
-        x = x + incx
-!        PRINT *, x,y
-        track(i+2,1) = x
-        track(i+2,2) = y
-      END DO
-    ELSE
-      ALLOCATE(track(dy+1,2))
-!      PRINT *, x,y
-      track(1,1) = x
-      track(1,2) = y
-      e = 2*dx - dy
-      inc1 = 2*(dx-dy)
-      inc2 = 2*dx
-      DO i=0,dy-1
-        IF ( e .GE. 0 ) THEN
+      IF ( dx .GT. dy ) THEN
+        ALLOCATE(track(dx+1,2))
+  !      PRINT *, x,y
+        track(1,1) = x
+        track(1,2) = y
+        e = 2*dy - dx
+        inc1 = 2*(dy-dx)
+        inc2 = 2*dy
+        DO i=0,dx-1
+          IF ( e .GE. 0 ) THEN
+            y = y + incy
+            e = e + inc1
+          ELSE
+            e = e + inc2
+          END IF
           x = x + incx
-          e = e + inc1
-        ELSE
-          e = e + inc2
-        END IF
-        y = y + incy
-!        PRINT *, x,y
-        track(i+2,1) = x
-        track(i+2,2) = y
+  !        PRINT *, x,y
+          track(i+2,1) = x
+          track(i+2,2) = y
+        END DO
+      ELSE
+        ALLOCATE(track(dy+1,2))
+  !      PRINT *, x,y
+        track(1,1) = x
+        track(1,2) = y
+        e = 2*dx - dy
+        inc1 = 2*(dx-dy)
+        inc2 = 2*dx
+        DO i=0,dy-1
+          IF ( e .GE. 0 ) THEN
+            x = x + incx
+            e = e + inc1
+          ELSE
+            e = e + inc2
+          END IF
+          y = y + incy
+  !        PRINT *, x,y
+          track(i+2,1) = x
+          track(i+2,2) = y
 
-      END DO
-    END IF
-  END SUBROUTINE bresenham
+        END DO
+      END IF
+    END SUBROUTINE bresenham
 
-  SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, event_num, &
-                    event_coords, switch, wait_list, wait_len, time, elec_coords )
-  !
-  ! Purpose:
-  !   This subroutine handles interaction events between ionizing radiation and a
-  !  target species in a solid
-  !
-  ! Note:
-  !   The array event_num contains the species number for pseudo reactants,
-  !  i.e. excitations, excitations, and electrons. Specifically:
-  !
-  ! -- event_num(1) = exc_num
-  ! -- event_num(2) = ion_num
-  ! -- event_num(3) = e_num
-  !
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !! CERN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    IMPLICIT NONE
+    SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, event_num, &
+                      event_coords, switch, wait_list, wait_len, time, elec_coords )
+    !
+    ! Purpose:
+    !   This subroutine handles interaction events between ionizing radiation and a
+    !  target species in a solid
+    !
+    ! Note:
+    !   The array event_num contains the species number for pseudo reactants,
+    !  i.e. excitations, excitations, and electrons. Specifically:
+    !
+    ! -- event_num(1) = exc_num
+    ! -- event_num(2) = ion_num
+    ! -- event_num(3) = e_num
+    !
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! CERN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      IMPLICIT NONE
 
-    !******************!
-    ! Input and output !
-    !******************!
-    INTEGER                                               , POINTER          :: o3_prod,o3_dest
-    INTEGER(KIND=SHORT), INTENT(INOUT)                                       :: null
-    INTEGER            , INTENT(IN)    , DIMENSION(3)                        :: event_coords !coordinated of collision
-    INTEGER            , INTENT(IN)                                          :: switch !type of event
-    INTEGER(KIND=SHORT), INTENT(IN)    , DIMENSION(3)                        :: event_num !pseudo species numbers
-    INTEGER(KIND=SHORT)                , DIMENSION(:,:,:), POINTER           :: react_cube !cube of reactions
-    INTEGER                            , DIMENSION(:,:,:), POINTER           :: matrix !ice-mantle matrix
-    INTEGER                                              , POINTER           :: wait_len
-    INTEGER            , INTENT(OUT)   , DIMENSION(3)             , OPTIONAL :: elec_coords
-    REAL(KIND=DBL)                                       , POINTER           :: time
-    REAL                               , DIMENSION(:,:)  , POINTER           :: en_list !list of binding energies
-    TYPE(wait_info)                    , DIMENSION(:)    , POINTER           :: wait_list
+      !******************!
+      ! Input and output !
+      !******************!
+      INTEGER                                               , POINTER          :: o3_prod,o3_dest
+      INTEGER(KIND=SHORT), INTENT(INOUT)                                       :: null
+      INTEGER            , INTENT(IN)    , DIMENSION(3)                        :: event_coords !coordinated of collision
+      INTEGER            , INTENT(IN)                                          :: switch !type of event
+      INTEGER            , INTENT(IN)    , DIMENSION(3)                        :: event_num !pseudo species numbers
+      INTEGER(KIND=SHORT)                , DIMENSION(:,:,:), POINTER           :: react_cube !cube of reactions
+      INTEGER                            , DIMENSION(:,:,:), POINTER           :: matrix !ice-mantle matrix
+      INTEGER                                              , POINTER           :: wait_len
+      INTEGER            , INTENT(OUT)   , DIMENSION(3)             , OPTIONAL :: elec_coords
+      REAL(KIND=DBL)                                       , POINTER           :: time
+      REAL                               , DIMENSION(:)    , POINTER           :: en_list !list of binding energies
+      TYPE(wait_info)                    , DIMENSION(:)    , POINTER           :: wait_list
 
-    !*****************!
-    ! Local variables !
-    !*****************!
-    INTEGER                                                                  :: i,j,k
-    INTEGER                                                                  :: i_re2,j_re2,k_re2 !reactant coordinates
-    INTEGER                                                                  :: i_pr,j_pr,k_pr !product coordinates
-    INTEGER                                                                  :: index,index2
-    INTEGER                                                                  :: matrix_num
-    INTEGER                                                                  :: r1, r2 !reactants 1 and 2
-    INTEGER                                                                  :: prods_case
-    INTEGER                            , DIMENSION(3)                        :: prods !array of reaction products
-    INTEGER                            , DIMENSION(3)                        :: coords !temporary coordinates array
-    INTEGER                            , DIMENSION(3)                        :: dimens
-    INTEGER :: n
-    INTEGER :: original_value
-    REAL    :: rnum
-    INTEGER                                                                  :: case_num
+      !*****************!
+      ! Local variables !
+      !*****************!
+      INTEGER                                                                  :: i,j,k
+      INTEGER                                                                  :: i_re2,j_re2,k_re2 !reactant coordinates
+      INTEGER                                                                  :: i_pr,j_pr,k_pr !product coordinates
+      INTEGER                                                                  :: index,index2
+      INTEGER                                                                  :: matrix_num
+      INTEGER                                                                  :: r1, r2 !reactants 1 and 2
+      INTEGER                                                                  :: prods_case
+      INTEGER                            , DIMENSION(3)                        :: prods !array of reaction products
+      INTEGER                            , DIMENSION(3)                        :: coords !temporary coordinates array
+      INTEGER                            , DIMENSION(3)                        :: dimens
+      INTEGER :: n
+      INTEGER :: original_value
+      REAL    :: rnum
+      INTEGER                                                                  :: case_num
 
-    IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****STARTING Cern*****'
+      IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****STARTING Cern*****'
 
-    r1 = 0
-    r2 = 0
-    i_pr = 0
-    j_pr = 0
-    k_pr = 0
+      r1 = 0
+      r2 = 0
+      i_pr = 0
+      j_pr = 0
+      k_pr = 0
 
-    ! Assign the coordinates
-    i_re2 = event_coords(1)
-    j_re2 = event_coords(2)
-    k_re2 = event_coords(3)
-    original_value = matrix(i_re2,j_re2,k_re2)
+      ! Assign the coordinates
+      i_re2 = event_coords(1)
+      j_re2 = event_coords(2)
+      k_re2 = event_coords(3)
+      original_value = matrix(i_re2,j_re2,k_re2)
 
 
-    ! If switch equals 2, then the first reactant, r1, equals an excitation,
-    ! otherwise, it equals and ionizing CRP
+      ! If switch equals 2, then the first reactant, r1, equals an excitation,
+      ! otherwise, it equals and ionizing CRP
 
-    SELECT CASE (switch)
-    CASE (2) ! Ionization
-      r1 = event_num(2)
-    CASE (1) ! Excitation
-      r1 = event_num(1)
-    END SELECT
+      SELECT CASE (switch)
+      CASE (2) ! Ionization
+        r1 = event_num(2)
+      CASE (1) ! Excitation
+        r1 = event_num(1)
+      END SELECT
 
-    index = 0
-    matrix_num = matrix(i_re2,j_re2,k_re2)
+      index = 0
+      matrix_num = matrix(i_re2,j_re2,k_re2)
 
-    IF ( matrix_num .LT. 0 ) THEN
-      r2 = ABS(matrix_num)
-    ELSE IF ( matrix_num .GT. 0 ) THEN
-      r2 = wait_list(matrix_num)%sp_num
-      index2 = matrix_num
-!      IF ( index .EQ. 53 ) PRINT *, 'The wait_list at',index,'is:'
-!      IF ( index .EQ. 53 ) PRINT *, wait_list(index)
-    END IF
+      IF ( matrix_num .LT. 0 ) THEN
+        r2 = ABS(matrix_num)
+      ELSE IF ( matrix_num .GT. 0 ) THEN
+        r2 = wait_list(matrix_num)%sp_num
+        index2 = matrix_num
+  !      IF ( index .EQ. 53 ) PRINT *, 'The wait_list at',index,'is:'
+  !      IF ( index .EQ. 53 ) PRINT *, wait_list(index)
+      END IF
 
-    !****************************************************************************
-    !**** ERROR CHECKING ********************************************************
-    !****************************************************************************
-    IF ( r2 .EQ. 0 ) THEN
-!      matrix(event_num(1),event_num(2),event_num(3)) = 0
-!      PRINT *, 'WHOOPS! FIXING ERROR!'
-      PRINT *, 'r1 =',r1
-      PRINT *, 'r2 =',r2
-      PRINT *, 'original_value =',original_value
-      PRINT *, 'event_coords =',event_coords
-      dimens(1) = SIZE(matrix,1)
-      dimens(2) = SIZE(matrix,2)
-      dimens(3) = SIZE(matrix,3)
-      OPEN(UNIT=1013,FILE="cern_test_wrong_spaces.txt")
-      DO k=1,dimens(3)
-        DO j=1,dimens(2)
-          DO i=1,dimens(1)
-            IF ( matrix(i,j,k) .GT. 0 ) THEN
-              IF( ANY(MOBILE_LIST .NE. wait_list(matrix(i,j,k))%sp_num ) ) THEN
-                WRITE(1013,*)  'Matrix=',matrix(i,j,k),'wait_list=',wait_list(matrix(i,j,k))
-                PRINT *, 'We have a wrong space:',matrix(i,j,k),' at',i,j,k
+      !****************************************************************************
+      !**** ERROR CHECKING ********************************************************
+      !****************************************************************************
+      IF ( r2 .EQ. 0 ) THEN
+  !      matrix(event_num(1),event_num(2),event_num(3)) = 0
+  !      PRINT *, 'WHOOPS! FIXING ERROR!'
+        PRINT *, 'r1 =',r1
+        PRINT *, 'r2 =',r2
+        PRINT *, 'original_value =',original_value
+        PRINT *, 'event_coords =',event_coords
+        dimens(1) = SIZE(matrix,1)
+        dimens(2) = SIZE(matrix,2)
+        dimens(3) = SIZE(matrix,3)
+        OPEN(UNIT=1013,FILE="cern_test_wrong_spaces.txt")
+        DO k=1,dimens(3)
+          DO j=1,dimens(2)
+            DO i=1,dimens(1)
+              IF ( matrix(i,j,k) .GT. 0 ) THEN
+                IF( ANY(MOBILE_LIST .NE. wait_list(matrix(i,j,k))%sp_num ) ) THEN
+                  WRITE(1013,*)  'Matrix=',matrix(i,j,k),'wait_list=',wait_list(matrix(i,j,k))
+                  PRINT *, 'We have a wrong space:',matrix(i,j,k),' at',i,j,k
+                END IF
               END IF
-            END IF
+            END DO
           END DO
         END DO
-      END DO
-      CLOSE(1013)
-      PRINT *, "BEEP BOOP 1 0"
-      PRINT *, "ERROR: wait_len =",wait_len,"< matrix_num =",matrix_num
-      CALL EXIT()
-    END IF
-
-    prods = 0
-    prods = react_cube(r1,r2,:) ! populate the product array
-
-    !****************************************************************************
-    !**** BRANCHING RATIOS ******************************************************
-    !****************************************************************************
-    !Determine if there is dissociation
-    IF ( r1 .EQ. 1 .AND. r2 .EQ. event_num(1) .OR. r1 .EQ. event_num(1) .AND. r2 .EQ. 1 ) THEN
-  !   PRINT *, "Weve got branching"
-      rnum = RAND()
-      IF ( rnum .GT. DISPROB ) THEN
-        prods = (/ 1, 0, 0 /)
-      END IF
-    END IF
-
-    !****************************************************************************
-    !****ANALYTICS***************************************************************
-    !****************************************************************************
-    IF ( r1 .EQ. 7 .OR. r2 .EQ. 7 ) o3_dest = o3_dest + 1
-    IF ( ANY(prods .EQ. 7 ) ) o3_prod = o3_prod + 1
-
-    !****************************************************************************
-    !****ERROR CHECKING**********************************************************
-    !****************************************************************************
-    IF ( DEBUG .EQV. .TRUE. ) THEN
-      PRINT *, "wait_len in cern is ",wait_len
-      PRINT *,     r1, r2, prods
-      WRITE(777,*) r1,',',r2,',',prods(1),',',prods(2),',',prods(3), ',',wait_len
-      IF ( r1 .EQ. 7 .OR. r2 .EQ. 7 ) THEN
-        PRINT *, '\/ In cern \/'
-        PRINT *, r1,',',r2,',',prods(1),',',prods(2),',',prods(3)
+        CLOSE(1013)
+        PRINT *, "BEEP BOOP 1 0"
+        PRINT *, "ERROR: wait_len =",wait_len,"< matrix_num =",matrix_num
+        CALL EXIT()
       END IF
 
-      IF ( ANY(prods .EQ. 7 ) ) THEN
-        PRINT *, '\/ In cern \/'
-        PRINT *, r1,',',r2,',',prods(1),',',prods(2),',',prods(3)
-      END IF
-    END IF
+      prods = 0
+      prods = react_cube(r1,r2,:) ! populate the product array
 
-    IF ( prods(1) .EQ. 0 ) THEN
-      PRINT *, 'Uh-oh, we have a problem in Cern!'
-      PRINT *, 'r1=',r1,'r2=',r2
-      PRINT *, 'prods=',prods
-      OPEN(UNIT=1013,FILE="test_wait_list.txt")
-      DO n=1,wait_len+2
-        WRITE(1013,*) wait_list(n)
-      END DO
-      CLOSE(1013)
-
-      OPEN(UNIT=1014,FILE="wait_list_flaw.txt")
-      DO n=1,wait_len
-        IF ( wait_list(n)%sp_num .NE. 20 ) THEN
-          IF ( matrix(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k) .NE. n ) THEN
-            WRITE(1014,*) matrix(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k),", ",n,",",wait_len
-          END IF
+      !****************************************************************************
+      !**** BRANCHING RATIOS ******************************************************
+      !****************************************************************************
+      !Determine if there is dissociation
+      IF ( r1 .EQ. 1 .AND. r2 .EQ. event_num(1) .OR. r1 .EQ. event_num(1) .AND. r2 .EQ. 1 ) THEN
+    !   PRINT *, "Weve got branching"
+        rnum = RAND()
+        IF ( rnum .GT. DISPROB ) THEN
+          prods = (/ 1, 0, 0 /)
         END IF
-      END DO
-      CLOSE(1014)
-      CALL EXIT()
-    END IF
-
-    !****************************************************************************
-    !**** SANITY CHECK **********************************************************
-    !****************************************************************************
-    ! If there are two or more products: do a sanity check to see if there are
-    ! sufficient empty sites
-    !****************************************************************************
-    original_value = matrix(i_re2,j_re2,k_re2)
-    null = 0
-    IF ( prods(2) .NE. 0 ) THEN
-    ! NB: Unlike in the reaction subroutine, in Krell, one needs to
-    ! find a suitable location for the second product
-    ! NB: In the event of an ionization, the electron should ALWAYS be
-    ! stored as prods(2), doing otherwise will result in errors
-      CALL krell( event_coords, coords, matrix,null )
-      IF (null .EQ. 1 ) THEN ! Can't place 2nd product: no good sites
-        RETURN
-      ELSE ! Save new coordinates
-        i_pr = coords(1)
-        j_pr = coords(2)
-        k_pr = coords(3)
       END IF
-    END IF
 
-    !*****************************************************************************
-    ! Save the coords of the electron, if necessary
-    !*****************************************************************************
-    IF ( prods(2) .EQ. event_num(3) .AND. PRESENT(elec_coords) ) THEN
-      elec_coords(1) = i_pr
-      elec_coords(2) = j_pr
-      elec_coords(3) = k_pr
-    END IF
+      !****************************************************************************
+      !****ANALYTICS***************************************************************
+      !****************************************************************************
+      IF ( r1 .EQ. 7 .OR. r2 .EQ. 7 ) o3_dest = o3_dest + 1
+      IF ( ANY(prods .EQ. 7 ) ) o3_prod = o3_prod + 1
 
-    !*****************************************************************************
-    ! Determine the product case
-    !*****************************************************************************
-    CALL rtype_tree(r1,r2,prods,case_num)
+      !****************************************************************************
+      !****ERROR CHECKING**********************************************************
+      !****************************************************************************
+      IF ( DEBUG .EQV. .TRUE. ) THEN
+        PRINT *, "wait_len in cern is ",wait_len
+        PRINT *,     r1, r2, prods
+        WRITE(777,*) r1,',',r2,',',prods(1),',',prods(2),',',prods(3), ',',wait_len
+        IF ( r1 .EQ. 7 .OR. r2 .EQ. 7 ) THEN
+          PRINT *, '\/ In cern \/'
+          PRINT *, r1,',',r2,',',prods(1),',',prods(2),',',prods(3)
+        END IF
 
-    !*****************************************************************************
-    ! Place the products
-    !*****************************************************************************
-    CALL place_product(i_re2,j_re2,k_re2,i_pr,j_pr,k_pr,index,index2,r1,r2,&
-                       prods,case_num,matrix, wait_list,wait_len,en_list,time)
+        IF ( ANY(prods .EQ. 7 ) ) THEN
+          PRINT *, '\/ In cern \/'
+          PRINT *, r1,',',r2,',',prods(1),',',prods(2),',',prods(3)
+        END IF
+      END IF
+
+      IF ( prods(1) .EQ. 0 ) THEN
+        PRINT *, 'Uh-oh, we have a problem in Cern!'
+        PRINT *, 'r1=',r1,'r2=',r2
+        PRINT *, 'prods=',prods
+        OPEN(UNIT=1013,FILE="test_wait_list.txt")
+        DO n=1,wait_len+2
+          WRITE(1013,*) wait_list(n)
+        END DO
+        CLOSE(1013)
+
+        OPEN(UNIT=1014,FILE="wait_list_flaw.txt")
+        DO n=1,wait_len
+          IF ( wait_list(n)%sp_num .NE. 20 ) THEN
+            IF ( matrix(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k) .NE. n ) THEN
+              WRITE(1014,*) matrix(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k),", ",n,",",wait_len
+            END IF
+          END IF
+        END DO
+        CLOSE(1014)
+        CALL EXIT()
+      END IF
+
+      !****************************************************************************
+      !**** SANITY CHECK **********************************************************
+      !****************************************************************************
+      ! If there are two or more products: do a sanity check to see if there are
+      ! sufficient empty sites
+      !****************************************************************************
+      original_value = matrix(i_re2,j_re2,k_re2)
+      null = 0
+      IF ( prods(2) .NE. 0 ) THEN
+      ! NB: Unlike in the reaction subroutine, in Krell, one needs to
+      ! find a suitable location for the second product
+      ! NB: In the event of an ionization, the electron should ALWAYS be
+      ! stored as prods(2), doing otherwise will result in errors
+        CALL krell( event_coords, coords, matrix,null )
+        IF (null .EQ. 1 ) THEN ! Can't place 2nd product: no good sites
+          RETURN
+        ELSE ! Save new coordinates
+          i_pr = coords(1)
+          j_pr = coords(2)
+          k_pr = coords(3)
+        END IF
+      END IF
+
+      !*****************************************************************************
+      ! Save the coords of the electron, if necessary
+      !*****************************************************************************
+      IF ( prods(2) .EQ. event_num(3) .AND. PRESENT(elec_coords) ) THEN
+        elec_coords(1) = i_pr
+        elec_coords(2) = j_pr
+        elec_coords(3) = k_pr
+      END IF
+
+      !*****************************************************************************
+      ! Determine the product case
+      !*****************************************************************************
+      CALL rtype_tree(r1,r2,prods,case_num)
+
+      !*****************************************************************************
+      ! Place the products
+      !*****************************************************************************
+      CALL place_product(i_re2,j_re2,k_re2,i_pr,j_pr,k_pr,index,index2,r1,r2,&
+                         prods,case_num,matrix, wait_list,wait_len,en_list,time)
 
 
-    IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****ENDING Cern*****'
-  END SUBROUTINE cern
+      IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****ENDING Cern*****'
+    END SUBROUTINE cern
 
-  SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
-                       wait_list, wait_len, time, ev_nums)
-  ! Purpose:
-  !   To calculate the track of a particle of ionizing radiation through a
-  !  crystaline solid.
-  !
-  ! Note:
-  !   The input array, sigmas, contains the proton collision cross-sections.
-  !
-  ! Note:
-  !   The array ev_nums contains the following values for pseudo-reactants:
-  !
-  ! -- ev_nums(1) = cosmic-ray species number
-  ! -- ev_nums(2) = excitation species number
-  ! -- ev_nums(3) = electron species number
-  !
-  ! Note:
-  !   sgse is short for second-generation secondary eletron.
-  !
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !! FALLOUT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
+                         wait_list, wait_len, time, ev_nums)
+    ! Purpose:
+    !   To calculate the track of a particle of ionizing radiation through a
+    !  crystaline solid.
+    !
+    ! Note:
+    !   The input array, sigmas, contains the proton collision cross-sections.
+    !
+    ! Note:
+    !   The array ev_nums contains the following values for pseudo-reactants:
+    !
+    ! -- ev_nums(1) = cosmic-ray species number
+    ! -- ev_nums(2) = excitation species number
+    ! -- ev_nums(3) = electron species number
+    !
+    ! Note:
+    !   sgse is short for second-generation secondary eletron.
+    !
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! FALLOUT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
@@ -962,10 +966,10 @@ CONTAINS
     INTEGER            , DIMENSION(:)    , POINTER :: ionlist !list of anionic species
     INTEGER(KIND=SHORT), DIMENSION(:,:,:), POINTER :: react_cube !array of products/reactions
     INTEGER            , DIMENSION(:,:,:), POINTER :: matrix !ice-mantle matrix
-    REAL               , DIMENSION(:,:)  , POINTER :: en_list !list of binding and desorption energies
+    REAL               , DIMENSION(:)    , POINTER :: en_list !list of binding and desorption energies
     REAL(KIND=DBL)                       , POINTER :: time
     TYPE(wait_info)    , DIMENSION(:)    , POINTER :: wait_list
-    INTEGER(KIND=SHORT), DIMENSION(3)              :: ev_nums !values of special pseudoreactants
+    INTEGER            , DIMENSION(3)              :: ev_nums !values of special pseudoreactants
 
     !*****************!
     ! Local variables !
@@ -1613,8 +1617,9 @@ CONTAINS
     INTEGER          , INTENT(OUT)                 :: anion_num
     INTEGER          , INTENT(OUT)                 :: cation_num
     INTEGER                                        :: ierror1
+    INTEGER                                        :: headerlines
     INTEGER(KIND=SHORT)                            :: nlines1
-    REAL             , ALLOCATABLE, DIMENSION(:,:) :: energy_array
+    REAL             , ALLOCATABLE, DIMENSION(:)   :: energy_array
     CHARACTER(len=10), ALLOCATABLE, DIMENSION(:)   :: speciesList
     CHARACTER(len=80), INTENT(in)                  :: species_file
 
@@ -1625,17 +1630,16 @@ CONTAINS
   !    PRINT *, 'The files have been opened.'
 
       ! Count the number of lines in the files
-      CALL linecount(1,ierror1,nlines1)
-      ALLOCATE( speciesList(nlines1) )
-      ALLOCATE( energy_array(nlines1,3) )
+      CALL linecount(1,ierror1,nlines1,headerlines)
+      ALLOCATE( speciesList(nlines1-headerlines) )
+      ALLOCATE( energy_array(nlines1-headerlines) )
 
       ! Read the contents of the species file and create the speciesList and
       ! energy_list
       anion_num = 0
       cation_num = 0
       DO n=1,nlines1
-        READ(1,*,IOSTAT=ierror1) speciesList(n), &
-              energy_array(n,1), energy_array(n,2), energy_array(n,3)
+        READ(1,*,IOSTAT=ierror1) speciesList(n), energy_array(n)
   !      PRINT *, speciesList(n)
 
   !      tempName = TRIM(speciesList(n))
@@ -1710,7 +1714,7 @@ CONTAINS
     time = wait_list(mindex)%wait_time
   END SUBROUTINE roll_call
 
-  SUBROUTINE action_figure ( wait_list, index, rand_num, E_list )
+  SUBROUTINE action_figure ( wait_list, index, rand_num, en_list )
   !
   ! Purpose:
   !  The purpose of this subroutine is to take the
@@ -1753,15 +1757,15 @@ CONTAINS
     REAL(KIND=DBL)                                      :: b_2 !surface desorption rate
     REAL(KIND=DBL)                                      :: comp_val !to determine which action occurs
     REAL(KIND=DBL), INTENT(IN)                          :: rand_num
-    REAL                      , DIMENSION(:,:), POINTER :: E_list
+    REAL                      , DIMENSION(:)  , POINTER :: en_list
     TYPE (wait_info)          , DIMENSION(:)  , POINTER :: wait_list
 
     ! (1) Decide whether or not the species is on the surface
     IF ( wait_list(index)%i .EQ. 1 ) THEN
     ! (1a) Species is on the surface
       ! Calculate b-rates to compare
-      b_1 = trl_nu * EXP( - (  E_list(wait_list(index)%sp_num,2) / kin_temp  ) )
-      b_2 = trl_nu * EXP( - (  E_list(wait_list(index)%sp_num,1) / kin_temp  ) )
+      b_1 = trl_nu * EXP( - (  en_list(wait_list(index)%sp_num)*E_SURF / kin_temp  ) )
+      b_2 = trl_nu * EXP( - (  en_list(wait_list(index)%sp_num)        / kin_temp  ) )
       comp_val = b_1 / (b_1 + b_2)
       ! Decide whether desorption or hopping occurs
       IF ( rand_num .LT. comp_val ) THEN
@@ -1783,7 +1787,7 @@ CONTAINS
     END IF
   END SUBROUTINE action_figure
 
-  SUBROUTINE meta_hop ( o3_prod,o3_dest,mindex, react_ptr, matrix_ptr, E_list, wait_list, &
+  SUBROUTINE meta_hop ( o3_prod,o3_dest,mindex, react_ptr, matrix_ptr, en_list, wait_list, &
                         result, wait_len, time )
   !
   ! Purpose:
@@ -1829,7 +1833,7 @@ CONTAINS
     INTEGER                                           , POINTER :: wait_len !length of non-zero elements of wait_list
     INTEGER(KIND=SHORT)             , DIMENSION(:,:,:), POINTER :: react_ptr !pointer to the "cube" of reactions
     INTEGER                         , DIMENSION(:,:,:), POINTER :: matrix_ptr !pointer to the matrix
-    REAL                            , DIMENSION(:,:)  , POINTER :: E_list !energy list
+    REAL                            , DIMENSION(:)    , POINTER :: en_list !energy list
     REAL(KIND=DBL)                                    , POINTER :: time !total sim time
     TYPE(wait_info)                 , DIMENSION(:)    , POINTER :: wait_list
 
@@ -1911,13 +1915,13 @@ CONTAINS
         species2 = ABS(index2)
       END IF
 
-  !    PRINT *, "Species 1 is ",species,"and species 2 is ",species2
+!      PRINT *, "Species 1 is ",species,"and species 2 is ",species2
       ! Look at location, if it is empty, move there
       ! else, check whether the occupant of the new
       ! site is a reaction partner. If it is, react
       ! else, stay at original location and "end turn"
       IF ( index2 .EQ. 0 ) THEN ! Site is empty, move to site
-  !      PRINT *, "Hopping to new site"
+!        PRINT *, "Hopping to new site"
 
 
         ! Remove reactant from old site and set to empty (i.e. 0)
@@ -1931,7 +1935,7 @@ CONTAINS
         matrix_ptr(i_hop,j_hop,k_hop) = mindex
 
        ! Calculate a new waiting time
-        CALL wait_calc( wait_list, mindex, E_list, time )
+        CALL wait_calc( wait_list, mindex, en_list, time )
 
         ! Event 1
         result = 1
@@ -1940,7 +1944,7 @@ CONTAINS
         IF ( react_ptr(species, species2, 1) .EQ. 0 ) THEN ! Null event, species does not move
   !        PRINT *, "No reaction possible"
           ! Re-add species to wait_list with new coords and waiting time
-          CALL wait_calc ( wait_list, mindex, E_list, time )
+          CALL wait_calc ( wait_list, mindex, en_list, time )
           result = 0
   !        WRITE(1015,*) mindex,"no react"
         ELSE ! Have the two species react and place products
@@ -1949,7 +1953,7 @@ CONTAINS
   !        PRINT *, "Right before reaction, i, j, k are ",i,j,k
 !          PRINT *, "The value of the matrix at that point is ",matrix_ptr(i,j,k),'which should be',mindex
 !          PRINT *, 'Calling reaction in meta_hop'
-          CALL reaction( o3_prod,o3_dest,react_ptr, E_list, matrix_ptr, wait_list, wait_len, &
+          CALL reaction( o3_prod,o3_dest,react_ptr, en_list, matrix_ptr, wait_list, wait_len, &
                           time, i, j, k, i_hop, j_hop, k_hop  )
           result = 2
   !        WRITE(1015,*) mindex,"reacts"
@@ -1959,7 +1963,7 @@ CONTAINS
   !    CLOSE(1015)
   END SUBROUTINE meta_hop
 
-  SUBROUTINE reaction( o3_prod,o3_dest,qube, E_list, matrix,  wait_list, wait_len, time, i_re, j_re, &
+  SUBROUTINE reaction( o3_prod,o3_dest,qube, en_list, matrix,  wait_list, wait_len, time, i_re, j_re, &
                        k_re, i_re2, j_re2, k_re2, ion_coords, anion_list)
   !
   ! Purpose:
@@ -1994,7 +1998,7 @@ CONTAINS
     INTEGER(KIND=SHORT)             , DIMENSION(:,:,:), POINTER           :: qube
     INTEGER                         , DIMENSION(3)                        :: prods
     REAL(KIND=DBL)                                    , POINTER           :: time
-    REAL                            , DIMENSION(:,:)  , POINTER           :: E_list
+    REAL                            , DIMENSION(:)    , POINTER           :: en_list
     TYPE(wait_info)                 , DIMENSION(:)    , POINTER           :: wait_list
     INTEGER                                                               :: n
     REAL                                                                  :: rnum
@@ -2039,12 +2043,12 @@ CONTAINS
   !    PRINT *, "Weve got branching"
       rnum = RAND()
       IF ( rnum .LE. O_O2_BRANCHING ) THEN
-        prods = (/ 4, 1, 0 /)
+        prods = (/ 4, 4, 4 /)
       END IF
     ELSE IF ( r1 .EQ. 2 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 2 ) THEN
       rnum = RAND()
       IF ( rnum .LE. O2_ION_BRANCHING ) THEN
-        prods = (/ 7, 4, 0 /)
+        prods = (/ 4, 4, 1 /)
       END IF
     ELSE IF ( r1 .EQ. 5 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 5 ) THEN
       rnum = RAND()
@@ -2161,7 +2165,7 @@ CONTAINS
     !*****************************************************************************
     prod_coords = 0
     CALL place_product(i_re,j_re,k_re,i_re2,j_re2,k_re2,index,index2,r1,r2,&
-                       prods,case_num,matrix, wait_list,wait_len,E_list,time, prod_coords)
+                       prods,case_num,matrix, wait_list,wait_len,en_list,time, prod_coords)
 
 
     !*****************************************************************************
@@ -2305,7 +2309,7 @@ CONTAINS
 
   END SUBROUTINE reactant_remove
 
-  SUBROUTINE wait_calc ( wait_list, index, E_list, time )
+  SUBROUTINE wait_calc ( wait_list, index, en_list, time )
   !
   ! Purpose:
   !  The purpose of this subroutine is to calculate
@@ -2341,27 +2345,31 @@ CONTAINS
     REAL(KIND=DBL)                                       :: b_2       !surface desorption rate
     REAL(KIND=DBL)                                       :: b_3       !bulk diffusion rate
     REAL(KIND=DBL)                                       :: b         !total rate, from CH14
-    REAL                       , DIMENSION(:,:), POINTER :: E_list    !binding/diffusion energy list
+    REAL                       , DIMENSION(:)  , POINTER :: en_list    !binding/diffusion energy list
     TYPE (wait_info)           , DIMENSION(:)  , POINTER :: wait_list !list of mobile species
 
 
-    IF ( wait_list(index)%i .EQ. 1 ) THEN
-      ! Surface species, separate rates for
-      ! desorption and diffusion
-      b_1 = trl_nu*EXP( - ( ( E_list(wait_list(index)%sp_num,1)*E_surf ) / kin_temp ) )
-      b_2 = trl_nu*EXP( - ( E_list(wait_list(index)%sp_num,1) / kin_temp ) )
-      b = b_1 + b_2
-    ELSE
-      ! Bulk species, only bulk diffusion
-      b_3 = trl_nu*EXP( - ( E_list(wait_list(index)%sp_num,1)*E_bulk  / kin_temp ) )
-      b = b_3
-    END IF
-    CALL RANDOM_NUMBER(rand_num)
-    ! Calculate waiting time
-    wait_list(index)%wait_time = (-LOG(rand_num) / b) + time
+!    IF ( ANY(FAST_REACTS .EQ. wait_list(index)%sp_num) ) THEN
+!      wait_list(index)%wait_time = 1.0D-14 + time
+!    ELSE
+      IF ( wait_list(index)%i .EQ. 1 ) THEN
+        ! Surface species, separate rates for
+        ! desorption and diffusion
+        b_1 = trl_nu*EXP( - ( ( en_list(wait_list(index)%sp_num)*E_SURF) / kin_temp ) )
+        b_2 = trl_nu*EXP( - ( en_list(wait_list(index)%sp_num)           / kin_temp ) )
+        b = b_1 + b_2
+      ELSE
+        ! Bulk species, only bulk diffusion
+        b_3 = trl_nu*EXP( - ( en_list(wait_list(index)%sp_num)*E_BULK    / kin_temp ) )
+        b = b_3
+      END IF
+      CALL RANDOM_NUMBER(rand_num)
+      ! Calculate waiting time
+      wait_list(index)%wait_time = (-LOG(rand_num) / b) + time
+!    END IF
 
     ! Assign action type for next move
-    CALL action_figure(wait_list,index,rand_num,E_list)
+    CALL action_figure(wait_list,index,rand_num,en_list)
   END SUBROUTINE wait_calc
 
   SUBROUTINE minmod ( wait_list, mindex, wait_len )
@@ -2433,16 +2441,20 @@ CONTAINS
     REAL(KIND=DBL)                                   , POINTER :: time
     REAL(KIND=DBL)                                             :: volume
     REAL(KIND=DBL)                                             :: denom
+    REAL(KIND=DBL)                                             :: area
+    REAL(KIND=DBL)                                             :: fluence
     TYPE(wait_info)                , DIMENSION(:)    , POINTER :: wait_list
     CHARACTER(len=80)                                          :: varfmt
     INTEGER                                                    :: wrong_count
 
 
     volume = THICK*EDGE*EDGE
+    area   = EDGE*EDGE
     denom = volume*1E20
     sp1_count = 0
     sp2_count = 0
     wrong_count = 0
+    fluence  = CR_FLUX*time !
 
     dimens(1) = SIZE(matrix,1)
     dimens(2) = SIZE(matrix,2)
@@ -2500,15 +2512,15 @@ CONTAINS
       END IF
     END IF
 
-    WRITE(unit_num,*) time,',', numprotons/AREA,',',sp1_count/denom,',',sp2_count/denom,',',numprotons,',' &
+    WRITE(unit_num,*) time,',', fluence,',',sp1_count/denom,',',sp2_count/denom,',',numprotons,',' &
                       ,(REAL(o3_prod)/REAL(o3_dest))
-    varfmt = "(A6,ES10.4,A8,ES10.4,A9,ES10.4,A16,I10,A18,ES10.4)"
-  !  PRINT *, '***********************************************************************'
-    PRINT varfmt, " TIME=",time," :: [O]=",sp1_count/denom," :: [O3]=",sp2_count/denom," :: WAIT LENGTH=",wait_len
-    varfmt = "(A16,F10.4)"
-    PRINT *, '[O3] PROD/DEST =', (REAL(o3_prod)/REAL(o3_dest))
+    varfmt = "(A6,ES10.4,A9,ES10.4)"
+    PRINT varfmt, " TIME=",time,"FLUENCE=",fluence
+    varfmt = "(A5,ES10.4,A6,ES10.4)"
+    PRINT varfmt, " [O]=",sp1_count/denom," [O3]=",sp2_count/denom
+    varfmt = "(A16,F10.4,A16,I10)"
+    PRINT *, '[O3] PROD/DEST =', (REAL(o3_prod)/REAL(o3_dest))," WAIT LENGTH=",wait_len
     PRINT *, '***********************************************************************'
-
   END SUBROUTINE counter
 
   SUBROUTINE transport(prev,curr,next,matrix)
@@ -2675,10 +2687,10 @@ CONTAINS
     INTEGER            , DIMENSION(:,:,:), POINTER :: matrix !ice-mantle matrix
     INTEGER            , DIMENSION(3)              :: ev_coords !coordiantes of collision
     INTEGER(KIND=SHORT), DIMENSION(:,:,:), POINTER :: react_cube !array of products/reactions
-    REAL               , DIMENSION(:,:)  , POINTER :: en_list !list of binding and desorption energies
+    REAL               , DIMENSION(:)    , POINTER :: en_list !list of binding and desorption energies
     REAL(KIND=DBL)                       , POINTER :: time
     TYPE(wait_info)    , DIMENSION(:)    , POINTER :: wait_list
-    INTEGER(KIND=SHORT), DIMENSION(3)              :: ev_nums !values of special pseudoreactants
+    INTEGER            , DIMENSION(3)              :: ev_nums !values of special pseudoreactants
     INTEGER            , INTENT(OUT)   , DIMENSION(3), OPTIONAL :: elec_out
 
     !*****************!
@@ -2807,7 +2819,7 @@ CONTAINS
     INTEGER                                          , POINTER :: wait_len
     INTEGER                        , DIMENSION(:,:,:), POINTER :: matrix
     INTEGER(KIND=SHORT)            , DIMENSION(:,:,:), POINTER :: qube !array of products/reactions
-    REAL                           , DIMENSION(:,:)  , POINTER :: en_list !list of binding and desorption energies
+    REAL                           , DIMENSION(:)    , POINTER :: en_list !list of binding and desorption energies
     REAL(KIND=DBL)                                   , POINTER :: time
     TYPE(wait_info)                , DIMENSION(:)    , POINTER :: wait_list !list of mobile species
     INTEGER                                                    :: spec_index
@@ -2861,7 +2873,7 @@ CONTAINS
 
     !Data dictionary: Input parameters
     DOUBLE PRECISION, POINTER               :: energy
-    TYPE(SIGMA_BOX) , POINTER, DIMENSION(:) ::  psigmas
+    TYPE(SIGMA_BOX) , POINTER, DIMENSION(:) :: psigmas
     DOUBLE PRECISION, POINTER, DIMENSION(:) :: psigij,psigexj
 
     !Data dictionary: Local variables
@@ -3463,7 +3475,7 @@ CONTAINS
     INTEGER                              , POINTER :: wait_len
     INTEGER            , DIMENSION(:,:,:), POINTER :: matrix !ice-mantle matrix
     INTEGER(KIND=SHORT), DIMENSION(:,:,:), POINTER :: react_cube !array of products/reactions
-    REAL               , DIMENSION(:,:)  , POINTER :: en_list !list of binding and desorption energies
+    REAL               , DIMENSION(:)    , POINTER :: en_list !list of binding and desorption energies
     REAL(KIND=DBL)                       , POINTER :: time
     TYPE(wait_info)    , DIMENSION(:)    , POINTER :: wait_list
 
@@ -3478,6 +3490,7 @@ CONTAINS
     INTEGER, DIMENSION(6,4)                        :: large_temp
     INTEGER, DIMENSION(4,4)                        :: small_temp
     INTEGER                                        :: result
+    REAL(KIND=DBL)                                 :: rand_num,b
 
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****CALLING FAST REACTION*****'
 
@@ -3509,7 +3522,9 @@ CONTAINS
            coords(2) .EQ. temp_coords(2) .AND. &
            coords(3) .EQ. temp_coords(3) )       THEN
 !        PRINT *, 'coords =',coords,'= temp_coords= ', temp_coords
-        CALL wait_calc(wait_list,spec_index,en_list,time)
+        b = TRL_NU*EXP( - ( en_list(wait_list(spec_index)%sp_num)*E_BULK    / KIN_TEMP ) )
+        CALL RANDOM_NUMBER(rand_num)
+        wait_list(spec_index)%wait_time = (-LOG(rand_num) / b) + time
         wait_list(spec_index)%act_type = 1
         RETURN
       ELSE
@@ -3525,8 +3540,12 @@ CONTAINS
       END IF
     CASE(1)
     !Step 3. If there are no co-reactants, look for empty species to hop to
+      b = TRL_NU*EXP( - ( en_list(wait_list(spec_index)%sp_num)*E_BULK    / KIN_TEMP ) )
+      CALL RANDOM_NUMBER(rand_num)
+      wait_list(spec_index)%wait_time = (-LOG(rand_num) / b) + time
+      wait_list(spec_index)%act_type = 1
       IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****CASE (1) IN FAST REACTION*****'
-      CALL meta_hop( o3_prod,o3_dest,spec_index,react_cube,matrix,en_list,wait_list,result,wait_len,time )
+!      CALL meta_hop( o3_prod,o3_dest,spec_index,react_cube,matrix,en_list,wait_list,result,wait_len,time )
     END SELECT
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****ENDING FAST REACTION*****'
   END SUBROUTINE fast_reaction
@@ -3553,9 +3572,9 @@ CONTAINS
     INTEGER         , INTENT(OUT)                        :: cr_index !index of row with minimum time
     INTEGER                                              :: cr_num
     TYPE (wait_info)             , DIMENSION(:), POINTER :: wait_list
-    REAL               , DIMENSION(:,:)  , POINTER :: en_list !list of binding and desorption energies
-    REAL(KIND=DBL)                       , POINTER :: time
-    INTEGER                                         :: n
+    REAL                         , DIMENSION(:), POINTER :: en_list !list of binding and desorption energies
+    REAL(KIND=DBL)                             , POINTER :: time
+    INTEGER                                              :: n
 
     ! find minimum time
     cr_index = 1
@@ -3771,7 +3790,7 @@ CONTAINS
   END SUBROUTINE rtype_tree
 
   SUBROUTINE place_product(i_re,j_re,k_re,i_re2,j_re2,k_re2,index,index2,r1,r2,&
-                           prods,casetype,matrix, wait_list,wait_len,E_list,time,&
+                           prods,casetype,matrix, wait_list,wait_len,en_list,time,&
                            prod_coords)
   !
   ! Purpose:
@@ -3797,7 +3816,7 @@ CONTAINS
     INTEGER                               , POINTER           :: wait_len
     INTEGER             , DIMENSION(:,:,:), POINTER           :: matrix
     REAL(KIND=DBL)                        , POINTER           :: time
-    REAL                , DIMENSION(:,:)  , POINTER           :: E_list !list of binding energies
+    REAL                , DIMENSION(:)    , POINTER           :: en_list !list of binding energies
     TYPE(wait_info)     , DIMENSION(:)    , POINTER           :: wait_list
     INTEGER                                                   :: p1,p2
     INTEGER             , DIMENSION(3)                        :: third_coords
@@ -3826,7 +3845,7 @@ CONTAINS
       ! Make r1 site empty
       !***************************************************************************
       wait_list(index2)%sp_num = p1
-      CALL wait_calc( wait_list,index2,E_list,time )
+      CALL wait_calc( wait_list,index2,en_list,time )
       CALL reactant_remove( wait_list,index,matrix,wait_len )
       matrix(i_re,j_re,k_re)    = 0
       matrix(i_re2,j_re2,k_re2) = index2
@@ -3856,7 +3875,7 @@ CONTAINS
       ! Update coordinates in wait_list at index
       !***************************************************************************
       wait_list(index)%sp_num = p1
-      CALL wait_calc(wait_list,index,E_list,time)
+      CALL wait_calc(wait_list,index,en_list,time)
       matrix(i_re2,j_re2,k_re2) = index
       matrix(i_re,j_re,k_re)    = 0
       wait_list(index)%i = i_re2
@@ -3882,7 +3901,7 @@ CONTAINS
       ! Make r1 site empty
       !***************************************************************************
       wait_list(index2)%sp_num  = p1
-      CALL wait_calc(wait_list,index2,E_list,time)
+      CALL wait_calc(wait_list,index2,en_list,time)
       matrix(i_re,j_re,k_re)    = 0
       matrix(i_re2,j_re2,k_re2) = index2
     CASE (6)
@@ -3911,7 +3930,7 @@ CONTAINS
       wait_list(wait_len)%i = i_re2
       wait_list(wait_len)%j = j_re2
       wait_list(wait_len)%k = k_re2
-      CALL wait_calc(wait_list,wait_len,E_list,time)
+      CALL wait_calc(wait_list,wait_len,en_list,time)
       matrix(i_re2,j_re2,k_re2) = wait_len
       matrix(i_re,j_re,k_re)    = 0
     CASE (8)
@@ -3933,9 +3952,9 @@ CONTAINS
       ! Call wait_calc for index
       !***************************************************************************
       wait_list(index)%sp_num = p1
-      CALL wait_calc(wait_list,index,E_list,time)
+      CALL wait_calc(wait_list,index,en_list,time)
       wait_list(index2)%sp_num = p2
-      CALL wait_calc(wait_list,index2,E_list,time)
+      CALL wait_calc(wait_list,index2,en_list,time)
       matrix(i_re,j_re,k_re)    = index
       matrix(i_re2,j_re2,k_re2) = index2
     CASE (10)
@@ -3948,7 +3967,7 @@ CONTAINS
       ! Place p2 at r2 site
       !***************************************************************************
       wait_list(index)%sp_num = p1
-      CALL wait_calc(wait_list,index,E_list,time)
+      CALL wait_calc(wait_list,index,en_list,time)
       CALL reactant_remove(wait_list,index2,matrix,wait_len)
       matrix(i_re2,j_re2,k_re2) = -1*p2
       matrix(i_re,j_re,k_re)    = index
@@ -3962,10 +3981,10 @@ CONTAINS
       ! Place p1 at r2 site
       !***************************************************************************
       wait_list(index)%sp_num = p2
-      CALL wait_calc(wait_list,index,E_list,time)
-      CALL reactant_remove(wait_list,index2,matrix,wait_len)
+      CALL wait_calc(wait_list,index,en_list,time)
       matrix(i_re2,j_re2,k_re2) = -1*p1
       matrix(i_re,j_re,k_re)    = index
+      CALL reactant_remove(wait_list,index2,matrix,wait_len)
     CASE (12)
       !***************************************************************************
       ! r1 = m, r2 = m, p1 = i, p2 = i
@@ -3992,13 +4011,13 @@ CONTAINS
       ! Place wait_len at r2
       !***************************************************************************
       wait_list(index)%sp_num = p1
-      CALL wait_calc(wait_list,index,E_list,time)
+      CALL wait_calc(wait_list,index,en_list,time)
       wait_len = wait_len + 1
       wait_list(wait_len)%sp_num = p2
       wait_list(wait_len)%i = i_re2
       wait_list(wait_len)%j = j_re2
       wait_list(wait_len)%k = k_re2
-      CALL wait_calc(wait_list,wait_len,E_list,time)
+      CALL wait_calc(wait_list,wait_len,en_list,time)
       matrix(i_re,j_re,k_re)    = index
       matrix(i_re2,j_re2,k_re2) = wait_len
     CASE (14)
@@ -4010,7 +4029,7 @@ CONTAINS
       ! Place p2 at r2
       !***************************************************************************
       wait_list(index)%sp_num    = p1
-      CALL wait_calc(wait_list,index,E_list,time)
+      CALL wait_calc(wait_list,index,en_list,time)
       matrix(i_re,j_re,k_re)     = index
       matrix(i_re2,j_re2,k_re2)  = -1*p2
     CASE (15)
@@ -4022,7 +4041,7 @@ CONTAINS
       ! Place p1 at r2
       !***************************************************************************
       wait_list(index)%sp_num    = p2
-      CALL wait_calc(wait_list,index,E_list,time)
+      CALL wait_calc(wait_list,index,en_list,time)
       matrix(i_re,j_re,k_re)     = index
       matrix(i_re2,j_re2,k_re2)  = -1*p1
     CASE (16)
@@ -4048,13 +4067,13 @@ CONTAINS
       ! Matrix r1 site = wait_len
       !***************************************************************************
       wait_list(index2)%sp_num   = p1
-      CALL wait_calc(wait_list,index2,E_list,time)
+      CALL wait_calc(wait_list,index2,en_list,time)
       wait_len                   = wait_len + 1
       wait_list(wait_len)%sp_num = p2
       wait_list(wait_len)%i      = i_re
       wait_list(wait_len)%j      = j_re
       wait_list(wait_len)%k      = k_re
-      CALL wait_calc(wait_list,wait_len,E_list,time)
+      CALL wait_calc(wait_list,wait_len,en_list,time)
       matrix(i_re,j_re,k_re)     = wait_len
       matrix(i_re2,j_re2,k_re2)  = index2
     CASE (18)
@@ -4066,7 +4085,7 @@ CONTAINS
       ! Save p2 at r1 site
       !***************************************************************************
       wait_list(index2)%sp_num   = p1
-      CALL wait_calc(wait_list,index2,E_list,time)
+      CALL wait_calc(wait_list,index2,en_list,time)
       matrix(i_re,j_re,k_re)     = -1*p2
       matrix(i_re2,j_re2,k_re2)  = index2
     CASE (19)
@@ -4078,7 +4097,7 @@ CONTAINS
       ! Place p1 at r1
       !***************************************************************************
       wait_list(index2)%sp_num   = p2
-      CALL wait_calc(wait_list,index2,E_list,time)
+      CALL wait_calc(wait_list,index2,en_list,time)
       matrix(i_re,j_re,k_re)     = -1*p1
       matrix(i_re2,j_re2,k_re2)  = index2
     CASE (20)
@@ -4110,14 +4129,14 @@ CONTAINS
       wait_list(wait_len)%i      = i_re
       wait_list(wait_len)%j      = j_re
       wait_list(wait_len)%k      = k_re
-      CALL wait_calc(wait_list,wait_len,E_list,time)
+      CALL wait_calc(wait_list,wait_len,en_list,time)
       matrix(i_re,j_re,k_re)     = wait_len
       wait_len                   = wait_len + 1
       wait_list(wait_len)%sp_num = p2
       wait_list(wait_len)%i      = i_re2
       wait_list(wait_len)%j      = j_re2
       wait_list(wait_len)%k      = k_re2
-      CALL wait_calc(wait_list,wait_len,E_list,time)
+      CALL wait_calc(wait_list,wait_len,en_list,time)
       matrix(i_re2,j_re2,k_re2)  = wait_len
     CASE (22)
       !***************************************************************************
@@ -4134,7 +4153,7 @@ CONTAINS
       wait_list(wait_len)%i      = i_re
       wait_list(wait_len)%j      = j_re
       wait_list(wait_len)%k      = k_re
-      CALL wait_calc(wait_list,wait_len,E_list,time)
+      CALL wait_calc(wait_list,wait_len,en_list,time)
       matrix(i_re,j_re,k_re)     = wait_len
       matrix(i_re2,j_re2,k_re2)  = -1*p2
     CASE (23)
@@ -4152,7 +4171,7 @@ CONTAINS
       wait_list(wait_len)%i      = i_re
       wait_list(wait_len)%j      = j_re
       wait_list(wait_len)%k      = k_re
-      CALL wait_calc(wait_list,wait_len,E_list,time)
+      CALL wait_calc(wait_list,wait_len,en_list,time)
       matrix(i_re,j_re,k_re)     = wait_len
       matrix(i_re2,j_re2,k_re2)  = -1*p1
     CASE (24)
@@ -4173,7 +4192,7 @@ CONTAINS
       ! Call wait_calc for p1
       ! NOTE: r2 is at i_re...
       wait_list(index2)%sp_num = p1
-      CALL wait_calc(wait_list,index2,E_list,time)
+      CALL wait_calc(wait_list,index2,en_list,time)
       matrix(i_re,j_re,k_re) = index2
     CASE (26)
       !***************************************************************************
@@ -4188,12 +4207,12 @@ CONTAINS
       ! Place wait_len at new coords
       ! NOTE: r2 is at i_re...
       wait_list(index2)%sp_num = p1
-      CALL wait_calc(wait_list,index2,E_list,time)
+      CALL wait_calc(wait_list,index2,en_list,time)
       wait_len = wait_len + 1
       wait_list(wait_len)%i = i_re2
       wait_list(wait_len)%j = j_re2
       wait_list(wait_len)%k = k_re2
-      CALL wait_calc(wait_list,wait_len,E_list,time)
+      CALL wait_calc(wait_list,wait_len,en_list,time)
       matrix(i_re,j_re,k_re)    = index2
       matrix(i_re2,j_re2,k_re2) = wait_len
     CASE (27)
@@ -4206,7 +4225,7 @@ CONTAINS
       ! Place p2 at new coords
       ! NOTE: r2 is at i_re...
       wait_list(index2)%sp_num = p1
-      CALL wait_calc(wait_list,index2,E_list,time)
+      CALL wait_calc(wait_list,index2,en_list,time)
       matrix(i_re,j_re,k_re)    = index2
       matrix(i_re2,j_re2,k_re2) = -1*p2
     CASE (28)
@@ -4229,7 +4248,7 @@ CONTAINS
       ! Call wait_calc for p2
       ! Place p1 at i_re2..
       wait_list(index2)%sp_num = p2
-      CALL wait_calc(wait_list,index2,E_list,time)
+      CALL wait_calc(wait_list,index2,en_list,time)
       matrix(i_re,j_re,k_re)    = index2
       matrix(i_re2,j_re2,k_re2) = -1*p1
     CASE (30)
@@ -4261,7 +4280,7 @@ CONTAINS
       wait_list(wait_len)%i = i_re
       wait_list(wait_len)%j = j_re
       wait_list(wait_len)%k = k_re
-      CALL wait_calc(wait_list,index2,E_list,time)
+      CALL wait_calc(wait_list,index2,en_list,time)
       matrix(i_re,j_re,k_re) = wait_len
     CASE (32)
       !***************************************************************************
@@ -4283,14 +4302,14 @@ CONTAINS
       wait_list(wait_len)%i = i_re
       wait_list(wait_len)%j = j_re
       wait_list(wait_len)%k = k_re
-      CALL wait_calc(wait_list,wait_len,E_list,time)
+      CALL wait_calc(wait_list,wait_len,en_list,time)
       matrix(i_re,j_re,k_re) = wait_len
       wait_len = wait_len + 1
       wait_list(wait_len)%sp_num = p2
       wait_list(wait_len)%i = i_re2
       wait_list(wait_len)%j = j_re2
       wait_list(wait_len)%k = k_re2
-      CALL wait_calc(wait_list,wait_len,E_list,time)
+      CALL wait_calc(wait_list,wait_len,en_list,time)
       matrix(i_re2,j_re2,k_re2) = wait_len
     CASE (33)
       !***************************************************************************
@@ -4309,7 +4328,7 @@ CONTAINS
       wait_list(wait_len)%i = i_re
       wait_list(wait_len)%j = j_re
       wait_list(wait_len)%k = k_re
-      CALL wait_calc(wait_list,wait_len,E_list,time)
+      CALL wait_calc(wait_list,wait_len,en_list,time)
       matrix(i_re,j_re,k_re)    = wait_len
       matrix(i_re2,j_re2,k_re2) = -1*p2
     CASE (34)
@@ -4338,7 +4357,7 @@ CONTAINS
       wait_list(wait_len)%i      = i_re
       wait_list(wait_len)%j      = j_re
       wait_list(wait_len)%k      = k_re
-      CALL wait_calc(wait_list,wait_len,E_list,time)
+      CALL wait_calc(wait_list,wait_len,en_list,time)
       matrix(i_re,j_re,k_re)     = wait_len
       matrix(i_re2,j_re2,k_re2)  = -1*p1
     CASE (36)
@@ -4377,7 +4396,7 @@ CONTAINS
     !***************************************************************************
     IF ( prods(3) .NE. 0 ) THEN
       ! Make sure to pass back the coords so it can be checked for ion
-      CALL thirdman(prods(3),i_re, j_re, k_re, null, matrix, E_list, time, &
+      CALL thirdman(prods(3),i_re, j_re, k_re, null, matrix, en_list, time, &
                     wait_list, wait_len, third_coords)
 !      IF ( third_coords(1) .EQ. 340 .AND. third_coords(2) .EQ. 71 .AND. third_coords(3) .EQ. 141 ) DEBUG = .TRUE.
       IF ( PRESENT(prod_coords) ) THEN

@@ -18,7 +18,7 @@ INTEGER                          , DIMENSION(:,:,:), POINTER :: matrix_ptr     !
 INTEGER(KIND=SHORT)              , DIMENSION(:,:,:), POINTER :: qube_ptr       ! Pointer to the reaction cube
 INTEGER                                            , TARGET  :: wlen_target
 INTEGER                                            , POINTER :: wait_len       ! Length of nonzero waitlist elements
-INTEGER(KIND=SHORT)              , DIMENSION(3)              :: ev_nums
+INTEGER                          , DIMENSION(3)              :: ev_nums
 INTEGER                                                      :: mindex
 INTEGER                          , DIMENSION(3)              :: dimens         ! Dimensions of the matrix
 INTEGER                                                      :: i,j,k          ! Counters
@@ -43,13 +43,13 @@ REAL(KIND=DBL)                                               :: cpu_total
 REAL(KIND=DBL)                                               :: cpu_max_time
 CHARACTER(len=10)   , ALLOCATABLE, DIMENSION(:)    , TARGET  :: sp_list        !  List of species
 CHARACTER(len=10)                , DIMENSION(:)    , POINTER :: sp_ptr         ! Pointer to species list
-CHARACTER(len=80)                                            :: species_file   ! Name of species file
-CHARACTER(len=80)                                            :: reactions_file ! Name of reactions file
 CHARACTER(len=80)                                            :: hopping_file   ! File containing hopping data
 TYPE (wait_info)    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: wait_target
 TYPE (wait_info)                 , DIMENSION(:)    , POINTER :: wait_list      !Derived data type described in chaco_data.f90
 INTEGER                                            , TARGET  :: o3_prod_target,o3_dest_target
 INTEGER                                            , POINTER :: o3_prod,o3_dest
+INTEGER                                                      :: spec_header,reac_header
+INTEGER                                                      :: num_species,num_reacts
 LOGICAL                                                      :: not_infty
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!! DEBUGGING/ANALYTICS VARIABLES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -106,23 +106,26 @@ count_num = 1
 cpu_max_time = 100.0
 cpu_total = 0
 
-species_file = 'species.dat'
-reactions_file = 'reactions.dat'
-OPEN (UNIT=1, FILE=species_file, STATUS='OLD', ACTION='READ', IOSTAT=err1)
-OPEN (UNIT=2, FILE=reactions_file, STATUS='OLD', ACTION='READ', IOSTAT=err2)
-CALL linecount(1,err1,lines_spec)
-CALL linecount(2,err2,lines_react)
+OPEN (UNIT=1, FILE=SPECIES_FILE, STATUS='OLD', ACTION='READ', IOSTAT=err1)
+OPEN (UNIT=2, FILE=REACTIONS_FILE, STATUS='OLD', ACTION='READ', IOSTAT=err2)
+CALL linecount(1,err1,lines_spec,spec_header)
+CALL linecount(2,err2,lines_react,reac_header)
 CLOSE(1)
 CLOSE(2)
+
+PRINT *, 'files now closed'
+num_species = lines_spec-spec_header
+num_reacts = lines_react-reac_header
 
 !******************************************************************************
 ! Create the Reaction Array
 !******************************************************************************
 ! Note, currently ions is somewhat of a magic number
-ALLOCATE( qube(lines_spec,lines_spec,3), sp_list(lines_spec), en_list(lines_spec), anion_target(ions) )
+ALLOCATE( qube(num_species,num_species,3), sp_list(num_species), en_list(num_species), anion_target(ions) )
 sp_list = "0"
+PRINT *, 'size of species list=',SIZE(sp_list)
 anion_list => anion_target
-CALL qbert(qube,lines_spec,lines_react,en_list,species_file,reactions_file,sp_list ,ions, anion_list)
+CALL qbert(num_species,num_reacts,qube,en_list,sp_list ,anion_list)
 
 PRINT *, 'The anion list is:',anion_list
 
@@ -137,9 +140,9 @@ sp_ptr => sp_list
 
 
 ! Lookup to numbers of CRP and electron in the listj
-CALL lookup( "CRP", lines_spec, sp_list, ev_nums(2))
-CALL lookup( '*'  , lines_spec, sp_list, ev_nums(1) )
-CALL lookup( 'e'  , lines_spec, sp_list, ev_nums(3) )
+CALL lookup( "CRP", num_species, sp_list, ev_nums(2))
+CALL lookup( '*'  , num_species, sp_list, ev_nums(1) )
+CALL lookup( 'e'  , num_species, sp_list, ev_nums(3) )
 
 !******************************************************************************
 ! Calculate the dimensions of the matrix

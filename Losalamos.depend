@@ -1,3 +1,13 @@
 # depslib dependency file v1.0
-1454706556 source:/home/cns/losalamos/bresenham.f03
+1455641665 source:/home/cns/losalamos/bresenham.f03
+
+1455641665 source:/home/cns/losalamos/functiondefs.f03
+
+1455641665 source:/home/cns/losalamos/mc_toolbox.f03
+
+1455641665 source:/home/cns/losalamos/qbert.f03
+
+1455641665 source:/home/cns/losalamos/specdata.f03
+
+1455641665 source:/home/cns/losalamos/typedefs.f03
 
