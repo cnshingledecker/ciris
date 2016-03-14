@@ -1,0 +1,19 @@
+# bin stuff in general
+bin
+obj
+
+# fortran compilation artifacts
+*.mod
+*.o
+
+# should add CodeBlocks stuff here
+
+# vim stuff
+*.swp
+*.swo
+
+# explicit files
+losalamos
+abundance.csv
+reaction_analytics.csv
+remove_row_list.txt
