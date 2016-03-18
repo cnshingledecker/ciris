@@ -63,6 +63,9 @@ PRINT *, "*************************"
 PRINT *, "***STARTING SIMULATION***"
 PRINT *, "*************************"
 
+! Read in constants
+CALL initconstants()
+
 ! Initialize analytics and debugging vals
 numprotons = 0
 o3_prod_target = 0

@@ -6,6 +6,7 @@ MODULE parameters
   !******************************************************************************
   CHARACTER(LEN=80), PARAMETER :: SPECIES_FILE   = 'species.dat'   ! Name of species file
   CHARACTER(LEN=80), PARAMETER :: REACTIONS_FILE = 'reactions.dat' ! Name of reactions file
+  CHARACTER(LEN=80), PARAMETER :: GP_FILE        = 'gp.dat'        ! Name of constants file (for GP)
 
   !******************************************************************************
   ! Initial Ion Energy
@@ -55,8 +56,8 @@ MODULE parameters
   !******************************************************************************
   ! Kinetic Parameters
   !******************************************************************************
-  DOUBLE PRECISION, PARAMETER :: TRL_NU      = 2.6E8                        ! Trial frequency, for the rates, in 1/s
-  DOUBLE PRECISION, PARAMETER :: DISPROB     = 0.0                         ! Probability of excitative dissociation
+  DOUBLE PRECISION            :: TRL_NU      = 2.6E8                       ! Trial frequency, for the rates, in 1/s
+  DOUBLE PRECISION            :: DISPROB     = 0.0                         ! Probability of excitative dissociation
   DOUBLE PRECISION, PARAMETER :: ZP          = 1.D0                        ! Proton number
   DOUBLE PRECISION, PARAMETER :: ZO1         = 8.D0                        ! Atomic oxygen proton number
   DOUBLE PRECISION, PARAMETER :: ZO2         = 16.D0                       ! Molecular oxygen proton number
@@ -75,11 +76,11 @@ MODULE parameters
   !******************************************************************************
   INTEGER         , PARAMETER :: IONS        = 6                           ! Number of anions in species list
   INTEGER         , PARAMETER :: TIME_COUNTS = 2                           ! Times the model will check abundances
-  INTEGER         , PARAMETER :: NSUBEX      = 5                           ! Number of sub-excitation interactions
-  INTEGER         , PARAMETER :: NEXIT       = 10*NSUBEX                   ! Max sub-ex loop iters
-  REAL            , PARAMETER :: STEPFAC     = 0.01                           ! Determines freq. between colls.
+  INTEGER                     :: NSUBEX      = 5                           ! Number of sub-excitation interactions
+  INTEGER                     :: NEXIT                                     ! Max sub-ex loop iters
+  REAL                        :: STEPFAC     = 0.01                        ! Determines freq. between colls.
   REAL(KIND=DBL)  , PARAMETER :: TIME_TOTAL  = 1D5                         ! Total time in s
-  REAL(KIND=DBL)  , PARAMETER :: AVAL        = 15                          ! Parameter for Gamma distribution
+  REAL(KIND=DBL)              :: AVAL        = 15                          ! Parameter for Gamma distribution
   REAL(KIND=DBL)  , PARAMETER :: ECUTOFF     = 4.5D0                       ! Secondary cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: PCUTOFF     = 5.0D0                       ! Primary ion cutoff energy in eV
 
@@ -88,11 +89,11 @@ MODULE parameters
   !******************************************************************************
   REAL            , PARAMETER :: O3_DIS_BRANCHING    = 0.0 ! O3 + * -> O2 + 0
   REAL            , PARAMETER :: O2_E_BRANCHING      = 0.0 ! O2+ + e -> O2
-  REAL            , PARAMETER :: O3_E_BRANCHING      = 0.0 ! O3+ + e -> O2 + O 
+  REAL            , PARAMETER :: O3_E_BRANCHING      = 0.0 ! O3+ + e -> O2 + O
   REAL            , PARAMETER :: O3_O_BRANCHING      = 0.0 ! O3 + O -> O2 + O2
-  REAL            , PARAMETER :: O_O2_BRANCHING      = 0.0 ! O + O2 -> O + O + O
-  REAL            , PARAMETER :: O2_ION_BRANCHING    = 0.0 ! O2- + O2+ -> O3 + O
-  REAL            , PARAMETER :: O_O2_ION_BRANCHING  = 0.0 ! O+ + O2- and O- + O2+ -> O3
+  REAL                        :: O_O2_BRANCHING      = 0.0 ! O + O2 -> O + O + O
+  REAL                        :: O2_ION_BRANCHING    = 0.0 ! O2- + O2+ -> O3 + O
+  REAL                        :: O_O2_ION_BRANCHING  = 0.0 ! O+ + O2- and O- + O2+ -> O3
   REAL            , PARAMETER :: O_O_ION_BRANCHING   = 0.0 ! O+ + O- -> O2
   REAL            , PARAMETER :: O3_O_ION_BRANCHING  = 0.0 ! O3+ + O- or O3- + O+ -> O3 + O
   REAL            , PARAMETER :: O3_O2_ION_BRANCHING = 0.0 ! O3+ + O2- or O3- + O2+ -> O2 + O2 + O
@@ -107,7 +108,7 @@ MODULE parameters
   !******************************************************************************
   ! Array Parameters
   !******************************************************************************
-  INTEGER, DIMENSION(2)       :: FAST_REACTS  = (/ 4,7 /)                    ! 4 ! Species that react upon formation
+  INTEGER, DIMENSION(2)       :: FAST_REACTS                     ! 4 ! Species that react upon formation
   INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 1 /)                    ! 7 ! Species that dissociate easily
   INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4,7 /)
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
@@ -116,5 +117,54 @@ MODULE parameters
   LOGICAL, PARAMETER :: SECELEC    = .TRUE.
   LOGICAL, PARAMETER :: DEBUG      = .FALSE.
   LOGICAL, PARAMETER :: TEST_WRONG = .FALSE.
+
+  CONTAINS
+
+  SUBROUTINE initconstants ()
+      INTEGER :: err
+      CHARACTER(LEN=32) :: var
+      CHARACTER(LEN=32) :: val
+
+      ! Open file for reading
+      OPEN(UNIT=200, FILE=GP_FILE, STATUS='OLD', ACTION='READ', IOSTAT=err)
+      IF (err .NE. 0) THEN
+          PRINT *, "ERROR: Failed to open gp.dat file for reading"
+          CALL EXIT(-1)
+      END IF
+
+      ! Read in the file
+      DO
+        READ(200,*,IOSTAT=err) var, val
+        IF ( err .NE. 0 ) EXIT
+        ! Store value
+        SELECT CASE (var)
+          CASE ("TRL_NU")
+              READ(val, *) TRL_NU
+          CASE ("DISPROB")
+              READ(val, *) DISPROB
+          CASE ("NSUBEX")
+              READ(val, *) NSUBEX
+          CASE ("STEPFAC")
+              READ(val, *) STEPFAC
+          CASE ("AVAL")
+              READ(val, *) AVAL
+          CASE ("O_O2_BRANCHING")
+              READ(val, *) O_O2_BRANCHING
+          CASE ("O2_ION_BRANCHING")
+              READ(val, *) O2_ION_BRANCHING
+          CASE ("O_O2_ION_BRANCHING")
+              READ(val, *) O_O2_ION_BRANCHING
+          CASE ("FRAGILE")
+              READ(val, *) FRAGILE
+          CASE ("FAST_REACTS")
+              READ(val, *) FAST_REACTS
+          CASE DEFAULT
+              PRINT *, "WARNING: Unexpect variable name '", var, "'. Ignoring..."
+        END SELECT
+      END DO
+
+      ! NEXIT seems to be the only variable that depended on one of these...
+      NEXIT = 10*NSUBEX
+  END SUBROUTINE initconstants
 
 END MODULE parameters
