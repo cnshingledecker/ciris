@@ -2498,7 +2498,11 @@
     sp1_count = 0
     sp2_count = 0
     wrong_count = 0
-    fluence  = CR_FLUX*time !
+    ! Method 1 of fluence calculation
+    fluence  = CR_FLUX*time ! Note: This is the x-value for the objective function
+    ! Method 2 of fluence calculation (only use 1 at a time )
+    ! fluence = numprotons/area
+
 
     dimens(1) = SIZE(matrix,1)
     dimens(2) = SIZE(matrix,2)
