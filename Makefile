@@ -38,5 +38,8 @@ mc_toolbox.o: mc_toolbox.f03
 functiondefs.o: functiondefs.f03 parameters.o typedefs.o
 	$(FC) -c functiondefs.f03
 
+gp.o: gp.f03 parameters.o
+	$(FC) -c gp.f03
+
 clean:
 	rm -f *.mod *.o a.out
