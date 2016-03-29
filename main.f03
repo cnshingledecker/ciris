@@ -4,6 +4,7 @@ USE subroutines
 USE parameters
 USE typedefs
 USE functiondefs
+USE gp
 IMPLICIT NONE
 
 !******************************************************************************
@@ -243,6 +244,10 @@ DO WHILE ( fluence .LE. fluence_total )
   time_check = time_check + 1
   IF ( MOD(time_check,TIME_FREQ) .EQ. 0 ) THEN
     CALL counter( o3_prod,o3_dest,numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7,wait_len)
+
+    ! Testing out the new fitness function
+    CALL fitness( o3_prod,o3_dest,fluence)!,total_fitness)
+
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
     time_diff = time

@@ -2,7 +2,7 @@ MODULE gp
   USE parameters
 CONTAINS
 
-  SUBROUTINE fitness(o3_prod,o3_dest,time,total_fitness)
+  SUBROUTINE fitness(o3_prod,o3_dest,fluence)!,total_fitness)
   ! Purpose:
   !    This subroutine measures the fitness of the current simulation.
   !  the resulting fitness is added to the total fitness thusfar.
@@ -13,10 +13,13 @@ CONTAINS
     IMPLICIT NONE
 
     INTEGER                                          , POINTER :: o3_prod,o3_dest
-    REAL(KIND=DBL)                                   , POINTER :: time
+    REAL(KIND=DBL)                                             :: denom
     REAL(KIND=DBL)                                             :: fluence
+    !INTEGER                                          , POINTER :: total_fitness
 
-    fluence = CR_FLUX*time
+    ! volume * 1E20
+    denom = THICK*EDGE*EDGE*1E20
+    ! total_fitness = total_fitness + some_comparative_diff
 
     PRINT *, 'F_obj(', fluence, ') = ', (4*(fluence**0.8))/(1E13**0.8+fluence**0.8) ! hard-coded expected value (objective) function
     PRINT *, 'F_model(', fluence, ') = ', REAL(o3_prod-o3_dest)/denom

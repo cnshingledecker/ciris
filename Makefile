@@ -6,7 +6,7 @@
   #FCFLAGS = -g  -march=native -fbounds-check -Wall
   FCFLAGS = -march=native -O3 -ffast-math
 
-OBJECTS = qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o specdata.o
+OBJECTS = qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o specdata.o gp.o
 
 PROGRAM = losalamos
 
@@ -14,7 +14,7 @@ PROGRAM = losalamos
 $(PROGRAM): qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o
 	$(FC) -o $(PROGRAM) *.o $(FCFLAGS)
 
-main.o: main.f03 subroutines.o parameters.o typedefs.o functiondefs.o
+main.o: main.f03 subroutines.o parameters.o typedefs.o functiondefs.o gp.o
 	$(FC) -c main.f03
 
 typedefs.o: typedefs.f03
