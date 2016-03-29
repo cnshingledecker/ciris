@@ -37,6 +37,7 @@ REAL(KIND=DBL)                                     , TARGET  :: time_target    !
 REAL(KIND=DBL)                                     , POINTER :: time           ! Current simulation time
 REAL(KIND=DBL)                                               :: time_step      ! Time between abundance checks
 !REAL(KIND=DBL)                                               :: time_check     ! Time used to determine ab. checks
+REAL(KIND=DBL)                                               :: fluence        ! Run simulation until some max fluence
 REAL(KIND=DBL)                                               :: time_diff !DEBUGGING VAR
 REAL(KIND=DBL)                                               :: t1,t2
 REAL(KIND=DBL)                                               :: cpu_total
@@ -205,7 +206,8 @@ CALL COUNTER(o3_prod,o3_dest,numprotons,time,AB_UNIT_NUM,matrix_ptr,wait_list,4,
 !******************************************************************************
 !counter = 0
 mindex = 1
-DO WHILE ( time .LE. time_total )
+fluence = time * CR_FLUX
+DO WHILE ( fluence .LE. fluence_total )
   IF ( wait_list(mindex)%sp_num .EQ. cr_num ) THEN
     ! Increment proton count
     numprotons = numprotons + 1
@@ -255,6 +257,8 @@ DO WHILE ( time .LE. time_total )
      CALL roll_call( wait_list, time, wait_len, mindex )
   END IF
 
+  ! update fluence
+  fluence = time * CR_FLUX
   ! Get next event
 
 END DO
