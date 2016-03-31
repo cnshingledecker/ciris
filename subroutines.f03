@@ -228,6 +228,7 @@
       INTEGER            , INTENT(OUT), DIMENSION(6,4)             :: large_arr
       INTEGER            , INTENT(OUT), DIMENSION(4,4)             :: small_arr
       INTEGER            , INTENT(IN) , DIMENSION(3)               :: coords
+      INTEGER                         , DIMENSION(3)               :: new_coords
       TYPE(wait_info)                 , DIMENSION(:)    , POINTER  :: wait_list
 
 
@@ -261,6 +262,7 @@
       large_arr = 0
       small_arr = 0
 
+
       ! Make sure the reactant isn't a zero
   !    PRINT *, "In lookaroundyou, the dimensions of the matrix are:"
   !    PRINT *, dimens
@@ -289,12 +291,15 @@
             CONTINUE
           ELSE
             CALL hopping(i_re,j_re,k_re,i_re2,j_re2,k_re2,n,dimens)
-  !          PRINT *, 'i_re,j_re,k_re=',i_re,j_re,k_re
-  !          PRINT *, 'i_re2,j_re2,k_re2=',i_re2,j_re2,k_re2
+            IF ( DEBUG .EQV. .TRUE. ) THEN
+              PRINT *, 'i_re,j_re,k_re=',i_re,j_re,k_re
+              PRINT *, 'i_re2,j_re2,k_re2=',i_re2,j_re2,k_re2
+            END IF
+            new_coords(1) = i_re2
+            new_coords(2) = j_re2
+            new_coords(3) = k_re2
             IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 .AND. &
-                 i_re2 .NE. i_re .AND. &
-                 j_re2 .NE. j_re .AND. &
-                 k_re2 .NE. k_re ) THEN
+                 ALL(coords .EQ. new_coords) .EQV. .FALSE.) THEN
             ! Determine if the hopped to species can react with the hopping species
               r1 = matrix(i_re,j_re,k_re)
               r2 = matrix(i_re2,j_re2,k_re2)
@@ -362,10 +367,11 @@
             END IF
 
             ! Determine if the matrix site is occupied and can react
+            new_coords(1) = i_re2
+            new_coords(2) = j_re2
+            new_coords(3) = k_re2
             IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 .AND. &
-                 i_re2 .NE. i_re .AND. &
-                 j_re2 .NE. j_re .AND. &
-                 k_re2 .NE. k_re) THEN
+                 ALL(coords .EQ. new_coords) .EQV. .FALSE. ) THEN
               r1 = matrix(i_re,j_re,k_re)
               r2 = matrix(i_re2,j_re2,k_re2)
   !            PRINT *, 'r1=',r1,'and r2=',r2
@@ -1015,6 +1021,10 @@
 
 
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****Starting Fallout*****'
+    IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+      CLOSE(2016)
+      OPEN(UNIT=2016,FILE="trackplot.csv", STATUS='REPLACE')
+    END IF
 
 
     !****************************************************************************!
@@ -1080,6 +1090,7 @@
     num_exs     = 0
     num_els     = 0
 
+
     main_loop: DO WHILE (z .LE. dimens(1) .AND. ione .GE. 5.0 )
 !      PRINT *, 'Now entering loop: z=',z,' and dimens(1)=',dimens(1),' and step=',step
       count_count = count_count + 1
@@ -1088,6 +1099,9 @@
       ev_coords(1) = z+step
       ev_coords(2) = y
       ev_coords(3) = x
+      IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+        WRITE(2016,*) ev_coords(1),',',ev_coords(2),',',ev_coords(3)
+      END IF
 !      PRINT *, 'The event coords are:',ev_coords
 
       thinghit = matrix(ev_coords(1),ev_coords(2),ev_coords(3))
@@ -1170,17 +1184,16 @@
   ! Ionization                                                                 !
   !****************************************************************************!
         ELSE IF ( switch .EQ. 2 .AND. z+step .NE. 1 .AND. z+step .NE. 2 ) THEN
- !         PRINT *, 'SE energy is',se_box%se_energy
+        !  PRINT *, 'SE energy is',se_box%se_energy
           IF ( se_box%se_energy .LE. ECUTOFF ) THEN
-!            PRINT *, 'SE energy is less than or equal to cutoff'
+          !  PRINT *, 'SE energy is less than or equal to cutoff'
 !            PRINT *, 'ev_coords=',ev_coords
             CALL base_ionization( o3_prod,o3_dest,ev_coords, react_cube, matrix, en_list, &
                                   ionlist, wait_list, wait_len, &
                                   time, ev_nums, null )
             IF ( null .EQ. 1 ) RETURN
           ELSE
-            !PRINT *, 'SE energy above ecutoff'
-            !*******************************************************************
+            ! PRINT *, 'SE energy above ecutoff' !*******************************************************************
             !
             ! Generate secondary electrons/electron track
             !
@@ -1188,12 +1201,17 @@
             ! Call base_ionization to generate the first-generation secondary electron
             ! NB: the electron should be the second product in the "prods" array
             !*******************************************************************
-            !PRINT *, 'Calling base ionization'
+            null = 0
             CALL base_ionization( o3_prod,o3_dest,ev_coords, react_cube, matrix, en_list, &
                                   ionlist, wait_list, wait_len, &
                                   time, ev_nums, null,elec_coords )
-            !PRINT *, 'Base ionization called, null=',null
-            IF ( null .EQ. 1 ) GOTO 100 !GOTO jumps down to calling next random number
+
+            IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+              WRITE(2016,*) elec_coords(1),',',elec_coords(2),',',elec_coords(3)
+            END IF
+
+            !GOTO jumps down to calling next random number
+            IF ( null .EQ. 1 ) GOTO 100
             !*******************************************************************
             ! Electron Impact Processes
             !*******************************************************************
@@ -1218,9 +1236,9 @@
             ee_loss  = 0
             !Initialize se_box
             CALL se_info_init(se_box)
-            !PRINT *, 'se energy is:',se_box%se_energy,' and ECUTOFF is',ECUTOFF
+            ! PRINT *, 'se energy is:',se_box%se_energy,' and ECUTOFF is',ECUTOFF
             DO WHILE ( se_box%se_energy .GE. ECUTOFF )
-              !PRINT *, 'Electron box initialized, calling loop'
+              ! PRINT *, 'Electron box initialized, calling loop'
               !If the electron no longer has sufficient
               !energy, exit the loop.
               IF ( enull1 .NE. 0 .AND. enull2 .NE. 0 ) EXIT
@@ -1237,11 +1255,17 @@
               !Have a minumum hopping distance of 1
               IF ( estep .EQ. 0 ) estep = 1
 
+              ! PRINT *, 'In SE routine, curr=',curr
+
               DO n=1,estep
                 !Each transport hop is like one step
                 prev = curr
                 curr = next
                 CALL transport(prev,curr,next,matrix)
+
+                IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+                  WRITE(2016,*) curr(1),',',curr(2),',',curr(3)
+                END IF
               END DO
 
               !Determine nature of event
@@ -1308,6 +1332,10 @@
                   prev = curr
                   curr = next
                   CALL transport(prev,curr,next,matrix)
+
+                  IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+                    WRITE(2016,*) curr(1),',',curr(2),',',curr(3)
+                  END IF
                 !END DO
                 IF ( matrix(next(1),next(2),next(3)) .NE. 0 ) THEN
                   IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'matrix in subexloop=',matrix(next(1),next(2),next(3))
@@ -1387,6 +1415,13 @@
       IF (z+step .GE. dimens(1) ) RETURN
 
     END DO main_loop
+    IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+      CLOSE(2016)
+      IF ( count_count .NE. 0 ) THEN
+        PRINT *, 'TRACK PLOTTED: EXITING'
+        CALL EXIT()
+      END IF
+    END IF
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****Ending Fallout*****'
 !    CLOSE(10)
   END SUBROUTINE fallout
@@ -2262,6 +2297,7 @@
     species1 = 0
     species2 = 0
 
+
     ! Find the first species number
     IF ( reactant1 .LT. 0 ) THEN
       species1 = ABS(reactant1)
@@ -2765,10 +2801,10 @@
     ! NB: the electron should be the second product in the "prods" array
     ! in Cern.
   !  PRINT *, 'At the beginning of base_ionization, ev_coords are:',ev_coords
+    null = 0
     CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, ev_nums, ev_coords, switch, &
                wait_list, wait_len, time, elec_coords )
   !  PRINT *, 'After cern in base_ionization, elec_coords=',elec_coords
-  !  PRINT *, 'After cern in base_ionization, null=',null
     IF ( PRESENT(elec_out) ) THEN
       elec_out = elec_coords
     END IF
@@ -2792,10 +2828,10 @@
                      elec_coords(2), elec_coords(3) )
     ELSE
      ! Choose one at random
-      IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Calling solarlottery"
+      IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Calling solarlottery in base_ionization"
       breakout = 0
       DO
-        IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Actually calling solarlottery'
+        IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Actually calling solarlottery in base_ionization'
         CALL solarlottery( small_count,large_count,small_temp,large_temp,coords )
         IF ( matrix(coords(1),coords(2),coords(3)) .NE.  matrix(ev_coords(1),ev_coords(2),ev_coords(3)) ) EXIT
         breakout = breakout + 1
@@ -2810,7 +2846,7 @@
       END DO
       ! Make the electron that has just formed react
       ! NB: Pass elec_coords and coords chosen by solarlottery
-      IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Calling reaction to make electron create anion"
+      IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Calling reaction in BI to make electron create anion"
       CALL reaction( o3_prod,o3_dest,react_cube, en_list, matrix, wait_list, wait_len, time, &
                      elec_coords(1), elec_coords(2), elec_coords(3), &
                      coords(1), coords(2), coords(3), &

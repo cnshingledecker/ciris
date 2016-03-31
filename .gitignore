@@ -12,8 +12,12 @@ obj
 *.swp
 *.swo
 
+# various output files
+*.txt
+*.csv
+
 # explicit files
 losalamos
-abundance.csv
-reaction_analytics.csv
-remove_row_list.txt
+#abundance.csv
+#reaction_analytics.csv
+#remove_row_list.txt
