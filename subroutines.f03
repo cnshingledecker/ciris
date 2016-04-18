@@ -763,6 +763,7 @@
       REAL    :: rnum
       INTEGER                                                                  :: case_num
 
+      ! DEBUG = .TRUE.
       IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****STARTING Cern*****'
 
       r1 = 0
@@ -776,6 +777,12 @@
       j_re2 = event_coords(2)
       k_re2 = event_coords(3)
       original_value = matrix(i_re2,j_re2,k_re2)
+
+      IF ( DEBUG .EQV. .TRUE. ) THEN
+        PRINT *, 'Event_coords are:', event_coords
+        PRINT *, 'Original value is:',original_value
+        PRINT *, 'Switch is:',switch
+      END IF
 
 
       ! If switch equals 2, then the first reactant, r1, equals an excitation,
@@ -908,6 +915,10 @@
       ! stored as prods(2), doing otherwise will result in errors
         CALL krell( event_coords, coords, matrix,null )
         IF (null .EQ. 1 ) THEN ! Can't place 2nd product: no good sites
+          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+          !TEMPORARY KLUDGE
+          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+          ! DEBUG = .FALSE.
           RETURN
         ELSE ! Save new coordinates
           i_pr = coords(1)
@@ -938,6 +949,7 @@
 
 
       IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****ENDING Cern*****'
+      ! DEBUG = .FALSE.
     END SUBROUTINE cern
 
     SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
@@ -2040,6 +2052,8 @@
     INTEGER                                                               :: i, j, k
     INTEGER                         , DIMENSION(3,3)                      :: prod_coords
     INTEGER                                                               :: p1,p2
+    INTEGER                                                               :: dummy_protons
+    dummy_protons = 1
 
 
     ! Find the species numbers
@@ -2264,6 +2278,7 @@
     END IF
 
    IF ( DEBUG .EQV. .TRUE. ) THEN
+     CALL counter(o3_prod,o3_dest,dummy_protons,time,AB_UNIT_NUM,matrix,wait_list,4,7,wait_len)
      PRINT *, 'Afterwards matrix r1=',matrix(i_re,j_re,k_re)
      IF ( matrix(i_re,j_re,k_re) .GT. 0 ) PRINT *, &
      'Wait_list at ^ is',wait_list(matrix(i_re,j_re,k_re))

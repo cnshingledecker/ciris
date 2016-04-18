@@ -242,7 +242,7 @@ DO WHILE ( fluence .LE. fluence_total )
 
 
   time_check = time_check + 1
-  IF ( MOD(time_check,TIME_FREQ) .EQ. 0 ) THEN
+!  IF ( MOD(time_check,TIME_FREQ) .EQ. 0 ) THEN
     CALL counter( o3_prod,o3_dest,numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7,wait_len)
 
     ! Testing out the new fitness function
@@ -256,11 +256,11 @@ DO WHILE ( fluence .LE. fluence_total )
 !    o3_prod = 0
 !    o3_dest = 0
     CALL roll_call( wait_list, time, wait_len, mindex )
-  ELSE IF ( time_check .GT. 1E3 .AND. wait_len .LE. 5 ) THEN
-    CALL find_cr( wait_list, mindex, wait_len,  cr_num, en_ptr, time )
-  ELSE
-     CALL roll_call( wait_list, time, wait_len, mindex )
-  END IF
+!  ELSE IF ( time_check .GT. 1E3 .AND. wait_len .LE. 5 ) THEN
+!    CALL find_cr( wait_list, mindex, wait_len,  cr_num, en_ptr, time )
+!  ELSE
+!     CALL roll_call( wait_list, time, wait_len, mindex )
+!  END IF
 
   ! update fluence
   fluence = time * CR_FLUX

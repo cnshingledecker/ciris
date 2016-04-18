@@ -56,7 +56,7 @@ MODULE parameters
   !******************************************************************************
   ! Kinetic Parameters
   !******************************************************************************
-  DOUBLE PRECISION            :: TRL_NU      = 2.6E8                       ! Trial frequency, for the rates, in 1/s
+  DOUBLE PRECISION            :: TRL_NU      = 2.6E11                       ! Trial frequency, for the rates, in 1/s
   DOUBLE PRECISION            :: DISPROB     = 0.0                         ! Probability of excitative dissociation
   DOUBLE PRECISION, PARAMETER :: ZP          = 1.D0                        ! Proton number
   DOUBLE PRECISION, PARAMETER :: ZO1         = 8.D0                        ! Atomic oxygen proton number
@@ -76,11 +76,11 @@ MODULE parameters
   !******************************************************************************
   INTEGER         , PARAMETER :: IONS          = 6                           ! Number of anions in species list
   INTEGER         , PARAMETER :: TIME_COUNTS   = 2                           ! Times the model will check abundances
-  INTEGER                     :: NSUBEX        = 5                           ! Number of sub-excitation interactions
+  INTEGER                     :: NSUBEX        = 10                           ! Number of sub-excitation interactions
   INTEGER                     :: NEXIT                                     ! Max sub-ex loop iters
-  REAL                        :: STEPFAC       = 0.01                        ! Determines freq. between colls.
+  REAL                        :: STEPFAC       = 1                        ! Determines freq. between colls.
   REAL(KIND=DBL)  , PARAMETER :: TIME_TOTAL    = 1D5                         ! Total time in s
-  REAL(KIND=DBL)              :: AVAL          = 15                          ! Parameter for Gamma distribution
+  REAL(KIND=DBL)              :: AVAL          = 50                          ! Parameter for Gamma distribution
   REAL(KIND=DBL)  , PARAMETER :: ECUTOFF       = 4.5D0                       ! Secondary cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: PCUTOFF       = 5.0D0                       ! Primary ion cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: FLUENCE_TOTAL = 1D16
@@ -88,10 +88,10 @@ MODULE parameters
   !******************************************************************************
   ! Branching Ratios
   !******************************************************************************
-  REAL            , PARAMETER :: O3_DIS_BRANCHING    = 0.0 ! O3 + * -> O2 + 0
+  REAL            , PARAMETER :: O3_DIS_BRANCHING    = 1.0 ! 0.0 ! O3 + * -> O2 + 0
   REAL            , PARAMETER :: O2_E_BRANCHING      = 0.0 ! O2+ + e -> O2
-  REAL            , PARAMETER :: O3_E_BRANCHING      = 0.0 ! O3+ + e -> O2 + O
-  REAL            , PARAMETER :: O3_O_BRANCHING      = 0.0 ! O3 + O -> O2 + O2
+  REAL            , PARAMETER :: O3_E_BRANCHING      = 1.0 ! 0.0 ! O3+ + e -> O2 + O
+  REAL            , PARAMETER :: O3_O_BRANCHING      = 1.0 ! 0.0 ! O3 + O -> O2 + O2
   REAL                        :: O_O2_BRANCHING      = 0.0 ! O + O2 -> O + O + O
   REAL                        :: O2_ION_BRANCHING    = 0.0 ! O2- + O2+ -> O3 + O
   REAL                        :: O_O2_ION_BRANCHING  = 0.0 ! O+ + O2- and O- + O2+ -> O3
@@ -109,16 +109,16 @@ MODULE parameters
   !******************************************************************************
   ! Array Parameters
   !******************************************************************************
-  INTEGER, DIMENSION(2)       :: FAST_REACTS                     ! 4 ! Species that react upon formation
-  INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 1 /)                    ! 7 ! Species that dissociate easily
+  INTEGER, DIMENSION(1)       :: FAST_REACTS  = (/ 21 /)                   ! 4 ! Species that react upon formation
+  INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 7 /)                    ! 7 ! Species that dissociate easily
   INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4,7 /)
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
-  INTEGER, PARAMETER          :: TIME_FREQ    = 1000000
+  INTEGER, PARAMETER          :: TIME_FREQ    = 1
 
-  LOGICAL, PARAMETER :: SECELEC    = .TRUE.
-  LOGICAL, PARAMETER :: DEBUG      = .FALSE.
+  LOGICAL, PARAMETER :: SECELEC    = .FALSE.
+  LOGICAL, PARAMETER :: DEBUG      = .TRUE.
   LOGICAL, PARAMETER :: TEST_WRONG = .TRUE.
-  LOGICAL, PARAMETER :: TRACKPLOT  = .TRUE.
+  LOGICAL, PARAMETER :: TRACKPLOT  = .FALSE.
 
   CONTAINS
 
