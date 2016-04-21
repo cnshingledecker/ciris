@@ -53,6 +53,8 @@ INTEGER                                            , POINTER :: o3_prod,o3_dest
 INTEGER                                                      :: spec_header,reac_header
 INTEGER                                                      :: num_species,num_reacts
 LOGICAL                                                      :: not_infty
+REAL(KIND=DBL)                                               :: total_fitness   ! Total fitness
+LOGICAL                                                      :: unfit           ! TRUE if solution is too unfit -> stop simulation
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!! DEBUGGING/ANALYTICS VARIABLES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -67,6 +69,9 @@ PRINT *, "*************************"
 
 ! Read in constants
 CALL initconstants()
+
+! Initialize total_fitness
+total_fitness = 0
 
 ! Initialize analytics and debugging vals
 numprotons = 0
@@ -208,7 +213,8 @@ CALL COUNTER(o3_prod,o3_dest,numprotons,time,AB_UNIT_NUM,matrix_ptr,wait_list,4,
 !counter = 0
 mindex = 1
 fluence = time * CR_FLUX
-DO WHILE ( fluence .LE. fluence_total )
+unfit = .FALSE.
+DO WHILE ( fluence .LE. fluence_total .AND. .NOT. unfit)
   IF ( wait_list(mindex)%sp_num .EQ. cr_num ) THEN
     ! Increment proton count
     numprotons = numprotons + 1
@@ -246,7 +252,7 @@ DO WHILE ( fluence .LE. fluence_total )
     CALL counter( o3_prod,o3_dest,numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7,wait_len)
 
     ! Testing out the new fitness function
-    CALL fitness( o3_prod,o3_dest,fluence)!,total_fitness)
+    CALL fitness(unfit,o3_prod,o3_dest,fluence,total_fitness)
 
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)

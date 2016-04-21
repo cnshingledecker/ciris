@@ -41,5 +41,9 @@ functiondefs.o: functiondefs.f03 parameters.o typedefs.o
 gp.o: gp.f03 parameters.o
 	$(FC) -c gp.f03
 
+static: qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o
+	$(FC) -o $(PROGRAM) *.o -O3 -ffast-math -static
+
 clean:
 	rm -f *.mod *.o a.out
+	rm -f fitness_results counter_test_wait_list.txt counter_test_wrong_spaces.txt
