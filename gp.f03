@@ -42,11 +42,41 @@ CONTAINS
     ! save results to a file
     OPEN(UNIT=201, FILE=FITNESS_FILE, ACCESS='APPEND', ACTION='WRITE', IOSTAT=err)
     IF (err .NE. 0) THEN
-        PRINT *, "ERROR: Failed to open fitness_results file for reading"
+        PRINT *, "ERROR: Failed to open fitness_results file for writing"
     ELSE
         WRITE(201, *) fluence, objective, model, total_fitness
         CLOSE(201)
     END IF
   END SUBROUTINE fitness
+
+  SUBROUTINE store_rand()
+  ! Purpose:
+  !    This subroutine stores the currently used random seed in a file.
+  !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!! STORE_RAND !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    IMPLICIT NONE
+
+    INTEGER :: seed_size
+    INTEGER, ALLOCATABLE :: seed(:)
+
+    INTEGER :: err
+    CHARACTER(LEN=80), PARAMETER  :: SEED_FILE       = 'seed'
+
+    ! get seed and save it to a file
+    CALL RANDOM_SEED(size=seed_size)
+    ALLOCATE(seed(seed_size))
+    CALL RANDOM_SEED(get=seed)
+
+    OPEN(UNIT=201, FILE=SEED_FILE, ACCESS='APPEND', ACTION='WRITE', IOSTAT=err)
+    IF (err .NE. 0) THEN
+        PRINT *, "ERROR: Failed to open seed file for writing"
+    ELSE
+        WRITE(201, *) seed
+        CLOSE(201)
+    END IF
+    DEALLOCATE(seed)
+  END SUBROUTINE store_rand
 
 END MODULE gp

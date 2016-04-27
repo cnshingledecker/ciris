@@ -67,8 +67,9 @@ PRINT *, "*************************"
 PRINT *, "***STARTING SIMULATION***"
 PRINT *, "*************************"
 
-! Read in constants
+! Read in constants and save seed
 CALL initconstants()
+CALL store_rand()
 
 ! Initialize total_fitness
 total_fitness = 0
