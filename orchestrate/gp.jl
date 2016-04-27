@@ -3,7 +3,6 @@
  = gp.jl
  =  Orchestration program for genetic programming of losalamos
  =
- =
  = Alex Thomas
  =#
 
@@ -12,9 +11,9 @@ include("grid.jl")
 include("maintainence.jl")
 
 # island population constants
-MIN_WORK = 3   # max number of jobs/island
+MIN_WORK = 15   # max number of jobs/island
 MIN_TODO = 50   # min todo size/island
-MAX_DONE = 375  # max done size/island
+MAX_DONE = 400  # max done size/island
 EXILE = 25
 MUTATE_CHANCE=10 # 1 out of...
 EXILE_CHANCE=5   # 1 out of...
@@ -80,8 +79,9 @@ function do_maintainence(islands)
                     # pick a random file and fetch its contents
                     file_contents = Grid.fetchCat("$island/done/$(rand(done_files))")
                     parsed_file = ParameterIO.readSolution(IOBuffer(file_contents))
-                    # drop fitness
+                    # drop fitness and seed
                     delete!(parsed_file, "FITNESS")
+                    delete!(parsed_file, "SEED")
                     # vary number of mutations
                     for i = rand(1:4)
                         ParameterIO.mutate!(parsed_file)
@@ -100,6 +100,8 @@ function do_maintainence(islands)
                     f2_parsed = ParameterIO.readSolution(IOBuffer(f2_contents))
                     delete!(f1_parsed, "FITNESS")
                     delete!(f2_parsed, "FITNESS")
+                    delete!(f1_parsed, "SEED")
+                    delete!(f2_parsed, "SEED")
                     # breed and stash new candidate
                     child = ParameterIO.breed(f1_parsed, f2_parsed)
                     name = ParameterIO.writeSolution(child)
@@ -114,9 +116,17 @@ function do_maintainence(islands)
 
     # clean the queue, prog, and tickets map
     # TODO: if job manually removed, update tickets map
-    completed_jobs = Grid.fetchCompletedTickets()
+    completed_jobs = Grid.fetchFinishedTickets()
     for ticket in completed_jobs
-        Grid.rmJob(ticket, tickets[ticket])
+        Grid.rmJob(ticket)
+        Grid.rmFile(tickets[ticket])
+        delete!(tickets, ticket)
+    end
+
+    # clean failed tickets, cycle them back into todo
+    error_jobs = Grid.fetchErrorTickets()
+    for ticket in error_jobs
+        Grid.revertFailedJob(ticket, tickets[ticket])
         delete!(tickets, ticket)
     end
 
@@ -149,7 +159,7 @@ function do_maintainence(islands)
 end
 
 
-println("GP SYSTEM FOR LOSALAMOS\n")
+println("GP SYSTEM FOR RADDACS\n")
 
 if length(ARGS) == 1 && (ARGS[1] == "-d" || ARGS[1] == "--debug")
     # debug/default
@@ -180,8 +190,8 @@ do_maintainence(Grid.ISLANDS)
 #while true
 #    for i=1:5
 #        do_maintainence(Grid.ISLANDS)
-#        # sleep 2 seconds
-#        sleep(2)
+#        # sleep
+#        sleep(30)
 #    end
 #    println("Time to quit?")
 #    if !isfile("GO")
@@ -189,5 +199,5 @@ do_maintainence(Grid.ISLANDS)
 #        break
 #    end
 #end
-writecsv(TICKET_MASTER, tickets)
+writeTickets(TICKET_MASTER, tickets)
 Grid.cleanup()

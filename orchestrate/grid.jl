@@ -45,16 +45,15 @@ function initPop(island, size)
     names = []
     for i = 1:size
         # TODO: replace with ParameterIO.writeSolution
-        push!(names, string(uuid4()))
-        writecsv(names[i], ParameterIO.generateSolution())
+        s = ParameterIO.generateSolution()
+        push!(names, ParameterIO.writeSolution(s))
     end
-    local_names = map(n -> "local:$n", names)
     println("created files")
-    submitInput("cp $(join(local_names, ' ')) $ROOT/$island/todo")
-    println("copied files")
-    for n = names
+    for n in names
+        submitInput("cp local:$n $ROOT/$island/todo")
         run(`rm $n`)
     end
+    println("copied files")
 end
 
 # Submit a job
@@ -94,8 +93,14 @@ function fetchQueueTickets()
 end
 
 # Gets a list of all tickets in the queue with status FINISHED or FAILED
-function fetchCompletedTickets()
-    jobs = filter(line -> contains(line, "FINISHED") || contains(line, "FAILED"), fetchJobQueue())
+function fetchFinishedTickets()
+    jobs = filter(line -> contains(line, "FINISHED"), fetchJobQueue())
+    return map(z -> first(split(z)), jobs)
+end
+
+# Gets a list of all tickets in the queue with status FINISHED or FAILED
+function fetchErrorTickets()
+    jobs = filter(line -> contains(line, "ERROR"), fetchJobQueue())
     return map(z -> first(split(z)), jobs)
 end
 
@@ -128,15 +133,23 @@ function cpLG(local_path, grid_path)
     submitInput("cp local:$local_path $ROOT/$grid_path")
 end
 
-# Removes finished job from queue and file given a path relative to ROOT
-function rmJob(ticket, filename)
+# Removes finished job from queue
+function rmJob(ticket)
     submitInput("qcomplete $QUEUE $ticket")
-    submitInput("rm $ROOT/$filename")
 end
 
 # Deletes a file given a path relative to ROOT
 function rmFile(filename)
     submitInput("rm $ROOT/$filename")
+end
+
+# Rolls back candidate solution from "prog" to "todo", cleans up job
+function revertFailedJob(ticket, filename)
+    rmJob(ticket)
+    s = split(filename, "/")
+    island = s[1]
+    ticket = s[end]
+    submitInput("mv $ROOT/$filename $ROOT/$island/todo/$ticket")
 end
 
 # Cleans done and prog subdirectories (useful for testing)
@@ -196,8 +209,7 @@ function setupArchipelago()
         exit(-1)
     else
         subdirs = ["done" "prog" "todo" "accounting"]
-        submitInput("mkdir $(join(ISLANDS, ' '))")
-        submitInput("mkdir $(join(["$a/$b" for a=ISLANDS, b=subdirs], ' '))")
+        submitInput("mkdir -p $(join(["$a/$b" for a=ISLANDS, b=subdirs], ' '))")
         submitInput("cd")
     end
 end
