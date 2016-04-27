@@ -6,10 +6,9 @@
         </jsdl:JobIdentification>
         <jsdl:Application>
             <jsdl-posix:POSIXApplication>
-                <jsdl-posix:Executable>worker.sh</jsdl-posix:Executable>
+                <jsdl-posix:Executable>losalamos</jsdl-posix:Executable>
                 <jsdl-posix:Output>out</jsdl-posix:Output>
                 <jsdl-posix:Error>err</jsdl-posix:Error>
-                <jsdl-posix:Environment name="CANDIDATE">PLACEHOLDER0</jsdl-posix:Environment>
             </jsdl-posix:POSIXApplication>
         </jsdl:Application>
         <jsdl:Resources>
@@ -19,15 +18,6 @@
                 </jsdl:OperatingSystemType>
             </jsdl:OperatingSystem>
         </jsdl:Resources>
-        <jsdl:DataStaging>
-            <jsdl:FileName>worker.sh</jsdl:FileName>
-            <jsdl:CreationFlag>overwrite</jsdl:CreationFlag>
-            <jsdl:DeleteOnTermination>true</jsdl:DeleteOnTermination>
-            <jsdl:HandleAsArchive>false</jsdl:HandleAsArchive>
-            <jsdl:Source>
-                <jsdl:URI>rns:/home/xcg.virginia.edu/apt9jf/archipelago/worker.sh</jsdl:URI>
-            </jsdl:Source>
-        </jsdl:DataStaging>
         <jsdl:DataStaging>
             <jsdl:FileName>losalamos</jsdl:FileName>
             <jsdl:CreationFlag>overwrite</jsdl:CreationFlag>
@@ -62,6 +52,24 @@
             <jsdl:HandleAsArchive>false</jsdl:HandleAsArchive>
             <jsdl:Source>
                 <jsdl:URI>rns:/home/xcg.virginia.edu/apt9jf/archipelago/reactions.dat</jsdl:URI>
+            </jsdl:Source>
+        </jsdl:DataStaging>
+        <jsdl:DataStaging>
+            <jsdl:FileName>pre.sh</jsdl:FileName>
+            <jsdl:CreationFlag>overwrite</jsdl:CreationFlag>
+            <jsdl:DeleteOnTermination>true</jsdl:DeleteOnTermination>
+            <jsdl:HandleAsArchive>false</jsdl:HandleAsArchive>
+            <jsdl:Source>
+                <jsdl:URI>rns:/home/xcg.virginia.edu/apt9jf/archipelago/pre.sh</jsdl:URI>
+            </jsdl:Source>
+        </jsdl:DataStaging>
+        <jsdl:DataStaging>
+            <jsdl:FileName>post.sh</jsdl:FileName>
+            <jsdl:CreationFlag>overwrite</jsdl:CreationFlag>
+            <jsdl:DeleteOnTermination>true</jsdl:DeleteOnTermination>
+            <jsdl:HandleAsArchive>false</jsdl:HandleAsArchive>
+            <jsdl:Source>
+                <jsdl:URI>rns:/home/xcg.virginia.edu/apt9jf/archipelago/post.sh</jsdl:URI>
             </jsdl:Source>
         </jsdl:DataStaging>
         <jsdl:DataStaging>
