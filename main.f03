@@ -4,6 +4,7 @@ USE subroutines
 USE parameters
 USE typedefs
 USE functiondefs
+USE gp
 IMPLICIT NONE
 
 !******************************************************************************
@@ -18,7 +19,7 @@ INTEGER                          , DIMENSION(:,:,:), POINTER :: matrix_ptr     !
 INTEGER(KIND=SHORT)              , DIMENSION(:,:,:), POINTER :: qube_ptr       ! Pointer to the reaction cube
 INTEGER                                            , TARGET  :: wlen_target
 INTEGER                                            , POINTER :: wait_len       ! Length of nonzero waitlist elements
-INTEGER(KIND=SHORT)              , DIMENSION(3)              :: ev_nums
+INTEGER                          , DIMENSION(3)              :: ev_nums
 INTEGER                                                      :: mindex
 INTEGER                          , DIMENSION(3)              :: dimens         ! Dimensions of the matrix
 INTEGER                                                      :: i,j,k          ! Counters
@@ -37,19 +38,20 @@ REAL(KIND=DBL)                                     , TARGET  :: time_target    !
 REAL(KIND=DBL)                                     , POINTER :: time           ! Current simulation time
 REAL(KIND=DBL)                                               :: time_step      ! Time between abundance checks
 !REAL(KIND=DBL)                                               :: time_check     ! Time used to determine ab. checks
+REAL(KIND=DBL)                                               :: fluence        ! Run simulation until some max fluence
 REAL(KIND=DBL)                                               :: time_diff !DEBUGGING VAR
 REAL(KIND=DBL)                                               :: t1,t2
 REAL(KIND=DBL)                                               :: cpu_total
 REAL(KIND=DBL)                                               :: cpu_max_time
 CHARACTER(len=10)   , ALLOCATABLE, DIMENSION(:)    , TARGET  :: sp_list        !  List of species
 CHARACTER(len=10)                , DIMENSION(:)    , POINTER :: sp_ptr         ! Pointer to species list
-CHARACTER(len=80)                                            :: species_file   ! Name of species file
-CHARACTER(len=80)                                            :: reactions_file ! Name of reactions file
 CHARACTER(len=80)                                            :: hopping_file   ! File containing hopping data
 TYPE (wait_info)    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: wait_target
 TYPE (wait_info)                 , DIMENSION(:)    , POINTER :: wait_list      !Derived data type described in chaco_data.f90
 INTEGER                                            , TARGET  :: o3_prod_target,o3_dest_target
 INTEGER                                            , POINTER :: o3_prod,o3_dest
+INTEGER                                                      :: spec_header,reac_header
+INTEGER                                                      :: num_species,num_reacts
 LOGICAL                                                      :: not_infty
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!! DEBUGGING/ANALYTICS VARIABLES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -62,6 +64,9 @@ INTEGER(KIND=LONG)                                           :: numprotons
 PRINT *, "*************************"
 PRINT *, "***STARTING SIMULATION***"
 PRINT *, "*************************"
+
+! Read in constants
+CALL initconstants()
 
 ! Initialize analytics and debugging vals
 numprotons = 0
@@ -85,7 +90,7 @@ OPEN(UNIT=1009,FILE="abundance.csv",POSITION='APPEND', STATUS='REPLACE')
 !OPEN(UNIT=1013,FILE="time_data.csv")
 !Below for debugging and analytics
 IF ( DEBUG .EQV. .TRUE. ) OPEN(UNIT=777,FILE='reaction_analytics.csv',STATUS='REPLACE',POSITION='APPEND')
-
+IF ( O3_ANALYTICS .EQV. .TRUE. ) OPEN(UNIT=O3_NUM,FILE='ozone_reactions.wsv', STATUS='REPLACE',POSITION='APPEND')
 ! Nullify pointers
 NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len,o3_prod,o3_dest )
 
@@ -106,23 +111,26 @@ count_num = 1
 cpu_max_time = 100.0
 cpu_total = 0
 
-species_file = 'species.dat'
-reactions_file = 'reactions.dat'
-OPEN (UNIT=1, FILE=species_file, STATUS='OLD', ACTION='READ', IOSTAT=err1)
-OPEN (UNIT=2, FILE=reactions_file, STATUS='OLD', ACTION='READ', IOSTAT=err2)
-CALL linecount(1,err1,lines_spec)
-CALL linecount(2,err2,lines_react)
+OPEN (UNIT=1, FILE=SPECIES_FILE, STATUS='OLD', ACTION='READ', IOSTAT=err1)
+OPEN (UNIT=2, FILE=REACTIONS_FILE, STATUS='OLD', ACTION='READ', IOSTAT=err2)
+CALL linecount(1,err1,lines_spec,spec_header)
+CALL linecount(2,err2,lines_react,reac_header)
 CLOSE(1)
 CLOSE(2)
+
+PRINT *, 'files now closed'
+num_species = lines_spec-spec_header
+num_reacts = lines_react-reac_header
 
 !******************************************************************************
 ! Create the Reaction Array
 !******************************************************************************
 ! Note, currently ions is somewhat of a magic number
-ALLOCATE( qube(lines_spec,lines_spec,3), sp_list(lines_spec), en_list(lines_spec), anion_target(ions) )
+ALLOCATE( qube(num_species,num_species,3), sp_list(num_species), en_list(num_species), anion_target(ions) )
 sp_list = "0"
+PRINT *, 'size of species list=',SIZE(sp_list)
 anion_list => anion_target
-CALL qbert(qube,lines_spec,lines_react,en_list,species_file,reactions_file,sp_list ,ions, anion_list)
+CALL qbert(num_species,num_reacts,qube,en_list,sp_list ,anion_list)
 
 PRINT *, 'The anion list is:',anion_list
 
@@ -137,9 +145,9 @@ sp_ptr => sp_list
 
 
 ! Lookup to numbers of CRP and electron in the listj
-CALL lookup( "CRP", lines_spec, sp_list, ev_nums(2))
-CALL lookup( '*'  , lines_spec, sp_list, ev_nums(1) )
-CALL lookup( 'e'  , lines_spec, sp_list, ev_nums(3) )
+CALL lookup( "CRP", num_species, sp_list, ev_nums(2))
+CALL lookup( '*'  , num_species, sp_list, ev_nums(1) )
+CALL lookup( 'e'  , num_species, sp_list, ev_nums(3) )
 
 !******************************************************************************
 ! Calculate the dimensions of the matrix
@@ -163,7 +171,7 @@ END FORALL
 matrix_ptr => matrix
 
 ! Initialize wait list to have nothing in it
-ALLOCATE( wait_target(SIZE(matrix)/3) )
+ALLOCATE( wait_target(SIZE(matrix)/2) )
 wlen_target = 0
 wait_len  => wlen_target
 wait_list => wait_target
@@ -199,7 +207,8 @@ CALL COUNTER(o3_prod,o3_dest,numprotons,time,AB_UNIT_NUM,matrix_ptr,wait_list,4,
 !******************************************************************************
 !counter = 0
 mindex = 1
-DO WHILE ( time .LE. time_total )
+fluence = time * CR_FLUX
+DO WHILE ( fluence .LE. fluence_total )
   IF ( wait_list(mindex)%sp_num .EQ. cr_num ) THEN
     ! Increment proton count
     numprotons = numprotons + 1
@@ -232,9 +241,18 @@ DO WHILE ( time .LE. time_total )
   END IF
 
 
+  ! Terminate if wait_list gets too big
+  IF ( wait_len .GT. (SIZE(matrix_ptr)/2)-1000 ) THEN
+      PRINT *, 'ERROR! Wait_list too big! Quiting!'
+      CALL EXIT()
+  END IF
   time_check = time_check + 1
   IF ( MOD(time_check,TIME_FREQ) .EQ. 0 ) THEN
     CALL counter( o3_prod,o3_dest,numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7,wait_len)
+
+    ! Testing out the new fitness function
+    CALL fitness( o3_prod,o3_dest,fluence,dimens,matrix_ptr,wait_list)!,total_fitness)
+
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
     time_diff = time
@@ -249,6 +267,8 @@ DO WHILE ( time .LE. time_total )
      CALL roll_call( wait_list, time, wait_len, mindex )
   END IF
 
+  ! update fluence
+  fluence = time * CR_FLUX
   ! Get next event
 
 END DO
