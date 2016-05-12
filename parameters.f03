@@ -6,7 +6,7 @@ MODULE parameters
   !******************************************************************************
   CHARACTER(LEN=80), PARAMETER :: SPECIES_FILE   = 'species.dat'   ! Name of species file
   CHARACTER(LEN=80), PARAMETER :: REACTIONS_FILE = 'reactions.dat' ! Name of reactions file
-  CHARACTER(LEN=80), PARAMETER :: GP_FILE        = 'gp.dat'        ! Name of constants file (for GP)
+  CHARACTER(LEN=80), PARAMETER :: PARAMS_FILE        = 'params.dat'        ! Name of constants file (for GP)
 
   !******************************************************************************
   ! Initial Ion Energy
@@ -113,7 +113,9 @@ MODULE parameters
   INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 7 /)                    ! 7 ! Species that dissociate easily
   INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4,7 /)
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
-  INTEGER, PARAMETER          :: TIME_FREQ    = 1
+  INTEGER, PARAMETER          :: TIME_FREQ    = 1000 !1000000
+
+  REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 100  ! if fitness value exceeds this, terminate
 
   LOGICAL, PARAMETER :: SECELEC    = .FALSE.
   LOGICAL, PARAMETER :: DEBUG      = .TRUE.
@@ -128,9 +130,9 @@ MODULE parameters
       CHARACTER(LEN=32) :: val
 
       ! Open file for reading
-      OPEN(UNIT=200, FILE=GP_FILE, STATUS='OLD', ACTION='READ', IOSTAT=err)
+      OPEN(UNIT=200, FILE=PARAMS_FILE, STATUS='OLD', ACTION='READ', IOSTAT=err)
       IF (err .NE. 0) THEN
-          PRINT *, "ERROR: Failed to open gp.dat file for reading"
+          PRINT *, "ERROR: Failed to open params.dat file for reading"
           CALL EXIT(-1)
       END IF
 
@@ -167,6 +169,7 @@ MODULE parameters
 
       ! NEXIT seems to be the only variable that depended on one of these...
       NEXIT = 10*NSUBEX
+      CLOSE(200)
   END SUBROUTINE initconstants
 
 END MODULE parameters
