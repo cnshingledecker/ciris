@@ -298,23 +298,24 @@
             new_coords(1) = i_re2
             new_coords(2) = j_re2
             new_coords(3) = k_re2
-            IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 .AND. &
-                 ALL(coords .EQ. new_coords) .EQV. .FALSE.) THEN
-            ! Determine if the hopped to species can react with the hopping species
-              r1 = matrix(i_re,j_re,k_re)
-              r2 = matrix(i_re2,j_re2,k_re2)
-              CALL canreact(r1,r2,react_cube,wait_list,null)
-              ! Determine if site is occupied and if species can react
-              IF ( null .EQ. 0 ) THEN
-                large_arr(n,4) = 1
-                large_count = large_count + 1
-              ELSE
-                large_arr(n,4) = 0
-              END IF
+            IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 ) THEN 
+              IF ( ALL(coords .EQ. new_coords) .EQV. .FALSE.) THEN
+              ! Determine if the hopped to species can react with the hopping species
+                r1 = matrix(i_re,j_re,k_re)
+                r2 = matrix(i_re2,j_re2,k_re2)
+                CALL canreact(r1,r2,react_cube,wait_list,null)
+                ! Determine if site is occupied and if species can react
+                IF ( null .EQ. 0 ) THEN
+                  large_arr(n,4) = 1
+                  large_count = large_count + 1
+                ELSE
+                  large_arr(n,4) = 0
+                END IF
 
-              large_arr(n,1)=i_re2
-              large_arr(n,2)=j_re2
-              large_arr(n,3)=k_re2
+                large_arr(n,1)=i_re2
+                large_arr(n,2)=j_re2
+                large_arr(n,3)=k_re2
+              END IF
             END IF
           END IF top_bottom
         END DO initial_loop
@@ -370,26 +371,27 @@
             new_coords(1) = i_re2
             new_coords(2) = j_re2
             new_coords(3) = k_re2
-            IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 .AND. &
-                 ALL(coords .EQ. new_coords) .EQV. .FALSE. ) THEN
-              r1 = matrix(i_re,j_re,k_re)
-              r2 = matrix(i_re2,j_re2,k_re2)
-  !            PRINT *, 'r1=',r1,'and r2=',r2
-              CALL canreact(r1,r2,react_cube,wait_list,null)
-              IF ( null .EQ. 0 ) THEN
-                small_arr(n,4) = 1
-                small_count = small_count + 1
+            IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 ) THEN
+              IF ( ALL(coords .EQ. new_coords) .EQV. .FALSE. ) THEN
+                r1 = matrix(i_re,j_re,k_re)
+                r2 = matrix(i_re2,j_re2,k_re2)
+  !             PRINT *, 'r1=',r1,'and r2=',r2
+                CALL canreact(r1,r2,react_cube,wait_list,null)
+                IF ( null .EQ. 0 ) THEN
+                  small_arr(n,4) = 1
+                  small_count = small_count + 1
+                ELSE
+                  small_arr(n,4) = 0
+                END IF
+                small_arr(n,1)=i_re2
+                small_arr(n,2)=j_re2
+                small_arr(n,3)=k_re2
               ELSE
+                small_arr(n,1) = i_re
+                small_arr(n,2) = j_re
+                small_arr(n,3) = k_re
                 small_arr(n,4) = 0
               END IF
-              small_arr(n,1)=i_re2
-              small_arr(n,2)=j_re2
-              small_arr(n,3)=k_re2
-            ELSE
-              small_arr(n,1) = i_re
-              small_arr(n,2) = j_re
-              small_arr(n,3) = k_re
-              small_arr(n,4) = 0
             END IF
           END DO
         END IF
@@ -1017,6 +1019,7 @@
     REAL(KIND=DBL)                                 :: e_loss,e_ion,e_exc,ee_loss
     REAL(KIND=DBL)                                 :: labtheta
     REAL(KIND=DBL)                       , TARGET  :: e_se
+    REAL(KIND=DBL)                                 :: subexrand
     DOUBLE PRECISION                     , TARGET  :: energy_target
     DOUBLE PRECISION                     , POINTER :: ione
     DOUBLE PRECISION   , DIMENSION(:)    , POINTER :: psigij,psigexj
@@ -1350,13 +1353,16 @@
                   END IF
                 !END DO
                 IF ( matrix(next(1),next(2),next(3)) .NE. 0 ) THEN
-                  IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'matrix in subexloop=',matrix(next(1),next(2),next(3))
-                  !Carry out dissociate electron attachment
-                  !NB: In the model, this is functionally identical to
-                  !an ordinary ionization
-                  CALL base_ionization(o3_prod,o3_dest,next, react_cube, matrix, en_list, &
-                                       ionlist, wait_list, wait_len, &
-                                       time, ev_nums,null )
+!		  subexrand = RAND()
+!		  IF ( subexrand .GT. SUBEXHITPROB ) THEN
+                      IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'matrix in subexloop=',matrix(next(1),next(2),next(3))
+                      !Carry out dissociate electron attachment
+                      !NB: In the model, this is functionally identical to
+                      !an ordinary ionization
+                      CALL base_ionization(o3_prod,o3_dest,next, react_cube, matrix, en_list, &
+                                           ionlist, wait_list, wait_len, &
+                                           time, ev_nums,null )
+!		  END IF
                   nn = nn + 1
                 END IF
               END DO
@@ -2091,7 +2097,7 @@
     IF ( r1 .EQ. 4 .AND. r2 .EQ. 1 .OR. r1 .EQ. 1 .AND. r2 .EQ. 4 ) THEN
       rnum = RAND()
       IF ( rnum .LE. O_O2_BRANCHING ) THEN
-        prods = (/ 4, 4, 4 /)
+        prods = (/ 1, 4, 0 /)
       END IF
     ELSE IF ( r1 .EQ. 2 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 2 ) THEN
       rnum = RAND()
@@ -2543,9 +2549,9 @@
     INTEGER                                                    :: wrong_count
 
 
-    volume = THICK*EDGE*EDGE
+!    volume = THICK*EDGE*EDGE
     area   = EDGE*EDGE
-    denom = volume*1E20
+    denom = THICK*EDGE*EDGE*1E20
     sp1_count = 0
     sp2_count = 0
     wrong_count = 0
@@ -2590,14 +2596,17 @@
         END DO
       END DO
     END DO
+!    END IF
 
     IF ( TEST_WRONG .EQV. .TRUE. ) THEN
       OPEN(UNIT=1014,FILE="counter_test_wait_list.txt",STATUS='REPLACE')
       DO nn = 1,wait_len
-        IF( matrix(wait_list(nn)%i,wait_list(nn)%j,wait_list(nn)%k) .NE. nn .AND. wait_list(nn)%sp_num .NE. 20 ) THEN
-          wrong_count = wrong_count + 1
-          WRITE(1014,*)  'Matrix=',matrix(wait_list(nn)%i,wait_list(nn)%j,wait_list(nn)%k),'wait_list=',wait_list(nn)
-          PRINT *, 'We have a list flaw at:',wait_list(nn)%i,wait_list(nn)%j,wait_list(nn)%k
+        IF ( wait_list(nn)%sp_num .NE. 20 ) THEN
+          IF( matrix(wait_list(nn)%i,wait_list(nn)%j,wait_list(nn)%k) .NE. nn ) THEN
+            wrong_count = wrong_count + 1
+            WRITE(1014,*)  'Matrix=',matrix(wait_list(nn)%i,wait_list(nn)%j,wait_list(nn)%k),'wait_list=',wait_list(nn)
+            PRINT *, 'We have a list flaw at:',wait_list(nn)%i,wait_list(nn)%j,wait_list(nn)%k
+          END IF
         END IF
       END DO
     END IF
@@ -2611,6 +2620,7 @@
       END IF
     END IF
 
+ !   sp2_count = REAL(o3_prod - o3_dest)
     WRITE(unit_num,*) time,',', fluence,',',sp1_count/denom,',',sp2_count/denom,',',numprotons,',' &
                       ,(REAL(o3_prod)/REAL(o3_dest))
     varfmt = "(A6,ES10.4,A9,ES10.4)"
@@ -2619,6 +2629,8 @@
     PRINT varfmt, " [O]=",sp1_count/denom," [O3]=",sp2_count/denom
     varfmt = "(A16,F10.4,A16,I10)"
     PRINT *, '[O3] PROD/DEST =', (REAL(o3_prod)/REAL(o3_dest))," WAIT LENGTH=",wait_len
+    PRINT *, 'O3_prod=',o3_prod, 'O3_dest=',o3_dest
+    PRINT *, 'denom=',denom
     PRINT *, '***********************************************************************'
   END SUBROUTINE counter
 
@@ -3929,7 +3941,13 @@
 
  !   IF ( i_re .EQ. 340 .AND. j_re .EQ. 71 .AND. k_re .EQ. 141 ) DEBUG = .TRUE.
  !   IF ( i_re2 .EQ. 340 .AND. j_re2 .EQ. 71 .AND. k_re2 .EQ. 141 ) DEBUG = .TRUE.
-
+    
+    IF ( O3_ANALYTICS .EQV. .TRUE. ) THEN
+    	IF ( r1 .EQ. 7 .OR. r2 .EQ. 7 .OR. p1 .EQ. 7 .OR. p2 .EQ. 7 ) THEN
+	    WRITE(O3_NUM,*) r1,r2,prods
+	END IF
+    END IF
+     
     IF ( DEBUG .EQV. .TRUE.) PRINT *, 'In Place_Product, case=',casetype
 
     SELECT CASE (casetype)
@@ -4306,8 +4324,12 @@
       ! Place wait_len at new coords
       ! NOTE: r2 is at i_re...
       wait_list(index2)%sp_num = p1
+      wait_list(index2)%i = i_re
+      wait_list(index2)%j = j_re
+      wait_list(index2)%k = k_re
       CALL wait_calc(wait_list,index2,en_list,time)
       wait_len = wait_len + 1
+      wait_list(wait_len)%sp_num = p2
       wait_list(wait_len)%i = i_re2
       wait_list(wait_len)%j = j_re2
       wait_list(wait_len)%k = k_re2
