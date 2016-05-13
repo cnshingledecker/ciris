@@ -1,8 +1,9 @@
 MODULE gp
   USE parameters
+  USE typedefs
 CONTAINS
 
-  SUBROUTINE fitness(unfit,o3_prod,o3_dest,fluence,total_fitness)
+  SUBROUTINE fitness(unfit,o3_prod,o3_dest,fluence,total_fitness,dimens,matrix,wait_list)
   ! Purpose:
   !    This subroutine measures the fitness of the current simulation.
   !  the resulting fitness is added to the total fitness thusfar.
@@ -12,20 +13,46 @@ CONTAINS
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
-    LOGICAL                       :: unfit
-    INTEGER,              POINTER :: o3_prod,o3_dest
-    REAL(KIND=DBL)                :: fluence
-    REAL(KIND=DBL),   INTENT(OUT) :: total_fitness
-    INTEGER :: err
-    CHARACTER(LEN=80), PARAMETER  :: FITNESS_FILE       = 'fitness_results'
-    REAL(KIND=DBL)                :: denom
-    REAL(KIND=DBL)                :: objective
-    REAL(KIND=DBL)                :: model
-    REAL(KIND=DBL)                :: fit
+    LOGICAL                                                    :: unfit
+    INTEGER                                          , POINTER :: o3_prod,o3_dest
+    REAL(KIND=DBL)                                             :: fluence
+    REAL(KIND=DBL)   , INTENT(OUT)                             :: total_fitness
+    INTEGER                                                    :: err
+    CHARACTER(LEN=80), PARAMETER                               :: FITNESS_FILE = 'fitness_results'
+    REAL(KIND=DBL)                                             :: denom
+    REAL(KIND=DBL)                                             :: objective
+    REAL(KIND=DBL)                                             :: model
+    REAL(KIND=DBL)                                             :: fit
+    INTEGER                                                    :: ozone_count
+    TYPE(wait_info)                , DIMENSION(:)    , POINTER :: wait_list
+    INTEGER                        , DIMENSION(:,:,:), POINTER :: matrix
+    INTEGER, DIMENSION(3)                                      :: dimens
+    INTEGER                                                    :: i, j, k
+   
+    ozone_count = 0
+
+    DO k = 1,dimens(3)
+      DO j = 1,dimens(2)
+        DO i = 1,dimens(1)
+          IF ( matrix(i,j,k) .NE. 0 ) THEN
+            IF ( matrix(i,j,k) .LT. 0 ) THEN
+              IF ( ABS(matrix(i,j,k)) .EQ. 7 ) THEN
+                ozone_count = ozone_count + 1
+              END IF
+            ELSE IF ( matrix(i,j,k) .GT. 0 ) THEN
+              IF  ( wait_list(matrix(i,j,k))%sp_num .EQ. 7 ) THEN
+                ozone_count = ozone_count + 1
+              END IF
+            END IF
+          END IF
+        END DO
+      END DO
+    END DO
+
 
     denom          = THICK*EDGE*EDGE*1E20    ! volume * 1E20
-    objective      = (4*(fluence**0.8))/(1E13**0.8+fluence**0.8) ! hard-coded expected value (objective) function
-    model          = REAL(o3_prod-o3_dest)/denom
+    objective      = (4*(fluence**0.8))/(1E13**0.8+fluence**0.8) ! hard-ncoded expected value (objective) function
+    model          = REAL(ozone_count)/denom
     fit = (objective - model) ** 2
     total_fitness  = total_fitness + fit
 
@@ -80,3 +107,5 @@ CONTAINS
   END SUBROUTINE store_rand
 
 END MODULE gp
+
+

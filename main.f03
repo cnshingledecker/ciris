@@ -96,7 +96,7 @@ OPEN(UNIT=1009,FILE="abundance.csv",POSITION='APPEND', STATUS='REPLACE')
 !OPEN(UNIT=1013,FILE="time_data.csv")
 !Below for debugging and analytics
 IF ( DEBUG .EQV. .TRUE. ) OPEN(UNIT=777,FILE='reaction_analytics.csv',STATUS='REPLACE',POSITION='APPEND')
-
+IF ( O3_ANALYTICS .EQV. .TRUE. ) OPEN(UNIT=O3_NUM,FILE='ozone_reactions.wsv', STATUS='REPLACE',POSITION='APPEND')
 ! Nullify pointers
 NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len,o3_prod,o3_dest )
 
@@ -177,7 +177,7 @@ END FORALL
 matrix_ptr => matrix
 
 ! Initialize wait list to have nothing in it
-ALLOCATE( wait_target(SIZE(matrix)/3) )
+ALLOCATE( wait_target(SIZE(matrix)/2) )
 wlen_target = 0
 wait_len  => wlen_target
 wait_list => wait_target
@@ -248,12 +248,18 @@ DO WHILE ( fluence .LE. fluence_total .AND. .NOT. unfit)
   END IF
 
 
+  ! Terminate if wait_list gets too big
+  IF ( wait_len .GT. (SIZE(matrix_ptr)/2)-1000 ) THEN
+      PRINT *, 'ERROR! Wait_list too big! Quiting!'
+      CALL EXIT()
+  END IF
+
   time_check = time_check + 1
-!  IF ( MOD(time_check,TIME_FREQ) .EQ. 0 ) THEN
+  IF ( MOD(time_check,TIME_FREQ) .EQ. 0 ) THEN
     CALL counter( o3_prod,o3_dest,numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7,wait_len)
 
     ! Testing out the new fitness function
-    CALL fitness(unfit,o3_prod,o3_dest,fluence,total_fitness)
+    CALL fitness(unfit,o3_prod,o3_dest,fluence,total_fitness,dimens,matrix_ptr,wait_list)
 
     CALL CPU_TIME(t2)
     cpu_total = cpu_total + (t2-t1)
@@ -263,11 +269,11 @@ DO WHILE ( fluence .LE. fluence_total .AND. .NOT. unfit)
 !    o3_prod = 0
 !    o3_dest = 0
     CALL roll_call( wait_list, time, wait_len, mindex )
-!  ELSE IF ( time_check .GT. 1E3 .AND. wait_len .LE. 5 ) THEN
-!    CALL find_cr( wait_list, mindex, wait_len,  cr_num, en_ptr, time )
-!  ELSE
-!     CALL roll_call( wait_list, time, wait_len, mindex )
-!  END IF
+  ELSE IF ( time_check .GT. 1E3 .AND. wait_len .LE. 5 ) THEN
+    CALL find_cr( wait_list, mindex, wait_len,  cr_num, en_ptr, time )
+  ELSE
+     CALL roll_call( wait_list, time, wait_len, mindex )
+  END IF
 
   ! update fluence
   fluence = time * CR_FLUX

@@ -38,7 +38,7 @@ mc_toolbox.o: mc_toolbox.f03
 functiondefs.o: functiondefs.f03 parameters.o typedefs.o
 	$(FC) -c functiondefs.f03
 
-gp.o: gp.f03 parameters.o
+gp.o: gp.f03 parameters.o typedefs.o
 	$(FC) -c gp.f03
 
 static: qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o
