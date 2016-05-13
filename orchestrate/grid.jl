@@ -20,7 +20,7 @@ end
 # initializes grid process
 function initGrid()
     print("Starting grid process...\t")
-    g_out, g_in, g_proc = readandwrite(`/home/alex/GenesisII/bin/grid`)
+    g_out, g_in, g_proc = readandwrite(`/home/cns/GenesisII/bin/grid`)
     readuntil(g_out, "[grid] ")
     println("Done.")
     return g_out, g_in, g_proc

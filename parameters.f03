@@ -85,7 +85,7 @@ MODULE parameters
   REAL(KIND=DBL)  , PARAMETER :: PCUTOFF           = 5.0D0                 ! Primary ion cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: FLUENCE_TOTAL     = 1D16
   REAL(KIND=DBL)  , PARAMETER :: SUBEXHITPROB      = 0.5
-  REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 1  ! if fitness value exceeds this, terminate
+  REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 50  ! if fitness value exceeds this, terminate
 
   !******************************************************************************
   ! Branching Ratios

@@ -56,10 +56,10 @@ CONTAINS
     fit = (objective - model) ** 2
     total_fitness  = total_fitness + fit
 
-!    PRINT *, 'F_obj(', fluence, ') = ', objective
-!    PRINT *, 'F_model(', fluence, ') = ', model
-!    PRINT *, 'Total fitness: ', total_fitness
-!    PRINT *, '***********************************************************************'
+    PRINT *, 'F_obj(', fluence, ') = ', objective
+    PRINT *, 'F_model(', fluence, ') = ', model
+    PRINT *, 'Total fitness: ', total_fitness
+    PRINT *, '***********************************************************************'
 
     ! if current solution's total_fitness score is too big, save time and end the simulation
     IF (total_fitness > FITNESS_THRESHOLD) THEN

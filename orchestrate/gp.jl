@@ -11,10 +11,10 @@ include("grid.jl")
 include("maintainence.jl")
 
 # island population constants
-MIN_WORK = 15   # max number of jobs/island
+MIN_WORK = 1    # max number of jobs/island
 MIN_TODO = 50   # min todo size/island
 MAX_DONE = 400  # max done size/island
-EXILE = 25
+EXILE = 25      # not implemented yet...
 MUTATE_CHANCE=10 # 1 out of...
 EXILE_CHANCE=5   # 1 out of...
 
