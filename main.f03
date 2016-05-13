@@ -68,6 +68,7 @@ PRINT *, "***STARTING SIMULATION***"
 PRINT *, "*************************"
 
 ! Read in constants and save seed
+CALL SYSTEM("/bin/bash pre.sh")
 CALL initconstants()
 CALL store_rand()
 
@@ -318,4 +319,5 @@ IF ( DEBUG .EQV. .TRUE. ) CLOSE(777)
 !PRINT *, 'Area is:',AREA
 NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len )
 DEALLOCATE( qube, sp_list, en_list, matrix,wait_target )
+CALL SYSTEM("/bin/bash post.sh")
 END PROGRAM main
