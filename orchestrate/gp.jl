@@ -11,11 +11,11 @@ include("grid.jl")
 include("maintainence.jl")
 
 # island population constants
-MIN_WORK = 1    # max number of jobs/island
-MIN_TODO = 50   # min todo size/island
-MAX_DONE = 400  # max done size/island
+MIN_WORK = 3    # max number of jobs/island
+MIN_TODO = 25   # min todo size/island
+MAX_DONE = 10  # max done size/island
 EXILE = 25      # not implemented yet...
-MUTATE_CHANCE=10 # 1 out of...
+MUTATE_CHANCE=5 # 1 out of...
 EXILE_CHANCE=5   # 1 out of...
 
 # Some sanity assertions
@@ -165,7 +165,7 @@ if length(ARGS) == 1 && (ARGS[1] == "-d" || ARGS[1] == "--debug")
     # debug/default
     println("Using default arguments")
     queue = "/resources/xcg.virginia.edu/queues/vm-queue"
-    root = "/home/xcg.virginia.edu/apt9jf/archipelago"
+    root = "/home/xcg.virginia.edu/cns7ae/archipelago"
 
     islands = ["G0"]
     Grid.initialize(queue, root, islands)
@@ -186,18 +186,18 @@ else
 end
 
 # the main loop
-do_maintainence(Grid.ISLANDS)
-#while true
-#    for i=1:5
-#        do_maintainence(Grid.ISLANDS)
-#        # sleep
-#        sleep(30)
-#    end
-#    println("Time to quit?")
+#do_maintainence(Grid.ISLANDS)
+while true
+    for i=1:5
+        do_maintainence(Grid.ISLANDS)
+        # sleep
+        sleep(100)
+    end
+    println("Time to quit?")
 #    if !isfile("GO")
 #        println("Quitting...")
 #        break
 #    end
-#end
+end
 writeTickets(TICKET_MASTER, tickets)
 Grid.cleanup()

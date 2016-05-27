@@ -35,8 +35,8 @@ MODULE parameters
   !******************************************************************************
   ! Physical Conditions
   !******************************************************************************
-  REAL(KIND=DBL)  , PARAMETER :: THICK       = 2.0e-6                      !1.0e-5 ! Thickness of the ice in cm
-  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 2.0e-6                      !1.0e-7 ! The edge of the crystal in cm
+  REAL(KIND=DBL)  , PARAMETER :: THICK       = 1.0e-5                      !1.0e-5 ! Thickness of the ice in cm
+  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 1.0e-5                      !1.0e-7 ! The edge of the crystal in cm
   REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0                       ! Kinetic temperature in Kelvin
   REAL(KIND=DBL)  , PARAMETER :: AREA        = EDGE*EDGE                   ! Area of irradiated surface in cm
   REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 1.0D11                      ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
@@ -76,16 +76,16 @@ MODULE parameters
   !******************************************************************************
   INTEGER         , PARAMETER :: IONS              = 6                     ! Number of anions in species list
   INTEGER         , PARAMETER :: TIME_COUNTS       = 2                     ! Times the model will check abundances
-  INTEGER                     :: NSUBEX            = 3                     ! Number of sub-excitation interactions
+  INTEGER                     :: NSUBEX            = 2                     ! Number of sub-excitation interactions
   INTEGER                     :: NEXIT                                     ! Max sub-ex loop iters
-  REAL                        :: STEPFAC           = 0.01                  ! Determines freq. between colls.
+  REAL                        :: STEPFAC           = 1                  ! Determines freq. between colls.
   REAL(KIND=DBL)  , PARAMETER :: TIME_TOTAL        = 1D5                   ! Total time in s
-  REAL(KIND=DBL)              :: AVAL              = 13                    ! Parameter for Gamma distribution
+  REAL(KIND=DBL)              :: AVAL              = 15                    ! Parameter for Gamma distribution
   REAL(KIND=DBL)  , PARAMETER :: ECUTOFF           = 4.5D0                 ! Secondary cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: PCUTOFF           = 5.0D0                 ! Primary ion cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: FLUENCE_TOTAL     = 1D16
   REAL(KIND=DBL)  , PARAMETER :: SUBEXHITPROB      = 0.5
-  REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 50  ! if fitness value exceeds this, terminate
+  REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 100000  ! if fitness value exceeds this, terminate
 
   !******************************************************************************
   ! Branching Ratios
@@ -106,6 +106,7 @@ MODULE parameters
   ! Output File Unit Numbers
   !******************************************************************************
   INTEGER         , PARAMETER :: AB_UNIT_NUM = 1009                        ! Abundance output file
+  INTEGER         , PARAMETER :: TRACKMAX    = 20000
 
 
   !******************************************************************************
@@ -115,13 +116,13 @@ MODULE parameters
   INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 21 /)                    ! 7 ! Species that dissociate easily
   INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4,7 /)
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
-  INTEGER, PARAMETER          :: TIME_FREQ    = 1000 !1000000
+  INTEGER, PARAMETER          :: TIME_FREQ    = 10 !1000000
 
   LOGICAL, PARAMETER :: SECELEC    = .TRUE.
   LOGICAL, PARAMETER :: DEBUG      = .FALSE.
   LOGICAL, PARAMETER :: TEST_WRONG = .FALSE.
   LOGICAL, PARAMETER :: TRACKPLOT  = .FALSE.
-  LOGICAL, PARAMETER :: O3_ANALYTICS = .TRUE.
+  LOGICAL, PARAMETER :: O3_ANALYTICS = .FALSE.
   INTEGER, PARAMETER :: O3_NUM = 777
 
   CONTAINS

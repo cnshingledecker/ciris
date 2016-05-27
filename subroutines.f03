@@ -975,7 +975,7 @@
     !
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! FALLOUT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
     !******************!
@@ -1033,6 +1033,7 @@
     DOUBLE PRECISION   , DIMENSION(:), ALLOCATABLE, TARGET :: psigij_target,psigexj_target
     TYPE(SIGMA_BOX)    , DIMENSION(:), ALLOCATABLE, TARGET :: psigmas_target
     INTEGER :: thinghit
+    LOGICAL :: proceed
 
 
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****Starting Fallout*****'
@@ -1080,15 +1081,24 @@
   !****************************************************************************!
   ! Determine random entry site                                                !
   !****************************************************************************!
-    CALL RANDOM_NUMBER(p)
-    CALL RANDOM_NUMBER(u)
+    proceed = .FALSE. 
+    IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Now selecting initial site'
+    DO WHILE ( proceed .EQV. .FALSE. ) 
+      CALL RANDOM_NUMBER(p)
+      CALL RANDOM_NUMBER(u)
 
-    ! the value will be in range [1,bound]
-    x = 1 + FLOOR( dimens(3)*p )
-    y = 1 + FLOOR( dimens(2)*u )
-    z = 1
+      ! the value will be in range [1,bound]
+      x = 1 + FLOOR( dimens(3)*p )
+      y = 1 + FLOOR( dimens(2)*u )
+      z = 1
+      IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+        IF ( x .GT. 300 .AND. x .LT. 600 .AND. y .GT. 300 .AND. y .LT. 600 ) proceed = .TRUE.
+      ELSE
+        proceed = .TRUE. 
+      END IF
+    END DO
 
-!    PRINT *, "The entry site is:",x,y,z
+    IF ( DEBUG .EQV. .TRUE. ) PRINT *, "The entry site is:",x,y,z
   !****************************************************************************!
   ! Beginning of track event calculation                                       !
   !****************************************************************************!
@@ -1107,7 +1117,7 @@
 
 
     main_loop: DO WHILE (z .LE. dimens(1) .AND. ione .GE. 5.0 )
-!      PRINT *, 'Now entering loop: z=',z,' and dimens(1)=',dimens(1),' and step=',step
+      IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Now entering loop: z=',z,' and dimens(1)=',dimens(1),' and step=',step
       count_count = count_count + 1
 !      IF ( MOD(count_count,1000) .EQ. 0 ) CALL counter(time, AB_UNIT_NUM, matrix, wait_list, 4,7)
       ! Define event coords
@@ -1115,6 +1125,7 @@
       ev_coords(2) = y
       ev_coords(3) = x
       IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+        count_count = count_count + 1
         WRITE(2016,*) ev_coords(1),',',ev_coords(2),',',ev_coords(3)
       END IF
 !      PRINT *, 'The event coords are:',ev_coords
@@ -1123,7 +1134,7 @@
 
 
       IF ( matrix(z+step,y,x) .NE. 0 ) THEN
-!        PRINT *, "The value of the matrix is:",matrix(z+step,y,x)
+        IF ( DEBUG .EQV. .TRUE. ) PRINT *, "The value of the matrix is:",matrix(z+step,y,x)
         ! If the site is occupied, then determine the type of event to occur
 !        DO WHILE ( u .EQ. 0.0 .AND. rand .EQ. 0.0 )
         u = RAND()
@@ -1222,6 +1233,7 @@
                                   time, ev_nums, null,elec_coords )
 
             IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+              count_count = count_count + 1
               WRITE(2016,*) elec_coords(1),',',elec_coords(2),',',elec_coords(3)
             END IF
 
@@ -1279,6 +1291,7 @@
                 CALL transport(prev,curr,next,matrix)
 
                 IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+                  count_count = count_count + 1 
                   WRITE(2016,*) curr(1),',',curr(2),',',curr(3)
                 END IF
               END DO
@@ -1349,6 +1362,7 @@
                   CALL transport(prev,curr,next,matrix)
 
                   IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+                    count_count = count_count + 1
                     WRITE(2016,*) curr(1),',',curr(2),',',curr(3)
                   END IF
                 !END DO
@@ -1430,16 +1444,21 @@
 
       ! Make sure the site is greater than the previous one
       IF (step .LE. 0. ) GOTO 100
-      IF (z+step .GE. dimens(1) ) RETURN
-
-    END DO main_loop
-    IF ( TRACKPLOT .EQV. .TRUE. ) THEN
-      CLOSE(2016)
-      IF ( count_count .NE. 0 ) THEN
-        PRINT *, 'TRACK PLOTTED: EXITING'
-        CALL EXIT()
+      IF (z+step .GE. dimens(1) ) THEN 
+        IF ( TRACKPLOT .EQV. .TRUE. ) THEN 
+          IF ( count_count .GT. TRACKMAX ) CALL EXIT()
+        ELSE
+          RETURN
+        END IF
       END IF
-    END IF
+   
+      IF ( TRACKPLOT .EQV. .TRUE. ) THEN 
+        PRINT *, 'Count_count=',count_count
+        !IF ( count_count .GT. 80000 ) CALL EXIT()
+      END IF
+      IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Now at end of main loop in Fallout'
+    END DO main_loop
+
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****Ending Fallout*****'
 !    CLOSE(10)
   END SUBROUTINE fallout

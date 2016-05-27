@@ -2,7 +2,7 @@
 <jsdl:JobDefinition xmlns:jsdl-hpcpa="http://schemas.ggf.org/jsdl/2006/07/jsdl-hpcpa" xmlns:hpcfse-ac="http://schemas.ogf.org/hpcp/2007/11/ac" xmlns:jsdl-sweep="http://schemas.ogf.org/jsdl/2009/03/sweep" xmlns:jsdl-posix="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix" xmlns:jsdl-spmd="http://schemas.ogf.org/jsdl/2007/02/jsdl-spmd" xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl" xmlns:wss="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:ns8="http://vcgr.cs.virginia.edu/jsdl/genii" xmlns:ns9="http://schemas.ogf.org/jsdl/2009/03/sweep/functions">
     <jsdl:JobDescription>
         <jsdl:JobIdentification>
-            <jsdl:JobName>losalamos worker (PLACEHOLDER1)</jsdl:JobName>
+            <jsdl:JobName>losalamos worker (G3)</jsdl:JobName>
         </jsdl:JobIdentification>
         <jsdl:Application>
             <jsdl-posix:POSIXApplication>
@@ -33,7 +33,7 @@
             <jsdl:DeleteOnTermination>true</jsdl:DeleteOnTermination>
             <jsdl:HandleAsArchive>false</jsdl:HandleAsArchive>
             <jsdl:Source>
-                <jsdl:URI>rns:/home/xcg.virginia.edu/cns7ae/archipelago/PLACEHOLDER1/prog/PLACEHOLDER0</jsdl:URI>
+                <jsdl:URI>rns:/home/xcg.virginia.edu/cns7ae/archipelago/G3/prog/b2ff0cd0-1390-4954-ae6f-1a20f1fe7ba3</jsdl:URI>
             </jsdl:Source>
         </jsdl:DataStaging>
         <jsdl:DataStaging>
@@ -78,7 +78,7 @@
             <jsdl:DeleteOnTermination>true</jsdl:DeleteOnTermination>
             <jsdl:HandleAsArchive>false</jsdl:HandleAsArchive>
             <jsdl:Target>
-                <jsdl:URI>rns:/home/xcg.virginia.edu/cns7ae/archipelago/PLACEHOLDER1/done/PLACEHOLDER0</jsdl:URI>
+                <jsdl:URI>rns:/home/xcg.virginia.edu/cns7ae/archipelago/G3/done/b2ff0cd0-1390-4954-ae6f-1a20f1fe7ba3</jsdl:URI>
             </jsdl:Target>
         </jsdl:DataStaging>
         <jsdl:DataStaging>
@@ -87,7 +87,7 @@
             <jsdl:DeleteOnTermination>true</jsdl:DeleteOnTermination>
             <jsdl:HandleAsArchive>false</jsdl:HandleAsArchive>
             <jsdl:Target>
-                <jsdl:URI>rns:/home/xcg.virginia.edu/cns7ae/archipelago/PLACEHOLDER1/accounting/OUT_PLACEHOLDER0</jsdl:URI>
+                <jsdl:URI>rns:/home/xcg.virginia.edu/cns7ae/archipelago/G3/accounting/OUT_b2ff0cd0-1390-4954-ae6f-1a20f1fe7ba3</jsdl:URI>
             </jsdl:Target>
         </jsdl:DataStaging>
         <jsdl:DataStaging>
@@ -96,7 +96,7 @@
             <jsdl:DeleteOnTermination>true</jsdl:DeleteOnTermination>
             <jsdl:HandleAsArchive>false</jsdl:HandleAsArchive>
             <jsdl:Target>
-                <jsdl:URI>rns:/home/xcg.virginia.edu/cns7ae/archipelago/PLACEHOLDER1/accounting/ERR_PLACEHOLDER0</jsdl:URI>
+                <jsdl:URI>rns:/home/xcg.virginia.edu/cns7ae/archipelago/G3/accounting/ERR_b2ff0cd0-1390-4954-ae6f-1a20f1fe7ba3</jsdl:URI>
             </jsdl:Target>
         </jsdl:DataStaging>
     </jsdl:JobDescription>

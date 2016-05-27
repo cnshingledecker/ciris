@@ -12,7 +12,8 @@ done
 
 # simulate
 #chmod +x losalamos
-./losalamos
+#./losalamos
+/home/xcg.virginia.edu/cns7ae/archipelago/losalamos
 
 # need to grab random seed used
 if [[ -e "seed" ]]; then
