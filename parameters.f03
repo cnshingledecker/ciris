@@ -90,13 +90,13 @@ MODULE parameters
   !******************************************************************************
   ! Branching Ratios
   !******************************************************************************
-  REAL            , PARAMETER :: O3_DIS_BRANCHING    = 0.5 ! 0.0 ! O3 + * -> O2 + 0
-  REAL            , PARAMETER :: O2_E_BRANCHING      = 0.5 ! O2+ + e -> O2
-  REAL            , PARAMETER :: O3_E_BRANCHING      = 1.0 ! 0.0 ! O3+ + e -> O2 + O
-  REAL            , PARAMETER :: O3_O_BRANCHING      = 0.0 ! 0.0 ! O3 + O -> O2 + O2
+  REAL                        :: O3_DIS_BRANCHING    = 0.5 ! 0.0 ! O3 + * -> O2 + 0
+  REAL                        :: O3_E_BRANCHING      = 1.0 ! 0.0 ! O3+ + e -> O2 + O
+  REAL                        :: O3_O_BRANCHING      = 0.0 ! 0.0 ! O3 + O -> O2 + O2
   REAL                        :: O_O2_BRANCHING      = 0.5 ! O + O2 -> O2 + O
   REAL                        :: O2_ION_BRANCHING    = 0.0 ! O2- + O2+ -> O3 + O
   REAL                        :: O_O2_ION_BRANCHING  = 0.0 ! O+ + O2- and O- + O2+ -> O3
+  REAL            , PARAMETER :: O2_E_BRANCHING      = 0.5 ! O2+ + e -> O2
   REAL            , PARAMETER :: O_O_ION_BRANCHING   = 0.0 ! O+ + O- -> O2
   REAL            , PARAMETER :: O3_O_ION_BRANCHING  = 1.0 ! O3+ + O- or O3- + O+ -> O3 + O
   REAL            , PARAMETER :: O3_O2_ION_BRANCHING = 1.0 ! O3+ + O2- or O3- + O2+ -> O2 + O2 + O
@@ -161,6 +161,12 @@ MODULE parameters
               READ(val, *) O2_ION_BRANCHING
           CASE ("O_O2_ION_BRANCHING")
               READ(val, *) O_O2_ION_BRANCHING
+          CASE ("O3_O_BRANCHING")
+              READ(val, *) O3_O_BRANCHING
+          CASE ("O3_E_BRANCHING")
+              READ(val, *) O3_E_BRANCHING
+          CASE ("O3_DIS_BRANCHING")
+              READ(val, *) O3_DIS_BRANCHING
           CASE ("FRAGILE")
               READ(val, *) FRAGILE
           CASE ("FAST_REACTS")
