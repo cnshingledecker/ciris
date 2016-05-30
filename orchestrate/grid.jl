@@ -205,6 +205,7 @@ end
 # creates directory hierarchy
 function setupArchipelago()
     if contains(submitInput("cd $ROOT"), "does not exist")
+#     if contains(submitInput("cd /home/xcg.virginia.edu/cns7ae/archipelago/"), "does not exist") 
         println("[Grid.setupArchipelago] ERROR: bad path")
         exit(-1)
     else
