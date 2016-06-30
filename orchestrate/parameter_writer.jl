@@ -5,16 +5,14 @@ using Base.Random.uuid4
 constraints = Dict(
     "O" => 55:600, #float
     "O3" => 120:1000, #float
-    "TRL_NU" => 1E11:1E12, #float
-    "DISPROB" => 0.0:1.0, #float
+    "TRL_NU" => 1E10:1E10:1E12, #float
+    "DISPROB" => 0.0:0.5:1.0, #float
     "STEPFAC" => 1E-4:1E-4:1.0, #float
     "AVAL" => 9:25, #int
-    "O_O2_BRANCHING" => 0.0:1.0, #float
-    "O2_ION_BRANCHING" => 0.0:1.0, #float
-    "O_O2_ION_BRANCHING" => 0.0:1.0, #float
-    "O3_O_BRANCHING" => 0.0:1.0, #float
-    "O3_E_BRANCHING" => 0.0:1.0, #float
-    "O3_DIS_BRANCHING" => 0.0:1.0, #float
+    "O2_ION_BRANCHING" => 0.0:0.5:1.0, #set
+    "O3_O_ION_BRANCHING" => 0.0:0.5:1.0, #set
+    "O3_DIS_BRANCHING" => 0.0:0.5:1.0, #set
+    "O3_O2_ION_BRANCHING" => 0.0:0.5:1.0, #set
     "NSUBEX" => 0:10, #int
     "FRAGILE" => ["7", "21"], #set
     "FAST_REACTS" => ["4 7", "4 4", "7 7", "21 21"] #set
@@ -130,7 +128,7 @@ end
 """
 function generateRandom(dict, key)
     if dict[key] == 0:1
-        rand()
+        rand(dict[key])
     else
         rand(dict[key])
     end
