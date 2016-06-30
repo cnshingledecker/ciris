@@ -1,4 +1,5 @@
 PROGRAM main
+  !USE IFPORT
 
 USE subroutines
 USE parameters
@@ -97,7 +98,7 @@ OPEN(UNIT=1009,FILE="abundance.csv",POSITION='APPEND', STATUS='REPLACE')
 !OPEN(UNIT=1013,FILE="time_data.csv")
 !Below for debugging and analytics
 IF ( DEBUG .EQV. .TRUE. ) OPEN(UNIT=777,FILE='reaction_analytics.csv',STATUS='REPLACE',POSITION='APPEND')
-IF ( O3_ANALYTICS .EQV. .TRUE. ) OPEN(UNIT=O3_NUM,FILE='ozone_reactions.wsv', STATUS='REPLACE',POSITION='APPEND')
+IF ( O3_ANALYTICS .EQV. .TRUE. ) OPEN(UNIT=O3_NUM,FILE='ozone_reactions.csv', STATUS='REPLACE',POSITION='APPEND')
 ! Nullify pointers
 NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len,o3_prod,o3_dest )
 
@@ -199,7 +200,8 @@ CALL RANDOM_SEED()
 
 ! Find species number for cosmic ray
 cr_num  = ev_nums(2)
-rndnum  = RAND()
+!rndnum  = RAND()
+CALL RANDOM_NUMBER(rndnum)
 cr_time = -1*( DLOG(rndnum)/CR_RATE )
 
 ! Populate wait_list with cr arrival time
@@ -216,14 +218,15 @@ CALL COUNTER(o3_prod,o3_dest,numprotons,time,AB_UNIT_NUM,matrix_ptr,wait_list,4,
 mindex = 1
 fluence = time * CR_FLUX
 unfit = .FALSE.
-DO WHILE ( fluence .LE. fluence_total .AND. .NOT. unfit)
+DO WHILE ( fluence .LE. FLUENCE_TOTAL .AND. .NOT. unfit)
   IF ( wait_list(mindex)%sp_num .EQ. cr_num ) THEN
     ! Increment proton count
     numprotons = numprotons + 1
     ! Calculate time to next cosmic-ray event
     not_infty = .FALSE.
     DO WHILE ( not_infty .EQV. .FALSE. )
-      rndnum  = RAND()
+!      rndnum  = RAND()
+      CALL RANDOM_NUMBER(rndnum)
       cr_time = -1*( DLOG(rndnum)/cr_rate )
       IF ( cr_time + time .LT. 9E6 ) not_infty = .TRUE.
     END DO

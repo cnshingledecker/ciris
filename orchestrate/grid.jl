@@ -182,11 +182,19 @@ function cull(island)
     scores = []
     fitness_map = Dict()
     for filename in files
-        file = split(fetchCat("$island/done/$filename"), "\n")
-        # get line of fitness score -- should be exactly 1
-        fitness = float(filter(line -> contains(line, "FITNESS,"), file)[1][9:end])
-        push!(scores, fitness)
-        fitness_map[fitness] = filename
+        try
+          file = split(fetchCat("$island/done/$filename"), "\n")
+          # get line of fitness score -- should be exactly 1
+          fitness = float(filter(line -> contains(line, "FITNESS,"), file)[1][9:end])
+          push!(scores, fitness)
+          fitness_map[fitness] = filename
+        catch error
+          if isa(error, BoundsError)
+            println("$filename is messed up: removing")
+            submitInput("rm -rf $filename")
+            println("Bad file removed...")
+          end
+        end
     end
     sort!(scores)
 
@@ -205,7 +213,7 @@ end
 # creates directory hierarchy
 function setupArchipelago()
     if contains(submitInput("cd $ROOT"), "does not exist")
-#     if contains(submitInput("cd /home/xcg.virginia.edu/cns7ae/archipelago/"), "does not exist") 
+#     if contains(submitInput("cd /home/xcg.virginia.edu/cns7ae/archipelago/"), "does not exist")
         println("[Grid.setupArchipelago] ERROR: bad path")
         exit(-1)
     else

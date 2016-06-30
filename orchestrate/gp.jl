@@ -1,4 +1,4 @@
-#!/bin/julia
+#!/usr/bin/julia
 #=
  = gp.jl
  =  Orchestration program for genetic programming of losalamos
@@ -11,8 +11,8 @@ include("grid.jl")
 include("maintainence.jl")
 
 # island population constants
-MIN_WORK = 3    # max number of jobs/island
-MIN_TODO = 25   # min todo size/island
+MIN_WORK = 5    # max number of jobs/island
+MIN_TODO = 20   # min todo size/island
 MAX_DONE = 10  # max done size/island
 EXILE = 25      # not implemented yet...
 MUTATE_CHANCE=5 # 1 out of...
@@ -118,16 +118,32 @@ function do_maintainence(islands)
     # TODO: if job manually removed, update tickets map
     completed_jobs = Grid.fetchFinishedTickets()
     for ticket in completed_jobs
-        Grid.rmJob(ticket)
-        Grid.rmFile(tickets[ticket])
-        delete!(tickets, ticket)
+        try
+          Grid.rmJob(ticket)
+          Grid.rmFile(tickets[ticket])
+          delete!(tickets, ticket)
+          catch error
+            if isa(error, KeyError)
+              println("$ticket not found: must be from an older run...")
+              Grid.submitInput("rm -rf /home/xcg.virginia.edu/cns7ae/queues/grid-queue-xcg3/jobs/mine/finished/$ticket")
+              println("old ticket removed")
+            end
+        end
     end
 
     # clean failed tickets, cycle them back into todo
     error_jobs = Grid.fetchErrorTickets()
     for ticket in error_jobs
-        Grid.revertFailedJob(ticket, tickets[ticket])
-        delete!(tickets, ticket)
+        try
+          Grid.revertFailedJob(ticket, tickets[ticket])
+          delete!(tickets, ticket)
+          catch error
+            if isa(error, KeyError)
+              println("$ticket not found: must be from an older run...")
+              Grid.submitInput("rm -rf /home/xcg.virginia.edu/cns7ae/queues/grid-queue-xcg3/jobs/mine/finished/$ticket")
+              println("old ticket removed")
+            end
+        end
     end
 
     # check if more jobs should be submitted
@@ -187,13 +203,18 @@ end
 
 # the main loop
 #do_maintainence(Grid.ISLANDS)
+println("Cleaning up old jobs...")
+Grid.submitInput("rm -rf /home/xcg.virginia.edu/cns7ae/queues/grid-queue-xcg3/jobs/mine/finished/*-*")
 while true
+    println("Starting loop again...")
     for i=1:5
         do_maintainence(Grid.ISLANDS)
         # sleep
-        sleep(100)
+        sleep(300)
+        island_num = i - 1
     end
-    println("Time to quit?")
+    println("Finishing loop")
+#    println("Time to quit?")
 #    if !isfile("GO")
 #        println("Quitting...")
 #        break

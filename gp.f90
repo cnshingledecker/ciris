@@ -19,16 +19,18 @@ CONTAINS
     REAL(KIND=DBL)   , INTENT(OUT)                             :: total_fitness
     INTEGER                                                    :: err
     CHARACTER(LEN=80), PARAMETER                               :: FITNESS_FILE = 'fitness_results'
+    CHARACTER(LEN=80)                                          :: varfmt
     REAL(KIND=DBL)                                             :: denom
     REAL(KIND=DBL)                                             :: objective
     REAL(KIND=DBL)                                             :: model
     REAL(KIND=DBL)                                             :: fit
+    REAL(KIND=DBL)                                             :: part1, part2
     INTEGER                                                    :: ozone_count
     TYPE(wait_info)                , DIMENSION(:)    , POINTER :: wait_list
     INTEGER                        , DIMENSION(:,:,:), POINTER :: matrix
     INTEGER, DIMENSION(3)                                      :: dimens
     INTEGER                                                    :: i, j, k
-   
+
     ozone_count = 0
 
     DO k = 1,dimens(3)
@@ -50,14 +52,25 @@ CONTAINS
     END DO
 
 
-    denom          = THICK*EDGE*EDGE*1E20    ! volume * 1E20
+    denom          = THICK*EDGE*EDGE    ! volume * 1E20
     objective      = (4*(fluence**0.8))/(1E13**0.8+fluence**0.8) ! hard-ncoded expected value (objective) function
     model          = REAL(ozone_count)/denom
-    fit = (objective - model) ** 2
-    total_fitness  = total_fitness + fit
+    model          = model*1.0E20
+    !NB: Original method for calculating fitness
+    !This method depends on the number of times counter is called
+!    fit = (objective - model) ** 2
 
-    PRINT *, 'F_obj(', fluence, ') = ', objective
-    PRINT *, 'F_model(', fluence, ') = ', model
+    !NB: Alternate method for calculating fitness
+    part1 = (((objective + ABS(objective - model)) / objective)*(-100.0)) + 100.0
+    part2 = (((LOG10(FLUENCE_TOTAL) + ABS(LOG10(FLUENCE_TOTAL/fluence))) / LOG10(FLUENCE_TOTAL))*(-100.0)) + 100.0
+    fit = ABS(part1) + ABS(part2)
+
+    total_fitness  = total_fitness + fit
+    varfmt = "(A7,ES10.4,A5,F10.4)"
+    WRITE (*,varfmt), 'F_obj( ', fluence, ' ) = ', objective
+    varfmt = "(A9,ES10.4,A5,F10.4)"
+    WRITE (*,varfmt), 'F_model( ', fluence, ' ) = ', model
+!    varfmt = "A15,F10.4)"
     PRINT *, 'Total fitness: ', total_fitness
     PRINT *, '***********************************************************************'
 
@@ -107,5 +120,3 @@ CONTAINS
   END SUBROUTINE store_rand
 
 END MODULE gp
-
-

@@ -1,4 +1,5 @@
   MODULE subroutines
+    !USE IFPORT
     USE parameters
     USE typedefs
     USE functiondefs
@@ -298,7 +299,7 @@
             new_coords(1) = i_re2
             new_coords(2) = j_re2
             new_coords(3) = k_re2
-            IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 ) THEN 
+            IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 ) THEN
               IF ( ALL(coords .EQ. new_coords) .EQV. .FALSE.) THEN
               ! Determine if the hopped to species can react with the hopping species
                 r1 = matrix(i_re,j_re,k_re)
@@ -850,7 +851,8 @@
       !Determine if there is dissociation
       IF ( r1 .EQ. 7 .AND. r2 .EQ. event_num(1) .OR. r1 .EQ. event_num(1) .AND. r2 .EQ. 7 ) THEN
     !   PRINT *, "Weve got branching"
-        rnum = RAND()
+!        rnum = RAND()
+        CALL RANDOM_NUMBER(rnum)
         IF ( rnum .GT. O3_DIS_BRANCHING ) THEN
           prods = (/ 1, 4, 0 /)
         END IF
@@ -1081,9 +1083,9 @@
   !****************************************************************************!
   ! Determine random entry site                                                !
   !****************************************************************************!
-    proceed = .FALSE. 
+    proceed = .FALSE.
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Now selecting initial site'
-    DO WHILE ( proceed .EQV. .FALSE. ) 
+    DO WHILE ( proceed .EQV. .FALSE. )
       CALL RANDOM_NUMBER(p)
       CALL RANDOM_NUMBER(u)
 
@@ -1094,7 +1096,7 @@
       IF ( TRACKPLOT .EQV. .TRUE. ) THEN
         IF ( x .GT. 300 .AND. x .LT. 600 .AND. y .GT. 300 .AND. y .LT. 600 ) proceed = .TRUE.
       ELSE
-        proceed = .TRUE. 
+        proceed = .TRUE.
       END IF
     END DO
 
@@ -1137,8 +1139,10 @@
         IF ( DEBUG .EQV. .TRUE. ) PRINT *, "The value of the matrix is:",matrix(z+step,y,x)
         ! If the site is occupied, then determine the type of event to occur
 !        DO WHILE ( u .EQ. 0.0 .AND. rand .EQ. 0.0 )
-        u = RAND()
-        rand1 = RAND()
+!        u = RAND()
+!        rand1 = RAND()
+        CALL RANDOM_NUMBER(u)
+        CALL RANDOM_NUMBER(rand1)
 !        END DO
 
 
@@ -1275,7 +1279,8 @@
 
               !Calculate hopping distance
               emfp  = 1./(RHO*(se_box%se_ineltot))
-              p     = RAND()
+!              p     = RAND()
+              CALL RANDOM_NUMBER(p)
               de    = -1.*emfp*LOG(1.-p)
               estep = INT(de/C_PR)
 
@@ -1291,13 +1296,14 @@
                 CALL transport(prev,curr,next,matrix)
 
                 IF ( TRACKPLOT .EQV. .TRUE. ) THEN
-                  count_count = count_count + 1 
+                  count_count = count_count + 1
                   WRITE(2016,*) curr(1),',',curr(2),',',curr(3)
                 END IF
               END DO
 
               !Determine nature of event
-              erand = RAND()
+!              erand = RAND()
+              CALL RANDOM_NUMBER(erand)
               IF ( erand .GT. 0 .AND. erand .LE. (se_box%se_iontot/se_box%se_ineltot) ) THEN
                 eswitch = 1
               ELSE
@@ -1317,7 +1323,8 @@
               ELSE IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. eswitch .EQ. 0 ) THEN
               !Electron impact excitation
                 IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'EIE: SE is hopping to site with',matrix(next(1),next(2),next(3))
-                rand1 = RAND()
+!                rand1 = RAND()
+                CALL RANDOM_NUMBER(rand1)
                 IF ( rand1 .LE. DISPROB .AND. matrix(curr(1),curr(2),curr(3)).NE. 0 ) THEN
                   CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, ev_nums, next, 1, &
                              wait_list, wait_len, time )
@@ -1444,15 +1451,15 @@
 
       ! Make sure the site is greater than the previous one
       IF (step .LE. 0. ) GOTO 100
-      IF (z+step .GE. dimens(1) ) THEN 
-        IF ( TRACKPLOT .EQV. .TRUE. ) THEN 
+      IF (z+step .GE. dimens(1) ) THEN
+        IF ( TRACKPLOT .EQV. .TRUE. ) THEN
           IF ( count_count .GT. TRACKMAX ) CALL EXIT()
         ELSE
           RETURN
         END IF
       END IF
-   
-      IF ( TRACKPLOT .EQV. .TRUE. ) THEN 
+
+      IF ( TRACKPLOT .EQV. .TRUE. ) THEN
         PRINT *, 'Count_count=',count_count
         !IF ( count_count .GT. 80000 ) CALL EXIT()
       END IF
@@ -2114,67 +2121,80 @@
     !****************************************************************************
     !****************************************************************************
     IF ( r1 .EQ. 4 .AND. r2 .EQ. 1 .OR. r1 .EQ. 1 .AND. r2 .EQ. 4 ) THEN
-      rnum = RAND()
+!      rnum = RAND()
+      CALL RANDOM_NUMBER(rnum)
       IF ( rnum .LE. O_O2_BRANCHING ) THEN
         prods = (/ 1, 4, 0 /)
       END IF
     ELSE IF ( r1 .EQ. 2 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 2 ) THEN
-      rnum = RAND()
+!      rnum = RAND()
+      CALL RANDOM_NUMBER(rnum)
       IF ( rnum .LE. O2_ION_BRANCHING ) THEN
         prods = (/ 7, 4, 0 /)
       END IF
     ELSE IF ( r1 .EQ. 5 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 5 ) THEN
-      rnum = RAND()
+!      rnum = RAND()
+      CALL RANDOM_NUMBER(rnum)
       IF ( rnum .LE. O_O2_ION_BRANCHING ) THEN
         prods = (/ 7, 0, 0 /)
       END IF
     ELSE IF ( r1 .EQ. 6 .AND. r2 .EQ. 2 .OR. r1 .EQ. 2 .AND. r2 .EQ. 6 ) THEN
-      rnum = RAND()
+!      rnum = RAND()
+      CALL RANDOM_NUMBER(rnum)
       IF ( rnum .LE. O_O2_ION_BRANCHING ) THEN
         prods = (/ 7, 0, 0 /)
       END IF
     ELSE IF ( r1 .EQ. 5 .AND. r2 .EQ. 6 .OR. r1 .EQ. 6 .AND. r2 .EQ. 5 ) THEN
-      rnum = RAND()
+!      rnum = RAND()
+      CALL RANDOM_NUMBER(rnum)
       IF ( rnum .LE. O_O_ION_BRANCHING ) THEN
         prods = (/ 1, 0, 0 /)
       END IF
     ELSE IF ( r1 .EQ. 7 .AND. r2 .EQ. 4 .OR. r1 .EQ. 4 .AND. r2 .EQ. 7 ) THEN
-      rnum = RAND()
+!      rnum = RAND()
+      CALL RANDOM_NUMBER(rnum)
       IF ( rnum .LE. O3_O_BRANCHING ) THEN
         prods = (/ 1, 1, 0 /)
       END IF
     ELSE IF ( r1 .EQ. 8 .AND. r2 .EQ. 6 .OR. r1 .EQ. 6 .AND. r2 .EQ. 8 ) THEN
-      rnum = RAND()
+!      rnum = RAND()
+      CALL RANDOM_NUMBER(rnum)
       IF ( rnum .LE. O3_O_ION_BRANCHING ) THEN
         prods = (/ 7, 4, 0 /)
       END IF
     ELSE IF ( r1 .EQ. 9 .AND. r2 .EQ. 5 .OR. r1 .EQ. 5 .AND. r2 .EQ. 9 ) THEN
-      rnum = RAND()
+!      rnum = RAND()
+      CALL RANDOM_NUMBER(rnum)
       IF ( rnum .LE. O3_O_ION_BRANCHING ) THEN
         prods = (/ 7, 4, 0 /)
       END IF
     ELSE IF ( r1 .EQ. 8 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 8 ) THEN
-      rnum = RAND()
+!      rnum = RAND()
+      CALL RANDOM_NUMBER(rnum)
       IF ( rnum .LE. O3_O2_ION_BRANCHING ) THEN
         prods = (/ 1, 1, 4 /)
       END IF
     ELSE IF ( r1 .EQ. 9 .AND. r2 .EQ. 2 .OR. r1 .EQ. 2 .AND. r2 .EQ. 9 ) THEN
-      rnum = RAND()
+!      rnum = RAND()
+      CALL RANDOM_NUMBER(rnum)
       IF ( rnum .LE. O3_O2_ION_BRANCHING ) THEN
         prods = (/ 1, 1, 4 /)
       END IF
     ELSE IF ( r1 .EQ. 8 .AND. r2 .EQ. 9 .OR. r1 .EQ. 9 .AND. r2 .EQ. 8 ) THEN
-      rnum = RAND()
+!      rnum = RAND()
+      CALL RANDOM_NUMBER(rnum)
       IF ( rnum .LE. O3_O3_ION_BRANCHING ) THEN
         prods = (/ 7, 1, 4 /)
       END IF
     ELSE IF ( r1 .EQ. 2 .AND. r2 .EQ. 19 .OR. r1 .EQ. 19 .AND. r2 .EQ. 2 ) THEN
-      rnum = RAND()
+!      rnum = RAND()
+      CALL RANDOM_NUMBER(rnum)
       IF ( rnum .LE. O2_E_BRANCHING ) THEN
         prods = (/ 1, 0, 0 /)
       END IF
     ELSE IF ( r1 .EQ. 8 .AND. r2 .EQ. 19 .OR. r1 .EQ. 19 .AND. r2 .EQ. 8 ) THEN
-      rnum = RAND()
+!      rnum = RAND()
+      CALL RANDOM_NUMBER(rnum)
       IF ( rnum .LE. O3_E_BRANCHING ) THEN
         prods = (/ 1, 4, 0 /)
       END IF
@@ -2570,7 +2590,7 @@
 
 !    volume = THICK*EDGE*EDGE
     area   = EDGE*EDGE
-    denom = THICK*EDGE*EDGE*1E20
+    denom = THICK*EDGE*EDGE
     sp1_count = 0
     sp2_count = 0
     wrong_count = 0
@@ -2640,17 +2660,22 @@
     END IF
 
  !   sp2_count = REAL(o3_prod - o3_dest)
-    WRITE(unit_num,*) time,',', fluence,',',sp1_count/denom,',',sp2_count/denom,',',numprotons,',' &
-                      ,(REAL(o3_prod)/REAL(o3_dest))
-    varfmt = "(A6,ES10.4,A9,ES10.4)"
-    PRINT varfmt, " TIME=",time,"FLUENCE=",fluence
-    varfmt = "(A5,ES10.4,A6,ES10.4)"
-    PRINT varfmt, " [O]=",sp1_count/denom," [O3]=",sp2_count/denom
-    varfmt = "(A16,F10.4,A16,I10)"
-    PRINT *, '[O3] PROD/DEST =', (REAL(o3_prod)/REAL(o3_dest))," WAIT LENGTH=",wait_len
-    PRINT *, 'O3_prod=',o3_prod, 'O3_dest=',o3_dest
-    PRINT *, 'denom=',denom
-    PRINT *, '***********************************************************************'
+    IF ( NO_OUTPUT .EQV. .FALSE. ) THEN
+      WRITE(unit_num,*) time,',', fluence,',',sp1_count,',',sp2_count,',',numprotons,',' &
+                        ,(REAL(o3_prod)/REAL(o3_dest))
+    END IF
+
+    IF ( QUIET .EQV. .FALSE. ) THEN
+      varfmt = "(A6,ES10.4,A9,ES10.4)"
+      PRINT varfmt, " TIME=",time,"FLUENCE=",fluence
+      varfmt = "(A5,ES10.4,A6,ES10.4)"
+      PRINT varfmt, " [O]=",1.0e20*(sp1_count/denom)," [O3]=",1.0e20*(sp2_count/denom)
+      varfmt = "(A16,F10.4,A16,I10)"
+      PRINT *, '[O3] PROD/DEST =', (REAL(o3_prod)/REAL(o3_dest))," WAIT LENGTH=",wait_len
+      PRINT *, 'O3_prod=',o3_prod, 'O3_dest=',o3_dest
+      PRINT *, 'denom=',denom
+      PRINT *, '***********************************************************************'
+    END IF
   END SUBROUTINE counter
 
   SUBROUTINE transport(prev,curr,next,matrix)
@@ -3228,7 +3253,8 @@
     !(1) Calculate the probabilities of each state based on the relative size
     !    of the cross-sections
     sigtot   = SUM(psigij)
-    rn       = RAND()
+!    rn       = RAND()
+    CALL RANDOM_NUMBER(rn)
 
     e_ion = 1234567d0 !Just to know what's happening for debugging
     DO n=1,SIZE(psigij)
@@ -3286,7 +3312,8 @@
     !(1) Calculate the probabilities of each state based on the relative size
     !    of the cross-sections
     sigtot   = SUM(psigexj)
-    rn       = RAND()
+!    rn       = RAND()
+    CALL RANDOM_NUMBER(rn)
     prevprob = 0d0
     e_exc = 1234567d0 !Just to know what's happening for debugging
     DO n=1,SIZE(psigexj)
@@ -3372,7 +3399,8 @@
     END DO
 
     !Draw a random number and determine the precise amount of energy lost.
-    rn       = RAND()
+!    rn       = RAND()
+    CALL RANDOM_NUMBER(rn)
     prevprob = 0d0
     prob     = 0D0
     DO n=1,SIZE(temparr,1)
@@ -3437,7 +3465,8 @@
     END IF
 
     !Determine which type of transition will occur
-    rn       = RAND()
+!    rn       = RAND()
+    CALL RANDOM_NUMBER(rn)
     prob = (se_box%se_alwd_extot/se_box%se_ineltot)
     IF ( rn .GT. prob ) THEN
       ALLOCATE(arr(SIZE(se_box%se_fbdnsigs),2))
@@ -3471,7 +3500,8 @@
     END DO
 
     !Draw a random number and determine the precise amount of energy lost.
-    rn       = RAND()
+!    rn       = RAND()
+    CALL RANDOM_NUMBER(rn)
     prevprob = 0d0
     e_exc = 0d0 !Just to know what's happening for debugging
     DO n=1,SIZE(temparr,1)
@@ -3512,7 +3542,8 @@
     afac = au(ZP,ZO2)
     gamfac = mass_fac(MP,MO2)
     e_lss = eps(energy,ZP,ZO2,MP,MO2,afac)
-    rn = RAND()
+!    rn = RAND()
+    CALL RANDOM_NUMBER(rn)
     bfac = b_magic(rn,afac,RHO2)
     CALL magic(e_lss,bfac,c2,s2,cmtheta)
     e_loss = t_coll(energy,gamfac,s2)
@@ -3960,13 +3991,13 @@
 
  !   IF ( i_re .EQ. 340 .AND. j_re .EQ. 71 .AND. k_re .EQ. 141 ) DEBUG = .TRUE.
  !   IF ( i_re2 .EQ. 340 .AND. j_re2 .EQ. 71 .AND. k_re2 .EQ. 141 ) DEBUG = .TRUE.
-    
+
     IF ( O3_ANALYTICS .EQV. .TRUE. ) THEN
     	IF ( r1 .EQ. 7 .OR. r2 .EQ. 7 .OR. p1 .EQ. 7 .OR. p2 .EQ. 7 ) THEN
-	    WRITE(O3_NUM,*) r1,r2,prods
+	    WRITE(O3_NUM,*) r1,',',r2,',',prods(1),',',prods(2),',',prods(3),',',time*CR_FLUX
 	END IF
     END IF
-     
+
     IF ( DEBUG .EQV. .TRUE.) PRINT *, 'In Place_Product, case=',casetype
 
     SELECT CASE (casetype)

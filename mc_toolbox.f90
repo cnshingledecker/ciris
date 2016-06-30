@@ -1,4 +1,5 @@
 MODULE mc_toolbox
+  !USE IFPORT
 
   INTEGER(KIND=4), PARAMETER :: GSEED=12345
   REAL(KIND=8), PARAMETER :: MEANVAL=0.00
@@ -29,7 +30,8 @@ MODULE mc_toolbox
         END DO
 !        PRINT *, 'x=',x,'and v=',v
         v = v*v*v
-        u = RAND() 
+!        u = RANDOM() 
+        CALL RANDOM_NUMBER(u)
         IF ( u .LT. 1.-0.331*(x*x)*(x*x) ) THEN
 !          PRINT *, 'Success-1!'
           rgamma = (d*v)
@@ -81,8 +83,10 @@ FUNCTION r8_normal_01 ()
   real ( kind = 8 ), parameter :: r8_pi = 3.141592653589793D+00
   real ( kind = 8 ) x
 
-  r1 = RAND() 
-  r2 = RAND() 
+!  r1 = RANDOM() 
+!  r2 = RAND() 
+  CALL RANDOM_NUMBER(r1)
+  CALL RANDOM_NUMBER(r2)
   x = sqrt( - 2.0D+00 * DLOG( r1 ) ) * cos( 2.0D+00 * r8_pi * r2 )
 
   r8_normal_01 = x
@@ -234,8 +238,10 @@ FUNCTION r8_normal_ab ( a, b)
   real ( kind = 8 ), parameter :: r8_pi = 3.141592653589793D+00
   real ( kind = 8 ) x
 
-  r1 = RAND()
-  r2 = RAND()
+!  r1 = RANDOM()
+  CALL RANDOM_NUMBER(r1)
+  CALL RANDOM_NUMBER(r2)
+!  r2 = RANDOM()
   x = sqrt ( - 2.0D+00 * log ( r1 ) ) * cos ( 2.0D+00 * r8_pi * r2 )
 
   r8_normal_ab = a + b * x
