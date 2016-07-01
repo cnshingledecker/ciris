@@ -6,8 +6,8 @@ constraints = Dict(
     "O" => 55:600, #float
     "O3" => 120:1000, #float
     "TRL_NU" => 1E10:1E10:1E12, #float
-    "DISPROB" => 0.0:0.5:1.0, #float
-    "STEPFAC" => 1E-4:1E-4:1.0, #float
+    "DISPROB" => 0.0:0.1:1.0, #float
+    "STEPFAC" => 1E-2:1E-2:1.0, #float
     "AVAL" => 9:25, #int
     "O2_ION_BRANCHING" => 0.0:0.5:1.0, #set
     "O3_O_ION_BRANCHING" => 0.0:0.5:1.0, #set
@@ -128,7 +128,7 @@ end
 """
 function generateRandom(dict, key)
     if dict[key] == 0:1
-        rand(dict[key])
+        rand()
     else
         rand(dict[key])
     end
