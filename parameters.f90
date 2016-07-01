@@ -86,22 +86,15 @@ MODULE parameters
   REAL(KIND=DBL)  , PARAMETER :: PCUTOFF           = 5.0D0                 ! Primary ion cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: FLUENCE_TOTAL     = 1.0D16
   REAL(KIND=DBL)  , PARAMETER :: SUBEXHITPROB      = 0.5
-  REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 1E15  ! if fitness value exceeds this, terminate
+  REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 1E30  ! if fitness value exceeds this, terminate
 
   !******************************************************************************
   ! Branching Ratios
   !******************************************************************************
   REAL                        :: O3_DIS_BRANCHING    = 0.5 ! 0.0 ! O3 + * -> O2 + 0
-  REAL                        :: O3_E_BRANCHING      = 1.0 ! 0.0 ! O3+ + e -> O2 + O
-  REAL                        :: O3_O_BRANCHING      = 0.0 ! 0.0 ! O3 + O -> O2 + O2
-  REAL                        :: O_O2_BRANCHING      = 0.5 ! O + O2 -> O2 + O
   REAL                        :: O2_ION_BRANCHING    = 0.0 ! O2- + O2+ -> O3 + O
-  REAL                        :: O_O2_ION_BRANCHING  = 0.0 ! O+ + O2- and O- + O2+ -> O3
-  REAL            , PARAMETER :: O2_E_BRANCHING      = 0.5 ! O2+ + e -> O2
-  REAL            , PARAMETER :: O_O_ION_BRANCHING   = 0.0 ! O+ + O- -> O2
-  REAL            , PARAMETER :: O3_O_ION_BRANCHING  = 1.0 ! O3+ + O- or O3- + O+ -> O3 + O
-  REAL            , PARAMETER :: O3_O2_ION_BRANCHING = 1.0 ! O3+ + O2- or O3- + O2+ -> O2 + O2 + O
-  REAL            , PARAMETER :: O3_O3_ION_BRANCHING = 0.0 ! O3+ + O3- -> O3 + O2 + O
+  REAL                        :: O3_O_ION_BRANCHING  = 1.0 ! O3+ + O- or O3- + O+ -> O3 + O
+  REAL                        :: O3_O2_ION_BRANCHING = 1.0 ! O3+ + O2- or O3- + O2+ -> O2 + O2 + O
 
   !******************************************************************************
   ! Output File Unit Numbers
@@ -113,7 +106,7 @@ MODULE parameters
   !******************************************************************************
   ! Array Parameters
   !******************************************************************************
-  INTEGER, DIMENSION(1)       :: FAST_REACTS  = (/ 21 /)                   ! 4 ! Species that react upon formation
+  INTEGER, DIMENSION(1)       :: FAST_REACTS  = (/ 4 /)                   ! 4 ! Species that react upon formation
   INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 21 /)                    ! 7 ! Species that dissociate easily
   INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4,7 /)
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
@@ -158,22 +151,16 @@ MODULE parameters
               READ(val, *) STEPFAC
           CASE ("AVAL")
               READ(val, *) AVAL
-          CASE ("O_O2_BRANCHING")
-              READ(val, *) O_O2_BRANCHING
           CASE ("O2_ION_BRANCHING")
               READ(val, *) O2_ION_BRANCHING
-          CASE ("O_O2_ION_BRANCHING")
-              READ(val, *) O_O2_ION_BRANCHING
-          CASE ("O3_O_BRANCHING")
-              READ(val, *) O3_O_BRANCHING
-          CASE ("O3_E_BRANCHING")
-              READ(val, *) O3_E_BRANCHING
           CASE ("O3_DIS_BRANCHING")
               READ(val, *) O3_DIS_BRANCHING
+          CASE ("O3_O_ION_BRANCHING")
+              READ(val, *) O3_0_ION_BRANCHING
+          CASE ("O3_O2_ION_BRANCHING")
+              READ(val, *) O3_O2_ION_BRANCHING
           CASE ("FRAGILE")
               READ(val, *) FRAGILE
-          CASE ("FAST_REACTS")
-              READ(val, *) FAST_REACTS
           CASE DEFAULT
               PRINT *, "WARNING: Unexpect variable name '", var, "'. Ignoring..."
         END SELECT
