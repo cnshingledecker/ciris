@@ -79,9 +79,9 @@ MODULE parameters
   INTEGER         , PARAMETER :: TIME_COUNTS       = 2                     ! Times the model will check abundances
   INTEGER                     :: NSUBEX            = 2                     ! Number of sub-excitation interactions
   INTEGER                     :: NEXIT                                     ! Max sub-ex loop iters
-  REAL                        :: STEPFAC           = 1                  ! Determines freq. between colls.
+  REAL                        :: STEPFAC           = 0.1                   ! Determines freq. between colls.
   REAL(KIND=DBL)  , PARAMETER :: TIME_TOTAL        = 1D5                   ! Total time in s
-  REAL(KIND=DBL)              :: AVAL              = 15                    ! Parameter for Gamma distribution
+  REAL(KIND=DBL)              :: AVAL              = 33                    ! Parameter for Gamma distribution
   REAL(KIND=DBL)  , PARAMETER :: ECUTOFF           = 4.5D0                 ! Secondary cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: PCUTOFF           = 5.0D0                 ! Primary ion cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: FLUENCE_TOTAL     = 1.0D16
@@ -92,7 +92,7 @@ MODULE parameters
   ! Branching Ratios
   !******************************************************************************
   REAL                        :: O3_DIS_BRANCHING    = 0.5 ! 0.0 ! O3 + * -> O2 + 0
-  REAL                        :: O2_ION_BRANCHING    = 0.0 ! O2- + O2+ -> O3 + O
+  REAL                        :: O2_ION_BRANCHING    = 1.0 ! O2- + O2+ -> O3 + O
   REAL                        :: O3_O_ION_BRANCHING  = 1.0 ! O3+ + O- or O3- + O+ -> O3 + O
   REAL                        :: O3_O2_ION_BRANCHING = 1.0 ! O3+ + O2- or O3- + O2+ -> O2 + O2 + O
 
@@ -110,7 +110,7 @@ MODULE parameters
   INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 21 /)                    ! 7 ! Species that dissociate easily
   INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4,7 /)
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
-  INTEGER, PARAMETER          :: TIME_FREQ    = 100 !1000000
+  INTEGER, PARAMETER          :: TIME_FREQ    = 1  !1000000
 
   LOGICAL, PARAMETER :: NO_OUTPUT  = .FALSE.
   LOGICAL, PARAMETER :: QUIET      = .FALSE.

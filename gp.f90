@@ -52,10 +52,9 @@ CONTAINS
     END DO
 
 
-    denom          = THICK*EDGE*EDGE    ! volume * 1E20
+    denom          = THICK*EDGE*EDGE*1.0E20    ! volume * 1E20
     objective      = (4*(fluence**0.8))/(1E13**0.8+fluence**0.8) ! hard-ncoded expected value (objective) function
     model          = REAL(ozone_count)/denom
-    model          = model*1.0E20
     !NB: Original method for calculating fitness
     !This method depends on the number of times counter is called
 !    fit = (objective - model) ** 2

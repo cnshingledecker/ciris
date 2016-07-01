@@ -2548,7 +2548,7 @@
 
 !    volume = THICK*EDGE*EDGE
     area   = EDGE*EDGE
-    denom = THICK*EDGE*EDGE
+    denom = THICK*EDGE*EDGE*1.0E20
     sp1_count = 0
     sp2_count = 0
     wrong_count = 0
@@ -2627,7 +2627,7 @@
       varfmt = "(A6,ES10.4,A9,ES10.4)"
       PRINT varfmt, " TIME=",time,"FLUENCE=",fluence
       varfmt = "(A5,ES10.4,A6,ES10.4)"
-      PRINT varfmt, " [O]=",1.0e20*(sp1_count/denom)," [O3]=",1.0e20*(sp2_count/denom)
+      PRINT varfmt, " [O]=",sp1_count/denom," [O3]=",sp2_count/denom
       varfmt = "(A16,F10.4,A16,I10)"
       PRINT *, '[O3] PROD/DEST =', (REAL(o3_prod)/REAL(o3_dest))," WAIT LENGTH=",wait_len
       PRINT *, 'O3_prod=',o3_prod, 'O3_dest=',o3_dest
