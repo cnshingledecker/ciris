@@ -110,7 +110,7 @@ MODULE parameters
   INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 21 /)                    ! 7 ! Species that dissociate easily
   INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4,7 /)
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
-  INTEGER, PARAMETER          :: TIME_FREQ    = 1  !1000000
+  INTEGER                     :: TIME_FREQ    = 50  !1000000
 
   LOGICAL, PARAMETER :: NO_OUTPUT  = .FALSE.
   LOGICAL, PARAMETER :: QUIET      = .FALSE.

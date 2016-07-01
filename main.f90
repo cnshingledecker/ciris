@@ -259,6 +259,9 @@ DO WHILE ( fluence .LE. FLUENCE_TOTAL .AND. .NOT. unfit)
   END IF
 
   time_check = time_check + 1
+  IF ( fluence .LE. 5.0E12 ) TIME_FREQ = 100
+  IF ( fluence .GT. 5.0E12 .AND. fluence .LE. 5.0e14 ) TIME_FREQ = 10
+  IF ( fluence .GT. 5.0E14  )  TIME_FREQ = 100
   IF ( MOD(time_check,TIME_FREQ) .EQ. 0 ) THEN
     CALL counter( o3_prod,o3_dest,numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7,wait_len)
 
@@ -269,9 +272,6 @@ DO WHILE ( fluence .LE. FLUENCE_TOTAL .AND. .NOT. unfit)
     cpu_total = cpu_total + (t2-t1)
     time_diff = time
     t1 = t2
-    ! Reset production and destruction counters
-!    o3_prod = 0
-!    o3_dest = 0
     CALL roll_call( wait_list, time, wait_len, mindex )
   ELSE IF ( time_check .GT. 1E3 .AND. wait_len .LE. 5 ) THEN
     CALL find_cr( wait_list, mindex, wait_len,  cr_num, en_ptr, time )
