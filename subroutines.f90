@@ -2130,7 +2130,7 @@
 !      rnum = RAND()
       CALL RANDOM_NUMBER(rnum)
       IF ( rnum .LE. O2_ION_BRANCHING ) THEN
-        prods = (/ 1, 4, 4 /)
+        prods = (/ 7, 4, 0 /)
       END IF
     ELSE IF ( r1 .EQ. 8 .AND. r2 .EQ. 6 .OR. r1 .EQ. 6 .AND. r2 .EQ. 8 ) THEN
 !      rnum = RAND()
