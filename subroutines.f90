@@ -2531,7 +2531,7 @@
     INTEGER(KIND=LONG) , INTENT(IN)                            :: numprotons
     INTEGER            , INTENT(IN)                            :: unit_num
     INTEGER                                                    :: i,j,k,nn
-    INTEGER                                                    :: sp1_count, sp2_count
+    INTEGER                                                    :: o_count,o2_count,o3_count,sp3
     INTEGER            , INTENT(IN)                            :: sp1, sp2
     INTEGER                        , DIMENSION(3)              :: dimens
     INTEGER                        , DIMENSION(:,:,:), POINTER :: matrix
@@ -2549,8 +2549,10 @@
 !    volume = THICK*EDGE*EDGE
     area   = EDGE*EDGE
     denom = THICK*EDGE*EDGE*1.0E20
-    sp1_count = 0
-    sp2_count = 0
+    sp3 = 1
+    o_count = 0
+    o2_count = 0
+    o3_count = 0
     wrong_count = 0
     ! Method 1 of fluence calculation
     fluence  = CR_FLUX*time ! Note: This is the x-value for the objective function
@@ -2570,13 +2572,15 @@
           IF ( matrix(i,j,k) .NE. 0 ) THEN
             IF ( matrix(i,j,k) .LT. 0 ) THEN
               IF ( ABS(matrix(i,j,k)) .EQ. sp2 ) THEN
-                sp2_count = sp2_count + 1
+                o3_count = o3_count + 1
+              ELSE IF ( ABS(matrix(i,j,k)) .EQ. sp3 ) THEN
+                o2_count = o2_count + 1
               END IF
             ELSE IF ( matrix(i,j,k) .GT. 0 ) THEN
               IF ( wait_list(matrix(i,j,k))%sp_num .EQ. sp1 ) THEN
-                sp1_count = sp1_count + 1
+                o_count = o_count + 1
               ELSE IF ( wait_list(matrix(i,j,k))%sp_num .EQ. sp2 ) THEN
-                sp2_count = sp2_count + 1
+                o3_count = o3_count + 1
               END IF
 
               IF ( TEST_WRONG .EQV. .TRUE. ) THEN
@@ -2619,15 +2623,14 @@
 
  !   sp2_count = REAL(o3_prod - o3_dest)
     IF ( NO_OUTPUT .EQV. .FALSE. ) THEN
-      WRITE(unit_num,*) time,',', fluence,',',sp1_count,',',sp2_count,',',numprotons,',' &
-                        ,(REAL(o3_prod)/REAL(o3_dest))
+      WRITE(unit_num,*) time,',', fluence,',',o3_count,',',o_count,',',o3_count,',',numprotons
     END IF
 
     IF ( QUIET .EQV. .FALSE. ) THEN
       varfmt = "(A6,ES10.4,A9,ES10.4)"
       PRINT varfmt, " TIME=",time,"FLUENCE=",fluence
       varfmt = "(A5,ES10.4,A6,ES10.4)"
-      PRINT varfmt, " [O]=",sp1_count/denom," [O3]=",sp2_count/denom
+      PRINT varfmt, " [O]=",o_count/denom," [O3]=",o3_count/denom
       varfmt = "(A16,F10.4,A16,I10)"
       PRINT *, '[O3] PROD/DEST =', (REAL(o3_prod)/REAL(o3_dest))," WAIT LENGTH=",wait_len
       PRINT *, 'O3_prod=',o3_prod, 'O3_dest=',o3_dest
