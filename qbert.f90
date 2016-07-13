@@ -83,11 +83,11 @@ SUBROUTINE qbert(num_species,num_reacts,qube,energy_array,speciesList,anions)
     anion_num    =  0
     speciesList  = '0'
     species_count = 0
-    line = '0' 
+    line = '0'
 
     ! Read the contents of the species file and create the speciesList and energy_list
     DO n=1,nlines1
-      READ (1,*,IOSTAT=ierror1) line 
+      READ (1,*,IOSTAT=ierror1) line
       IF ( line(1:1) .NE. "!" ) THEN
         species_count = species_count + 1
         BACKSPACE (UNIT=1,IOSTAT=ierror1)
@@ -113,24 +113,24 @@ SUBROUTINE qbert(num_species,num_reacts,qube,energy_array,speciesList,anions)
       END IF
     END DO
 
-!    PRINT *, 'Now starting qubemake'
+    !    PRINT *, 'Now starting qubemake'
     ! Read the contents of the reactions file and make the reactionCube
     qubemake: DO n1=1,nlines2
       READ(2,*,IOSTAT=ierror2) line
       IF ( line(1:1) .NE. "!" ) THEN
         BACKSPACE (UNIT=2,IOSTAT=ierror2)
         READ(2,*,IOSTAT=ierror2) r_array(n1,1), r_array(n1,2), r_array(n1,3), &
-                                 r_array(n1,4), r_array(n1,5)
-!        PRINT *, r_array(n1,:)
+        r_array(n1,4), r_array(n1,5)
+        !        PRINT *, r_array(n1,:)
         CALL lookup(r_array(n1,1),num_species,speciesList,i)
         CALL lookup(r_array(n1,2),num_species,speciesList,j)
         k=0
         DO n3=3,5
           k = k + 1
-!          PRINT *, 'r_array(n1,n3)=',r_array(n1,n3)
+          !          PRINT *, 'r_array(n1,n3)=',r_array(n1,n3)
           IF ( r_array(n1,n3) .NE. '0' ) THEN
             CALL lookup(r_array(n1,n3),num_species,speciesList,prod)
-!            PRINT *, 'Prod of',r_array(n1,:),'is',prod
+            !            PRINT *, 'Prod of',r_array(n1,:),'is',prod
             qube(i,j,k) = prod
             qube(j,i,k) = prod
           ELSE
@@ -151,61 +151,61 @@ SUBROUTINE qbert(num_species,num_reacts,qube,energy_array,speciesList,anions)
       PRINT *, 'Could not open: ', species_file
     ELSE
       PRINT *, 'Could not open: ', reactions_file
-   END IF
+    END IF
   END IF fileopen
 
   ! Order the products of the reaction by binding energies in descending order
-!  DO j=1,nlines1
-!    DO i=1,nlines1
-!      temp_prods = qube(i,j,:)
-!      IF (temp_prods(1) .NE. 0 ) THEN
-!        Aqbert = energy_array(temp_prods(1))
-!      END IF
-!
-!      IF (temp_prods(2) .NE. 0 ) THEN
-!        Bqbert = energy_array(temp_prods(2))
-!      END IF
-!
-!      IF (temp_prods(3) .NE. 0 ) THEN
-!        Cqbert = energy_array(temp_prods(3))
-!      END IF
-!
-!      CALL sort_energies(temp_prods, Aqbert, Bqbert, Cqbert)
-!      qube(i,j,:) = temp_prods
-!      Aqbert = 0
-!      Bqbert = 0
-!      Cqbert = 0
-!    END DO
-!  END DO
+  !  DO j=1,nlines1
+  !    DO i=1,nlines1
+  !      temp_prods = qube(i,j,:)
+  !      IF (temp_prods(1) .NE. 0 ) THEN
+  !        Aqbert = energy_array(temp_prods(1))
+  !      END IF
+  !
+  !      IF (temp_prods(2) .NE. 0 ) THEN
+  !        Bqbert = energy_array(temp_prods(2))
+  !      END IF
+  !
+  !      IF (temp_prods(3) .NE. 0 ) THEN
+  !        Cqbert = energy_array(temp_prods(3))
+  !      END IF
+  !
+  !      CALL sort_energies(temp_prods, Aqbert, Bqbert, Cqbert)
+  !      qube(i,j,:) = temp_prods
+  !      Aqbert = 0
+  !      Bqbert = 0
+  !      Cqbert = 0
+  !    END DO
+  !  END DO
 END SUBROUTINE qbert
 
 SUBROUTINE sort_energies( prods, A_en, B_en, C_en )
-   USE parameters
-   IMPLICIT NONE
+  USE parameters
+  IMPLICIT NONE
 
-   INTEGER(KIND=SHORT), INTENT(INOUT), DIMENSION(3) :: prods
-   INTEGER(KIND=SHORT)               , DIMENSION(3) :: temp
-   REAL               , INTENT(IN)                  :: A_en, B_en, C_en
+  INTEGER(KIND=SHORT), INTENT(INOUT), DIMENSION(3) :: prods
+  INTEGER(KIND=SHORT)               , DIMENSION(3) :: temp
+  REAL               , INTENT(IN)                  :: A_en, B_en, C_en
 
-   IF ( A_en .GT. B_en ) THEN
-     IF ( A_en .GT. C_en ) THEN
-       IF ( B_en .GT. C_en ) THEN
-         ! A > B > C
-         temp(1) = prods(1)
-         temp(2) = prods(2)
-         temp(3) = prods(3)
-       ELSE
-         ! A > C > B
-         temp(1) = prods(1)
-         temp(2) = prods(3)
-         temp(3) = prods(2)
-       END IF
-     ELSE
-       ! C > A > B
-       temp(1) = prods(3)
-       temp(2) = prods(1)
-       temp(3) = prods(2)
-     END IF
+  IF ( A_en .GT. B_en ) THEN
+    IF ( A_en .GT. C_en ) THEN
+      IF ( B_en .GT. C_en ) THEN
+        ! A > B > C
+        temp(1) = prods(1)
+        temp(2) = prods(2)
+        temp(3) = prods(3)
+      ELSE
+        ! A > C > B
+        temp(1) = prods(1)
+        temp(2) = prods(3)
+        temp(3) = prods(2)
+      END IF
+    ELSE
+      ! C > A > B
+      temp(1) = prods(3)
+      temp(2) = prods(1)
+      temp(3) = prods(2)
+    END IF
   ELSE
     IF ( B_en .GT. C_en ) THEN
       IF ( A_en .GT. C_en ) THEN

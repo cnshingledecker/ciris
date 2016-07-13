@@ -79,7 +79,8 @@ CONTAINS
     END IF
 
     ! save results to a file
-    OPEN(UNIT=201, FILE=FITNESS_FILE, ACCESS='APPEND', ACTION='WRITE', IOSTAT=err)
+!    OPEN(UNIT=201, FILE=FITNESS_FILE, ACCESS='APPEND', ACTION='WRITE', IOSTAT=err)
+    OPEN(UNIT=201, FILE=FITNESS_FILE, STATUS='REPLACE', ACTION='WRITE', IOSTAT=err)
     IF (err .NE. 0) THEN
         PRINT *, "ERROR: Failed to open fitness_results file for writing"
     ELSE

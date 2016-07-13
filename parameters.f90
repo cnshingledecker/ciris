@@ -36,8 +36,8 @@ MODULE parameters
   !******************************************************************************
   ! Physical Conditions
   !******************************************************************************
-  REAL(KIND=DBL)  , PARAMETER :: THICK       = 3.0e-6                      !1.0e-5 ! Thickness of the ice in cm
-  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 3.0e-6                      !1.0e-7 ! The edge of the crystal in cm
+  REAL(KIND=DBL)  , PARAMETER :: THICK       = 2.5e-6                      !1.0e-5 ! Thickness of the ice in cm
+  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 2.5e-6                      !1.0e-7 ! The edge of the crystal in cm
   REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0                       ! Kinetic temperature in Kelvin
   REAL(KIND=DBL)  , PARAMETER :: AREA        = EDGE*EDGE                   ! Area of irradiated surface in cm
   REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 1.0D11                      ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
@@ -84,17 +84,17 @@ MODULE parameters
   REAL(KIND=DBL)              :: AVAL              = 33                    ! Parameter for Gamma distribution
   REAL(KIND=DBL)  , PARAMETER :: ECUTOFF           = 4.5D0                 ! Secondary cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: PCUTOFF           = 5.0D0                 ! Primary ion cutoff energy in eV
-  REAL(KIND=DBL)  , PARAMETER :: FLUENCE_TOTAL     = 1.0D16
+  REAL(KIND=DBL)  , PARAMETER :: FLUENCE_TOTAL     = 2.5D15
   REAL(KIND=DBL)  , PARAMETER :: SUBEXHITPROB      = 0.5
-  REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 1E30  ! if fitness value exceeds this, terminate
+  REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 1E6  ! if fitness value exceeds this, terminate
 
   !******************************************************************************
   ! Branching Ratios
   !******************************************************************************
-  REAL                        :: O3_DIS_BRANCHING    = 0.5 ! 0.0 ! O3 + * -> O2 + 0
-  REAL                        :: O2_ION_BRANCHING    = 1.0 ! O2- + O2+ -> O3 + O
-  REAL                        :: O3_O_ION_BRANCHING  = 1.0 ! O3+ + O- or O3- + O+ -> O3 + O
-  REAL                        :: O3_O2_ION_BRANCHING = 1.0 ! O3+ + O2- or O3- + O2+ -> O2 + O2 + O
+  REAL                        :: O3_DIS_BRANCHING    = 0.0 ! 0.0 ! O3 + * -> O2 + 0
+  REAL                        :: O2_ION_BRANCHING    = 0.0 ! O2- + O2+ -> O3 + O
+  REAL                        :: O3_O_ION_BRANCHING  = 0.0 ! O3+ + O- or O3- + O+ -> O3 + O
+  REAL                        :: O3_O2_ION_BRANCHING = 0.0 ! O3+ + O2- or O3- + O2+ -> O2 + O2 + O
 
   !******************************************************************************
   ! Output File Unit Numbers
@@ -108,9 +108,9 @@ MODULE parameters
   !******************************************************************************
   INTEGER, DIMENSION(1)       :: FAST_REACTS  = (/ 4 /)                   ! 4 ! Species that react upon formation
   INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 21 /)                    ! 7 ! Species that dissociate easily
-  INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4,7 /)
+  INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4, 7 /)
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
-  INTEGER                     :: TIME_FREQ    = 50  !1000000
+  INTEGER                     :: TIME_FREQ    = 1000  !1000000
 
   LOGICAL, PARAMETER :: NO_OUTPUT  = .FALSE.
   LOGICAL, PARAMETER :: QUIET      = .FALSE.
