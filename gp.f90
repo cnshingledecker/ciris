@@ -32,6 +32,7 @@ CONTAINS
     INTEGER                                                    :: i, j, k
 
     ozone_count = 0
+    fit = 0
 
     DO k = 1,dimens(3)
       DO j = 1,dimens(2)
@@ -64,7 +65,7 @@ CONTAINS
     part2 = (((LOG10(FLUENCE_TOTAL) + ABS(LOG10(FLUENCE_TOTAL/fluence))) / LOG10(FLUENCE_TOTAL))*(-100.0)) + 100.0
     fit = ABS(part1) + ABS(part2)
 
-    total_fitness  = total_fitness + fit
+    IF ( ISNAN(fit) .EQV. .FALSE. ) total_fitness  = total_fitness + fit
     varfmt = "(A7,ES10.4,A5,F10.4)"
     WRITE (*,varfmt), 'F_obj( ', fluence, ' ) = ', objective
     varfmt = "(A9,ES10.4,A5,F10.4)"
