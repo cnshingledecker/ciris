@@ -3,8 +3,8 @@ module ParameterIO
 using Base.Random.uuid4
 
 constraints = Dict(
-    "O" => 55:1:600, #Int
-    "O3" => 120:1:600, #Int
+    "O" => 100:1:300, #Int
+    "O3" => 100:1:600, #Int
     "TRL_NU" => 1E10:1E10:1E12, #float
     "DISPROB" => 0.0:0.1:1.0, #float
     "STEPFAC" => 1E-2:1E-4:1.0, #float

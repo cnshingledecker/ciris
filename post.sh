@@ -25,4 +25,7 @@ if [[ -e "fitness_results" ]]; then
       echo "FITNESS,$fitness"
       echo "FITNESS,$fitness" >> "params.dat"
     fi
+else
+  echo "No fitness_results found!!"
+  echo "No fitness_results found!!" >> "params.dat"
 fi

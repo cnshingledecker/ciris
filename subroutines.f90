@@ -2464,6 +2464,11 @@ SUBROUTINE wait_calc ( wait_list, index, en_list, time )
   CALL RANDOM_NUMBER(rand_num)
   ! Calculate waiting time
   wait_list(index)%wait_time = (-LOG(rand_num) / b) + time
+  IF ( ANY(FAST_REACTS .EQ. wait_list(index)%sp_num) ) THEN
+    b_3 = trl_nu*EXP( - ( SHORT_TIME / kin_temp ) )
+    b = b_3
+    wait_list(index)%wait_time = (-LOG(rand_num) / b) + time
+  END IF
   !    END IF
 
   ! Assign action type for next move

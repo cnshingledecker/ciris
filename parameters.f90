@@ -57,6 +57,7 @@ MODULE parameters
   !******************************************************************************
   ! Kinetic Parameters
   !******************************************************************************
+  DOUBLE PRECISION, PARAMETER :: SHORT_TIME  = 100.0                       ! K
   DOUBLE PRECISION            :: TRL_NU      = 2.6E11                       ! Trial frequency, for the rates, in 1/s
   DOUBLE PRECISION            :: DISPROB     = 0.0                         ! Probability of excitative dissociation
   DOUBLE PRECISION, PARAMETER :: ZP          = 1.D0                        ! Proton number
