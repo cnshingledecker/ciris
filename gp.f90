@@ -66,13 +66,15 @@ CONTAINS
     fit = ABS(part1) + ABS(part2)
 
     IF ( ISNAN(fit) .EQV. .FALSE. ) total_fitness  = total_fitness + fit
-    varfmt = "(A7,ES10.4,A5,F10.4)"
-    WRITE (*,varfmt), 'F_obj( ', fluence, ' ) = ', objective
-    varfmt = "(A9,ES10.4,A5,F10.4)"
-    WRITE (*,varfmt), 'F_model( ', fluence, ' ) = ', model
-!    varfmt = "A15,F10.4)"
-    PRINT *, 'Total fitness: ', total_fitness
-    PRINT *, '***********************************************************************'
+    IF ( QUIET .EQV. .FALSE. ) THEN
+      varfmt = "(A7,ES10.4,A5,F10.4)"
+      WRITE (*,varfmt), 'F_obj( ', fluence, ' ) = ', objective
+      varfmt = "(A9,ES10.4,A5,F10.4)"
+      WRITE (*,varfmt), 'F_model( ', fluence, ' ) = ', model
+  !    varfmt = "A15,F10.4)"
+      PRINT *, 'Total fitness: ', total_fitness
+      PRINT *, '***********************************************************************'
+    END IF
 
     ! if current solution's total_fitness score is too big, save time and end the simulation
     IF (total_fitness > FITNESS_THRESHOLD) THEN
