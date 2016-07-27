@@ -17,6 +17,9 @@ obj
 *.csv
 *.wsv
 *.log
+*.pdf
+*.png
+*.ipynb
 
 # explicit files
 losalamos

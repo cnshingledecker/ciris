@@ -36,8 +36,8 @@ MODULE parameters
   !******************************************************************************
   ! Physical Conditions
   !******************************************************************************
-  REAL(KIND=DBL)  , PARAMETER :: THICK       = 2.5e-6                      !1.0e-5 ! Thickness of the ice in cm
-  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 2.5e-6                      !1.0e-7 ! The edge of the crystal in cm
+  REAL(KIND=DBL)  , PARAMETER :: THICK       = 2.0e-6                      !1.0e-5 ! Thickness of the ice in cm
+  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 2.0e-6                      !1.0e-7 ! The edge of the crystal in cm
   REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0                       ! Kinetic temperature in Kelvin
   REAL(KIND=DBL)  , PARAMETER :: AREA        = EDGE*EDGE                   ! Area of irradiated surface in cm
   REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 1.0D11                      ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
@@ -85,7 +85,7 @@ MODULE parameters
   REAL(KIND=DBL)              :: AVAL              = 33                    ! Parameter for Gamma distribution
   REAL(KIND=DBL)  , PARAMETER :: ECUTOFF           = 4.5D0                 ! Secondary cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: PCUTOFF           = 5.0D0                 ! Primary ion cutoff energy in eV
-  REAL(KIND=DBL)  , PARAMETER :: FLUENCE_TOTAL     = 2.5D15
+  REAL(KIND=DBL)  , PARAMETER :: FLUENCE_TOTAL     = 2.0D15
   REAL(KIND=DBL)  , PARAMETER :: SUBEXHITPROB      = 0.5
   REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 1E6  ! if fitness value exceeds this, terminate
 
@@ -101,7 +101,7 @@ MODULE parameters
   ! Output File Unit Numbers
   !******************************************************************************
   INTEGER         , PARAMETER :: AB_UNIT_NUM = 1009                        ! Abundance output file
-  INTEGER         , PARAMETER :: TRACKMAX    = 20000
+  INTEGER         , PARAMETER :: TRACKMAX    = 7000
 
 
   !******************************************************************************

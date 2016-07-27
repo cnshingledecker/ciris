@@ -1094,7 +1094,8 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
     y = 1 + FLOOR( dimens(2)*u )
     z = 1
     IF ( TRACKPLOT .EQV. .TRUE. ) THEN
-      IF ( x .GT. 300 .AND. x .LT. 600 .AND. y .GT. 300 .AND. y .LT. 600 ) proceed = .TRUE.
+      IF ( x .GT. ((dimens(3)/2)-(dimens(3)*0.1)) .AND. x .LT. ((dimens(3)/2)+(dimens(3)*0.1)) &
+          .AND. y .GT. ((dimens(2)/2)-(dimens(2)*0.1)) .AND. y .LT. ((dimens(2)/2)+(dimens(2)*0.1)) ) proceed = .TRUE.
     ELSE
       proceed = .TRUE.
     END IF
@@ -1126,10 +1127,6 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
     ev_coords(1) = z+step
     ev_coords(2) = y
     ev_coords(3) = x
-    IF ( TRACKPLOT .EQV. .TRUE. ) THEN
-      count_count = count_count + 1
-      WRITE(2016,*) ev_coords(1),',',ev_coords(2),',',ev_coords(3)
-    END IF
     !      PRINT *, 'The event coords are:',ev_coords
 
     thinghit = matrix(ev_coords(1),ev_coords(2),ev_coords(3))
@@ -1190,6 +1187,10 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
       !        WRITE(10,*) ione,",",e_loss,",",ione-e_loss,',',nature
       ione = ione - e_loss
       CALL psigma_suite(ione,psigmas,psigij,psigexj)
+      IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+        count_count = count_count + 1
+        WRITE(2016,*) ev_coords(1),',',ev_coords(2),',',ev_coords(3),', proton,',nature
+      END IF
 
       !Debugging
       !        switch = 2
@@ -1238,7 +1239,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
 
           IF ( TRACKPLOT .EQV. .TRUE. ) THEN
             count_count = count_count + 1
-            WRITE(2016,*) elec_coords(1),',',elec_coords(2),',',elec_coords(3)
+            WRITE(2016,*) elec_coords(1),',',elec_coords(2),',',elec_coords(3),", electron, quick"
           END IF
 
           !GOTO jumps down to calling next random number
@@ -1297,7 +1298,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
 
               IF ( TRACKPLOT .EQV. .TRUE. ) THEN
                 count_count = count_count + 1
-                WRITE(2016,*) curr(1),',',curr(2),',',curr(3)
+                WRITE(2016,*) curr(1),',',curr(2),',',curr(3),", electron , movement"
               END IF
             END DO
 
@@ -1370,7 +1371,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
 
               IF ( TRACKPLOT .EQV. .TRUE. ) THEN
                 count_count = count_count + 1
-                WRITE(2016,*) curr(1),',',curr(2),',',curr(3)
+                WRITE(2016,*) curr(1),',',curr(2),',',curr(3), ", low-enegy electron, movement"
               END IF
               !END DO
               IF ( matrix(next(1),next(2),next(3)) .NE. 0 ) THEN

@@ -9,11 +9,11 @@ set logscale x
 set datafile separator ','
 #Plot vs. fluence
 #set term x11 0
-plot 'abundance.csv' using 2:4 with line
+plot 'abundance.csv' using 2:5 with line
 #set term x11 1
 #set logscale y
 #plot 'abundance.csv' using 2:6 with line
-#pause -1
+pause -1
 #Plot vs. proton count
 #plot 'abundance.csv' using 5:4
 
