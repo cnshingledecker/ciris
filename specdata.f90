@@ -1,7 +1,7 @@
 MODULE specdata
   USE typedefs
   !******************************************************************************
-  ! Spectroscopic Parameters 
+  ! Spectroscopic Parameters
   !******************************************************************************
 
   ! Excitation parameters for molecular oxygen (H+)
@@ -16,15 +16,15 @@ MODULE specdata
 
   ! Ionization parameters for molecular oxygen (H+)
   ! Values taken from Edgar, Porter, and Green 1974
-  TYPE(EPG_IONSTATE), PARAMETER, DIMENSION(7) :: o2_p_ion=(/            &
-    EPG_IONSTATE("X\;^2\Pi_g",9.56D0,45.8D3,0.61D0,1.26D0,12.1D0)     , &
-    EPG_IONSTATE("a\;^4\Pi_u",5.38D0,127.1D3,1.1D0,0.58D0,16.1D0)     , &
-    EPG_IONSTATE("A\;^2\Pi_g",5.25D0,170.3D3,1.1D0,0.60D0,16.9D0)     , &
-    EPG_IONSTATE("b\;^4\Sigma_g^-",3.19D0,142.4D3,1.1D0,0.58D0,18.2D0), &
-    EPG_IONSTATE("B\;State",0.94D0,140.8D3,1.1D0,0.58D0,23.0D0)       , &
-    EPG_IONSTATE("O^+\;^4S",15.6D0,56.0D3,1.2D0,0.72D0,18.0D0)        , &
-    EPG_IONSTATE("O^+\;^2D",8.75D0,57.0D3,1.2D0,0.72D0,22.0D0)          &
-  /)
+  TYPE(EPG_IONSTATE), PARAMETER, DIMENSION(1) :: o2_p_ion=(/            &
+    EPG_IONSTATE("X\;^2\Pi_g",9.56D0,45.8D3,0.61D0,1.26D0,12.1D0) /) !   , &
+!    EPG_IONSTATE("a\;^4\Pi_u",5.38D0,127.1D3,1.1D0,0.58D0,16.1D0)     , &
+!    EPG_IONSTATE("A\;^2\Pi_g",5.25D0,170.3D3,1.1D0,0.60D0,16.9D0)     , &
+!    EPG_IONSTATE("b\;^4\Sigma_g^-",3.19D0,142.4D3,1.1D0,0.58D0,18.2D0), &
+!    EPG_IONSTATE("B\;State",0.94D0,140.8D3,1.1D0,0.58D0,23.0D0)       , &
+!    EPG_IONSTATE("O^+\;^4S",15.6D0,56.0D3,1.2D0,0.72D0,18.0D0)        , &
+!    EPG_IONSTATE("O^+\;^2D",8.75D0,57.0D3,1.2D0,0.72D0,22.0D0)          &
+!  /)
 
   ! Excitation parameters for molecular oxygen by electrons (e-)
   ! Values taken from Porter, Jackman, Green 1976

@@ -11,7 +11,7 @@ include("grid.jl")
 include("maintainence.jl")
 
 # island population constants
-MIN_WORK = 30    # max number of jobs/island
+MIN_WORK = 3    # max number of jobs/island
 MIN_TODO = 50   # min todo size/island
 MAX_DONE = 10  # max done size/island
 EXILE = 25      # not implemented yet...
@@ -210,7 +210,7 @@ while true
     for i=1:5
         do_maintainence(Grid.ISLANDS)
         # sleep
-        sleep(300)
+        sleep(100)
         island_num = i - 1
     end
     println("Finishing loop")

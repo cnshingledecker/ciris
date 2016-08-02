@@ -1154,7 +1154,8 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
       ASSOCIATE ( sigma_i => psigmas(2)%cross_section, &
         sigma_e => psigmas(3)%cross_section )
         IF ( u .GT. 0.0 .AND. u .LE. (sigma_i + sigma_e)/sigma_tot ) THEN
-          IF ( u .GT. 0 .AND. u .LE. sigma_i/(sigma_i + sigma_e) ) THEN
+!          IF ( u .GT. 0 .AND. u .LE. sigma_i/(sigma_i + sigma_e) ) THEN
+          IF ( u .GT. 0 .AND. u .LE. sigma_i/sigma_tot ) THEN
             ! Ionization will occur
             num_izns = num_izns + 1
             switch = 2
