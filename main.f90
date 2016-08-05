@@ -163,15 +163,16 @@ PROGRAM main
   dimens(1) = NTHICK
   dimens(2) = NEDGE
   dimens(3) = dimens(2)
-  PRINT *, 'In main, the dimens are:',dimens
 
   !******************************************************************************
   ! Create the matrix
   !******************************************************************************
   IF ( FIXED_SIZE .EQV. .TRUE. ) THEN 
     ALLOCATE( matrix(FIX1,FIX2,FIX3) )
+    PRINT *, 'In main, the dimens are:',FIX1,FIX2,FIX3
   ELSE
     ALLOCATE ( matrix( dimens(1),dimens(2),dimens(3) ) )
+    PRINT *, 'In main, the dimens are:',dimens
   END IF
   matrix = 0
 
