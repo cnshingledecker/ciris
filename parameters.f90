@@ -36,6 +36,9 @@ MODULE parameters
   !******************************************************************************
   ! Physical Conditions
   !******************************************************************************
+  INTEGER         , PARAMETER :: FIX1        = 200
+  INTEGER         , PARAMETER :: FIX2        = 200
+  INTEGER         , PARAMETER :: FIX3        = 200
   REAL(KIND=DBL)  , PARAMETER :: THICK       = 1.0e-5                      !1.0e-5 ! Thickness of the ice in cm
   REAL(KIND=DBL)  , PARAMETER :: EDGE        = 1.0e-5                      !1.0e-7 ! The edge of the crystal in cm
   REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0                       ! Kinetic temperature in Kelvin
@@ -114,6 +117,7 @@ MODULE parameters
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
   INTEGER                     :: TIME_FREQ    = 1000  !1000000
 
+  LOGICAL, PARAMETER :: FIXED_SIZE = .TRUE.
   LOGICAL, PARAMETER :: NO_OUTPUT  = .FALSE.
   LOGICAL, PARAMETER :: QUIET      = .FALSE.
   LOGICAL, PARAMETER :: SECELEC    = .TRUE.

@@ -168,7 +168,11 @@ PROGRAM main
   !******************************************************************************
   ! Create the matrix
   !******************************************************************************
-  ALLOCATE ( matrix( dimens(1),dimens(2),dimens(3) ) )
+  IF ( FIXED_SIZE .EQV. .TRUE. ) THEN 
+    ALLOCATE( matrix(FIX1,FIX2,FIX3) )
+  ELSE
+    ALLOCATE ( matrix( dimens(1),dimens(2),dimens(3) ) )
+  END IF
   matrix = 0
 
   FORALL ( i=1:dimens(1),j=1:dimens(2),k=1:dimens(3), MOD(k,2) .EQ. 1 .AND. MOD(j,2) .EQ. 1)
