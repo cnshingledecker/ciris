@@ -1153,9 +1153,9 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
       e_se   = 0
       ASSOCIATE ( sigma_i => psigmas(2)%cross_section, &
         sigma_e => psigmas(3)%cross_section )
-        IF ( u .GT. 0.0 .AND. u .LE. (sigma_i + sigma_e)/sigma_tot ) THEN
+        IF ( (u .GT. 0.0) .AND. (u .LE. (sigma_i + sigma_e)/sigma_tot) ) THEN
 !          IF ( u .GT. 0 .AND. u .LE. sigma_i/(sigma_i + sigma_e) ) THEN
-          IF ( u .GT. 0 .AND. u .LE. sigma_i/sigma_tot ) THEN
+          IF ( (u .GT. 0) .AND. (u .LE. sigma_i/sigma_tot )) THEN
             ! Ionization will occur
             num_izns = num_izns + 1
             switch = 2
@@ -1301,6 +1301,8 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
                 count_count = count_count + 1
                 WRITE(2016,*) curr(1),',',curr(2),',',curr(3),", electron , movement"
               END IF
+              ee_loss = se_box%se_energy*0.001
+              se_box%se_energy =  se_box%se_energy - ee_loss
             END DO
 
             !Determine nature of event
@@ -1455,7 +1457,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
     IF (step .LE. 0. ) GOTO 100
     IF (z+step .GE. dimens(1) ) THEN
       IF ( TRACKPLOT .EQV. .TRUE. ) THEN
-        IF ( count_count .GT. TRACKMAX ) CALL EXIT()
+        IF ( (count_count .GT. TRACKMIN) .AND. (count_count .LT. TRACKMAX) ) CALL EXIT()
       ELSE
         RETURN
       END IF
@@ -2751,6 +2753,7 @@ END IF
 END SELECT
 END IF
 IF ( n .NE. 5 .AND. n .NE. 6 ) THEN
+!  IF ( (curr(1) .NE. next(1) ) .AND. (curr(2) .NE. next(2) ) .AND. (curr(3) .NE. next(3))) THEN
   insides = (next(2)-prev(2))**2 + (next(3)-prev(3))**2
   sigma = SQRT( insides )
   insides = (next(2)-curr(2))**2 + (next(3)-curr(3))**2 + (next(1)-curr(1))**2
