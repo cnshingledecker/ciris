@@ -16,34 +16,34 @@ $(PROGRAM): qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o
 	$(FC) -o $(PROGRAM) *.o $(FCFLAGS)
 
 main.o: main.f90 subroutines.o parameters.o typedefs.o functiondefs.o gp.o
-	$(FC) -c main.f90
+	$(FC) -c main.f90 $(FCFLAGS)
 
 typedefs.o: typedefs.f90
-	$(FC) -c typedefs.f90
+	$(FC) -c typedefs.f90 $(FCFLAGS)
 
 specdata.o: specdata.f90 typedefs.o
-	$(FC) -c specdata.f90
+	$(FC) -c specdata.f90 $(FCFLAGS)
 
 qbert.o: qbert.f90 subroutines.o parameters.o
-	$(FC) -c qbert.f90
+	$(FC) -c qbert.f90 $(FCFLAGS)
 
 subroutines.o: subroutines.f90 mc_toolbox.o typedefs.o functiondefs.o parameters.o specdata.o
-	$(FC) -c subroutines.f90
+	$(FC) -c subroutines.f90 $(FCFLAGS)
 
 parameters.o: parameters.f90
-	$(FC) -c parameters.f90
+	$(FC) -c parameters.f90 $(FCFLAGS)
 
 mc_toolbox.o: mc_toolbox.f90
-	$(FC) -c mc_toolbox.f90
+	$(FC) -c mc_toolbox.f90 $(FCFLAGS)
 
 functiondefs.o: functiondefs.f90 parameters.o typedefs.o
-	$(FC) -c functiondefs.f90
+	$(FC) -c functiondefs.f90 $(FCFLAGS)
 
 gp.o: gp.f90 parameters.o typedefs.o
-	$(FC) -c gp.f90
+	$(FC) -c gp.f90 $(FCFLAGS)
 
 static: qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o
-	$(FC) -o $(PROGRAM) *.o -O3 -static-intel 
+	$(FC) -o $(PROGRAM) *.o  $(FCFLAGS)
 
 clean:
 	rm -f *.mod *.o a.out
