@@ -36,9 +36,9 @@ MODULE parameters
   !******************************************************************************
   ! Physical Conditions
   !******************************************************************************
-  INTEGER         , PARAMETER :: FIX1        = 200
-  INTEGER         , PARAMETER :: FIX2        = 200
-  INTEGER         , PARAMETER :: FIX3        = 200
+  INTEGER         , PARAMETER :: FIX1        = 150
+  INTEGER         , PARAMETER :: FIX2        = 150
+  INTEGER         , PARAMETER :: FIX3        = 150
   REAL(KIND=DBL)  , PARAMETER :: THICK       = 1.0e-5                      !1.0e-5 ! Thickness of the ice in cm
   REAL(KIND=DBL)  , PARAMETER :: EDGE        = 1.0e-5                      !1.0e-7 ! The edge of the crystal in cm
   REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0                       ! Kinetic temperature in Kelvin
@@ -90,7 +90,7 @@ MODULE parameters
   REAL(KIND=DBL)  , PARAMETER :: PCUTOFF           = 5.0D0                 ! Primary ion cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: FLUENCE_TOTAL     = 2.0D15
   REAL(KIND=DBL)  , PARAMETER :: SUBEXHITPROB      = 0.5
-  REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 1E6  ! if fitness value exceeds this, terminate
+  REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 1E7  ! if fitness value exceeds this, terminate
 
   !******************************************************************************
   ! Branching Ratios
@@ -113,7 +113,7 @@ MODULE parameters
   !******************************************************************************
   INTEGER, DIMENSION(1)       :: FAST_REACTS  = (/ 4 /)                   ! 4 ! Species that react upon formation
   INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 21 /)                    ! 7 ! Species that dissociate easily
-  INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4, 7 /)
+  INTEGER, DIMENSION(1)       :: MOBILE_LIST  = (/ 4 /)
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
   INTEGER                     :: TIME_FREQ    = 1000  !1000000
 
