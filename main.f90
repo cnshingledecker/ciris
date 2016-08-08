@@ -160,20 +160,21 @@ PROGRAM main
   !******************************************************************************
   ! Calculate the dimensions of the matrix
   !******************************************************************************
-  dimens(1) = NTHICK
-  dimens(2) = NEDGE
-  dimens(3) = dimens(2)
+  IF ( FIXED_SIZE .EQV. .TRUE. ) THEN 
+    dimens(1) = FIX1 
+    dimens(2) = FIX2 
+    dimens(3) = FIX3 
+  ELSE
+    dimens(1) = NTHICK
+    dimens(2) = NEDGE
+    dimens(3) = dimens(2)
+  END IF
 
   !******************************************************************************
   ! Create the matrix
   !******************************************************************************
-  IF ( FIXED_SIZE .EQV. .TRUE. ) THEN 
-    ALLOCATE( matrix(FIX1,FIX2,FIX3) )
-    PRINT *, 'In main, the dimens are:',FIX1,FIX2,FIX3
-  ELSE
-    ALLOCATE ( matrix( dimens(1),dimens(2),dimens(3) ) )
-    PRINT *, 'In main, the dimens are:',dimens
-  END IF
+  PRINT *, 'In main, the dimens are:',dimens
+  ALLOCATE ( matrix( dimens(1),dimens(2),dimens(3) ) )
   matrix = 0
 
   FORALL ( i=1:dimens(1),j=1:dimens(2),k=1:dimens(3), MOD(k,2) .EQ. 1 .AND. MOD(j,2) .EQ. 1)
