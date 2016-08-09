@@ -39,8 +39,8 @@ MODULE parameters
   INTEGER         , PARAMETER :: FIX1        = 150
   INTEGER         , PARAMETER :: FIX2        = 150
   INTEGER         , PARAMETER :: FIX3        = 150
-  REAL(KIND=DBL)  , PARAMETER :: THICK       = 1.0e-5                      !1.0e-5 ! Thickness of the ice in cm
-  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 1.0e-5                      !1.0e-7 ! The edge of the crystal in cm
+  REAL(KIND=DBL)  , PARAMETER :: THICK       = 5.0e-6                      !1.0e-5 ! Thickness of the ice in cm
+  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 5.0e-6                      !1.0e-7 ! The edge of the crystal in cm
   REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0                       ! Kinetic temperature in Kelvin
   REAL(KIND=DBL)  , PARAMETER :: AREA        = EDGE*EDGE                   ! Area of irradiated surface in cm
   REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 1.0D11                      ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
@@ -90,7 +90,8 @@ MODULE parameters
   REAL(KIND=DBL)  , PARAMETER :: PCUTOFF           = 5.0D0                 ! Primary ion cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: FLUENCE_TOTAL     = 2.0D15
   REAL(KIND=DBL)  , PARAMETER :: SUBEXHITPROB      = 0.5
-  REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 1E7  ! if fitness value exceeds this, terminate
+  REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 1E20  ! if fitness value exceeds this, terminate
+  REAL(KIND=DBL)              :: ELASTIC_LOSS      = 0.001
 
   !******************************************************************************
   ! Branching Ratios
@@ -117,7 +118,7 @@ MODULE parameters
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
   INTEGER                     :: TIME_FREQ    = 1000  !1000000
 
-  LOGICAL, PARAMETER :: FIXED_SIZE = .TRUE.
+  LOGICAL, PARAMETER :: FIXED_SIZE = .FALSE.
   LOGICAL, PARAMETER :: NO_OUTPUT  = .TRUE.
   LOGICAL, PARAMETER :: QUIET      = .TRUE.
   LOGICAL, PARAMETER :: SECELEC    = .TRUE.
@@ -167,6 +168,8 @@ MODULE parameters
               READ(val, *) O3_O2_ION_BRANCHING
           CASE ("FRAGILE")
               READ(val, *) FRAGILE
+          CASE("ELASTIC_LOSS")
+              READ(val, *) ELASTIC_LOSS
           CASE DEFAULT
               PRINT *, "WARNING: Unexpect variable name '", var, "'. Ignoring..."
         END SELECT

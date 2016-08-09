@@ -5,6 +5,7 @@ using Base.Random.uuid4
 constraints = Dict(
     "O" => 100:1:800, #Int
 #    "O3" => 100:1:800, #Int
+    "ELASTIC_LOSS" => 0.0:0.0001:0.1 #float
     "TRL_NU" => 1E10:1E10:1E12, #float
     "DISPROB" => 0.0:0.1:1.0, #float
     "STEPFAC" => 1E-2:1E-4:1.0, #float

@@ -1301,7 +1301,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
                 count_count = count_count + 1
                 WRITE(2016,*) curr(1),',',curr(2),',',curr(3),", electron , movement"
               END IF
-              ee_loss = se_box%se_energy*0.001
+              ee_loss = se_box%se_energy*ELASTIC_LOSS
               se_box%se_energy =  se_box%se_energy - ee_loss
             END DO
 

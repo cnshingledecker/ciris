@@ -264,7 +264,7 @@ PROGRAM main
       CALL EXIT()
     END IF
 
-    IF ( fluence .LE. 5.0E12 ) TIME_FREQ = 1
+    IF ( fluence .LE. 5.0E12 ) TIME_FREQ = 1 
     IF ( fluence .GT. 5.0E12 .AND. fluence .LE. 5.0e14 ) TIME_FREQ = 1
     IF ( fluence .GT. 5.0E14  )  TIME_FREQ = 1
     IF ( (MOD(time_check,TIME_FREQ) .EQ. 0) .AND. (wait_list(mindex)%sp_num .EQ. cr_num) ) THEN
