@@ -39,8 +39,8 @@ MODULE parameters
   INTEGER         , PARAMETER :: FIX1        = 150
   INTEGER         , PARAMETER :: FIX2        = 150
   INTEGER         , PARAMETER :: FIX3        = 150
-  REAL(KIND=DBL)  , PARAMETER :: THICK       = 5.0e-6                      !1.0e-5 ! Thickness of the ice in cm
-  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 5.0e-6                      !1.0e-7 ! The edge of the crystal in cm
+  REAL(KIND=DBL)  , PARAMETER :: THICK       = 3.5e-6                      !1.0e-5 ! Thickness of the ice in cm
+  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 3.5e-6                      !1.0e-7 ! The edge of the crystal in cm
   REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0                       ! Kinetic temperature in Kelvin
   REAL(KIND=DBL)  , PARAMETER :: AREA        = EDGE*EDGE                   ! Area of irradiated surface in cm
   REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 1.0D11                      ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
@@ -61,7 +61,7 @@ MODULE parameters
   ! Kinetic Parameters
   !******************************************************************************
   DOUBLE PRECISION, PARAMETER :: SHORT_TIME  = 100.0                       ! K
-  DOUBLE PRECISION            :: TRL_NU      = 2.6E11                       ! Trial frequency, for the rates, in 1/s
+  DOUBLE PRECISION            :: TRL_NU      = 2.0E11                       ! Trial frequency, for the rates, in 1/s
   DOUBLE PRECISION            :: DISPROB     = 0.0                         ! Probability of excitative dissociation
   DOUBLE PRECISION, PARAMETER :: ZP          = 1.D0                        ! Proton number
   DOUBLE PRECISION, PARAMETER :: ZO1         = 8.D0                        ! Atomic oxygen proton number
@@ -88,7 +88,7 @@ MODULE parameters
   REAL(KIND=DBL)              :: AVAL              = 33                    ! Parameter for Gamma distribution
   REAL(KIND=DBL)  , PARAMETER :: ECUTOFF           = 4.5D0                 ! Secondary cutoff energy in eV
   REAL(KIND=DBL)  , PARAMETER :: PCUTOFF           = 5.0D0                 ! Primary ion cutoff energy in eV
-  REAL(KIND=DBL)  , PARAMETER :: FLUENCE_TOTAL     = 2.0D15
+  REAL(KIND=DBL)  , PARAMETER :: FLUENCE_TOTAL     = 1.5D15
   REAL(KIND=DBL)  , PARAMETER :: SUBEXHITPROB      = 0.5
   REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 1E20  ! if fitness value exceeds this, terminate
   REAL(KIND=DBL)              :: ELASTIC_LOSS      = 0.001
@@ -100,6 +100,7 @@ MODULE parameters
   REAL                        :: O2_ION_BRANCHING    = 0.0 ! O2- + O2+ -> O3 + O
   REAL                        :: O3_O_ION_BRANCHING  = 0.0 ! O3+ + O- or O3- + O+ -> O3 + O
   REAL                        :: O3_O2_ION_BRANCHING = 0.0 ! O3+ + O2- or O3- + O2+ -> O2 + O2 + O
+  REAL                        :: O_ION_BRANCHING     = 0.0 ! O+ + O- -> O2
 
   !******************************************************************************
   ! Output File Unit Numbers
@@ -114,7 +115,7 @@ MODULE parameters
   !******************************************************************************
   INTEGER, DIMENSION(1)       :: FAST_REACTS  = (/ 4 /)                   ! 4 ! Species that react upon formation
   INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 21 /)                    ! 7 ! Species that dissociate easily
-  INTEGER, DIMENSION(1)       :: MOBILE_LIST  = (/ 4 /)
+  INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4,7 /)
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
   INTEGER                     :: TIME_FREQ    = 1000  !1000000
 
@@ -148,8 +149,8 @@ MODULE parameters
         IF ( err .NE. 0 ) EXIT
         ! Store value
         SELECT CASE (var)
-          CASE ("TRL_NU")
-              READ(val, *) TRL_NU
+!          CASE ("TRL_NU")
+!              READ(val, *) TRL_NU
           CASE ("DISPROB")
               READ(val, *) DISPROB
           CASE ("NSUBEX")
@@ -160,14 +161,16 @@ MODULE parameters
               READ(val, *) AVAL
           CASE ("O2_ION_BRANCHING")
               READ(val, *) O2_ION_BRANCHING
+          CASE ("O_ION_BRANCHING")
+              READ(val, *) O_ION_BRANCHING
           CASE ("O3_DIS_BRANCHING")
               READ(val, *) O3_DIS_BRANCHING
           CASE ("O3_O_ION_BRANCHING")
               READ(val, *) O3_0_ION_BRANCHING
           CASE ("O3_O2_ION_BRANCHING")
               READ(val, *) O3_O2_ION_BRANCHING
-          CASE ("FRAGILE")
-              READ(val, *) FRAGILE
+!          CASE ("FRAGILE")
+!              READ(val, *) FRAGILE
           CASE("ELASTIC_LOSS")
               READ(val, *) ELASTIC_LOSS
           CASE DEFAULT

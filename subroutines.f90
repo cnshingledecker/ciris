@@ -2142,6 +2142,12 @@ SUBROUTINE reaction( o3_prod,o3_dest,qube, en_list, matrix,  wait_list, wait_len
     IF ( rnum .LE. O3_O_ION_BRANCHING ) THEN
       prods = (/ 4, 4, 1 /)
     END IF
+  ELSE IF ( r1 .EQ. 5 .AND. r2 .EQ. 6 .OR. r1 .EQ. 6 .AND. r2 .EQ. 5 ) THEN
+    !      rnum = RAND()
+    CALL RANDOM_NUMBER(rnum)
+    IF ( rnum .LE. O_ION_BRANCHING ) THEN
+      prods = (/ 1, 0, 0 /)
+    END IF
   ELSE IF ( r1 .EQ. 9 .AND. r2 .EQ. 5 .OR. r1 .EQ. 5 .AND. r2 .EQ. 9 ) THEN
     !      rnum = RAND()
     CALL RANDOM_NUMBER(rnum)
