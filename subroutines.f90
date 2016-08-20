@@ -2158,13 +2158,13 @@ SUBROUTINE reaction( o3_prod,o3_dest,qube, en_list, matrix,  wait_list, wait_len
     !      rnum = RAND()
     CALL RANDOM_NUMBER(rnum)
     IF ( rnum .LE. O3_O2_ION_BRANCHING ) THEN
-      prods = (/ 4, 4, 7 /)
+      prods = (/ 7, 1, 0 /)
     END IF
   ELSE IF ( r1 .EQ. 9 .AND. r2 .EQ. 2 .OR. r1 .EQ. 2 .AND. r2 .EQ. 9 ) THEN
     !      rnum = RAND()
     CALL RANDOM_NUMBER(rnum)
     IF ( rnum .LE. O3_O2_ION_BRANCHING ) THEN
-      prods = (/ 4, 4, 7 /)
+      prods = (/ 7, 1, 0 /)
     END IF
   END IF
 
