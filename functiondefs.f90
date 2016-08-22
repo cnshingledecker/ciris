@@ -1,27 +1,27 @@
-MODULE functiondefs 
+MODULE functiondefs
   USE parameters
   USE typedefs
 
-   
+
 
   CONTAINS
     FUNCTION green_mcneal(energy,a,j,nu,omega,z,i)
     !
     !  Purpose:
     !    To calculate the Green-McNeal scaled proton cross-sections
-    !  as described in Miller & Green 1971. 
+    !  as described in Miller & Green 1971.
     !
     !  Note:
     !    This formula can be used for both excitation and ionization
     !  cross-sections, given the appropriate input.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! GREEN_MCNEAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IMPLICIT NONE
-     
-      ! Data dictionary: declare calling parameters 
-      DOUBLE PRECISION             :: green_mcneal 
+
+      ! Data dictionary: declare calling parameters
+      DOUBLE PRECISION             :: green_mcneal
       DOUBLE PRECISION, INTENT(IN) :: energy
       DOUBLE PRECISION, INTENT(IN) :: a
       DOUBLE PRECISION, INTENT(IN) :: j !units of eV
@@ -45,7 +45,7 @@ MODULE functiondefs
       denominator  = (j**(omega + nu)) + (energy**(omega+nu))
       green_mcneal = numerator/denominator
       RETURN
-    END FUNCTION green_mcneal 
+    END FUNCTION green_mcneal
 
     FUNCTION a_gs(energy,k,k_b,j,j_b,j_c)
     !
@@ -53,9 +53,9 @@ MODULE functiondefs
     !    To calculate the A(E) prefactor for the Green-Sawada (1973) electron
     !  impact cross-sections.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! A_GS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IMPLICIT NONE
 
       ! Data dictionary: declare calling parameters
@@ -70,7 +70,7 @@ MODULE functiondefs
       ! Data dictionary: declare local vals
       DOUBLE PRECISION             :: factor1
       DOUBLE PRECISION             :: factor2
-      
+
       ! Initialize values
       a_gs = 0
       factor1 = 0
@@ -89,9 +89,9 @@ MODULE functiondefs
     !    To calculate the Gamma(E) for the Green-Sawada (1973) electron
     !  impact cross-sections.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! GAMMA_GS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IMPLICIT NONE
 
       ! Data dictionary: declare calling parameters
@@ -108,7 +108,7 @@ MODULE functiondefs
       gamma_gs = 0
       numerator = 0
       denominator = 0
-   
+
       ! Perform calculation
       numerator   = gamma_s*energy
       denominator = energy + gamma_b
@@ -122,9 +122,9 @@ MODULE functiondefs
     !    To calculate T_0 for the Green-Sawada (1973) electron
     !  impact cross-sections.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! T_0_GS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IMPLICIT NONE
 
       ! Data dictionary: declare calling parameters
@@ -153,14 +153,14 @@ MODULE functiondefs
     !    To calculate T_max for the Green-Sawada (1973) electron
     !  impact cross-sections.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! T_MAX_GS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IMPLICIT NONE
 
       ! Data dictionary: declare calling parameters
       DOUBLE PRECISION             :: t_max_gs
-      DOUBLE PRECISION, INTENT(IN) :: energy 
+      DOUBLE PRECISION, INTENT(IN) :: energy
       DOUBLE PRECISION, INTENT(IN) :: i
 
       ! Initialize values
@@ -177,9 +177,9 @@ MODULE functiondefs
     !    To calculate the Green-Sawada (1973) electron
     !  impact cross-sections.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! GREEN_SAWADA !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IMPLICIT NONE
 
       ! Data dictionary: declare calling parameters
@@ -202,9 +202,12 @@ MODULE functiondefs
 
       ! Perform calculation
       bracket = (t_max - t_0)/gamma_fac
+      ! PRINT *, "Inside atan1=",bracket
       paren   = t_0/gamma_fac
-      insides = DTAN(bracket) + DTAN(paren)
-      green_sawada = a*gamma_fac*insides
+      ! PRINT *, "Inside atan2=", paren
+      insides = ATAN(bracket) + ATAN(paren)
+      ! PRINT *, "insides are ", insides
+      green_sawada = 1E-16*a*gamma_fac*insides
       RETURN
     END FUNCTION green_sawada
 
@@ -214,9 +217,9 @@ MODULE functiondefs
     !   To calculate the scaling factor N(E) for the inelastic H+ stopping
     !  cross-section as taken from Miller & Green 1971.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! NE_MG !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IMPLICIT NONE
 
       ! Data dictionary: declare calling parameters
@@ -244,16 +247,16 @@ MODULE functiondefs
     SUBROUTINE magic(eps,b,c2,s2,theta)
     !
     !  The famous Magic formula described in Biersack and Haggmark 1980
-    !  
+    !
     !
     !  Purpose:
     !   To calculate the center-of-mass scattering angle for a given potential
-    !  using the formalism developed by Biersack and Haggmark. This algorithm 
+    !  using the formalism developed by Biersack and Haggmark. This algorithm
     !  is the same as is used in TRIM and SRIM by Ziegler.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! MAGIC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IMPLICIT NONE
 
       !Data dictionary: Calling Parameters and Output
@@ -335,13 +338,13 @@ MODULE functiondefs
     !   To calculate the reduced impact parameter based on a uniform random
     !  number and a screening length.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! B_MAGIC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IMPLICIT NONE
 
       !Data dictionary: Calling parameters
-      DOUBLE PRECISION, INTENT(IN) :: rn 
+      DOUBLE PRECISION, INTENT(IN) :: rn
       DOUBLE PRECISION, INTENT(IN) :: rho
       DOUBLE PRECISION, INTENT(IN) :: a
       DOUBLE PRECISION             :: b_magic
@@ -365,9 +368,9 @@ MODULE functiondefs
     !  Purpose:
     !   To calculate the screening length for a two-particle interaction.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! AU !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IMPLICIT NONE
 
       !Data dictionary: Calling parameters
@@ -388,15 +391,15 @@ MODULE functiondefs
     !  Purpose:
     !   To calculate the Lindhard-Scharff-Sigmund reduced energy.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! EPS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       !Note: All units must be Gaussian-CGS
       IMPLICIT NONE
 
       !Data dictionary: Calling parameters
-      DOUBLE PRECISION, POINTER    :: en 
+      DOUBLE PRECISION, POINTER    :: en
       DOUBLE PRECISION, INTENT(IN) :: z1,z2
       DOUBLE PRECISION, INTENT(IN) :: m1,m2
       DOUBLE PRECISION, INTENT(IN) :: au
@@ -415,18 +418,18 @@ MODULE functiondefs
       fac1 = au/ECHARG2
       fac2 = m2/(m1+m2)
       fac3 = 1./(z1+z2)
-      eps = en*fac1*fac2*fac3 
+      eps = en*fac1*fac2*fac3
     END FUNCTION eps
 
     FUNCTION mass_fac(m1,m2)
     !
     !  Purpose:
-    !   To calculate the mass factor, denoted /gamma in most equations 
+    !   To calculate the mass factor, denoted /gamma in most equations
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! MASS_FAC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-     
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
       IMPLICIT NONE
 
       !Data dictionary: Calling parameters
@@ -445,14 +448,14 @@ MODULE functiondefs
     FUNCTION t_coll(e,mf,s2)
     !
     !  Purpose:
-    !   To calculate the energy transferred in an elastic, i.e. nuclear, 
+    !   To calculate the energy transferred in an elastic, i.e. nuclear,
     !  collision between a target species and an incoming ion. This value
-    !  is calculated based on the output of the Magic Formula, from which 
+    !  is calculated based on the output of the Magic Formula, from which
     !  one can calculate s2, which is the sin^2(theta/2)
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! T_COLL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       IMPLICIT NONE
 
@@ -474,13 +477,13 @@ MODULE functiondefs
     FUNCTION lab_theta(cmtheta,m1,m2)
     !
     !  Purpose:
-    !   To calculate the laboratory frame of reference scattering angle based 
+    !   To calculate the laboratory frame of reference scattering angle based
     !  on the output of the Magic Formula, from which the model calculated the
     !  center-of-mass scattering angle.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! LAB_THETA !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IMPLICIT NONE
 
       !Data dictionary: Calling parameters
@@ -501,16 +504,16 @@ MODULE functiondefs
       lab_theta = ATAN(insides)
       RETURN
     END FUNCTION lab_theta
-    
+
     FUNCTION sneps(eps)
     !
     !  Purpose:
-    !   To calculate the reduced energy elastic stopping cross-section of 
+    !   To calculate the reduced energy elastic stopping cross-section of
     !  nuclear collisions between a target and incoming ion.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! SNEPS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
       !Data dictionart: Calling Parameters
@@ -549,9 +552,9 @@ MODULE functiondefs
     !   To calculate the elastic stopping cross-section, S(E,T) of nuclear
     !  collisions between a target and incoming ion.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! SNE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       IMPLICIT NONE
 
@@ -571,7 +574,7 @@ MODULE functiondefs
       den  = 0
       den1 = 0
       den2 = 0
-  
+
       num = (8.462E-15)*z1*z2*m1*sneps
       den1 = m1 + m2
       den2 = z1**0.23 + z2**0.23
@@ -589,9 +592,9 @@ MODULE functiondefs
     !
     !  pelsig => Proton ELastic SIGma
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! PELSIG !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IMPLICIT NONE
 
       !Data dictionary: Calling parameters
@@ -622,9 +625,9 @@ MODULE functiondefs
     !    The output of this function is an array of cross-sections, the number
     !  of which equals the number of forbidden states included in the struct.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! GREENDUTTA !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IMPLICIT NONE
 
       ! Data dictionary: Calling parameters
@@ -640,10 +643,10 @@ MODULE functiondefs
       fac1       = 0
       fac2       = 0
       fac3       = 0
-      
+
       ! Perform calculation
       IF ( energy .LT. w ) THEN
-       greendutta  = 0D0 
+       greendutta  = 0D0
       ELSE
         fac1       = (Q0*f)/(w*w)
         fac2       = (1.-(w/energy)**a)**b
@@ -667,9 +670,9 @@ MODULE functiondefs
     !    The output of this function is an array of cross-sections, the number
     !  of which equals the number of allowed states included in the struct.
     !
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! PJGSIGMA !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IMPLICIT NONE
 
       ! Calling parameters
@@ -697,4 +700,4 @@ MODULE functiondefs
       END IF
       RETURN
     END FUNCTION pjgsigma
-END MODULE functiondefs 
+END MODULE functiondefs

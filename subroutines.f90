@@ -3112,37 +3112,37 @@ SUBROUTINE esigma_suite(se_box)
       ta  => se_box%se_ionst(n)%ta_ion  , &
       tb  => se_box%se_ionst(n)%tb_ion  , &
       sig => se_box%se_ionsigs(n)          )
-      !        PRINT *, '#',n,'For energy:',energy
-      !        PRINT *, 'i=',i
-      !        PRINT *, 'k=',k
-      !        PRINT *, 'kb=',kb
-      !        PRINT *, 'j=',j
-      !        PRINT *, 'jb=',jb
-      !        PRINT *, 'jc=',jc
-      !        PRINT *, 'gs=',gs
-      !        PRINT *, 'gb=',gb
-      !        PRINT *, 'ts=',ts
-      !        PRINT *, 'ta=',ta
-      !        PRINT *, 'tb=',tb
+      ! PRINT *, '#',n,'For energy:',en
+      ! PRINT *, 'i=',i
+      ! PRINT *, 'k=',k
+      ! PRINT *, 'kb=',kb
+      ! PRINT *, 'j=',j
+      ! PRINT *, 'jb=',jb
+      ! PRINT *, 'jc=',jc
+      ! PRINT *, 'gs=',gs
+      ! PRINT *, 'gb=',gb
+      ! PRINT *, 'ts=',ts
+      ! PRINT *, 'ta=',ta
+      ! PRINT *, 'tb=',tb
       IF ( en .LT. i ) THEN
         sig = 0D0
       ELSE
         !i. Calculate the A(E) value from Green & Sawada
         ae = a_gs(en,k,kb,j,jb,jc)
-        !          PRINT *, '#',n,' ae=',ae
+        ! PRINT *, '#',n,' ae=',ae
         !ii. Calculate the \Gamma(E) factor
         ge = gamma_gs(en,gs,gb)
-        !          PRINT *, '#',n,' ge=',ge
+        ! PRINT *, '#',n,' ge=',ge
         !iii. Calculate the T_0 value
         tnaught = t_0_gs(en,ta,tb,ts)
-        !          PRINT *, '#',n,' tnaught=',tnaught
+        ! PRINT *, '#',n,' tnaught=',tnaught
         !iv. Calculate the Tmas value
         tmax = t_max_gs(en,i)
-        !          PRINT *, '#',n,' tmax=',tmax
+        ! PRINT *, '#',n,' tmax=',tmax
         !v. Calculate the cross-section for the state
         sig = green_sawada(ae,ge,tmax,tnaught)
       END IF
-      !        PRINT *, 'the',n,' value of sig is:',sig
+      ! PRINT *, 'the',n,' value of sig is:',sig
     END ASSOCIATE
   END DO
   !The total electron impact cross-section is the sum over the

@@ -10,14 +10,19 @@ PROGRAM sigma_test
   USE subroutines
   USE mc_toolbox
   IMPLICIT NONE
-  DOUBLE PRECISION   , DIMENSION(:)    , POINTER :: psigij,psigexj
-  TYPE(SIGMA_BOX)    , DIMENSION(:)    , POINTER :: psigmas
-  TYPE(SE_INFO)                                  :: se_box
-  DOUBLE PRECISION   , DIMENSION(:), ALLOCATABLE, TARGET :: psigij_target,psigexj_target
-  TYPE(SIGMA_BOX)    , DIMENSION(:), ALLOCATABLE, TARGET :: psigmas_target
-  DOUBLE PRECISION                     , POINTER :: ione
-  DOUBLE PRECISION                     , TARGET  :: energy_target
-
+  INTEGER            , PARAMETER                          :: final_energy=30
+  DOUBLE PRECISION   , DIMENSION(:)             , POINTER :: psigij,psigexj
+  TYPE(SIGMA_BOX)    , DIMENSION(:)             , POINTER :: psigmas
+  TYPE(SE_INFO)                                           :: se_box
+  DOUBLE PRECISION   , DIMENSION(:), ALLOCATABLE, TARGET  :: psigij_target,psigexj_target
+  TYPE(SIGMA_BOX)    , DIMENSION(:), ALLOCATABLE, TARGET  :: psigmas_target
+  DOUBLE PRECISION                              , POINTER :: ione
+  DOUBLE PRECISION                              , TARGET  :: energy_target
+  INTEGER                                                 :: i,j
+  DOUBLE PRECISION   , DIMENSION(3)                       :: final_psigs
+  DOUBLE PRECISION   , DIMENSION(3)                       :: final_esigs
+  DOUBLE PRECISION                                        :: final_esig
+  CHARACTER(len=20)  , DIMENSION(2)                       :: se_coll
   ALLOCATE(psigmas_target(3))
   psigmas => psigmas_target
   ALLOCATE(psigij_target(SIZE(o2_p_ion)))
@@ -29,7 +34,34 @@ PROGRAM sigma_test
   psigmas%cross_section = 0D0
   psigij  = 0D0
   psigexj = 0D0
-  CALL psigma_suite(ione,psigmas,psigij,psigexj)
-  PRINT *, "Hello, world"
+  DO i=1,final_energy
+    energy_target = i
+    CALL psigma_suite(ione,psigmas,psigij,psigexj)
+    final_psigs = psigmas%cross_section
+    DO j=1,3
+      IF ( ISNAN(final_psigs(j) ) ) final_psigs(j) = 0.0
+!      PRINT *, ione,',',final_psigs(j),',',psigmas(j)%description
+    END DO
+  END DO
 
+  !Now for electrons
+  se_coll(1) = "Ionization"
+  se_coll(2) = "Excitation"
+  DO i=12,100!20,final_energy
+    !Initialize se_box
+    se_box%se_energy = i
+    CALL se_info_init(se_box)
+    !Calculate electron cross_sections
+    CALL esigma_suite(se_box)
+    final_esigs(1) = se_box%se_iontot
+    final_esigs(2) = se_box%se_extot
+    DO j=1,2
+      IF ( ISNAN(final_esigs(j) ) ) final_esigs(j) = 0.0
+      final_esig = final_esigs(j)
+      PRINT *, se_box%se_energy,',',final_esig,se_coll(j)
+    END DO
+  END DO
+
+!  PRINT *, se_box%se_ionst
+  PRINT *, se_box%se_ionsigs
 END PROGRAM sigma_test
