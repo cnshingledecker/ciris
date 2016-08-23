@@ -2140,7 +2140,6 @@ SUBROUTINE reaction( o3_prod,o3_dest,qube, en_list, matrix,  wait_list, wait_len
   !****************************************************************************
   !****************************************************************************
   IF ( r1 .EQ. 4 .AND. r2 .EQ. 1 .OR. r1 .EQ. 1 .AND. r2 .EQ. 4 ) THEN
-    rnum = RAND()
     CALL RANDOM_NUMBER(rnum)
     IF ( rnum .LE. O_O2_BRANCHING ) THEN
       prods = (/ 1, 4, 0 /)
