@@ -38,11 +38,11 @@ MODULE specdata
   !****************************************************************************!
   !***********************Forbidden Transitions********************************!
   !****************************************************************************!
-  TYPE(FBDN_EXSTATE), PARAMETER, DIMENSION(3)   :: o2_e_ex_fbdn=(/ &
-    FBDN_EXSTATE("b\;^1\Sigma_g^+",1.64,0.0005,3.0,3.0,1.0)      , &
-    FBDN_EXSTATE("a\;^1\Delta_g",0.98,0.0005,3.0,3.0,1.0)        , &
-    FBDN_EXSTATE("A\;^3\Sigma_u^+",4.5,0.021,0.9,1.0,1.0)          &
-  /)
+  ! TYPE(FBDN_EXSTATE), PARAMETER, DIMENSION(3)   :: o2_e_ex_fbdn=(/ &
+  !   FBDN_EXSTATE("b\;^1\Sigma_g^+",1.64,0.0005,3.0,3.0,1.0)      , &
+  !   FBDN_EXSTATE("a\;^1\Delta_g",0.98,0.0005,3.0,3.0,1.0)        , &
+  !   FBDN_EXSTATE("A\;^3\Sigma_u^+",4.5,0.021,0.9,1.0,1.0)          &
+  ! /)
 
   ! Ionization parameters for molecular oxygen by electrons (e-)
   ! Values taken from Jackman Garvey, Green 1977

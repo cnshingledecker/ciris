@@ -3,19 +3,20 @@ module ParameterIO
 using Base.Random.uuid4
 
 constraints = Dict(
-    "O" => 100:1:800, #Int
-#    "O3" => 100:1:800, #Int
-    "ELASTIC_LOSS" => 0.0:0.0001:0.1 #float
-    "TRL_NU" => 1E10:1E10:1E12, #float
+    "O" => 55:1:800, #Int
+    "O3" => 100:1:800, #Int
+    "ELASTIC_LOSS" => 0.0:0.00001:0.1, #float
+#    "TRL_NU" => 1E10:1E10:1E12, #float
     "DISPROB" => 0.0:0.1:1.0, #float
     "STEPFAC" => 1E-2:1E-4:1.0, #float
     "AVAL" => 1:1:60, #int
-    "O2_ION_BRANCHING" => 0.0:0.5:1.0, #set
-    "O3_O_ION_BRANCHING" => 0.0:0.5:1.0, #set
-    "O3_DIS_BRANCHING" => 0.0:0.5:1.0, #set
-    "O3_O2_ION_BRANCHING" => 0.0:0.5:1.0, #set
+    "O_ION_BRANCHING" => 0.0:0.1:1.0,
+    "O2_ION_BRANCHING" => 0.0:0.1:1.0, #set
+    "O3_O_ION_BRANCHING" => 0.0:0.1:1.0, #set
+    "O3_DIS_BRANCHING" => 0.0:0.1:1.0, #set
+    "O3_O2_ION_BRANCHING" => 0.0:0.1:1.0, #set
     "NSUBEX" => 0:1:10, #int
-    "FRAGILE" => ["7", "21"] #set
+#    "FRAGILE" => ["7", "21"] #set
 )
 parameters = collect(keys(constraints))
 

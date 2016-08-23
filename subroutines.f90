@@ -1220,9 +1220,11 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
         IF ( se_box%se_energy .LE. ECUTOFF ) THEN
           !  PRINT *, 'SE energy is less than or equal to cutoff'
           !            PRINT *, 'ev_coords=',ev_coords
+          ! PRINT *, "Calling base_ionization at line 1224"
           CALL base_ionization( o3_prod,o3_dest,ev_coords, react_cube, matrix, en_list, &
           ionlist, wait_list, wait_len, &
           time, ev_nums, null )
+          ! PRINT *, "Ending base_ionization at line 1224"
           IF ( null .EQ. 1 ) RETURN
         ELSE
           ! PRINT *, 'SE energy above ecutoff' !*******************************************************************
@@ -1234,9 +1236,11 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
           ! NB: the electron should be the second product in the "prods" array
           !*******************************************************************
           null = 0
+          ! PRINT *, "Calling base_ionization at line 1240"
           CALL base_ionization( o3_prod,o3_dest,ev_coords, react_cube, matrix, en_list, &
           ionlist, wait_list, wait_len, &
           time, ev_nums, null,elec_coords )
+          ! PRINT *, "Ending base_ionization at line 1240"
 
           IF ( TRACKPLOT .EQV. .TRUE. ) THEN
             count_count = count_count + 1
@@ -1268,23 +1272,31 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
           eswitch  = 0
           ee_loss  = 0
           !Initialize se_box
+          IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Now initializing the se_box"
           CALL se_info_init(se_box)
-          ! PRINT *, 'se energy is:',se_box%se_energy,' and ECUTOFF is',ECUTOFF
+          IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'se energy is:',se_box%se_energy,' and ECUTOFF is',ECUTOFF
           DO WHILE ( se_box%se_energy .GE. ECUTOFF )
-            ! PRINT *, 'Electron box initialized, calling loop'
+            IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Electron box initialized, calling loop'
             !If the electron no longer has sufficient
             !energy, exit the loop.
             IF ( enull1 .NE. 0 .AND. enull2 .NE. 0 ) EXIT
 
             !Calculate electron cross_sections
             CALL esigma_suite(se_box)
+            IF ( DEBUG .EQV. .TRUE. ) PRINT *, "se_box%ineltot=", se_box%se_ineltot
+            IF ( DEBUG .EQV. .TRUE. ) PRINT *, "se_box%se_energy=", se_box%se_energy
 
             !Calculate hopping distance
-            emfp  = 1./(RHO*(se_box%se_ineltot))
+            emfp  = 1./(RHO*(se_box%se_ineltot+1.0e-17))
+            ! PRINT *, "se_box%ineltot=", se_box%se_ineltot
+            ! PRINT *, "se_box%se_energy=", se_box%se_energy
+            ! PRINT *, "emfp=", emfp
+
             !              p     = RAND()
             CALL RANDOM_NUMBER(p)
             de    = -1.*emfp*LOG(1.-p)
             estep = INT(de/C_PR)
+            ! PRINT *, "Estep=", estep
 
             !Have a minumum hopping distance of 1
             IF ( estep .EQ. 0 ) estep = 1
@@ -1313,6 +1325,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
             ELSE
               eswitch = 0
             END IF
+            ! PRINT *, "eswitch=", eswitch
 
             !Carry out impact collision
             IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. eswitch .EQ. 1 ) THEN
@@ -1321,6 +1334,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
               CALL base_ionization(o3_prod,o3_dest,next, react_cube, matrix, en_list, &
               ionlist, wait_list, wait_len, &
               time, ev_nums,null )
+              ! PRINT *, "Ending  base_ionization from EII"
               IF ( null .EQ. 1 ) GOTO 100
               CALL e_ion_select(se_box,e_ion,enull1)
               ee_loss = e_ion
@@ -1387,6 +1401,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
                 CALL base_ionization(o3_prod,o3_dest,next, react_cube, matrix, en_list, &
                 ionlist, wait_list, wait_len, &
                 time, ev_nums,null )
+                ! PRINT *, "Ending low_energy base_ionization"
                 !		  END IF
                 nn = nn + 1
               END IF
@@ -2124,13 +2139,13 @@ SUBROUTINE reaction( o3_prod,o3_dest,qube, en_list, matrix,  wait_list, wait_len
   !VERY TEMPORARY FIX TO SIMULATE BRANCHING RATIOS: FIX!!!
   !****************************************************************************
   !****************************************************************************
-  !    IF ( r1 .EQ. 4 .AND. r2 .EQ. 1 .OR. r1 .EQ. 1 .AND. r2 .EQ. 4 ) THEN
-  !      rnum = RAND()
-  !      CALL RANDOM_NUMBER(rnum)
-  !      IF ( rnum .LE. O_O2_BRANCHING ) THEN
-  !        prods = (/ 1, 4, 0 /)
-  !      END IF
-  IF ( r1 .EQ. 2 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 2 ) THEN
+  IF ( r1 .EQ. 4 .AND. r2 .EQ. 1 .OR. r1 .EQ. 1 .AND. r2 .EQ. 4 ) THEN
+    rnum = RAND()
+    CALL RANDOM_NUMBER(rnum)
+    IF ( rnum .LE. O_O2_BRANCHING ) THEN
+      prods = (/ 1, 4, 0 /)
+    END IF
+  ELSE IF ( r1 .EQ. 2 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 2 ) THEN
     !      rnum = RAND()
     CALL RANDOM_NUMBER(rnum)
     IF ( rnum .LE. O2_ION_BRANCHING ) THEN
@@ -3160,28 +3175,30 @@ SUBROUTINE esigma_suite(se_box)
       a => se_box%se_alwd(n)%alpha_alwd, &
       b => se_box%se_alwd(n)%beta_alwd    )
       se_box%se_alwdsigs(n) = pjgsigma(e,f,w,c,a,b)
+      ! PRINT *, "Allowed sig #",n," =", se_box%se_alwdsigs(n)
     END ASSOCIATE
   END DO
   se_box%se_alwd_extot = SUM(se_box%se_alwdsigs)
+  ! PRINT *, "Sum of allowed sigs is", se_box%se_alwd_extot
 
-  !(4) Calculate forbidden excitation cross-sections
-  !NB: As above, no loop is required, since the subroutine
-  !    returns an array of values
-  DO n=1,SIZE(o2_e_ex_fbdn)
-    ASSOCIATE( e => se_box%se_energy            , &
-      w => se_box%se_fbdn(n)%wj_fbdn   , &
-      f => se_box%se_fbdn(n)%fj_fbdn   , &
-      o => se_box%se_fbdn(n)%omega_fbdn, &
-      a => se_box%se_fbdn(n)%alpha_fbdn, &
-      b => se_box%se_fbdn(n)%beta_fbdn    )
-      se_box%se_fbdnsigs(n) = greendutta(e,f,w,o,a,b)
-    END ASSOCIATE
-  END DO
-  se_box%se_fbdn_extot = SUM(se_box%se_fbdnsigs)
+  ! !(4) Calculate forbidden excitation cross-sections
+  ! !NB: As above, no loop is required, since the subroutine
+  ! !    returns an array of values
+  ! DO n=1,SIZE(o2_e_ex_fbdn)
+  !   ASSOCIATE( e => se_box%se_energy            , &
+  !     w => se_box%se_fbdn(n)%wj_fbdn   , &
+  !     f => se_box%se_fbdn(n)%fj_fbdn   , &
+  !     o => se_box%se_fbdn(n)%omega_fbdn, &
+  !     a => se_box%se_fbdn(n)%alpha_fbdn, &
+  !     b => se_box%se_fbdn(n)%beta_fbdn    )
+  !     se_box%se_fbdnsigs(n) = 0.0 !greendutta(e,f,w,o,a,b)
+  !   END ASSOCIATE
+  ! END DO
+  ! se_box%se_fbdn_extot = SUM(se_box%se_fbdnsigs)
 
   !(5) The total electron impact excitation is the sum of the
   !    allowed and forbidden transition cross-sections
-  se_box%se_extot = se_box%se_alwd_extot + se_box%se_fbdn_extot
+  se_box%se_extot = se_box%se_alwd_extot !+ se_box%se_fbdn_extot
 
   !(6) Calculate the total cross-section as the sum of the
   ! constituent cross-sections
@@ -3443,21 +3460,21 @@ SUBROUTINE e_ex_select(se_box,e_exc,null)
 
   !Determine which type of transition will occur
   !    rn       = RAND()
-  CALL RANDOM_NUMBER(rn)
-  prob = (se_box%se_alwd_extot/se_box%se_ineltot)
-  IF ( rn .GT. prob ) THEN
-    ALLOCATE(arr(SIZE(se_box%se_fbdnsigs),2))
-    arr = 0
-    arr(:,1) = se_box%se_fbdnsigs
-    arr(:,2) = se_box%se_fbdn%wj_fbdn
-    sigtot   = se_box%se_fbdn_extot
-  ELSE
+  ! CALL RANDOM_NUMBER(rn)
+  ! prob = (se_box%se_alwd_extot/se_box%se_ineltot)
+  ! IF ( rn .GT. prob ) THEN
+  !   ALLOCATE(arr(SIZE(se_box%se_fbdnsigs),2))
+  !   arr = 0
+  !   arr(:,1) = se_box%se_fbdnsigs
+  !   arr(:,2) = se_box%se_fbdn%wj_fbdn
+  !   sigtot   = se_box%se_fbdn_extot
+  ! ELSE
     ALLOCATE(arr(SIZE(se_box%se_alwdsigs),2))
     arr = 0
     arr(:,1) = se_box%se_alwdsigs
     arr(:,2) = se_box%se_alwd%wj_alwd
     sigtot   = se_box%se_alwd_extot
-  END IF
+  ! END IF
 
   !Populate a new array with possible transitions
   DO n=1,SIZE(arr,1)
@@ -3544,7 +3561,7 @@ SUBROUTINE se_info_init(se_box)
   se_box%se_extot      = 0
   se_box%se_ineltot    = 0
   se_box%se_alwd_extot = 0
-  se_box%se_fbdn_extot = 0
+  ! se_box%se_fbdn_extot = 0
 
   !(2) Initialize vector values
   IF ( ALLOCATED(se_box%se_ionst) .EQV. .FALSE. ) THEN
@@ -3560,11 +3577,11 @@ SUBROUTINE se_info_init(se_box)
     ALLOCATE(se_box%se_alwdsigs(SIZE(o2_e_ex_alwd)))
     se_box%se_alwdsigs = 0
 
-    !Initialize forbidden excitation arrays
-    ALLOCATE(se_box%se_fbdn(SIZE(o2_e_ex_fbdn)))
-    se_box%se_fbdn = o2_e_ex_fbdn
-    ALLOCATE(se_box%se_fbdnsigs(SIZE(o2_e_ex_fbdn)))
-    se_box%se_fbdnsigs = 0
+    ! !Initialize forbidden excitation arrays
+    ! ALLOCATE(se_box%se_fbdn(SIZE(o2_e_ex_fbdn)))
+    ! se_box%se_fbdn = o2_e_ex_fbdn
+    ! ALLOCATE(se_box%se_fbdnsigs(SIZE(o2_e_ex_fbdn)))
+    ! se_box%se_fbdnsigs = 0
     RETURN
   ELSE
     RETURN
@@ -3586,8 +3603,8 @@ SUBROUTINE se_info_garbage(se_box)
     DEALLOCATE(se_box%se_ionsigs)
     DEALLOCATE(se_box%se_alwd)
     DEALLOCATE(se_box%se_alwdsigs)
-    DEALLOCATE(se_box%se_fbdn)
-    DEALLOCATE(se_box%se_fbdnsigs)
+    ! DEALLOCATE(se_box%se_fbdn)
+    ! DEALLOCATE(se_box%se_fbdnsigs)
     RETURN
   ELSE
     RETURN

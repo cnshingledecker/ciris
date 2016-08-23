@@ -690,13 +690,22 @@ MODULE functiondefs
       insides  = 0
 
       ! Perform calculation
+      ! PRINT *, "f=", f
+      ! PRINT *, "w=", w
+      ! PRINT *, "c=", c
+      ! PRINT *, "a=", a
+      ! PRINT *, "b=", b
       IF ( energy .LT. w ) THEN
         pjgsigma = 0D0
       ELSE
         num      = Q0*f*(1.-(w/energy)**a)**b
+        ! PRINT *, " num=", num
         den      = energy*w
+        ! PRINT *, "den=", den
         insides  = (4.*energy*c)/w + EBASE
+        ! PRINT *, "insides=", insides
         pjgsigma = (num/den)*DLOG(insides)
+        ! PRINT *, "pjgsigma=", pjgsigma
       END IF
       RETURN
     END FUNCTION pjgsigma
