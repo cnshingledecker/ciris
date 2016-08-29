@@ -1050,6 +1050,8 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
   !****************************************************************************!
 
   count_count = 0
+  BI_CALLS = 0 
+
   ! Calculate the initial cross-sections based on the initial ion energy
   ALLOCATE(psigmas_target(3))
   psigmas => psigmas_target
@@ -1119,7 +1121,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
   num_els     = 0
 
 
-  main_loop: DO WHILE (z .LE. dimens(1) .AND. ione .GE. 5.0 )
+  main_loop: DO WHILE ((dist_trav .LE. THICK) .AND. (ione .GE. 5.0 ))
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Now entering loop: z=',z,' and dimens(1)=',dimens(1),' and step=',step
     count_count = count_count + 1
     !      IF ( MOD(count_count,1000) .EQ. 0 ) CALL counter(time, AB_UNIT_NUM, matrix, wait_list, 4,7)
@@ -1290,13 +1292,14 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
             emfp  = 1./(RHO*(se_box%se_ineltot+1.0e-17))
             ! PRINT *, "se_box%ineltot=", se_box%se_ineltot
             ! PRINT *, "se_box%se_energy=", se_box%se_energy
-            ! PRINT *, "emfp=", emfp
-
+            
             !              p     = RAND()
             CALL RANDOM_NUMBER(p)
             de    = -1.*emfp*LOG(1.-p)
             estep = INT(de/C_PR)
-            ! PRINT *, "Estep=", estep
+!            PRINT *, "Estep=", estep
+            estep = INT(estep*ESTEPFAC)
+!            PRINT *, "new estep=",estep
 
             !Have a minumum hopping distance of 1
             IF ( estep .EQ. 0 ) estep = 1
@@ -1426,6 +1429,9 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
     ! Track Plotting bit !
     !********************!
     dist_trav = dist_trav + dz
+!    PRINT *, "DZ=",dz,"dist_trav=",dist_trav,(dist_trav/THICK)*100,"% of thickness and H+ energy is=",ione
+    IF ( DEBUG .EQV. .TRUE. ) PRINT *, "z=",z,"of",dimens(1)," which is",(REAL(z)/REAL(dimens(1)))*100,"% of thickness"
+
     !      PRINT *,'Before writing to file, the coordinates are:'
     !      PRINT *, 'i_pr =',i_pr,'This should be a large number'
     !      PRINT *, 'j_pr =',j_pr
@@ -1456,12 +1462,12 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
 
     ! Determine the travel distance
     dz = -mfp*LOG(1-p)
-    !      PRINT *, 'The travel distance is:',dz,'m'
 
     ! Determine whether or not the site is occupied by dividing the
     ! Delta z by the height of the crystal cube, i.e. \Delta ml =
     ! \Delta z(m) * (1ml/c(m))
-    step = INT(STEPFAC*(dz/c_pr))
+    !step = INT(STEPFAC*(dz/c_pr))
+    step = INT((dz/(THICK/REAL(dimens(1)))))
 
     ! Make sure the next site is different than the previous one
     IF ( z+step .EQ. z ) THEN
@@ -1483,8 +1489,9 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
       !IF ( count_count .GT. 80000 ) CALL EXIT()
     END IF
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Now at end of main loop in Fallout'
-  END DO main_loop
 
+!    PRINT *, "BI_CALLS=",BI_CALLS,"num_izns=",num_izns,"num_els=",num_els
+  END DO main_loop
   IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****Ending Fallout*****'
   !    CLOSE(10)
 END SUBROUTINE fallout
@@ -2142,7 +2149,7 @@ SUBROUTINE reaction( o3_prod,o3_dest,qube, en_list, matrix,  wait_list, wait_len
   IF ( r1 .EQ. 4 .AND. r2 .EQ. 1 .OR. r1 .EQ. 1 .AND. r2 .EQ. 4 ) THEN
     CALL RANDOM_NUMBER(rnum)
     IF ( rnum .LE. O_O2_BRANCHING ) THEN
-      prods = (/ 1, 4, 0 /)
+      prods = (/ 4, 4, 4 /)
     END IF
   ELSE IF ( r1 .EQ. 2 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 2 ) THEN
     !      rnum = RAND()
@@ -2856,6 +2863,8 @@ SUBROUTINE base_ionization( o3_prod,o3_dest,ev_coords,react_cube, matrix,  en_li
 
 
   !  PRINT *, 'Now in base_ionization'
+  BI_CALLS = BI_CALLS + 1  
+
   ! Switch = 2 => ionization
   switch = 2
 

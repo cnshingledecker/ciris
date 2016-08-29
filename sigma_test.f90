@@ -46,7 +46,7 @@ PROGRAM sigma_test
     final_psigs = psigmas%cross_section
     DO j=1,3
       IF ( ISNAN(final_psigs(j) ) ) final_psigs(j) = 0.0
-      WRITE(1,*), ione,',',final_psigs(j),',',psigmas(j)%description
+      WRITE(1,*) ione,',',final_psigs(j),',',psigmas(j)%description
     END DO
     temp_energy = temp_energy + temp_energy*0.1
   END DO
@@ -55,7 +55,6 @@ PROGRAM sigma_test
   se_coll(1) = ", Ionization"
   se_coll(2) = ", Excitation"
   se_coll(3) = ", Allowed"
-  se_coll(4) = ", Forbidden"
   temp_energy = 1
   DO WHILE ( temp_energy .LT. final_energy )
     !Initialize se_box
@@ -66,7 +65,6 @@ PROGRAM sigma_test
     final_esigs(1) = se_box%se_iontot
     final_esigs(2) = se_box%se_extot
     final_esigs(3) = se_box%se_alwd_extot
-    final_esigs(4) = se_box%se_fbdn_extot
     DO j=1,2
       IF ( ISNAN(final_esigs(j) ) ) final_esigs(j) = 0.0
       final_esig = final_esigs(j)

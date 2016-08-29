@@ -177,15 +177,25 @@ PROGRAM main
   ALLOCATE ( matrix( dimens(1),dimens(2),dimens(3) ) )
   matrix = 0
 
-  FORALL ( i=1:dimens(1),j=1:dimens(2),k=1:dimens(3), MOD(k,2) .EQ. 1 .AND. MOD(j,2) .EQ. 1)
-    matrix(i,j,k) = -1
-  END FORALL
+  PRINT *, "In main, matrix has been initialized to 0, now assigning -1 to O2"
+  DO k=1,dimens(3)
+    DO j=1,dimens(2)
+      DO i=1,dimens(1)
+        IF ( (MOD(k,2) .EQ. 1) .AND. (MOD(j,2) .EQ. 1) ) THEN 
+          matrix(i,j,k) = -1
+        END IF 
+      END DO 
+    END DO
+  END DO
+  PRINT *, "Matrix has been fully initialized"
 
   ! Associate the pointer to the matrix
+  PRINT *, "Now assigning pointers"
   matrix_ptr => matrix
 
   ! Initialize wait list to have nothing in it
-  ALLOCATE( wait_target(SIZE(matrix)/2) )
+  PRINT *, "Now initializing wait_list"
+  ALLOCATE( wait_target(SIZE(matrix)/3) )
   wlen_target = 0
   wait_len  => wlen_target
   wait_list => wait_target
@@ -195,6 +205,7 @@ PROGRAM main
   wait_list%k         = 0
   wait_list%sp_num    = 0
   wait_list%act_type  = 0
+  PRINT *, "Wait_list has been initialized"
 
   !******************************************************************************
   ! Calculate initial waiting times
@@ -224,6 +235,7 @@ PROGRAM main
   mindex = 1
   fluence = time * CR_FLUX
   unfit = .FALSE.
+  PRINT *, "Now  beginning loop"
   DO WHILE ( fluence .LE. FLUENCE_TOTAL .AND. .NOT. unfit)
     IF ( wait_list(mindex)%sp_num .EQ. cr_num ) THEN
       ! Increment proton count
@@ -264,11 +276,11 @@ PROGRAM main
       CALL EXIT()
     END IF
 
-    IF ( fluence .LE. 5.0E12 ) TIME_FREQ = 1 
-    IF ( fluence .GT. 5.0E12 .AND. fluence .LE. 5.0e14 ) TIME_FREQ = 1
-    IF ( fluence .GT. 5.0E14  )  TIME_FREQ = 1
-    IF ( (MOD(time_check,TIME_FREQ) .EQ. 0) .AND. (wait_list(mindex)%sp_num .EQ. cr_num) ) THEN
-      time_check = time_check + 1
+    IF ( fluence .LE. 5.0E12 ) TIME_FREQ = 100000
+    IF ( fluence .GT. 5.0E12 .AND. fluence .LE. 5.0e14 ) TIME_FREQ = 10000
+    IF ( fluence .GT. 5.0E14  )  TIME_FREQ = 100000
+    time_check = time_check + 1
+    IF ( (MOD(time_check,TIME_FREQ) .EQ. 0) ) THEN !.AND. (wait_list(mindex)%sp_num .EQ. cr_num) ) THEN
       CALL counter( o3_prod,o3_dest,numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7,wait_len)
 
       ! Testing out the new fitness function
