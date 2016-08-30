@@ -39,8 +39,8 @@ MODULE parameters
   INTEGER         , PARAMETER :: FIX1        = 150
   INTEGER         , PARAMETER :: FIX2        = 150
   INTEGER         , PARAMETER :: FIX3        = 150
-  REAL(KIND=DBL)  , PARAMETER :: THICK       = 5.0e-5                      !1.0e-5 ! Thickness of the ice in cm
-  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 5.0e-6                      !1.0e-7 ! The edge of the crystal in cm
+  REAL(KIND=DBL)  , PARAMETER :: THICK       = 6.0e-6                      !1.0e-5 ! Thickness of the ice in cm
+  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 3.5e-6                      !1.0e-7 ! The edge of the crystal in cm
   REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0                       ! Kinetic temperature in Kelvin
   REAL(KIND=DBL)  , PARAMETER :: AREA        = EDGE*EDGE                   ! Area of irradiated surface in cm
   REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 1.0D11                      ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
@@ -131,13 +131,13 @@ MODULE parameters
   ! Switches 
   !******************************************************************************
   LOGICAL, PARAMETER :: FIXED_SIZE = .FALSE.
-  LOGICAL, PARAMETER :: NO_OUTPUT  = .FALSE.
-  LOGICAL, PARAMETER :: QUIET      = .FALSE.
+  LOGICAL, PARAMETER :: NO_OUTPUT  = .TRUE.
+  LOGICAL, PARAMETER :: QUIET      = .TRUE.
   LOGICAL, PARAMETER :: SECELEC    = .TRUE.
   LOGICAL, PARAMETER :: DEBUG      = .FALSE.
   LOGICAL, PARAMETER :: TEST_WRONG = .FALSE.
   LOGICAL, PARAMETER :: TRACKPLOT  = .FALSE.
-  LOGICAL, PARAMETER :: O3_ANALYTICS = .TRUE.
+  LOGICAL, PARAMETER :: O3_ANALYTICS = .FALSE.
 
   CONTAINS
 
