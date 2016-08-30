@@ -120,7 +120,7 @@ MODULE parameters
   INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 1 /)                    ! 7 ! Species that dissociate easily
   INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4, 7 /)
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
-  INTEGER                     :: TIME_FREQ    = 10  !1000000
+  INTEGER                     :: TIME_FREQ    = 1  !1000000
 
   !******************************************************************************
   ! Analytics Parameters

@@ -276,11 +276,11 @@ PROGRAM main
       CALL EXIT()
     END IF
 
-    IF ( fluence .LE. 5.0E12 ) TIME_FREQ = 100000
-    IF ( fluence .GT. 5.0E12 .AND. fluence .LE. 5.0e14 ) TIME_FREQ = 10000
-    IF ( fluence .GT. 5.0E14  )  TIME_FREQ = 100000
+!    IF ( fluence .LE. 5.0E12 ) TIME_FREQ = 100000
+!    IF ( fluence .GT. 5.0E12 .AND. fluence .LE. 5.0e14 ) TIME_FREQ = 10000
+!    IF ( fluence .GT. 5.0E14  )  TIME_FREQ = 100000
     time_check = time_check + 1
-    IF ( (MOD(time_check,TIME_FREQ) .EQ. 0) ) THEN !.AND. (wait_list(mindex)%sp_num .EQ. cr_num) ) THEN
+    IF ( (MOD(time_check,TIME_FREQ) .EQ. 0) .AND. (wait_list(mindex)%sp_num .EQ. cr_num) ) THEN
       CALL counter( o3_prod,o3_dest,numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7,wait_len)
 
       ! Testing out the new fitness function
