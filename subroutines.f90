@@ -1,5 +1,4 @@
 MODULE subroutines
-  !USE IFPORT
   USE parameters
   USE typedefs
   USE functiondefs
@@ -853,7 +852,7 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, event_num, &
     !   PRINT *, "Weve got branching"
     !        rnum = RAND()
     CALL RANDOM_NUMBER(rnum)
-    IF ( rnum .GT. O3_DIS_BRANCHING ) THEN
+    IF ( rnum .LE. O3_DIS_BRANCHING ) THEN
       prods = (/ 1, 4, 0 /)
     END IF
   END IF
@@ -1040,8 +1039,8 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
 
   IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****Starting Fallout*****'
   IF ( TRACKPLOT .EQV. .TRUE. ) THEN
-    CLOSE(2016)
-    OPEN(UNIT=2016,FILE="trackplot.csv", STATUS='REPLACE')
+    CLOSE(TRACKPLOT_UNIT_NUM)
+    OPEN(UNIT=TRACKPLOT_UNIT_NUM,FILE="trackplot.csv", STATUS='REPLACE')
   END IF
 
 
@@ -1050,7 +1049,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
   !****************************************************************************!
 
   count_count = 0
-  BI_CALLS = 0 
+  BI_CALLS = 0
 
   ! Calculate the initial cross-sections based on the initial ion energy
   ALLOCATE(psigmas_target(3))
@@ -1096,6 +1095,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
     y = 1 + FLOOR( dimens(2)*u )
     z = 1
     IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+      PRINT *, "Trackplot on"
       IF ( x .GT. ((dimens(3)/2)-(dimens(3)*0.1)) .AND. x .LT. ((dimens(3)/2)+(dimens(3)*0.1)) &
           .AND. y .GT. ((dimens(2)/2)-(dimens(2)*0.1)) .AND. y .LT. ((dimens(2)/2)+(dimens(2)*0.1)) ) proceed = .TRUE.
     ELSE
@@ -1192,7 +1192,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
       CALL psigma_suite(ione,psigmas,psigij,psigexj)
       IF ( TRACKPLOT .EQV. .TRUE. ) THEN
         count_count = count_count + 1
-        WRITE(2016,*) ev_coords(1),',',ev_coords(2),',',ev_coords(3),', proton,',nature
+        WRITE(TRACKPLOT_UNIT_NUM,*) ev_coords(1),',',ev_coords(2),',',ev_coords(3),', proton,',nature
       END IF
 
       !Debugging
@@ -1246,7 +1246,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
 
           IF ( TRACKPLOT .EQV. .TRUE. ) THEN
             count_count = count_count + 1
-            WRITE(2016,*) elec_coords(1),',',elec_coords(2),',',elec_coords(3),", electron, quick"
+            WRITE(TRACKPLOT_UNIT_NUM,*) elec_coords(1),',',elec_coords(2),',',elec_coords(3),", electron, Ionization"
           END IF
 
           !GOTO jumps down to calling next random number
@@ -1292,13 +1292,14 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
             emfp  = 1./(RHO*(se_box%se_ineltot+1.0e-17))
             ! PRINT *, "se_box%ineltot=", se_box%se_ineltot
             ! PRINT *, "se_box%se_energy=", se_box%se_energy
-            
+
             !              p     = RAND()
             CALL RANDOM_NUMBER(p)
             de    = -1.*emfp*LOG(1.-p)
+            de    = de*ESTEPFAC
             estep = INT(de/C_PR)
 !            PRINT *, "Estep=", estep
-            estep = INT(estep*ESTEPFAC)
+!            estep = INT(estep*ESTEPFAC)
 !            PRINT *, "new estep=",estep
 
             !Have a minumum hopping distance of 1
@@ -1314,7 +1315,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
 
               IF ( TRACKPLOT .EQV. .TRUE. ) THEN
                 count_count = count_count + 1
-                WRITE(2016,*) curr(1),',',curr(2),',',curr(3),", electron , movement"
+                WRITE(TRACKPLOT_UNIT_NUM,*) curr(1),',',curr(2),',',curr(3),", electron , Movement"
               END IF
               ee_loss = se_box%se_energy*ELASTIC_LOSS
               se_box%se_energy =  se_box%se_energy - ee_loss
@@ -1341,6 +1342,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
               IF ( null .EQ. 1 ) GOTO 100
               CALL e_ion_select(se_box,e_ion,enull1)
               ee_loss = e_ion
+              WRITE(TRACKPLOT_UNIT_NUM,*) next(1),',',next(2),',',next(3),", electron , Ionization"
             ELSE IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. eswitch .EQ. 0 ) THEN
               !Electron impact excitation
               IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'EIE: SE is hopping to site with',matrix(next(1),next(2),next(3))
@@ -1356,6 +1358,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
               END IF
               CALL e_ex_select(se_box,e_exc,enull2)
               ee_loss = e_exc
+              WRITE(TRACKPLOT_UNIT_NUM,*) next(1),',',next(2),',',next(3),", electron , Excitation"
             END IF
             !Update the secondary electron energy
             !              PRINT *, 'E_se:',ese_point,' E_loss:',ee_loss
@@ -1391,7 +1394,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
 
               IF ( TRACKPLOT .EQV. .TRUE. ) THEN
                 count_count = count_count + 1
-                WRITE(2016,*) curr(1),',',curr(2),',',curr(3), ", low-enegy electron, movement"
+                WRITE(TRACKPLOT_UNIT_NUM,*) curr(1),',',curr(2),',',curr(3), ", subex electron, Movement"
               END IF
               !END DO
               IF ( matrix(next(1),next(2),next(3)) .NE. 0 ) THEN
@@ -1407,6 +1410,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
                 ! PRINT *, "Ending low_energy base_ionization"
                 !		  END IF
                 nn = nn + 1
+                WRITE(TRACKPLOT_UNIT_NUM,*) next(1),',',next(2),',',next(3), ", subex electron, Ionization"
               END IF
             END DO
           END IF
@@ -1462,6 +1466,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
 
     ! Determine the travel distance
     dz = -mfp*LOG(1-p)
+    dz = (dz*STEPFAC)
 
     ! Determine whether or not the site is occupied by dividing the
     ! Delta z by the height of the crystal cube, i.e. \Delta ml =
@@ -1478,20 +1483,23 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
     IF (step .LE. 0. ) GOTO 100
     IF (z+step .GE. dimens(1) ) THEN
       IF ( TRACKPLOT .EQV. .TRUE. ) THEN
-        IF ( (count_count .GT. TRACKMIN) .AND. (count_count .LT. TRACKMAX) ) CALL EXIT()
+        IF ( (count_count .GT. TRACKMIN) .AND. (count_count .LT. TRACKMAX) ) THEN
+          CALL EXIT()
+        ELSE
+          RETURN
+        END IF
       ELSE
         RETURN
       END IF
     END IF
 
-    IF ( TRACKPLOT .EQV. .TRUE. ) THEN
-      PRINT *, 'Count_count=',count_count
-      !IF ( count_count .GT. 80000 ) CALL EXIT()
-    END IF
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Now at end of main loop in Fallout'
+    IF ( TRACKPLOT .EQV. .TRUE. ) PRINT *, "count_count=",count_count
 
 !    PRINT *, "BI_CALLS=",BI_CALLS,"num_izns=",num_izns,"num_els=",num_els
   END DO main_loop
+
+  IF ( ( TRACKPLOT .EQV. .TRUE. ) .AND. (count_count .GE. TRACKMIN ) ) CALL EXIT()
   IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****Ending Fallout*****'
   !    CLOSE(10)
 END SUBROUTINE fallout
@@ -2863,7 +2871,7 @@ SUBROUTINE base_ionization( o3_prod,o3_dest,ev_coords,react_cube, matrix,  en_li
 
 
   !  PRINT *, 'Now in base_ionization'
-  BI_CALLS = BI_CALLS + 1  
+  BI_CALLS = BI_CALLS + 1
 
   ! Switch = 2 => ionization
   switch = 2
