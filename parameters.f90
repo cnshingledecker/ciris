@@ -107,10 +107,11 @@ MODULE parameters
   !******************************************************************************
   ! Output File Unit Numbers
   !******************************************************************************
-  INTEGER         , PARAMETER :: AB_UNIT_NUM = 1009                        ! Abundance output file
-  INTEGER         , PARAMETER :: TRACKMIN    = 5000
-  INTEGER         , PARAMETER :: TRACKMAX    = 1000000
-  INTEGER         , PARAMETER :: O3_NUM      = 777
+  INTEGER         , PARAMETER :: AB_UNIT_NUM        = 1009                        ! Abundance output file
+  INTEGER         , PARAMETER :: TRACKPLOT_UNIT_NUM = 2016
+  INTEGER         , PARAMETER :: TRACKMIN           = 5000
+  INTEGER         , PARAMETER :: TRACKMAX           = 1000000
+  INTEGER         , PARAMETER :: O3_NUM             = 777
 
 
   !******************************************************************************
