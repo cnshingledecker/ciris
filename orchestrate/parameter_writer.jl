@@ -16,8 +16,8 @@ constraints = Dict(
     "O3_O_ION_BRANCHING" => 0.0:0.1:1.0, #set
     "O3_DIS_BRANCHING" => 0.0:0.1:1.0, #set
     "O3_O2_ION_BRANCHING" => 0.0:0.1:1.0, #set
-    "O_O2_BRANCING" => 0.0:0.1:0.9, #float
-    "NSUBEX" => 0:1:10, #int
+    "O_O2_BRANCING" => 0.0:0.001:1.0, #float
+    "NSUBEX" => 0:1:20, #int
 #    "FRAGILE" => ["7", "21"] #set
 )
 parameters = collect(keys(constraints))
