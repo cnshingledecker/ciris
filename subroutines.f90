@@ -1313,6 +1313,15 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
               curr = next
               CALL transport(prev,curr,next,matrix)
 
+              IF ( matrix(curr(1),curr(2),curr(3)) .EQ. -7 ) THEN
+                CALL RANDOM_NUMBER(rand1)
+                IF ( rand1 .LE. O3_DIS_BRANCHING ) THEN
+                  CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, ev_nums, curr, 1, &
+                  wait_list, wait_len, time )
+                  WRITE(TRACKPLOT_UNIT_NUM,*) curr(1),',',curr(2),',',curr(3),", electron , Excitation"
+                END IF 
+              END IF
+
               IF ( TRACKPLOT .EQV. .TRUE. ) THEN
                 count_count = count_count + 1
                 WRITE(TRACKPLOT_UNIT_NUM,*) curr(1),',',curr(2),',',curr(3),", electron , Movement"
@@ -2157,7 +2166,7 @@ SUBROUTINE reaction( o3_prod,o3_dest,qube, en_list, matrix,  wait_list, wait_len
   IF ( r1 .EQ. 4 .AND. r2 .EQ. 1 .OR. r1 .EQ. 1 .AND. r2 .EQ. 4 ) THEN
     CALL RANDOM_NUMBER(rnum)
     IF ( rnum .LE. O_O2_BRANCHING ) THEN
-      prods = (/ 4, 4, 4 /)
+      prods = (/ 4, 1, 0 /)
     END IF
   ELSE IF ( r1 .EQ. 2 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 2 ) THEN
     !      rnum = RAND()
