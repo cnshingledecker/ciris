@@ -60,6 +60,11 @@ PROGRAM main
   !!!!!!!!!!!!!!!!!! DEBUGGING/ANALYTICS VARIABLES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   INTEGER(KIND=LONG)                                           :: numprotons
+  INTEGER                                                      :: o_temp,o2_temp,o3_temp
+  REAL(KIND=DBL)                                               :: temp_time
+  REAL(KIND=DBL)                                               :: j2, j3
+  REAL(KIND=DBL)                                               :: geminacy
+
 
   !To enable debugging outputs, set debug to true
 
@@ -85,6 +90,7 @@ PROGRAM main
   !p_e_loss   = 0D0
   !disc_fluence = 0D0
 
+  temp_time  = 0
   time_check = 0
   time_diff  = 0
   cpu_total  = 0
@@ -93,7 +99,9 @@ PROGRAM main
 
   ! Open files
   hopping_file = "hopping_data.txt"
-  OPEN(UNIT=1009,FILE="abundance.csv",POSITION='APPEND', STATUS='REPLACE')
+  OPEN(UNIT=AB_UNIT_NUM,FILE="abundance.csv",POSITION='APPEND', STATUS='REPLACE')
+  OPEN(UNIT=RATE_UNIT_NUM,FILE="rates.csv",POSITION='APPEND', STATUS='REPLACE')
+
   !OPEN(UNIT=1011,FILE=hopping_file)
   !OPEN(UNIT=1013,FILE="time_data.csv")
   !Below for debugging and analytics
@@ -160,10 +168,10 @@ PROGRAM main
   !******************************************************************************
   ! Calculate the dimensions of the matrix
   !******************************************************************************
-  IF ( FIXED_SIZE .EQV. .TRUE. ) THEN 
-    dimens(1) = FIX1 
-    dimens(2) = FIX2 
-    dimens(3) = FIX3 
+  IF ( FIXED_SIZE .EQV. .TRUE. ) THEN
+    dimens(1) = FIX1
+    dimens(2) = FIX2
+    dimens(3) = FIX3
   ELSE
     dimens(1) = NTHICK
     dimens(2) = NEDGE
@@ -181,10 +189,10 @@ PROGRAM main
   DO k=1,dimens(3)
     DO j=1,dimens(2)
       DO i=1,dimens(1)
-        IF ( (MOD(k,2) .EQ. 1) .AND. (MOD(j,2) .EQ. 1) ) THEN 
+        IF ( (MOD(k,2) .EQ. 1) .AND. (MOD(j,2) .EQ. 1) ) THEN
           matrix(i,j,k) = -1
-        END IF 
-      END DO 
+        END IF
+      END DO
     END DO
   END DO
   PRINT *, "Matrix has been fully initialized"
@@ -226,7 +234,7 @@ PROGRAM main
   wait_list(wait_len)%wait_time = cr_time + time
   wait_list(wait_len)%sp_num    = cr_num
 
-  CALL COUNTER(o3_prod,o3_dest,numprotons,time,AB_UNIT_NUM,matrix_ptr,wait_list,4,7,wait_len)
+  CALL COUNTER(o3_prod,o3_dest,numprotons,time,matrix_ptr,wait_list,4,7,wait_len)
 
   !******************************************************************************
   ! Begin the simulation
@@ -238,8 +246,6 @@ PROGRAM main
   PRINT *, "Now  beginning loop"
   DO WHILE ( fluence .LE. FLUENCE_TOTAL .AND. .NOT. unfit)
     IF ( wait_list(mindex)%sp_num .EQ. cr_num ) THEN
-      ! Increment proton count
-      numprotons = numprotons + 1
       ! Calculate time to next cosmic-ray event
       not_infty = .FALSE.
       DO WHILE ( not_infty .EQV. .FALSE. )
@@ -252,10 +258,15 @@ PROGRAM main
       ! Populate wait_list with new time
       wait_list(mindex)%wait_time   = cr_time
       wait_list(mindex)%sp_num = cr_num
-      ! If the event is a proton collision, call Fallout
+      ! Initialize variables for model analytics
+      o_temp       = O_ABUNDANCE
+      o2_temp      = O2_ABUNDANCE
+      o3_temp      = O3_ABUNDANCE
+      PROTON_ELOSS = 0.d0 !Reset protpn energy loss to 0
       CALL fallout( o3_prod,o3_dest,qube_ptr,matrix_ptr,en_ptr,anion_list,wait_list, &
       wait_len,time,ev_nums)
-      !   GOTO 100
+      IF ( PROTON_ELOSS .GT. 0 ) numprotons = numprotons + 1
+      ALTFLUENCE = numprotons/AREA
     ELSE
       ! If it is a regular species, decide it hopping or desorption
       SELECT CASE (wait_list(mindex)%act_type)
@@ -269,7 +280,6 @@ PROGRAM main
       END SELECT
     END IF
 
-
     ! Terminate if wait_list gets too big
     IF ( wait_len .GT. (SIZE(matrix_ptr)/2)-1000 ) THEN
       PRINT *, 'ERROR! Wait_list too big! Quiting!'
@@ -281,10 +291,36 @@ PROGRAM main
 !    IF ( fluence .GT. 5.0E14  )  TIME_FREQ = 100000
     time_check = time_check + 1
     IF ( (MOD(time_check,TIME_FREQ) .EQ. 0) .AND. (wait_list(mindex)%sp_num .EQ. cr_num) ) THEN
-      CALL counter( o3_prod,o3_dest,numprotons,time, AB_UNIT_NUM, matrix_ptr,wait_list,4,7,wait_len)
+      CALL counter( o3_prod,o3_dest,numprotons,time, matrix_ptr,wait_list,4,7,wait_len)
 
       ! Testing out the new fitness function
-      CALL fitness(unfit,o3_prod,o3_dest,fluence,total_fitness,dimens,matrix_ptr,wait_list)
+      CALL fitness(unfit,o3_prod,o3_dest,ALTFLUENCE,total_fitness,dimens,matrix_ptr,wait_list)
+
+      ! Perform reaction analytics
+      IF ( (FLOAT(O_ABUNDANCE-o_temp) .GT. 0) .AND. (PROTON_ELOSS .GT. 0.0) ) THEN
+        geminacy = FLOAT(O_ABUNDANCE-o_temp)/PROTON_ELOSS
+      ELSE
+        geminacy = 0.d0
+      END IF
+      DELTA_TIME = time - temp_time
+      ! Calculate rate-coefficient for the following reactions:
+      ! (1) O + O2 -> O3
+      ! This value should have units of cm^6 s^-1
+!      k12 = (FLOAT(O3_ABUNDANCE-o3_temp)/VOLUME)/DELTA_TIME
+!      k12 = k12/((FLOAT(O_ABUNDANCE)/VOLUME)*((FLOAT(O2_ABUNDANCE)/VOLUME)**2))
+      ! (2) O + O3 -> O2 + O2
+      ! This value should be in units of cm^3 s^-1
+!      k13 =
+      ! (3) X + O2 -> O + O
+      ! This value is in units of s^-1
+      j2 = ABS(FLOAT(O2_ABUNDANCE-o2_temp)/(DELTA_TIME*FLOAT(O2_ABUNDANCE)))
+      IF ( ISNAN(j2) ) j2 = 0
+      ! (4) X + O3 -> O2 + O
+      ! This value is in units of s^-1
+      j3 = ABS(FLOAT(O3_ABUNDANCE-o3_temp)/(DELTA_TIME*FLOAT(O3_ABUNDANCE)))
+      IF ( ISNAN(j3) ) j3 = 0
+      IF ( NO_OUTPUT .EQV. .FALSE.) WRITE(RATE_UNIT_NUM,*) geminacy,',',j2,',',j3
+
 
       CALL CPU_TIME(t2)
       cpu_total = cpu_total + (t2-t1)
@@ -313,11 +349,11 @@ PROGRAM main
   !END DO
   !CLOSE(1013)
 
-  100 OPEN(UNIT=1012,FILE="wait_list.txt")
-  DO n=1,wait_len
-    WRITE(1012,*) wait_list(n)
-  END DO
-  CLOSE(1012)
+!  100 OPEN(UNIT=1012,FILE="wait_list.txt")
+!  DO n=1,wait_len
+!    WRITE(1012,*) wait_list(n)
+!  END DO
+!  CLOSE(1012)
 
   PRINT *, wait_len,' is wait_len'
   PRINT *, wait_list(1)
@@ -328,8 +364,8 @@ PROGRAM main
   PRINT *, "ENDING LOSALAMOS"
   PRINT *, "****************"
 
-  CALL counter( o3_prod,o3_dest,numprotons,time, AB_UNIT_NUM,matrix_ptr,wait_list,4,7,wait_len)
-  CLOSE(1009)
+  CALL counter( o3_prod,o3_dest,numprotons,time,matrix_ptr,wait_list,4,7,wait_len)
+  CLOSE(AB_UNIT_NUM)
   !CLOSE(1011)
   !CLOSE(1013)
   IF ( DEBUG .EQV. .TRUE. ) CLOSE(777)

@@ -1185,6 +1185,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
           CALL elastic_event(ione,e_loss,labtheta)
           nature = "Elastic"
         END IF
+        PROTON_ELOSS = e_loss
       END ASSOCIATE
       !        PRINT *, "Ion energy:",ione, "loss:",e_loss,'nature:',nature
       !        WRITE(10,*) ione,",",e_loss,",",ione-e_loss,',',nature
@@ -1319,7 +1320,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
                   CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, ev_nums, curr, 1, &
                   wait_list, wait_len, time )
                   WRITE(TRACKPLOT_UNIT_NUM,*) curr(1),',',curr(2),',',curr(3),", electron , Excitation"
-                END IF 
+                END IF
               END IF
 
               IF ( TRACKPLOT .EQV. .TRUE. ) THEN
@@ -2329,7 +2330,7 @@ IF ( PRESENT(ion_coords) ) THEN
 END IF
 
 IF ( DEBUG .EQV. .TRUE. ) THEN
-  CALL counter(o3_prod,o3_dest,dummy_protons,time,AB_UNIT_NUM,matrix,wait_list,4,7,wait_len)
+  CALL counter(o3_prod,o3_dest,dummy_protons,time,matrix,wait_list,4,7,wait_len)
   PRINT *, 'Afterwards matrix r1=',matrix(i_re,j_re,k_re)
   IF ( matrix(i_re,j_re,k_re) .GT. 0 ) PRINT *, &
   'Wait_list at ^ is',wait_list(matrix(i_re,j_re,k_re))
@@ -2410,7 +2411,7 @@ SUBROUTINE reactant_remove( wait_list, index, matrix_rr, wait_len )
   INTEGER                        , DIMENSION(:,:,:), POINTER :: matrix_rr
   TYPE (wait_info)               , DIMENSION(:)    , POINTER :: wait_list
 
-  OPEN(UNIT=1015,FILE="remove_row_list.txt",POSITION="append")
+  ! OPEN(UNIT=1015,FILE="remove_row_list.txt",POSITION="append")
   IF ( index .NE. wait_len ) THEN
     ! Copy information in last entry to index
     wait_list(index)%wait_time    = wait_list(wait_len)%wait_time
@@ -2433,12 +2434,12 @@ SUBROUTINE reactant_remove( wait_list, index, matrix_rr, wait_len )
 
     ! Update number of non-zero species by -1
     wait_len = wait_len - 1
-    WRITE(1015,*) 'Index=',index,"wait_len=",wait_len,"matrix=",&
+    ! WRITE(1015,*) 'Index=',index,"wait_len=",wait_len,"matrix=",&
     matrix_rr(wait_list(index)%i,wait_list(index)%j,wait_list(index)%k), &
     'coords=', wait_list(index)%i,wait_list(index)%j,wait_list(index)%k
   ELSE IF ( index .EQ. wait_len ) THEN
     ! Make info in last entry equal to 0
-    WRITE(1015,*) 'Index=',index,"wait_len=",wait_len,"matrix=", &
+    ! WRITE(1015,*) 'Index=',index,"wait_len=",wait_len,"matrix=", &
     matrix_rr(wait_list(index)%i,wait_list(index)%j,wait_list(index)%k), &
     'coords=', wait_list(index)%i,wait_list(index)%j,wait_list(index)%k
 
@@ -2451,7 +2452,7 @@ SUBROUTINE reactant_remove( wait_list, index, matrix_rr, wait_len )
 
     wait_len = wait_len - 1
   END IF
-  CLOSE(1015)
+  ! CLOSE(1015)
 
 END SUBROUTINE reactant_remove
 
@@ -2562,7 +2563,7 @@ SUBROUTINE minmod ( wait_list, mindex, wait_len )
   END DO
 END SUBROUTINE minmod
 
-SUBROUTINE counter(o3_prod,o3_dest,numprotons,time, unit_num, matrix,wait_list,sp1,sp2,wait_len)
+SUBROUTINE counter(o3_prod,o3_dest,numprotons,time, matrix,wait_list,sp1,sp2,wait_len)
   !
   ! Purpose:
   !   The purpose of this subroutine is to count
@@ -2582,7 +2583,6 @@ SUBROUTINE counter(o3_prod,o3_dest,numprotons,time, unit_num, matrix,wait_list,s
 
   INTEGER                                          , POINTER :: o3_prod,o3_dest
   INTEGER(KIND=LONG) , INTENT(IN)                            :: numprotons
-  INTEGER            , INTENT(IN)                            :: unit_num
   INTEGER                                                    :: i,j,k,nn
   INTEGER                                                    :: o_count,o2_count,o3_count,sp3
   INTEGER            , INTENT(IN)                            :: sp1, sp2
@@ -2652,6 +2652,9 @@ SUBROUTINE counter(o3_prod,o3_dest,numprotons,time, unit_num, matrix,wait_list,s
   END DO
   !    END IF
 
+  O_ABUNDANCE  = o_count
+  O2_ABUNDANCE = o2_count
+  O3_ABUNDANCE = o3_count
   IF ( TEST_WRONG .EQV. .TRUE. ) THEN
     OPEN(UNIT=1014,FILE="counter_test_wait_list.txt",STATUS='REPLACE')
     DO nn = 1,wait_len
@@ -2676,7 +2679,7 @@ SUBROUTINE counter(o3_prod,o3_dest,numprotons,time, unit_num, matrix,wait_list,s
 
   !   sp2_count = REAL(o3_prod - o3_dest)
   IF ( NO_OUTPUT .EQV. .FALSE. ) THEN
-    WRITE(unit_num,*) time,',', fluence,',',o2_count,',',o_count,',',o3_count,',',numprotons
+    WRITE(AB_UNIT_NUM,*) ALTFLUENCE,',', fluence,',',time,',',o2_count,',',o_count,',',o3_count,',',numprotons
   END IF
 
   IF ( QUIET .EQV. .FALSE. ) THEN

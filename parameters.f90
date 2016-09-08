@@ -41,6 +41,7 @@ MODULE parameters
   INTEGER         , PARAMETER :: FIX3        = 150
   REAL(KIND=DBL)  , PARAMETER :: THICK       = 6.0e-6                      !1.0e-5 ! Thickness of the ice in cm
   REAL(KIND=DBL)  , PARAMETER :: EDGE        = 3.5e-6                      !1.0e-7 ! The edge of the crystal in cm
+  REAL(KIND=DBL)  , PARAMETER :: VOLUME      = THICK*EDGE*EDGE             ! Volume of ice chunk
   REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0                       ! Kinetic temperature in Kelvin
   REAL(KIND=DBL)  , PARAMETER :: AREA        = EDGE*EDGE                   ! Area of irradiated surface in cm
   REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 1.0D11                      ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
@@ -85,6 +86,7 @@ MODULE parameters
   INTEGER                     :: NEXIT                                     ! Max sub-ex loop iters
   REAL                        :: STEPFAC           = 0.1                   ! Determines freq. between colls. for protons
   REAL                        :: ESTEPFAC          = 0.1                   ! Determines freq. between colls. for electrons
+  REAL(KIND=DBL)              :: ALTFLUENCE        = 0.d0
   REAL(KIND=DBL)  , PARAMETER :: TIME_TOTAL        = 1D5                   ! Total time in s
   REAL(KIND=DBL)              :: AVAL              = 33                    ! Parameter for Gamma distribution
   REAL(KIND=DBL)  , PARAMETER :: ECUTOFF           = 9.0D0                 ! Secondary cutoff energy in eV
@@ -108,11 +110,9 @@ MODULE parameters
   ! Output File Unit Numbers
   !******************************************************************************
   INTEGER         , PARAMETER :: AB_UNIT_NUM        = 1009                        ! Abundance output file
+  INTEGER         , PARAMETER :: RATE_UNIT_NUM      = 1946                        ! Rate output file
   INTEGER         , PARAMETER :: TRACKPLOT_UNIT_NUM = 2016
-  INTEGER         , PARAMETER :: TRACKMIN           = 5000
-  INTEGER         , PARAMETER :: TRACKMAX           = 1000000
   INTEGER         , PARAMETER :: O3_NUM             = 777
-
 
   !******************************************************************************
   ! Array Parameters
@@ -126,19 +126,26 @@ MODULE parameters
   !******************************************************************************
   ! Analytics Parameters
   !******************************************************************************
-  INTEGER                     :: BI_CALLS     = 0.0
+  INTEGER         , PARAMETER :: TRACKMIN     = 5000
+  INTEGER         , PARAMETER :: TRACKMAX     = 1000000
+  INTEGER                     :: BI_CALLS     = 0
+  INTEGER                     :: O_ABUNDANCE  = 0
+  INTEGER                     :: O2_ABUNDANCE = 0
+  INTEGER                     :: O3_ABUNDANCE = 0
+  REAL(KIND=DBL)              :: DELTA_TIME   = 0.d0
+  REAL(KIND=DBL)              :: PROTON_ELOSS = 0.d0
 
   !******************************************************************************
-  ! Switches 
+  ! Switches
   !******************************************************************************
-  LOGICAL, PARAMETER :: FIXED_SIZE = .FALSE.
-  LOGICAL, PARAMETER :: NO_OUTPUT  = .TRUE.
-  LOGICAL, PARAMETER :: QUIET      = .TRUE.
-  LOGICAL, PARAMETER :: SECELEC    = .TRUE.
-  LOGICAL, PARAMETER :: DEBUG      = .FALSE.
-  LOGICAL, PARAMETER :: TEST_WRONG = .FALSE.
-  LOGICAL, PARAMETER :: TRACKPLOT  = .FALSE.
-  LOGICAL, PARAMETER :: O3_ANALYTICS = .FALSE.
+  LOGICAL         , PARAMETER :: FIXED_SIZE   = .FALSE.
+  LOGICAL         , PARAMETER :: NO_OUTPUT    = .FALSE.
+  LOGICAL         , PARAMETER :: QUIET        = .FALSE.
+  LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
+  LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
+  LOGICAL         , PARAMETER :: TEST_WRONG   = .FALSE.
+  LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
+  LOGICAL         , PARAMETER :: O3_ANALYTICS = .FALSE.
 
   CONTAINS
 
