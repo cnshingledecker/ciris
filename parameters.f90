@@ -139,8 +139,8 @@ MODULE parameters
   ! Switches
   !******************************************************************************
   LOGICAL         , PARAMETER :: FIXED_SIZE   = .FALSE.
-  LOGICAL         , PARAMETER :: NO_OUTPUT    = .FALSE.
-  LOGICAL         , PARAMETER :: QUIET        = .FALSE.
+  LOGICAL         , PARAMETER :: NO_OUTPUT    = .TRUE.
+  LOGICAL         , PARAMETER :: QUIET        = .TRUE.
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TEST_WRONG   = .FALSE.
