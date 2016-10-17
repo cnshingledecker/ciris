@@ -4637,4 +4637,32 @@ SUBROUTINE place_product(i_re,j_re,k_re,i_re2,j_re2,k_re2,index,index2,r1,r2,&
     END IF
   END IF
 END SUBROUTINE place_product
+
+  SUBROUTINE init_node(temp_node,x,y,z)
+    !
+    ! Purpose
+    !   This is a subroutine that compares a string value to values
+    !  in a list and gives the index of a matching result and an
+    !  error if there is no match.
+    !
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! LOOKUP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    IMPLICIT NONE
+    TYPE(node), POINTER :: temp_node
+    INTEGER :: x,y,z
+
+    temp_node%wait_time = 0.0
+    temp_node%coord1 = x
+    temp_node%coord2 = y
+    temp_node%coord3 = z
+    temp_node%sec_sp_num = 0
+    temp_node%act_type = 0
+    temp_node%hop_dir = 0
+    temp_node%leftRight = 0
+    IF ( (MOD(y,2) .EQ. 1) .AND. (MOD(z,2) .EQ. 1) ) THEN
+      temp_node%sp_num = -1
+    END IF
+    NULLIFY(temp_node%before,temp_node%after,temp_node%parent)
+  END SUBROUTINE init_node
 END MODULE subroutines
