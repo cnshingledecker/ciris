@@ -8,6 +8,11 @@ MODULE parameters
   !******************************************************************************
   TYPE(node), ALLOCATABLE, DIMENSION(:,:,:) :: MATRIX
   INTEGER, DIMENSION(3) :: DIMENS
+  REAL(KIND=DBL) :: TIME
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: EN_LIST
+  INTEGER, ALLOCATABLE, DIMENSION(:) :: SP_LIST
+  INTEGER, ALLOCATABLE, DIMENSION(:,:,:) :: REACT_CUBE
+  INTEGER, ALLOCATABLE, DIMENSION(:) :: IONLIST
   
   !******************************************************************************
   ! Input file names
@@ -141,6 +146,8 @@ MODULE parameters
   INTEGER                                  :: CRPNUM  = 0 ! Index of primary ion in code
   INTEGER                                  :: EXCNUM  = 0 ! Index of excitation in code
   INTEGER                                  :: ELECNUM = 0 ! Index of electron in code
+  INTEGER                                  :: O3NUM   = 7 ! Index of ozone in code
+  INTEGER                                  :: ONUM    = 4 ! Index of atomic oxygen in the code
 
 
   !******************************************************************************
@@ -148,7 +155,6 @@ MODULE parameters
   !******************************************************************************
   INTEGER, DIMENSION(1)       :: FAST_REACTS  = (/ 4 /)                   ! 4 ! Species that react upon formation
   INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 1 /)                    ! 7 ! Species that dissociate easily
-  INTEGER, DIMENSION(2)       :: MOBILE_LIST  = (/ 4, 7 /)
   INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
   INTEGER                     :: TIME_FREQ    = 1  !1000000
 

@@ -10,6 +10,7 @@ PROGRAM main
   ! Data dictionary
   !******************************************************************************
   INTEGER                                                      :: n
+  INTEGER                                                      :: loop_count
   INTEGER(KIND=SHORT) , ALLOCATABLE, DIMENSION(:,:,:), TARGET  :: qube
   INTEGER             , ALLOCATABLE, DIMENSION(:)    , TARGET  :: anion_target
   INTEGER                          , DIMENSION(:)    , POINTER :: anion_list     ! List of anionic species
@@ -201,6 +202,8 @@ PROGRAM main
       DO i=1,DIMENS(1)
         temp => MATRIX(i,j,k)
         CALL init_node(temp,i,j,k)
+        CALL wait_calc(i,j,k)
+        CALL add_node(root,temp)
       END DO
     END DO
   END DO
@@ -225,12 +228,13 @@ PROGRAM main
   !******************************************************************************
   ! Begin the simulation
   !******************************************************************************
-  !counter = 0
+  loop_count = 0
   fluence = time * CR_FLUX
   unfit = .FALSE.
   PRINT *, "Now  beginning loop"
   DO WHILE ( fluence .LE. FLUENCE_TOTAL .AND. .NOT. unfit)
-    IF ((.NOT. ASSOCIATED(root) .OR. (TIME .LE. cr_time))) THEN
+    loop_count = loop_count + 1
+    IF ((loop_count .EQ. 1) .OR. (TIME .LE. cr_time))) THEN
       ! Calculate time to next cosmic-ray event
       not_infty = .FALSE.
       DO WHILE ( not_infty .EQV. .FALSE. )

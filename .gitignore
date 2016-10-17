@@ -12,6 +12,10 @@ obj
 *.swp
 *.swo
 
+# emacs stuff
+\#*#
+.\#*
+
 # various output files
 *.txt
 *.csv

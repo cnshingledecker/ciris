@@ -201,7 +201,7 @@ CONTAINS
 
   END SUBROUTINE hopping
 
-  SUBROUTINE lookaroundyou ( react_cube, matrix, coords, null, small_count, &
+  SUBROUTINE lookaroundyou ( react_cube, coords, null, small_count, &
     large_count, small_arr, large_arr, wait_list )
     !
     ! Purpose:
@@ -224,7 +224,6 @@ CONTAINS
     INTEGER            , INTENT(OUT)                             :: small_count
     INTEGER            , INTENT(OUT)                             :: large_count
     INTEGER(KIND=SHORT)             , DIMENSION(:,:,:), POINTER  :: react_cube
-    INTEGER                         , DIMENSION(:,:,:), POINTER  :: matrix
     INTEGER            , INTENT(OUT), DIMENSION(6,4)             :: large_arr
     INTEGER            , INTENT(OUT), DIMENSION(4,4)             :: small_arr
     INTEGER            , INTENT(IN) , DIMENSION(3)               :: coords
@@ -239,14 +238,7 @@ CONTAINS
     INTEGER                                                      :: i_re,j_re,k_re
     INTEGER                                                      :: i_re2,j_re2,k_re2
     INTEGER                                                      :: n
-    INTEGER                         , DIMENSION(3)               :: dimens
 
-
-
-    ! Initialize dimensions
-    dimens(1) = SIZE(matrix,1)
-    dimens(2) = SIZE(matrix,2)
-    dimens(3) = SIZE(matrix,3)
 
     ! Initialize coordinates
     i_re = coords(1)
@@ -261,23 +253,6 @@ CONTAINS
     ! Initialize arrays
     large_arr = 0
     small_arr = 0
-
-
-    ! Make sure the reactant isn't a zero
-    !    PRINT *, "In lookaroundyou, the dimensions of the matrix are:"
-    !    PRINT *, dimens
-
-    !    PRINT *, "The value of coords is:"
-    !    PRINT *, coords
-
-    !    PRINT *, "The value of matrix in lookaroundyou is:",matrix(i_re,j_re,k_re)
-
-    !    IF ( matrix(i_re,j_re,k_re) .EQ. 0 ) THEN
-    !      PRINT *, "***************************************"
-    !      PRINT *, "ERROR in lookaroundyou at matrix lookup"
-    !      PRINT *, " Product is zero"
-    !      PRINT *, "***************************************"
-    !    END IF
 
 
     ! If the site is on the top or bottom layers, limit the hopping
@@ -298,12 +273,12 @@ CONTAINS
         new_coords(1) = i_re2
         new_coords(2) = j_re2
         new_coords(3) = k_re2
-        IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 ) THEN
+        IF ( matrix(i_re2,j_re2,k_re2)%sp_num .NE. 0 ) THEN
           IF ( ALL(coords .EQ. new_coords) .EQV. .FALSE.) THEN
             ! Determine if the hopped to species can react with the hopping species
-            r1 = matrix(i_re,j_re,k_re)
-            r2 = matrix(i_re2,j_re2,k_re2)
-            CALL canreact(r1,r2,react_cube,wait_list,null)
+            r1 = matrix(i_re,j_re,k_re)%sp_num
+            r2 = matrix(i_re2,j_re2,k_re2)%sp_num
+            CALL canreact(r1,r2,react_cube,null)
             ! Determine if site is occupied and if species can react
             IF ( null .EQ. 0 ) THEN
               large_arr(n,4) = 1
@@ -371,10 +346,10 @@ END IF
 new_coords(1) = i_re2
 new_coords(2) = j_re2
 new_coords(3) = k_re2
-IF ( matrix(i_re2,j_re2,k_re2) .NE. 0 ) THEN
+IF ( matrix(i_re2,j_re2,k_re2)%sp_num .NE. 0 ) THEN
   IF ( ALL(coords .EQ. new_coords) .EQV. .FALSE. ) THEN
-    r1 = matrix(i_re,j_re,k_re)
-    r2 = matrix(i_re2,j_re2,k_re2)
+    r1 = matrix(i_re,j_re,k_re)%sp_num
+    r2 = matrix(i_re2,j_re2,k_re2)%sp_num
     !             PRINT *, 'r1=',r1,'and r2=',r2
     CALL canreact(r1,r2,react_cube,wait_list,null)
     IF ( null .EQ. 0 ) THEN
@@ -487,8 +462,7 @@ SUBROUTINE solarlottery( small_count,large_count, small_temp,large_temp, coords 
 
 END SUBROUTINE solarlottery
 
-SUBROUTINE thirdman( prod,i_re,j_re,k_re, null, matrix, en_list, time, &
-  wait_list, wait_len, prod_coords)
+SUBROUTINE thirdman( prod,i_re,j_re,k_re, null,en_list, prod_coords)
   !
   ! Purpose:
   !   This subroutine attempts to find an empty site to place a third product
@@ -504,13 +478,9 @@ SUBROUTINE thirdman( prod,i_re,j_re,k_re, null, matrix, en_list, time, &
 
   INTEGER            , INTENT(IN)                                       :: prod !product to be placed
   INTEGER(KIND=SHORT), INTENT(OUT)                                      :: null !error flag
-  INTEGER                                           , POINTER           :: wait_len
   INTEGER            , INTENT(IN)                                       :: i_re,j_re,k_re !coords of original site
   INTEGER            , INTENT(OUT), DIMENSION(3)             , OPTIONAL :: prod_coords !product placement coords
-  INTEGER                         , DIMENSION(:,:,:), POINTER           :: matrix !ice-mantle matrix
-  TYPE (wait_info)                , DIMENSION(:)    , POINTER           :: wait_list
   REAL                            , DIMENSION(:)    , POINTER           :: en_list
-  REAL(KIND=DBL)                                    , POINTER           :: time
 
   !*****************!
   ! Local variables !
@@ -518,13 +488,6 @@ SUBROUTINE thirdman( prod,i_re,j_re,k_re, null, matrix, en_list, time, &
 
   INTEGER                                                               :: n,m !counters
   INTEGER                                                               :: i_pr,j_pr,k_pr !product coords
-  INTEGER                         , DIMENSION(3)                        :: dimens
-
-
-  ! Allocate and assign dimens pointer
-  dimens(1) = SIZE(matrix,1)
-  dimens(2) = SIZE(matrix,2)
-  dimens(3) = SIZE(matrix,3)
 
   DO n=1,6
     IF ( i_re .EQ. 1 .AND. ( n .EQ. 5 .OR. n .EQ. 6 ) ) THEN
@@ -534,7 +497,7 @@ SUBROUTINE thirdman( prod,i_re,j_re,k_re, null, matrix, en_list, time, &
       CONTINUE
     ELSE
       CALL hopping(i_re,j_re,k_re,i_pr,j_pr,k_pr,n,dimens)
-      IF ( matrix(i_pr,j_pr,k_pr) .EQ. 0 ) THEN
+      IF ( matrix(i_pr,j_pr,k_pr)%sp_num .EQ. 0 ) THEN
         GOTO 1985
       END IF
     END IF
@@ -543,11 +506,9 @@ SUBROUTINE thirdman( prod,i_re,j_re,k_re, null, matrix, en_list, time, &
   DO m=1,4 ! Go to a phantom position
     SELECT CASE (m)
     CASE (1)
-      IF ( j_re-1 .GT. 0           .AND. &
-      k_re-1 .GT. 0           .AND. &
-      k_re+1 .LE. dimens(3) ) THEN
+      IF ((j_re-1 .GT. 0) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3))) THEN
       CALL hopping(i_re,j_re-1,k_re+1,i_pr,j_pr,k_pr,1,dimens)
-      IF (matrix(i_pr,j_pr,k_pr) .EQ. 0 ) THEN
+      IF (matrix(i_pr,j_pr,k_pr)%sp_num .EQ. 0 ) THEN
         GOTO 1985
       ELSE
         CONTINUE
@@ -556,11 +517,9 @@ SUBROUTINE thirdman( prod,i_re,j_re,k_re, null, matrix, en_list, time, &
       CONTINUE
     END IF
   CASE (2)
-    IF ( j_re-1 .GT. 0           .AND. &
-    k_re-1 .GT. 0           .AND. &
-    k_re+1 .LE. dimens(3) ) THEN
+    IF (((j_re-1 .GT. 0) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3))) THEN
     CALL hopping(i_re,j_re-1,k_re-1,i_pr,j_pr,k_pr,2,dimens)
-    IF (matrix(i_pr,j_pr,k_pr) .EQ. 0 ) THEN
+    IF (matrix(i_pr,j_pr,k_pr)%sp_num .EQ. 0 ) THEN
       GOTO 1985
     ELSE
       CONTINUE
@@ -569,11 +528,9 @@ SUBROUTINE thirdman( prod,i_re,j_re,k_re, null, matrix, en_list, time, &
     CONTINUE
   END IF
 CASE (3)
-  IF ( j_re+1 .LE. dimens(2)   .AND. &
-  k_re-1 .GT. 0           .AND. &
-  k_re+1 .LE. dimens(3) ) THEN
+  IF ((j_re+1 .LE. dimens(2)) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3))) THEN
   CALL hopping(i_re,j_re+1,k_re+1,i_pr,j_pr,k_pr,1,dimens)
-  IF (matrix(i_pr,j_pr,k_pr) .EQ. 0 ) THEN
+  IF (matrix(i_pr,j_pr,k_pr)%sp_num .EQ. 0 ) THEN
     GOTO 1985
   ELSE
     CONTINUE
@@ -582,11 +539,9 @@ ELSE
   CONTINUE
 END IF
 CASE (4)
-  IF ( j_re+1 .LE. dimens(2)   .AND. &
-  k_re-1 .GT. 0           .AND. &
-  k_re+1 .LE. dimens(3) ) THEN
+  IF ((j_re+1 .LE. dimens(2)) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3))) THEN
   CALL hopping(i_re,j_re+1,k_re-1,i_pr,j_pr,k_pr,2,dimens)
-  IF (matrix(i_pr,j_pr,k_pr) .EQ. 0 ) THEN
+  IF (matrix(i_pr,j_pr,k_pr)%sp_num .EQ. 0 ) THEN
     GOTO 1985
   ELSE
     GOTO 2001
@@ -604,21 +559,10 @@ END IF
 END DO
 
 ! Place reactant at chosen site
-1985 IF ( ANY( MOBILE_LIST .EQ. prod ) ) THEN
-wait_len = wait_len + 1
-wait_list(wait_len)%i = i_pr
-wait_list(wait_len)%j = j_pr
-wait_list(wait_len)%k = k_pr
-wait_list(wait_len)%sp_num = prod
-CALL wait_calc(wait_list,wait_len,en_list,time)
-matrix(i_pr,j_pr,k_pr) = wait_len
-!      PRINT *, "Placing ",prod,"at ",i_pr,j_pr,k_pr,"at index ",wait_len,&
-!               "and ",matrix(i_pr,j_pr,k_pr),"should be ",wait_len
-ELSE
-  matrix(i_pr,j_pr,k_pr) = -1*prod
-  !      PRINT *, "Placing ",prod,"at ",i_pr,j_pr,k_pr,&
-  !               "and ",matrix(i_pr,j_pr,k_pr),"should be ",-1*prod
-END IF
+1985 matrix(i_pr,j_pr,k_pr)%sp_num = prod
+CALL wait_calc(i_pr,j_pr,k_pr)
+temp => matrix(i_pr,j_pr,k_pr)
+CALL add_node(root,temp)
 
 ! Assign output coordinates array
 IF ( PRESENT(prod_coords) ) THEN
@@ -711,8 +655,7 @@ SUBROUTINE bresenham( x1,y1,x2,y2,track )
   END IF
 END SUBROUTINE bresenham
 
-SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, &
-  event_coords, switch, wait_list, wait_len, time, elec_coords )
+SUBROUTINE cern ( o3_prod,o3_dest,null,event_coords, switch, elec_coords )
   !
   ! Purpose:
   !   This subroutine handles interaction events between ionizing radiation and a
@@ -730,13 +673,7 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, &
   INTEGER(KIND=SHORT), INTENT(INOUT)                                       :: null
   INTEGER            , INTENT(IN)    , DIMENSION(3)                        :: event_coords !coordinated of collision
   INTEGER            , INTENT(IN)                                          :: switch !type of event
-  INTEGER(KIND=SHORT)                , DIMENSION(:,:,:), POINTER           :: react_cube !cube of reactions
-  INTEGER                            , DIMENSION(:,:,:), POINTER           :: matrix !ice-mantle matrix
-  INTEGER                                              , POINTER           :: wait_len
   INTEGER            , INTENT(OUT)   , DIMENSION(3)             , OPTIONAL :: elec_coords
-  REAL(KIND=DBL)                                       , POINTER           :: time
-  REAL                               , DIMENSION(:)    , POINTER           :: en_list !list of binding energies
-  TYPE(wait_info)                    , DIMENSION(:)    , POINTER           :: wait_list
 
   !*****************!
   ! Local variables !
@@ -744,13 +681,10 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, &
   INTEGER                                                                  :: i,j,k
   INTEGER                                                                  :: i_re2,j_re2,k_re2 !reactant coordinates
   INTEGER                                                                  :: i_pr,j_pr,k_pr !product coordinates
-  INTEGER                                                                  :: index,index2
-  INTEGER                                                                  :: matrix_num
   INTEGER                                                                  :: r1, r2 !reactants 1 and 2
   INTEGER                                                                  :: prods_case
   INTEGER                            , DIMENSION(3)                        :: prods !array of reaction products
   INTEGER                            , DIMENSION(3)                        :: coords !temporary coordinates array
-  INTEGER                            , DIMENSION(3)                        :: dimens
   INTEGER :: n
   INTEGER :: original_value
   REAL    :: rnum
@@ -788,17 +722,7 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, &
     r1 = EXCNUM
   END SELECT
 
-  index = 0
-  matrix_num = matrix(i_re2,j_re2,k_re2)
-
-  IF ( matrix_num .LT. 0 ) THEN
-    r2 = ABS(matrix_num)
-  ELSE IF ( matrix_num .GT. 0 ) THEN
-    r2 = wait_list(matrix_num)%sp_num
-    index2 = matrix_num
-    !      IF ( index .EQ. 53 ) PRINT *, 'The wait_list at',index,'is:'
-    !      IF ( index .EQ. 53 ) PRINT *, wait_list(index)
-  END IF
+  r2 = matrix(i_re2,j_re2,k_re2)%sp_num
 
   !****************************************************************************
   !**** ERROR CHECKING ********************************************************
@@ -806,27 +730,6 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, &
   IF ( r2 .EQ. 0 ) THEN
     PRINT *, 'r1 =',r1
     PRINT *, 'r2 =',r2
-    PRINT *, 'original_value =',original_value
-    PRINT *, 'event_coords =',event_coords
-    dimens(1) = SIZE(matrix,1)
-    dimens(2) = SIZE(matrix,2)
-    dimens(3) = SIZE(matrix,3)
-    OPEN(UNIT=1013,FILE="cern_test_wrong_spaces.txt")
-    DO k=1,dimens(3)
-      DO j=1,dimens(2)
-        DO i=1,dimens(1)
-          IF ( matrix(i,j,k) .GT. 0 ) THEN
-            IF( ANY(MOBILE_LIST .NE. wait_list(matrix(i,j,k))%sp_num ) ) THEN
-              WRITE(1013,*)  'Matrix=',matrix(i,j,k),'wait_list=',wait_list(matrix(i,j,k))
-              PRINT *, 'We have a wrong space:',matrix(i,j,k),' at',i,j,k
-            END IF
-          END IF
-        END DO
-      END DO
-    END DO
-    CLOSE(1013)
-    PRINT *, "BEEP BOOP 1 0"
-    PRINT *, "ERROR: wait_len =",wait_len,"< matrix_num =",matrix_num
     CALL EXIT()
   END IF
 
@@ -837,58 +740,23 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, &
   !**** BRANCHING RATIOS ******************************************************
   !****************************************************************************
   !Determine if there is dissociation
-  IF ( r1 .EQ. 7 .AND. r2 .EQ. EXCNUM .OR. r1 .EQ. EXCNUM .AND. r2 .EQ. 7 ) THEN
-    !   PRINT *, "Weve got branching"
-    !        rnum = RAND()
+  IF ( r1 .EQ. O3NUM .AND. r2 .EQ. EXCNUM .OR. r1 .EQ. EXCNUM .AND. r2 .EQ. O3NUM ) THEN
     CALL RANDOM_NUMBER(rnum)
     IF ( rnum .LE. O3_DIS_BRANCHING ) THEN
-      prods = (/ 1, 4, 0 /)
+      prods = (/ O2NUM, ONUM, 0 /)
     END IF
   END IF
 
   !****************************************************************************
   !****ANALYTICS***************************************************************
   !****************************************************************************
-  IF ( r1 .EQ. 7 .OR. r2 .EQ. 7 ) o3_dest = o3_dest + 1
-  IF ( ANY(prods .EQ. 7 ) ) o3_prod = o3_prod + 1
-
-  !****************************************************************************
-  !****ERROR CHECKING**********************************************************
-  !****************************************************************************
-  IF ( DEBUG .EQV. .TRUE. ) THEN
-    PRINT *, "wait_len in cern is ",wait_len
-    PRINT *,     r1, r2, prods
-    WRITE(777,*) r1,',',r2,',',prods(1),',',prods(2),',',prods(3), ',',wait_len
-    IF ( r1 .EQ. 7 .OR. r2 .EQ. 7 ) THEN
-      PRINT *, '\/ In cern \/'
-      PRINT *, r1,',',r2,',',prods(1),',',prods(2),',',prods(3)
-    END IF
-
-    IF ( ANY(prods .EQ. 7 ) ) THEN
-      PRINT *, '\/ In cern \/'
-      PRINT *, r1,',',r2,',',prods(1),',',prods(2),',',prods(3)
-    END IF
-  END IF
+  IF ( r1 .EQ. O3NUM .OR. r2 .EQ. O3NUM ) o3_dest = o3_dest + 1
+  IF ( ANY(prods .EQ. O3NUM ) ) o3_prod = o3_prod + 1
 
   IF ( prods(1) .EQ. 0 ) THEN
     PRINT *, 'Uh-oh, we have a problem in Cern!'
     PRINT *, 'r1=',r1,'r2=',r2
     PRINT *, 'prods=',prods
-    OPEN(UNIT=1013,FILE="test_wait_list.txt")
-    DO n=1,wait_len+2
-      WRITE(1013,*) wait_list(n)
-    END DO
-    CLOSE(1013)
-
-    OPEN(UNIT=1014,FILE="wait_list_flaw.txt")
-    DO n=1,wait_len
-      IF ( wait_list(n)%sp_num .NE. 20 ) THEN
-        IF ( matrix(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k) .NE. n ) THEN
-          WRITE(1014,*) matrix(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k),", ",n,",",wait_len
-        END IF
-      END IF
-    END DO
-    CLOSE(1014)
     CALL EXIT()
   END IF
 
@@ -898,7 +766,6 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, &
   ! If there are two or more products: do a sanity check to see if there are
   ! sufficient empty sites
   !****************************************************************************
-  original_value = matrix(i_re2,j_re2,k_re2)
   null = 0
   IF ( prods(2) .NE. 0 ) THEN
     ! NB: Unlike in the reaction subroutine, in Krell, one needs to
@@ -939,13 +806,11 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, &
   CALL place_product(i_re2,j_re2,k_re2,i_pr,j_pr,k_pr,index,index2,r1,r2,&
   prods,case_num,matrix, wait_list,wait_len,en_list,time)
 
-
   IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****ENDING Cern*****'
   ! DEBUG = .FALSE.
 END SUBROUTINE cern
 
-SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
-  wait_list, wait_len, time)
+SUBROUTINE fallout ( o3_prod,o3_dest)
   ! Purpose:
   !   To calculate the track of a particle of ionizing radiation through a
   !  crystaline solid.
@@ -960,18 +825,10 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
   !! FALLOUT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   IMPLICIT NONE
-
   !******************!
   ! Input and output !
   !******************!
   INTEGER                              , POINTER :: o3_prod,o3_dest
-  INTEGER                              , POINTER :: wait_len
-  INTEGER            , DIMENSION(:)    , POINTER :: ionlist !list of anionic species
-  INTEGER(KIND=SHORT), DIMENSION(:,:,:), POINTER :: react_cube !array of products/reactions
-  INTEGER            , DIMENSION(:,:,:), POINTER :: matrix !ice-mantle matrix
-  REAL               , DIMENSION(:)    , POINTER :: en_list !list of binding and desorption energies
-  REAL(KIND=DBL)                       , POINTER :: time
-  TYPE(wait_info)    , DIMENSION(:)    , POINTER :: wait_list
 
   !*****************!
   ! Local variables !
@@ -986,7 +843,6 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
   INTEGER                                        :: count_count
   INTEGER                                        :: step,estep !distance the track is incremented
   INTEGER                                        :: switch,eswitch
-  INTEGER            , DIMENSION(3)              :: dimens !dimensions of matrix
   INTEGER            , DIMENSION(3)              :: ev_coords !coordiantes of collision
   INTEGER            , DIMENSION(3)              :: elec_coords
   INTEGER            , DIMENSION(3)              :: prev, curr, next
@@ -1024,7 +880,6 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
     OPEN(UNIT=TRACKPLOT_UNIT_NUM,FILE="trackplot.csv", STATUS='REPLACE')
   END IF
 
-
   !****************************************************************************!
   ! Preliminary  calculations                                                  !
   !****************************************************************************!
@@ -1045,22 +900,12 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
   psigij  = 0D0
   psigexj = 0D0
   CALL psigma_suite(ione,psigmas,psigij,psigexj)
-  !    PRINT *, "The initial proton cross-secions are:"
-  !    DO n=1,3
-  !      PRINT *, psigmas(n)
-  !    END DO
 
   ! Calculate the total cross-section and the mean free path
   ! Note, sigma_i is the inelastic ionization cross-section and
   ! sigma_e is the inelastic excitation cross section
   sigma_tot = SUM(psigmas%cross_section)
   mfp       = 1./(rho*sigma_tot)
-
-  ! Get dimensions of matrix
-  dimens(1) = SIZE(matrix,1)
-  dimens(2) = SIZE(matrix,2)
-  dimens(3) = SIZE(matrix,3)
-  !   PRINT *, 'Dimens are:',dimens
 
   !****************************************************************************!
   ! Determine random entry site                                                !
@@ -1088,7 +933,6 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
   !****************************************************************************!
   ! Beginning of track event calculation                                       !
   !****************************************************************************!
-
   dist_trav = 0
   dz        = 0
   step      = 0
@@ -1101,7 +945,6 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
   num_exs     = 0
   num_els     = 0
 
-
   main_loop: DO WHILE ((dist_trav .LE. THICK) .AND. (ione .GE. 5.0 ))
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Now entering loop: z=',z,' and dimens(1)=',dimens(1),' and step=',step
     count_count = count_count + 1
@@ -1112,19 +955,14 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
     ev_coords(3) = x
     !      PRINT *, 'The event coords are:',ev_coords
 
-    thinghit = matrix(ev_coords(1),ev_coords(2),ev_coords(3))
+    thinghit = matrix(ev_coords(1),ev_coords(2),ev_coords(3))%sp_num
 
 
-    IF ( matrix(z+step,y,x) .NE. 0 ) THEN
-      IF ( DEBUG .EQV. .TRUE. ) PRINT *, "The value of the matrix is:",matrix(z+step,y,x)
+    IF ( thinghit .NE. 0 ) THEN
+      IF ( DEBUG .EQV. .TRUE. ) PRINT *, "The value of the matrix is:",thinghit
       ! If the site is occupied, then determine the type of event to occur
-      !        DO WHILE ( u .EQ. 0.0 .AND. rand .EQ. 0.0 )
-      !        u = RAND()
-      !        rand1 = RAND()
       CALL RANDOM_NUMBER(u)
       CALL RANDOM_NUMBER(rand1)
-      !        END DO
-
 
       !****************************************************************************!
       ! Determine the nature of the collision and the energy lost                  !
@@ -1137,7 +975,6 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
       ASSOCIATE ( sigma_i => psigmas(2)%cross_section, &
         sigma_e => psigmas(3)%cross_section )
         IF ( (u .GT. 0.0) .AND. (u .LE. (sigma_i + sigma_e)/sigma_tot) ) THEN
-!          IF ( u .GT. 0 .AND. u .LE. sigma_i/(sigma_i + sigma_e) ) THEN
           IF ( (u .GT. 0) .AND. (u .LE. sigma_i/sigma_tot )) THEN
             ! Ionization will occur
             num_izns = num_izns + 1
@@ -1168,8 +1005,6 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
         END IF
         PROTON_ELOSS = e_loss
       END ASSOCIATE
-      !        PRINT *, "Ion energy:",ione, "loss:",e_loss,'nature:',nature
-      !        WRITE(10,*) ione,",",e_loss,",",ione-e_loss,',',nature
       ione = ione - e_loss
       CALL psigma_suite(ione,psigmas,psigij,psigexj)
       IF ( TRACKPLOT .EQV. .TRUE. ) THEN
@@ -1177,9 +1012,6 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
         WRITE(TRACKPLOT_UNIT_NUM,*) ev_coords(1),',',ev_coords(2),',',ev_coords(3),', proton,',nature
       END IF
 
-      !Debugging
-      !        switch = 2
-      !        PRINT *, 'The value of the switch is:',switch
       !****************************************************************************!
       ! Elastic collision                                                          !
       !****************************************************************************!
@@ -1187,31 +1019,20 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
         !          PRINT *, "Elastic collision"
         !NB: FUTURE WORK TO ADD LATTICE DAMAGE
         CONTINUE
-
         !****************************************************************************!
         ! Excitation                                                                 !
         !****************************************************************************!
       ELSE IF ( switch .EQ. 1 ) THEN ! Dissociate target species on track and place prods
-        CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, ev_coords, switch, &
-        wait_list, wait_len, time )
-
+        CALL cern( o3_prod,o3_dest,null, ev_coords, switch)
         IF ( null .EQ. 1 ) RETURN
         !****************************************************************************!
         ! Ionization                                                                 !
         !****************************************************************************!
       ELSE IF ( switch .EQ. 2 .AND. z+step .NE. 1 .AND. z+step .NE. 2 ) THEN
-        !  PRINT *, 'SE energy is',se_box%se_energy
         IF ( se_box%se_energy .LE. ECUTOFF ) THEN
-          !  PRINT *, 'SE energy is less than or equal to cutoff'
-          !            PRINT *, 'ev_coords=',ev_coords
-          ! PRINT *, "Calling base_ionization at line 1224"
-          CALL base_ionization( o3_prod,o3_dest,ev_coords, react_cube, matrix, en_list, &
-          ionlist, wait_list, wait_len, &
-          time, null )
-          ! PRINT *, "Ending base_ionization at line 1224"
+          CALL base_ionization( o3_prod,o3_dest,ev_coords, null )
           IF ( null .EQ. 1 ) RETURN
         ELSE
-          ! PRINT *, 'SE energy above ecutoff' !*******************************************************************
           !
           ! Generate secondary electrons/electron track
           !
@@ -1220,11 +1041,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
           ! NB: the electron should be the second product in the "prods" array
           !*******************************************************************
           null = 0
-          ! PRINT *, "Calling base_ionization at line 1240"
-          CALL base_ionization( o3_prod,o3_dest,ev_coords, react_cube, matrix, en_list, &
-          ionlist, wait_list, wait_len, &
-          time, null,elec_coords )
-          ! PRINT *, "Ending base_ionization at line 1240"
+          CALL base_ionization( o3_prod,o3_dest,ev_coords, null,elec_coords )
 
           IF ( TRACKPLOT .EQV. .TRUE. ) THEN
             count_count = count_count + 1
@@ -1272,22 +1089,13 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
 
             !Calculate hopping distance
             emfp  = 1./(RHO*(se_box%se_ineltot+1.0e-17))
-            ! PRINT *, "se_box%ineltot=", se_box%se_ineltot
-            ! PRINT *, "se_box%se_energy=", se_box%se_energy
-
-            !              p     = RAND()
             CALL RANDOM_NUMBER(p)
             de    = -1.*emfp*LOG(1.-p)
             de    = de*ESTEPFAC
             estep = INT(de/C_PR)
-!            PRINT *, "Estep=", estep
-!            estep = INT(estep*ESTEPFAC)
-!            PRINT *, "new estep=",estep
 
             !Have a minumum hopping distance of 1
             IF ( estep .EQ. 0 ) estep = 1
-
-            ! PRINT *, 'In SE routine, curr=',curr
 
             DO n=1,estep
               !Each transport hop is like one step
@@ -1295,11 +1103,10 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
               curr = next
               CALL transport(prev,curr,next,matrix)
 
-              IF ( matrix(curr(1),curr(2),curr(3)) .EQ. -7 ) THEN
+              IF ( matrix(curr(1),curr(2),curr(3))%sp_num .EQ. O3NUM ) THEN
                 CALL RANDOM_NUMBER(rand1)
                 IF ( rand1 .LE. O3_DIS_BRANCHING ) THEN
-                  CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, curr, 1, &
-                  wait_list, wait_len, time )
+                  CALL cern( o3_prod,o3_dest,null, curr, 1 )
                   WRITE(TRACKPLOT_UNIT_NUM,*) curr(1),',',curr(2),',',curr(3),", electron , Excitation"
                 END IF
               END IF
@@ -1313,44 +1120,39 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
             END DO
 
             !Determine nature of event
-            !              erand = RAND()
             CALL RANDOM_NUMBER(erand)
             IF ( erand .GT. 0 .AND. erand .LE. (se_box%se_iontot/se_box%se_ineltot) ) THEN
               eswitch = 1
             ELSE
               eswitch = 0
             END IF
-            ! PRINT *, "eswitch=", eswitch
 
             !Carry out impact collision
-            IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. eswitch .EQ. 1 ) THEN
+            IF ( (matrix(next(1),next(2),next(3))%sp_num .NE. 0) .AND. (eswitch .EQ. 1) ) THEN
               !Electron impact ionization
-              IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'EII: SE is hopping to site with',matrix(next(1),next(2),next(3))
-              CALL base_ionization(o3_prod,o3_dest,next, react_cube, matrix, en_list, &
-              ionlist, wait_list, wait_len, &
-              time, null )
-              ! PRINT *, "Ending  base_ionization from EII"
+              IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'EII: SE is hopping to site with',matrix(next(1),next(2),next(3))%sp_num
+              CALL base_ionization(o3_prod,o3_dest,next, null )
               IF ( null .EQ. 1 ) GOTO 100
               CALL e_ion_select(se_box,e_ion,enull1)
               ee_loss = e_ion
               WRITE(TRACKPLOT_UNIT_NUM,*) next(1),',',next(2),',',next(3),", electron , Ionization"
-            ELSE IF ( matrix(next(1),next(2),next(3)) .NE. 0 .AND. eswitch .EQ. 0 ) THEN
+            ELSE IF ( (matrix(next(1),next(2),next(3))%sp_num .NE. 0) .AND. (eswitch .EQ. 0) ) THEN
               !Electron impact excitation
               IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'EIE: SE is hopping to site with',matrix(next(1),next(2),next(3))
-              !                rand1 = RAND()
               CALL RANDOM_NUMBER(rand1)
-              IF ( rand1 .LE. DISPROB .AND. matrix(curr(1),curr(2),curr(3)).NE. 0 ) THEN
-                CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, next, 1, &
-                wait_list, wait_len, time )
-              ELSE IF ( ANY( FRAGILE .EQ. -1*matrix(curr(1),curr(2),curr(3))  ) ) THEN
+              
+              IF ( (rand1 .LE. DISPROB) .AND. (matrix(curr(1),curr(2),curr(3))%sp_num .NE. 0) ) THEN
+                CALL cern( o3_prod,o3_dest,null, next, 1)
+              ELSE IF ( ANY( FRAGILE .EQ. matrix(curr(1),curr(2),curr(3))%sp_num)) THEN
                 ! Test for fragile species
-                CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, next, 1, &
-                wait_list, wait_len, time )
+                CALL cern( o3_prod,o3_dest,null, next, 1)
               END IF
+             
               CALL e_ex_select(se_box,e_exc,enull2)
               ee_loss = e_exc
               WRITE(TRACKPLOT_UNIT_NUM,*) next(1),',',next(2),',',next(3),", electron , Excitation"
             END IF
+           
             !Update the secondary electron energy
             !              PRINT *, 'E_se:',ese_point,' E_loss:',ee_loss
             se_box%se_energy = se_box%se_energy - ee_loss
@@ -1367,7 +1169,6 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
           !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           ! SUB_EXCITATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-          !       PRINT *, 'Starting sub_excitation process'
           IF ( NSUBEX .NE. 0 ) THEN
             nn = 0
             exitcount = 0
@@ -1378,28 +1179,21 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
                 PRINT *, 'exitcount=',exitcount
               END IF
               exitcount = exitcount + 1
-              !DO jj=1,estep
               prev = curr
               curr = next
-              CALL transport(prev,curr,next,matrix)
+              CALL transport(prev,curr,next)
 
               IF ( TRACKPLOT .EQV. .TRUE. ) THEN
                 count_count = count_count + 1
                 WRITE(TRACKPLOT_UNIT_NUM,*) curr(1),',',curr(2),',',curr(3), ", subex electron, Movement"
               END IF
-              !END DO
-              IF ( matrix(next(1),next(2),next(3)) .NE. 0 ) THEN
-                !		  subexrand = RAND()
-                !		  IF ( subexrand .GT. SUBEXHITPROB ) THEN
-                IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'matrix in subexloop=',matrix(next(1),next(2),next(3))
+
+              IF ( matrix(next(1),next(2),next(3))%sp_num .NE. 0 ) THEN
+                IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'matrix in subexloop=',matrix(next(1),next(2),next(3))%sp_num
                 !Carry out dissociate electron attachment
                 !NB: In the model, this is functionally identical to
                 !an ordinary ionization
-                CALL base_ionization(o3_prod,o3_dest,next, react_cube, matrix, en_list, &
-                ionlist, wait_list, wait_len, &
-                time, null )
-                ! PRINT *, "Ending low_energy base_ionization"
-                !		  END IF
+                CALL base_ionization(o3_prod,o3_dest,next, null )
                 nn = nn + 1
                 WRITE(TRACKPLOT_UNIT_NUM,*) next(1),',',next(2),',',next(3), ", subex electron, Ionization"
               END IF
@@ -1419,27 +1213,15 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
       END IF
     END IF
 
-
     !********************!
     ! Track Plotting bit !
     !********************!
     dist_trav = dist_trav + dz
-!    PRINT *, "DZ=",dz,"dist_trav=",dist_trav,(dist_trav/THICK)*100,"% of thickness and H+ energy is=",ione
+
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, "z=",z,"of",dimens(1)," which is",(REAL(z)/REAL(dimens(1)))*100,"% of thickness"
-
-    !      PRINT *,'Before writing to file, the coordinates are:'
-    !      PRINT *, 'i_pr =',i_pr,'This should be a large number'
-    !      PRINT *, 'j_pr =',j_pr
-    !      PRINT *, 'k_pr =',k_pr
-
-    !      IF ( switch .EQ. 2 ) THEN
-    !        PRINT *, 'Writing to file:'
-    !        WRITE (10,*) z+step, ', 100'
-    !      END IF
 
     ! Increment z for next cycle
     z = z + step
-
 
     !********************!
     ! GOTO jumps to here !
@@ -1462,7 +1244,6 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
     ! Determine whether or not the site is occupied by dividing the
     ! Delta z by the height of the crystal cube, i.e. \Delta ml =
     ! \Delta z(m) * (1ml/c(m))
-    !step = INT(STEPFAC*(dz/c_pr))
     step = INT((dz/(THICK/REAL(dimens(1)))))
 
     ! Make sure the next site is different than the previous one
@@ -1486,16 +1267,13 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
 
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Now at end of main loop in Fallout'
     IF ( TRACKPLOT .EQV. .TRUE. ) PRINT *, "count_count=",count_count
-
-!    PRINT *, "BI_CALLS=",BI_CALLS,"num_izns=",num_izns,"num_els=",num_els
   END DO main_loop
 
   IF ( ( TRACKPLOT .EQV. .TRUE. ) .AND. (count_count .GE. TRACKMIN ) ) CALL EXIT()
   IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****Ending Fallout*****'
-  !    CLOSE(10)
 END SUBROUTINE fallout
 
-SUBROUTINE krell( in_coords,out_coords,matrix,null )
+SUBROUTINE krell( in_coords,out_coords,null )
   ! Purose:
   !   This subtroutine takes some ion/bulk interaction site and finds a nearby
   !  empty site to put a second product. The return of the function is a set of
@@ -1508,49 +1286,30 @@ SUBROUTINE krell( in_coords,out_coords,matrix,null )
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !! KRELL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
   IMPLICIT NONE
-
   !*****************
   ! Input and output
   !*****************
-
   INTEGER            , INTENT(IN) , DIMENSION(3)               :: in_coords !coords of reaction site
   INTEGER            , INTENT(OUT), DIMENSION(3)               :: out_coords !coords for product
-  INTEGER                         , DIMENSION(:,:,:), POINTER  :: matrix !ice-mantle matrix
   INTEGER(KIND=SHORT)                                          :: null !null error flag
-
-
   !****************
   ! Local variables
   !****************
-
   INTEGER                                                      :: large_count
   INTEGER                                                      :: small_count
   INTEGER                                                      :: lucky !index of selected site, from rand
   INTEGER                                                      :: i,n !counters
   INTEGER                                                      :: i_re, j_re, k_re !in coords
   INTEGER                                                      :: i_re2,j_re2,k_re2 !out coords
-  INTEGER                         , DIMENSION(3)               :: dimens !dimensions of ice matrix
   INTEGER                         , DIMENSION(6,3)             :: large_temp
   INTEGER                         , DIMENSION(4,3)             :: small_temp
   INTEGER            , ALLOCATABLE, DIMENSION(:,:)             :: temp_arr !temporary empty site array
   REAL                                                         :: rand !random number
 
-  !    PRINT *, 'In krell, in_coords=',in_coords
-
-  ! Obtain the dimensions of the matrix
-  dimens(1) = SIZE(matrix,1)
-  dimens(2) = SIZE(matrix,2)
-  dimens(3) = SIZE(matrix,3)
-
-  !    PRINT *, 'In krell, dimens=',dimens
-
   ! Initialize counters and arrays
   large_count   = 0
   small_count  = 0
-
-  !    PRINT *,'The coordinates of the event are',in_coords
 
   ! Assign i_re, j_re, k_re to in_coords
   i_re = in_coords(1)
