@@ -1,6 +1,5 @@
 MODULE typedefs
 
-
 TYPE :: wait_info
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! Purpose:
@@ -12,6 +11,18 @@ TYPE :: wait_info
   INTEGER             :: sp_num    !species identifier
   INTEGER             :: act_type  !1 => hopping, 0 => desorption
 END TYPE wait_info
+
+
+TYPE :: rate_info
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! Purpose:
+  !   This derived data type is designed to contain
+  !  the information related to the number of species produced per Δt
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  INTEGER             :: r1 ! Reactant 1
+  INTEGER             :: r2 ! Reactant 2
+  INTEGER             :: count ! The number times this reaction has occured
+END TYPE rate_info
 
 TYPE :: sigma_box
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

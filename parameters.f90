@@ -1,4 +1,5 @@
 MODULE parameters
+  USE typedefs
   !USE IFPORT
   SAVE
 
@@ -114,6 +115,28 @@ MODULE parameters
   INTEGER         , PARAMETER :: TRACKPLOT_UNIT_NUM = 2016
   INTEGER         , PARAMETER :: O3_NUM             = 777
 
+
+  !******************************************************************************
+  ! Analytics Parameters
+  !******************************************************************************
+  INTEGER                      , PARAMETER :: TRACKMIN     = 5000
+  INTEGER                      , PARAMETER :: TRACKMAX     = 1000000
+  INTEGER                                  :: BI_CALLS     = 0
+  INTEGER                                  :: O_ABUNDANCE  = 0
+  INTEGER                                  :: O2_ABUNDANCE = 0
+  INTEGER                                  :: O3_ABUNDANCE = 0
+  REAL(KIND=DBL)                           :: DELTA_TIME   = 0.d0
+  REAL(KIND=DBL)                           :: PROTON_ELOSS = 0.d0
+  TYPE(rate_info), DIMENSION(8)            :: RATEINFO
+
+  !******************************************************************************
+  ! Reference Parameters
+  !******************************************************************************
+  INTEGER                                  :: CRPNUM  = 0 ! Index of primary ion in code
+  INTEGER                                  :: EXCNUM  = 0 ! Index of excitation in code
+  INTEGER                                  :: ELECNUM = 0 ! Index of electron in code
+
+
   !******************************************************************************
   ! Array Parameters
   !******************************************************************************
@@ -124,23 +147,11 @@ MODULE parameters
   INTEGER                     :: TIME_FREQ    = 1  !1000000
 
   !******************************************************************************
-  ! Analytics Parameters
-  !******************************************************************************
-  INTEGER         , PARAMETER :: TRACKMIN     = 5000
-  INTEGER         , PARAMETER :: TRACKMAX     = 1000000
-  INTEGER                     :: BI_CALLS     = 0
-  INTEGER                     :: O_ABUNDANCE  = 0
-  INTEGER                     :: O2_ABUNDANCE = 0
-  INTEGER                     :: O3_ABUNDANCE = 0
-  REAL(KIND=DBL)              :: DELTA_TIME   = 0.d0
-  REAL(KIND=DBL)              :: PROTON_ELOSS = 0.d0
-
-  !******************************************************************************
   ! Switches
   !******************************************************************************
   LOGICAL         , PARAMETER :: FIXED_SIZE   = .FALSE.
-  LOGICAL         , PARAMETER :: NO_OUTPUT    = .TRUE.
-  LOGICAL         , PARAMETER :: QUIET        = .TRUE.
+  LOGICAL         , PARAMETER :: NO_OUTPUT    = .FALSE.
+  LOGICAL         , PARAMETER :: QUIET        = .FALSE.
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TEST_WRONG   = .FALSE.

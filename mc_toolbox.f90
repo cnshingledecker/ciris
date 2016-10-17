@@ -1,6 +1,6 @@
 MODULE mc_toolbox
-  !USE IFPORT
 
+  !  Here one can specify parameters to be used  by the functions
   INTEGER(KIND=4), PARAMETER :: GSEED=12345
   REAL(KIND=8), PARAMETER :: MEANVAL=0.00
   REAL(KIND=8), PARAMETER :: SDEV=2.00
@@ -22,20 +22,20 @@ MODULE mc_toolbox
       d = a-1./3.
       c = 1./SQRT(9.*d)
       rgamma = 0.
-      DO 
+      DO
         v = 0.
         DO WHILE ( v .LE. 0. )
-          x = R8_NORMAL_AB(MEANVAL,SDEV) 
+          x = R8_NORMAL_AB(MEANVAL,SDEV)
           v = 1. + c*x
         END DO
 !        PRINT *, 'x=',x,'and v=',v
         v = v*v*v
-!        u = RANDOM() 
+!        u = RANDOM()
         CALL RANDOM_NUMBER(u)
         IF ( u .LT. 1.-0.331*(x*x)*(x*x) ) THEN
 !          PRINT *, 'Success-1!'
           rgamma = (d*v)
-          GOTO 10 
+          GOTO 10
         ELSE IF ( DLOG(u) .LT. 0.5*x*x+d*(1.-v+DLOG(v)) ) THEN
 !          PRINT *, 'Success-2!'
           rgamma = (d*v)
@@ -83,8 +83,10 @@ FUNCTION r8_normal_01 ()
   real ( kind = 8 ), parameter :: r8_pi = 3.141592653589793D+00
   real ( kind = 8 ) x
 
-!  r1 = RANDOM() 
-!  r2 = RAND() 
+!  r1 = RANDOM()
+!  r2 = RAND()
+  ! Here we'll use a couple of random numbers generated using the built in
+  ! RNG of the compiler and previously defined seed
   CALL RANDOM_NUMBER(r1)
   CALL RANDOM_NUMBER(r2)
   x = sqrt( - 2.0D+00 * DLOG( r1 ) ) * cos( 2.0D+00 * r8_pi * r2 )
@@ -250,6 +252,3 @@ FUNCTION r8_normal_ab ( a, b)
 END FUNCTION r8_normal_ab
 
 END MODULE mc_toolbox
-
-
-

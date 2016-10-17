@@ -711,20 +711,12 @@ SUBROUTINE bresenham( x1,y1,x2,y2,track )
   END IF
 END SUBROUTINE bresenham
 
-SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, event_num, &
+SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, &
   event_coords, switch, wait_list, wait_len, time, elec_coords )
   !
   ! Purpose:
   !   This subroutine handles interaction events between ionizing radiation and a
   !  target species in a solid
-  !
-  ! Note:
-  !   The array event_num contains the species number for pseudo reactants,
-  !  i.e. excitations, excitations, and electrons. Specifically:
-  !
-  ! -- event_num(1) = exc_num
-  ! -- event_num(2) = ion_num
-  ! -- event_num(3) = e_num
   !
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !! CERN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -738,7 +730,6 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, event_num, &
   INTEGER(KIND=SHORT), INTENT(INOUT)                                       :: null
   INTEGER            , INTENT(IN)    , DIMENSION(3)                        :: event_coords !coordinated of collision
   INTEGER            , INTENT(IN)                                          :: switch !type of event
-  INTEGER            , INTENT(IN)    , DIMENSION(3)                        :: event_num !pseudo species numbers
   INTEGER(KIND=SHORT)                , DIMENSION(:,:,:), POINTER           :: react_cube !cube of reactions
   INTEGER                            , DIMENSION(:,:,:), POINTER           :: matrix !ice-mantle matrix
   INTEGER                                              , POINTER           :: wait_len
@@ -792,9 +783,9 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, event_num, &
 
   SELECT CASE (switch)
   CASE (2) ! Ionization
-    r1 = event_num(2)
+    r1 = CRPNUM
   CASE (1) ! Excitation
-    r1 = event_num(1)
+    r1 = EXCNUM
   END SELECT
 
   index = 0
@@ -813,8 +804,6 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, event_num, &
   !**** ERROR CHECKING ********************************************************
   !****************************************************************************
   IF ( r2 .EQ. 0 ) THEN
-    !      matrix(event_num(1),event_num(2),event_num(3)) = 0
-    !      PRINT *, 'WHOOPS! FIXING ERROR!'
     PRINT *, 'r1 =',r1
     PRINT *, 'r2 =',r2
     PRINT *, 'original_value =',original_value
@@ -848,7 +837,7 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, event_num, &
   !**** BRANCHING RATIOS ******************************************************
   !****************************************************************************
   !Determine if there is dissociation
-  IF ( r1 .EQ. 7 .AND. r2 .EQ. event_num(1) .OR. r1 .EQ. event_num(1) .AND. r2 .EQ. 7 ) THEN
+  IF ( r1 .EQ. 7 .AND. r2 .EQ. EXCNUM .OR. r1 .EQ. EXCNUM .AND. r2 .EQ. 7 ) THEN
     !   PRINT *, "Weve got branching"
     !        rnum = RAND()
     CALL RANDOM_NUMBER(rnum)
@@ -933,7 +922,7 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, event_num, &
   !*****************************************************************************
   ! Save the coords of the electron, if necessary
   !*****************************************************************************
-  IF ( prods(2) .EQ. event_num(3) .AND. PRESENT(elec_coords) ) THEN
+  IF ( prods(2) .EQ. ELECNUM .AND. PRESENT(elec_coords) ) THEN
     elec_coords(1) = i_pr
     elec_coords(2) = j_pr
     elec_coords(3) = k_pr
@@ -956,20 +945,13 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,en_list, react_cube, matrix, event_num, &
 END SUBROUTINE cern
 
 SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
-  wait_list, wait_len, time, ev_nums)
+  wait_list, wait_len, time)
   ! Purpose:
   !   To calculate the track of a particle of ionizing radiation through a
   !  crystaline solid.
   !
   ! Note:
   !   The input array, sigmas, contains the proton collision cross-sections.
-  !
-  ! Note:
-  !   The array ev_nums contains the following values for pseudo-reactants:
-  !
-  ! -- ev_nums(1) = cosmic-ray species number
-  ! -- ev_nums(2) = excitation species number
-  ! -- ev_nums(3) = electron species number
   !
   ! Note:
   !   sgse is short for second-generation secondary eletron.
@@ -990,7 +972,6 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
   REAL               , DIMENSION(:)    , POINTER :: en_list !list of binding and desorption energies
   REAL(KIND=DBL)                       , POINTER :: time
   TYPE(wait_info)    , DIMENSION(:)    , POINTER :: wait_list
-  INTEGER            , DIMENSION(3)              :: ev_nums !values of special pseudoreactants
 
   !*****************!
   ! Local variables !
@@ -1211,7 +1192,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
         ! Excitation                                                                 !
         !****************************************************************************!
       ELSE IF ( switch .EQ. 1 ) THEN ! Dissociate target species on track and place prods
-        CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, ev_nums, ev_coords, switch, &
+        CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, ev_coords, switch, &
         wait_list, wait_len, time )
 
         IF ( null .EQ. 1 ) RETURN
@@ -1226,7 +1207,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
           ! PRINT *, "Calling base_ionization at line 1224"
           CALL base_ionization( o3_prod,o3_dest,ev_coords, react_cube, matrix, en_list, &
           ionlist, wait_list, wait_len, &
-          time, ev_nums, null )
+          time, null )
           ! PRINT *, "Ending base_ionization at line 1224"
           IF ( null .EQ. 1 ) RETURN
         ELSE
@@ -1242,7 +1223,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
           ! PRINT *, "Calling base_ionization at line 1240"
           CALL base_ionization( o3_prod,o3_dest,ev_coords, react_cube, matrix, en_list, &
           ionlist, wait_list, wait_len, &
-          time, ev_nums, null,elec_coords )
+          time, null,elec_coords )
           ! PRINT *, "Ending base_ionization at line 1240"
 
           IF ( TRACKPLOT .EQV. .TRUE. ) THEN
@@ -1317,7 +1298,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
               IF ( matrix(curr(1),curr(2),curr(3)) .EQ. -7 ) THEN
                 CALL RANDOM_NUMBER(rand1)
                 IF ( rand1 .LE. O3_DIS_BRANCHING ) THEN
-                  CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, ev_nums, curr, 1, &
+                  CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, curr, 1, &
                   wait_list, wait_len, time )
                   WRITE(TRACKPLOT_UNIT_NUM,*) curr(1),',',curr(2),',',curr(3),", electron , Excitation"
                 END IF
@@ -1347,7 +1328,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
               IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'EII: SE is hopping to site with',matrix(next(1),next(2),next(3))
               CALL base_ionization(o3_prod,o3_dest,next, react_cube, matrix, en_list, &
               ionlist, wait_list, wait_len, &
-              time, ev_nums,null )
+              time, null )
               ! PRINT *, "Ending  base_ionization from EII"
               IF ( null .EQ. 1 ) GOTO 100
               CALL e_ion_select(se_box,e_ion,enull1)
@@ -1359,11 +1340,11 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
               !                rand1 = RAND()
               CALL RANDOM_NUMBER(rand1)
               IF ( rand1 .LE. DISPROB .AND. matrix(curr(1),curr(2),curr(3)).NE. 0 ) THEN
-                CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, ev_nums, next, 1, &
+                CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, next, 1, &
                 wait_list, wait_len, time )
               ELSE IF ( ANY( FRAGILE .EQ. -1*matrix(curr(1),curr(2),curr(3))  ) ) THEN
                 ! Test for fragile species
-                CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, ev_nums, next, 1, &
+                CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, next, 1, &
                 wait_list, wait_len, time )
               END IF
               CALL e_ex_select(se_box,e_exc,enull2)
@@ -1416,7 +1397,7 @@ SUBROUTINE fallout ( o3_prod,o3_dest,react_cube, matrix,  en_list, ionlist, &
                 !an ordinary ionization
                 CALL base_ionization(o3_prod,o3_dest,next, react_cube, matrix, en_list, &
                 ionlist, wait_list, wait_len, &
-                time, ev_nums,null )
+                time, null )
                 ! PRINT *, "Ending low_energy base_ionization"
                 !		  END IF
                 nn = nn + 1
@@ -2435,13 +2416,13 @@ SUBROUTINE reactant_remove( wait_list, index, matrix_rr, wait_len )
     ! Update number of non-zero species by -1
     wait_len = wait_len - 1
     ! WRITE(1015,*) 'Index=',index,"wait_len=",wait_len,"matrix=",&
-    matrix_rr(wait_list(index)%i,wait_list(index)%j,wait_list(index)%k), &
-    'coords=', wait_list(index)%i,wait_list(index)%j,wait_list(index)%k
+    !matrix_rr(wait_list(index)%i,wait_list(index)%j,wait_list(index)%k), &
+    !'coords=', wait_list(index)%i,wait_list(index)%j,wait_list(index)%k
   ELSE IF ( index .EQ. wait_len ) THEN
     ! Make info in last entry equal to 0
     ! WRITE(1015,*) 'Index=',index,"wait_len=",wait_len,"matrix=", &
-    matrix_rr(wait_list(index)%i,wait_list(index)%j,wait_list(index)%k), &
-    'coords=', wait_list(index)%i,wait_list(index)%j,wait_list(index)%k
+    !matrix_rr(wait_list(index)%i,wait_list(index)%j,wait_list(index)%k), &
+    !'coords=', wait_list(index)%i,wait_list(index)%j,wait_list(index)%k
 
     wait_list(wait_len)%wait_time = 0
     wait_list(wait_len)%i         = 0
@@ -2830,7 +2811,7 @@ RETURN
 END SUBROUTINE transport
 
 SUBROUTINE base_ionization( o3_prod,o3_dest,ev_coords,react_cube, matrix,  en_list, ionlist, &
-  wait_list, wait_len, time, ev_nums,null,elec_out )
+  wait_list, wait_len, time, null,elec_out )
   ! Purpose:
   !   To calculate the track of a particle of ionizing radiation through a
   !  crystaline solid.
@@ -2838,13 +2819,6 @@ SUBROUTINE base_ionization( o3_prod,o3_dest,ev_coords,react_cube, matrix,  en_li
   ! Note:
   !   The input array, sigmas, contains the proton collision cross-sections.
   !  The contents of the array are:
-  !
-  ! Note:
-  !   The array ev_nums contains the following values for pseudo-reactants:
-  !
-  ! -- ev_nums(1) = cosmic-ray species number
-  ! -- ev_nums(2) = excitation species number
-  ! -- ev_nums(3) = electron species number
   !
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !! BASE_IONIZATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2863,7 +2837,6 @@ SUBROUTINE base_ionization( o3_prod,o3_dest,ev_coords,react_cube, matrix,  en_li
   REAL               , DIMENSION(:)    , POINTER :: en_list !list of binding and desorption energies
   REAL(KIND=DBL)                       , POINTER :: time
   TYPE(wait_info)    , DIMENSION(:)    , POINTER :: wait_list
-  INTEGER            , DIMENSION(3)              :: ev_nums !values of special pseudoreactants
   INTEGER            , INTENT(OUT)   , DIMENSION(3), OPTIONAL :: elec_out
 
   !*****************!
@@ -2893,7 +2866,7 @@ SUBROUTINE base_ionization( o3_prod,o3_dest,ev_coords,react_cube, matrix,  en_li
   ! in Cern.
   !  PRINT *, 'At the beginning of base_ionization, ev_coords are:',ev_coords
   null = 0
-  CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, ev_nums, ev_coords, switch, &
+  CALL cern( o3_prod,o3_dest,null,en_list, react_cube, matrix, ev_coords, switch, &
   wait_list, wait_len, time, elec_coords )
   !  PRINT *, 'After cern in base_ionization, elec_coords=',elec_coords
   IF ( PRESENT(elec_out) ) THEN
@@ -3848,6 +3821,26 @@ SUBROUTINE rtype_tree(r1,r2,prods,rtype)
   LOGICAL :: p1_m
   LOGICAL :: p2_m
   LOGICAL :: p2_0
+
+  ! Update RATEINFO with new count
+  IF  ( ((r1 .EQ. CRPNUM) .AND. (r2 .EQ. 1)) .OR. ((r2 .EQ. CRPNUM) .AND. (r1 .EQ. 1)) ) THEN
+    RATEINFO(1)%count = RATEINFO(1)%count + 1
+  ELSE IF  ( ((r1 .EQ. CRPNUM) .AND. (r2 .EQ. 7)) .OR. ((r2 .EQ. CRPNUM) .AND. (r1 .EQ. 7)) ) THEN
+    RATEINFO(2)%count = RATEINFO(2)%count + 1
+  ELSE IF  ( ((r1 .EQ. EXCNUM) .AND. (r2 .EQ. 1)) .OR. ((r2 .EQ. EXCNUM) .AND. (r1 .EQ. 1)) ) THEN
+    RATEINFO(3)%count = RATEINFO(3)%count + 1
+  ELSE IF  ( ((r1 .EQ. EXCNUM) .AND. (r2 .EQ. 7)) .OR. ((r2 .EQ. EXCNUM) .AND. (r1 .EQ. 7)) ) THEN
+    RATEINFO(4)%count = RATEINFO(4)%count + 1
+  ELSE IF  ( ((r1 .EQ. ELECNUM) .AND. (r2 .EQ. 1)) .OR. ((r2 .EQ. ELECNUM) .AND. (r1 .EQ. 1)) ) THEN
+    RATEINFO(5)%count = RATEINFO(5)%count + 1
+  ELSE IF  ( ((r1 .EQ. ELECNUM) .AND. (r2 .EQ. 7)) .OR. ((r2 .EQ. ELECNUM) .AND. (r1 .EQ. 7)) ) THEN
+    RATEINFO(6)%count = RATEINFO(6)%count + 1
+  ELSE IF  ( ((r1 .EQ. 4) .AND. (r2 .EQ. 1)) .OR. ((r2 .EQ. 4) .AND. (r1 .EQ. 1)) ) THEN
+    RATEINFO(7)%count = RATEINFO(7)%count + 1
+  ELSE IF  ( ((r1 .EQ. 4) .AND. (r2 .EQ. 7)) .OR. ((r2 .EQ. 4) .AND. (r1 .EQ. 7)) ) THEN
+    RATEINFO(8)%count = RATEINFO(8)%count + 1
+  END IF
+
 
   ! Initialize logical variables to false
   r1_sp = .FALSE.

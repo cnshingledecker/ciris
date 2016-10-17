@@ -1,11 +1,11 @@
 # Compiler
-  #FC = gfortran
-  FC = ifort
+  FC = gfortran
+  #FC = ifort
 
 # Flags
   #FCFLAGS = -g  -march=native -fbounds-check -Wall
-  FCFLAGS =  -O3 -static-intel 
-  #FCFLAGS = -O3 -march=native
+  #FCFLAGS =  -O3 -static-intel
+  FCFLAGS = -O3 -march=native
 
 OBJECTS = qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o specdata.o gp.o
 
@@ -30,7 +30,7 @@ qbert.o: qbert.f90 subroutines.o parameters.o
 subroutines.o: subroutines.f90 mc_toolbox.o typedefs.o functiondefs.o parameters.o specdata.o
 	$(FC) -c subroutines.f90 $(FCFLAGS)
 
-parameters.o: parameters.f90
+parameters.o: parameters.f90 typedefs.o
 	$(FC) -c parameters.f90 $(FCFLAGS)
 
 mc_toolbox.o: mc_toolbox.f90

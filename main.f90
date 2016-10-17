@@ -63,6 +63,7 @@ PROGRAM main
   INTEGER                                                      :: o_temp,o2_temp,o3_temp
   REAL(KIND=DBL)                                               :: temp_time
   REAL(KIND=DBL)                                               :: j2, j3
+  REAL(KIND=DBL)                                               :: k12,k13
   REAL(KIND=DBL)                                               :: geminacy
 
 
@@ -93,9 +94,9 @@ PROGRAM main
   temp_time  = 0
   time_check = 0
   time_diff  = 0
-  cpu_total  = 0
   t2         = 0
   t1         = 0
+
 
   ! Open files
   hopping_file = "hopping_data.txt"
@@ -161,9 +162,39 @@ PROGRAM main
 
 
   ! Lookup to numbers of CRP and electron in the listj
-  CALL lookup( "CRP", num_species, sp_list, ev_nums(2))
-  CALL lookup( '*'  , num_species, sp_list, ev_nums(1) )
-  CALL lookup( 'e'  , num_species, sp_list, ev_nums(3) )
+  CALL lookup( "CRP", num_species, sp_list,  CRPNUM)
+  CALL lookup( '*'  , num_species, sp_list,  EXCNUM )
+  CALL lookup( 'e'  , num_species, sp_list,  ELECNUM )
+
+  SPECIAL_LIST = (/ CRPNUM, EXCNUM /)
+
+! Initialize rate info
+  ! Set all counts initially to 0
+  RATEINFO%count = 0
+  ! CRP + O2
+  RATEINFO(1)%r1 = CRPNUM
+  RATEINFO(1)%r2 = 1
+  ! CRP + O3
+  RATEINFO(1)%r1 = CRPNUM
+  RATEINFO(1)%r2 = 7
+  ! * + O2
+  RATEINFO(1)%r1 = EXCNUM
+  RATEINFO(1)%r2 = 1
+  ! * + O3
+  RATEINFO(1)%r1 = EXCNUM
+  RATEINFO(1)%r2 = 7
+  ! e + O2
+  RATEINFO(1)%r1 = ELECNUM
+  RATEINFO(1)%r2 = 1
+  ! e + O3
+  RATEINFO(1)%r1 = ELECNUM
+  RATEINFO(1)%r2 = 7
+  ! O + O2
+  RATEINFO(1)%r1 = 4
+  RATEINFO(1)%r2 = 1
+  ! O + O3
+  RATEINFO(1)%r1 = 4
+  RATEINFO(1)%r2 = 7
 
   !******************************************************************************
   ! Calculate the dimensions of the matrix
@@ -263,8 +294,7 @@ PROGRAM main
       o2_temp      = O2_ABUNDANCE
       o3_temp      = O3_ABUNDANCE
       PROTON_ELOSS = 0.d0 !Reset protpn energy loss to 0
-      CALL fallout( o3_prod,o3_dest,qube_ptr,matrix_ptr,en_ptr,anion_list,wait_list, &
-      wait_len,time,ev_nums)
+      CALL fallout( o3_prod,o3_dest,qube_ptr,matrix_ptr,en_ptr,anion_list,wait_list,wait_len,time)
       IF ( PROTON_ELOSS .GT. 0 ) numprotons = numprotons + 1
       ALTFLUENCE = numprotons/AREA
     ELSE
@@ -306,20 +336,26 @@ PROGRAM main
       ! Calculate rate-coefficient for the following reactions:
       ! (1) O + O2 -> O3
       ! This value should have units of cm^6 s^-1
-!      k12 = (FLOAT(O3_ABUNDANCE-o3_temp)/VOLUME)/DELTA_TIME
-!      k12 = k12/((FLOAT(O_ABUNDANCE)/VOLUME)*((FLOAT(O2_ABUNDANCE)/VOLUME)**2))
+      k12 = (FLOAT(RATEINFO(7)%count)/VOLUME)/DELTA_TIME
+      k12 = k12/((FLOAT(O_ABUNDANCE)/VOLUME)*((FLOAT(O2_ABUNDANCE)/VOLUME)**2))
+      IF ( ISNAN(k12) .OR. (k12 .GT. 1e30)) k12 = 0
       ! (2) O + O3 -> O2 + O2
       ! This value should be in units of cm^3 s^-1
-!      k13 =
+      k13 = (FLOAT(RATEINFO(8)%count)/VOLUME)/DELTA_TIME
+      k13 = k13/((FLOAT(O_ABUNDANCE)/VOLUME)*((FLOAT(O3_ABUNDANCE)/VOLUME)))
+      IF ( ISNAN(k13) .OR. (k13 .GT. 1e30)) k13 = 0
       ! (3) X + O2 -> O + O
       ! This value is in units of s^-1
-      j2 = ABS(FLOAT(O2_ABUNDANCE-o2_temp)/(DELTA_TIME*FLOAT(O2_ABUNDANCE)))
+!      j2 = ABS(FLOAT(O2_ABUNDANCE-o2_temp)/(DELTA_TIME*FLOAT(O2_ABUNDANCE)))
+      j2 = ABS(FLOAT(RATEINFO(1)%count + RATEINFO(3)%count + RATEINFO(5)%count)/(DELTA_TIME*FLOAT(O2_ABUNDANCE)))
       IF ( ISNAN(j2) ) j2 = 0
       ! (4) X + O3 -> O2 + O
       ! This value is in units of s^-1
-      j3 = ABS(FLOAT(O3_ABUNDANCE-o3_temp)/(DELTA_TIME*FLOAT(O3_ABUNDANCE)))
+!      j3 = ABS(FLOAT(O3_ABUNDANCE-o3_temp)/(DELTA_TIME*FLOAT(O3_ABUNDANCE)))
+      j3 = ABS(FLOAT(RATEINFO(2)%count + RATEINFO(4)%count + RATEINFO(6)%count)/(DELTA_TIME*FLOAT(O2_ABUNDANCE)))
       IF ( ISNAN(j3) ) j3 = 0
-      IF ( NO_OUTPUT .EQV. .FALSE.) WRITE(RATE_UNIT_NUM,*) geminacy,',',j2,',',j3
+      IF ( NO_OUTPUT .EQV. .FALSE.) WRITE(RATE_UNIT_NUM,*) geminacy,',',j2,',',j3,',',k12,',',k13
+      RATEINFO%count = 0
 
 
       CALL CPU_TIME(t2)
