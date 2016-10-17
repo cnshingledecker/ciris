@@ -14,7 +14,6 @@ PROGRAM main
   INTEGER             , ALLOCATABLE, DIMENSION(:)    , TARGET  :: anion_target
   INTEGER                          , DIMENSION(:)    , POINTER :: anion_list     ! List of anionic species
   INTEGER(KIND=SHORT)              , DIMENSION(:,:,:), POINTER :: qube_ptr       ! Pointer to the reaction cube
-  INTEGER                          , DIMENSION(3)              :: dimens         ! Dimensions of the matrix
   INTEGER                                                      :: i,j,k          ! Counters
   INTEGER                                                      :: err1, err2     ! Error numbers for the files
   INTEGER(KIND=SHORT)                                          :: lines_spec     ! Number of lines in species file
@@ -185,21 +184,21 @@ PROGRAM main
     dimens(2) = FIX2
     dimens(3) = FIX3
   ELSE
-    dimens(1) = NTHICK
-    dimens(2) = NEDGE
-    dimens(3) = dimens(2)
+    DIMENS(1) = NTHICK
+    DIMENS(2) = NEDGE
+    DIMENS(3) = DIMENS(2)
   END IF
 
   !******************************************************************************
   ! Create the matrix
   !******************************************************************************
   PRINT *, 'In main, the dimens are:',dimens
-  ALLOCATE ( MATRIX( dimens(1),dimens(2),dimens(3) ) )
+  ALLOCATE ( MATRIX( DIMENS(1),DIMENS(2),DIMENS(3) ) )
 
   PRINT *, "In main, matrix has been initialized to 0, now assigning -1 to O2"
-  DO k=1,dimens(3)
-    DO j=1,dimens(2)
-      DO i=1,dimens(1)
+  DO k=1,DIMENS(3)
+    DO j=1,DIMENS(2)
+      DO i=1,DIMENS(1)
         temp => MATRIX(i,j,k)
         CALL init_node(temp,i,j,k)
       END DO

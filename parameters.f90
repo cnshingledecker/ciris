@@ -4,6 +4,12 @@ MODULE parameters
   SAVE
 
   !******************************************************************************
+  ! Misc. Global Variables
+  !******************************************************************************
+  TYPE(node), ALLOCATABLE, DIMENSION(:,:,:) :: MATRIX
+  INTEGER, DIMENSION(3) :: DIMENS
+  
+  !******************************************************************************
   ! Input file names
   !******************************************************************************
   CHARACTER(LEN=80), PARAMETER :: SPECIES_FILE   = 'species.dat'   ! Name of species file
