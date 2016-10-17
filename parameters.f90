@@ -147,6 +147,7 @@ MODULE parameters
   INTEGER                                  :: EXCNUM  = 0 ! Index of excitation in code
   INTEGER                                  :: ELECNUM = 0 ! Index of electron in code
   INTEGER                                  :: O3NUM   = 7 ! Index of ozone in code
+  INTEGER                                  :: O2NUM   = 1 ! Index of molecular oxygen in code
   INTEGER                                  :: ONUM    = 4 ! Index of atomic oxygen in the code
 
 
