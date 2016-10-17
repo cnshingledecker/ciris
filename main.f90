@@ -1,6 +1,4 @@
 PROGRAM main
-  !USE IFPORT
-
   USE subroutines
   USE parameters
   USE typedefs
@@ -12,20 +10,13 @@ PROGRAM main
   ! Data dictionary
   !******************************************************************************
   INTEGER                                                      :: n
-  INTEGER             , ALLOCATABLE, DIMENSION(:,:,:), TARGET  :: matrix         ! Ice-mantle matrix
   INTEGER(KIND=SHORT) , ALLOCATABLE, DIMENSION(:,:,:), TARGET  :: qube
   INTEGER             , ALLOCATABLE, DIMENSION(:)    , TARGET  :: anion_target
   INTEGER                          , DIMENSION(:)    , POINTER :: anion_list     ! List of anionic species
-  INTEGER                          , DIMENSION(:,:,:), POINTER :: matrix_ptr     ! Pointer to the matrix
   INTEGER(KIND=SHORT)              , DIMENSION(:,:,:), POINTER :: qube_ptr       ! Pointer to the reaction cube
-  INTEGER                                            , TARGET  :: wlen_target
-  INTEGER                                            , POINTER :: wait_len       ! Length of nonzero waitlist elements
-  INTEGER                          , DIMENSION(3)              :: ev_nums
-  INTEGER                                                      :: mindex
   INTEGER                          , DIMENSION(3)              :: dimens         ! Dimensions of the matrix
   INTEGER                                                      :: i,j,k          ! Counters
   INTEGER                                                      :: err1, err2     ! Error numbers for the files
-  INTEGER                                                      :: cr_num         ! species number for cosmic rays
   INTEGER(KIND=SHORT)                                          :: lines_spec     ! Number of lines in species file
   INTEGER(KIND=SHORT)                                          :: lines_react    ! Number of lines in reactions file
   INTEGER                                                      :: count_num      ! Number of abundance file
@@ -35,8 +26,6 @@ PROGRAM main
   REAL                             , DIMENSION(:)    , POINTER :: en_ptr         ! Pointer to en_list
   REAL(KIND=DBL)                                               :: cr_time        ! Time till next proton collision
   REAL(KIND=DBL)                                               :: rndnum         ! Random number
-  REAL(KIND=DBL)                                     , TARGET  :: time_target    ! Target for time pointer
-  REAL(KIND=DBL)                                     , POINTER :: time           ! Current simulation time
   REAL(KIND=DBL)                                               :: time_step      ! Time between abundance checks
   !REAL(KIND=DBL)                                               :: time_check     ! Time used to determine ab. checks
   REAL(KIND=DBL)                                               :: fluence        ! Run simulation until some max fluence
@@ -47,8 +36,6 @@ PROGRAM main
   CHARACTER(len=10)   , ALLOCATABLE, DIMENSION(:)    , TARGET  :: sp_list        !  List of species
   CHARACTER(len=10)                , DIMENSION(:)    , POINTER :: sp_ptr         ! Pointer to species list
   CHARACTER(len=80)                                            :: hopping_file   ! File containing hopping data
-  TYPE (wait_info)    , ALLOCATABLE, DIMENSION(:)    , TARGET  :: wait_target
-  TYPE (wait_info)                 , DIMENSION(:)    , POINTER :: wait_list      !Derived data type described in chaco_data.f90
   INTEGER                                            , TARGET  :: o3_prod_target,o3_dest_target
   INTEGER                                            , POINTER :: o3_prod,o3_dest
   INTEGER                                                      :: spec_header,reac_header
@@ -56,9 +43,6 @@ PROGRAM main
   LOGICAL                                                      :: not_infty
   REAL(KIND=DBL)                                               :: total_fitness   ! Total fitness
   LOGICAL                                                      :: unfit           ! TRUE if solution is too unfit -> stop simulation
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!! DEBUGGING/ANALYTICS VARIABLES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   INTEGER(KIND=LONG)                                           :: numprotons
   INTEGER                                                      :: o_temp,o2_temp,o3_temp
   REAL(KIND=DBL)                                               :: temp_time
@@ -109,11 +93,8 @@ PROGRAM main
   IF ( DEBUG .EQV. .TRUE. ) OPEN(UNIT=777,FILE='reaction_analytics.csv',STATUS='REPLACE',POSITION='APPEND')
   IF ( O3_ANALYTICS .EQV. .TRUE. ) OPEN(UNIT=O3_NUM,FILE='ozone_reactions.csv', STATUS='REPLACE',POSITION='APPEND')
   ! Nullify pointers
-  NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len,o3_prod,o3_dest )
-
-
-  ! Associate time value
-  time => time_target
+  NULLIFY ( anion_list,qube_ptr,time,o3_prod,o3_dest )
+  NULLIFY( root, temp, prevNode, nextNode )
 
   ! Associate analytics variables
   o3_prod => o3_prod_target
@@ -213,38 +194,18 @@ PROGRAM main
   ! Create the matrix
   !******************************************************************************
   PRINT *, 'In main, the dimens are:',dimens
-  ALLOCATE ( matrix( dimens(1),dimens(2),dimens(3) ) )
-  matrix = 0
+  ALLOCATE ( MATRIX( dimens(1),dimens(2),dimens(3) ) )
 
   PRINT *, "In main, matrix has been initialized to 0, now assigning -1 to O2"
   DO k=1,dimens(3)
     DO j=1,dimens(2)
       DO i=1,dimens(1)
-        IF ( (MOD(k,2) .EQ. 1) .AND. (MOD(j,2) .EQ. 1) ) THEN
-          matrix(i,j,k) = -1
-        END IF
+        temp => MATRIX(i,j,k)
+        CALL init_node(temp,i,j,k)
       END DO
     END DO
   END DO
   PRINT *, "Matrix has been fully initialized"
-
-  ! Associate the pointer to the matrix
-  PRINT *, "Now assigning pointers"
-  matrix_ptr => matrix
-
-  ! Initialize wait list to have nothing in it
-  PRINT *, "Now initializing wait_list"
-  ALLOCATE( wait_target(SIZE(matrix)/3) )
-  wlen_target = 0
-  wait_len  => wlen_target
-  wait_list => wait_target
-  wait_list%wait_time = 0.0
-  wait_list%i         = 0
-  wait_list%j         = 0
-  wait_list%k         = 0
-  wait_list%sp_num    = 0
-  wait_list%act_type  = 0
-  PRINT *, "Wait_list has been initialized"
 
   !******************************************************************************
   ! Calculate initial waiting times
@@ -260,60 +221,50 @@ PROGRAM main
   CALL RANDOM_NUMBER(rndnum)
   cr_time = -1*( DLOG(rndnum)/CR_RATE )
 
-  ! Populate wait_list with cr arrival time
-  wait_len                      = wait_len + 1
-  wait_list(wait_len)%wait_time = cr_time + time
-  wait_list(wait_len)%sp_num    = cr_num
-
   CALL COUNTER(o3_prod,o3_dest,numprotons,time,matrix_ptr,wait_list,4,7,wait_len)
 
   !******************************************************************************
   ! Begin the simulation
   !******************************************************************************
   !counter = 0
-  mindex = 1
   fluence = time * CR_FLUX
   unfit = .FALSE.
   PRINT *, "Now  beginning loop"
   DO WHILE ( fluence .LE. FLUENCE_TOTAL .AND. .NOT. unfit)
-    IF ( wait_list(mindex)%sp_num .EQ. cr_num ) THEN
+    IF ((.NOT. ASSOCIATED(root) .OR. (TIME .LE. cr_time))) THEN
       ! Calculate time to next cosmic-ray event
       not_infty = .FALSE.
       DO WHILE ( not_infty .EQV. .FALSE. )
         !      rndnum  = RAND()
         CALL RANDOM_NUMBER(rndnum)
         cr_time = -1*( DLOG(rndnum)/cr_rate )
-        IF ( cr_time + time .LT. 9E6 ) not_infty = .TRUE.
+        IF ( cr_time + TIME .LT. 9E6 ) not_infty = .TRUE.
       END DO
-      cr_time = cr_time + time
-      ! Populate wait_list with new time
-      wait_list(mindex)%wait_time   = cr_time
-      wait_list(mindex)%sp_num = cr_num
+      cr_time = cr_time + TIME
       ! Initialize variables for model analytics
       o_temp       = O_ABUNDANCE
       o2_temp      = O2_ABUNDANCE
       o3_temp      = O3_ABUNDANCE
       PROTON_ELOSS = 0.d0 !Reset protpn energy loss to 0
-      CALL fallout( o3_prod,o3_dest,qube_ptr,matrix_ptr,en_ptr,anion_list,wait_list,wait_len,time)
+      CALL fallout( o3_prod,o3_dest,qube_ptr,en_ptr,anion_list )
       IF ( PROTON_ELOSS .GT. 0 ) numprotons = numprotons + 1
       ALTFLUENCE = numprotons/AREA
     ELSE
+      CALL find_min(root, temp)
       ! If it is a regular species, decide it hopping or desorption
-      SELECT CASE (wait_list(mindex)%act_type)
+      SELECT CASE (temp%act_type)
       CASE(1) ! The species hops
-        CALL meta_hop( o3_prod,o3_dest,mindex,qube_ptr,matrix_ptr,en_ptr,wait_list,result,wait_len,time )
+        CALL meta_hop( o3_prod,o3_dest,qube_ptr,en_ptr,result,root,temp,prevNode,nextNode )
       CASE(2) ! The species desorbs
-        matrix_ptr( wait_list(mindex)%i,wait_list(mindex)%j,wait_list(mindex)%k ) = 0
-        CALL reactant_remove(wait_list,mindex,matrix_ptr,wait_len)
+        x = temp%coord1
+        y = temp%coord2
+        z = temp%coord3
+        CALL delete_node(root,temp,prevNode,nextNode,error)
+        temp => matrix(x,y,z)
+        CALL init_node(temp,x,y,z)
       CASE(3) ! The species reacts quickly
-        CALL fast_reaction(o3_prod,o3_dest,mindex,wait_len,matrix_ptr,qube_ptr,en_ptr,time,wait_list)
+        CALL fast_reaction(o3_prod,o3_dest,qube_ptr,en_ptr,root,temp,prevNode,nextNode)
       END SELECT
-    END IF
-
-    ! Terminate if wait_list gets too big
-    IF ( wait_len .GT. (SIZE(matrix_ptr)/2)-1000 ) THEN
-      PRINT *, 'ERROR! Wait_list too big! Quiting!'
-      CALL EXIT()
     END IF
 
 !    IF ( fluence .LE. 5.0E12 ) TIME_FREQ = 100000
@@ -357,44 +308,14 @@ PROGRAM main
       IF ( NO_OUTPUT .EQV. .FALSE.) WRITE(RATE_UNIT_NUM,*) geminacy,',',j2,',',j3,',',k12,',',k13
       RATEINFO%count = 0
 
-
       CALL CPU_TIME(t2)
       cpu_total = cpu_total + (t2-t1)
       time_diff = time
       t1 = t2
-      CALL roll_call( wait_list, time, wait_len, mindex )
-    ELSE IF ( time_check .GT. 1E3 .AND. wait_len .LE. 5 ) THEN
-      CALL find_cr( wait_list, mindex, wait_len,  cr_num, en_ptr, time )
-    ELSE
-      CALL roll_call( wait_list, time, wait_len, mindex )
     END IF
-
     ! update fluence
     fluence = time * CR_FLUX
-    ! Get next event
-
   END DO
-
-  !OPEN(UNIT=1013,FILE="wait_list_flaw.txt")
-  !DO n=1,wait_len
-  !  IF ( wait_list(n)%sp_num .NE. 20 ) THEN
-  !    IF ( matrix_ptr(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k) .NE. n ) THEN
-  !      WRITE(1013,*) matrix_ptr(wait_list(n)%i,wait_list(n)%j,wait_list(n)%k),", ",n,",",wait_len
-  !    END IF
-  !  END IF
-  !END DO
-  !CLOSE(1013)
-
-!  100 OPEN(UNIT=1012,FILE="wait_list.txt")
-!  DO n=1,wait_len
-!    WRITE(1012,*) wait_list(n)
-!  END DO
-!  CLOSE(1012)
-
-  PRINT *, wait_len,' is wait_len'
-  PRINT *, wait_list(1)
-
-
 
   PRINT *, "****************"
   PRINT *, "ENDING LOSALAMOS"
@@ -406,11 +327,5 @@ PROGRAM main
   !CLOSE(1013)
   IF ( DEBUG .EQV. .TRUE. ) CLOSE(777)
 
-  !PRINT *, "wait_len is: ",wait_len
-  !PRINT *, "Number of normal sites is:",SIZE(matrix)/3
-  !PRINT *, "wait_list is size ",SIZE(wait_list)
-  !PRINT *, 'Area is:',AREA
-  NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len )
-  DEALLOCATE( qube, sp_list, en_list, matrix,wait_target )
   CALL SYSTEM("/bin/bash post.sh")
 END PROGRAM main

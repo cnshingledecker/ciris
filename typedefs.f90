@@ -134,7 +134,26 @@ TYPE :: se_info
     DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_ionsigs !Ionization cross-sections
     DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_alwdsigs !Allowed excitation cross-sections
     ! DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_fbdnsigs !Forbidden exc. cross-sections
-END TYPE se_info
-
+ END TYPE se_info
+ 
+TYPE :: node
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! Purpose:
+  !   This derived data type is designed to contain
+  !  the information related to the ice matrix
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  DOUBLE PRECISION    :: wait_time !waiting time
+  INTEGER             :: coord1     !coordinates in matrix
+  INTEGER             :: coord2
+  INTEGER             :: coord3
+  INTEGER             :: sp_num    !species identifier
+  INTEGER             :: sec_sp_num ! Secondary species at site
+  INTEGER             :: act_type  !1 => hopping, 0 => desorption
+  INTEGER             :: hop_dir   ! Direction of hopping
+  TYPE (node), POINTER :: before
+  TYPE (node), POINTER :: after
+  TYPE (node), POINTER :: parent
+  INTEGER                   :: leftRight
+END TYPE node
 
 END MODULE typedefs
