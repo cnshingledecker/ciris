@@ -570,90 +570,7 @@ IF ( PRESENT(prod_coords) ) THEN
   prod_coords(2) = j_pr
   prod_coords(3) = k_pr
 END IF
-
 END SUBROUTINE thirdman
-
-SUBROUTINE bresenham( x1,y1,x2,y2,track )
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! BRESENHAM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !   This subroutine uses the bresenham line algorithm results to simulate the
-  ! track of a cosmic ray or other form of irradiation in a solid represented by
-  ! a 3D crystal lattice structure with both normal and interstitial sites.
-  ! Note that here, the axes are changed such that a "slice" from top to bottom
-  ! is in the x-y plane
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  IMPLICIT NONE
-
-  !*****************
-  ! Input and output
-  !*****************
-
-  INTEGER, INTENT(IN)                                   :: x1,y1,x2,y2
-  INTEGER, INTENT(OUT), ALLOCATABLE, DIMENSION(:,:)     :: track
-
-  !****************
-  ! Local variables
-  !****************
-  INTEGER                                               :: dx, dy, i, e
-  INTEGER                                               :: incx,incy,inc1,inc2
-  INTEGER                                               :: x,y
-
-  dx = x2 - x1
-  dy = y2 - y1
-
-  IF ( dx .LT. 0 ) dx = -dx
-  IF ( dy .LT. 0 ) dy = -dy
-  incx=1
-  IF ( x2 .LT. x1 ) incx = -1
-  incy = 1
-  IF ( y2 .LT. y1 ) incy = -1
-  x = x1
-  y = y1
-
-  IF ( dx .GT. dy ) THEN
-    ALLOCATE(track(dx+1,2))
-    !      PRINT *, x,y
-    track(1,1) = x
-    track(1,2) = y
-    e = 2*dy - dx
-    inc1 = 2*(dy-dx)
-    inc2 = 2*dy
-    DO i=0,dx-1
-      IF ( e .GE. 0 ) THEN
-        y = y + incy
-        e = e + inc1
-      ELSE
-        e = e + inc2
-      END IF
-      x = x + incx
-      !        PRINT *, x,y
-      track(i+2,1) = x
-      track(i+2,2) = y
-    END DO
-  ELSE
-    ALLOCATE(track(dy+1,2))
-    !      PRINT *, x,y
-    track(1,1) = x
-    track(1,2) = y
-    e = 2*dx - dy
-    inc1 = 2*(dx-dy)
-    inc2 = 2*dx
-    DO i=0,dy-1
-      IF ( e .GE. 0 ) THEN
-        x = x + incx
-        e = e + inc1
-      ELSE
-        e = e + inc2
-      END IF
-      y = y + incy
-      !        PRINT *, x,y
-      track(i+2,1) = x
-      track(i+2,2) = y
-
-    END DO
-  END IF
-END SUBROUTINE bresenham
 
 SUBROUTINE cern ( o3_prod,o3_dest,null,event_coords, switch, elec_coords )
   !
@@ -703,7 +620,7 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,event_coords, switch, elec_coords )
   i_re2 = event_coords(1)
   j_re2 = event_coords(2)
   k_re2 = event_coords(3)
-  original_value = matrix(i_re2,j_re2,k_re2)
+  original_value = matrix(i_re2,j_re2,k_re2)%sp_num
 
   IF ( DEBUG .EQV. .TRUE. ) THEN
     PRINT *, 'Event_coords are:', event_coords
@@ -789,12 +706,16 @@ SUBROUTINE cern ( o3_prod,o3_dest,null,event_coords, switch, elec_coords )
   !*****************************************************************************
   ! Save the coords of the electron, if necessary
   !*****************************************************************************
-  IF ( prods(2) .EQ. ELECNUM .AND. PRESENT(elec_coords) ) THEN
-    elec_coords(1) = i_pr
-    elec_coords(2) = j_pr
-    elec_coords(3) = k_pr
-  END IF
-
+  IF ( ANY(prods .EQ. ELECNUM )) THEN
+     DO n=1,3
+        IF (prods(n) .EQ. ELECNUM) THEN
+          elec_coords(1) = i_pr
+          elec_coords(2) = j_pr
+          elec_coords(3) = k_pr
+       END IF
+    END DO
+ END IF
+ 
   !*****************************************************************************
   ! Determine the product case
   !*****************************************************************************
