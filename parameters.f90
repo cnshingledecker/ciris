@@ -154,9 +154,9 @@ MODULE parameters
   !******************************************************************************
   ! Array Parameters
   !******************************************************************************
-  INTEGER, DIMENSION(1)       :: FAST_REACTS  = (/ 4 /)                   ! 4 ! Species that react upon formation
-  INTEGER, DIMENSION(1)       :: FRAGILE      = (/ 1 /)                    ! 7 ! Species that dissociate easily
-  INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ 20, 21 /)
+  INTEGER, DIMENSION(1)       :: FAST_REACTS  = (/ ONUM /)                   ! 4 ! Species that react upon formation
+  INTEGER, DIMENSION(1)       :: FRAGILE      = (/ O2NUM /)                    ! 7 ! Species that dissociate easily
+  INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ CRPNUM, EXCNUM, ELECNUM /)
   INTEGER                     :: TIME_FREQ    = 1  !1000000
 
   !******************************************************************************

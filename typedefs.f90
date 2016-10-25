@@ -122,6 +122,7 @@ TYPE :: se_info
   ! type for convenience.
   !
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    INTEGER, DIMENSION(3) :: parent_coords ! The coordinates at which the electron formed/site of cation
     TYPE(ionstate), ALLOCATABLE, DIMENSION(:) :: se_ionst !Information regarding the ionization states of the target
     TYPE(alwd_exstate), ALLOCATABLE, DIMENSION(:) :: se_alwd !Information on the allowed transitions of the target
     ! TYPE(fbdn_exstate), ALLOCATABLE, DIMENSION(:) :: se_fbdn !Information on the forbidden transitions of the target

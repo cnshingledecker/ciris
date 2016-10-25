@@ -54,9 +54,7 @@ CONTAINS
     ! Purpose:
     !   This subroutine simply counts the number of lines in a file.
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! LINECOUNT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
     !*****************
@@ -90,9 +88,7 @@ CONTAINS
     !  place such that lateral motion moves to the other side of the lattice if
     !  it goes "overboard"
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! HOPPING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
     !*****************
@@ -457,9 +453,7 @@ CONTAINS
     ! Purpose:
     !   This subroutine attempts to find an empty site to place a third product
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! THIRDMAN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
     !******************!
@@ -1025,7 +1019,7 @@ CONTAINS
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****Ending Fallout*****'
   END SUBROUTINE fallout
 
-  SUBROUTINE krell( in_coords,out_coords,null )
+  SUBROUTINE find_empty_site( in_coords,out_coords,null )
     ! Purose:
     !   This subtroutine takes some ion/bulk interaction site and finds a nearby
     !  empty site to put a second product. The return of the function is a set of
@@ -1035,9 +1029,7 @@ CONTAINS
     !   null = 1 => no empty sites
     !   null = 0 => empty site available
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !! KRELL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! FIND_EMPTY_SITE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
     !*****************
     ! Input and output
@@ -1200,7 +1192,7 @@ CONTAINS
           END DO
        END IF
     END IF
-  END SUBROUTINE krell
+  END SUBROUTINE find_empty_site
 
   SUBROUTINE action_figure ( temp )
     !
@@ -2094,7 +2086,7 @@ CONTAINS
     !
     ! Purpose:
     !   This subroutine is to set up the se_info struct, which should only have
-    !  an energy assigned at the time of calling.
+    !  an energy and parent coords assigned at the time of calling.
     !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! SE_INFO_INIT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2106,7 +2098,6 @@ CONTAINS
     se_box%se_extot      = 0
     se_box%se_ineltot    = 0
     se_box%se_alwd_extot = 0
-    ! se_box%se_fbdn_extot = 0
 
     !(2) Initialize vector values
     IF ( ALLOCATED(se_box%se_ionst) .EQV. .FALSE. ) THEN
@@ -2163,9 +2154,7 @@ CONTAINS
     !  in a list and gives the index of a matching result and an
     !  error if there is no match.
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !! LOOKUP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! INIT_NODE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
     TYPE(node), POINTER :: temp_node
     INTEGER :: x,y,z
@@ -2183,6 +2172,25 @@ CONTAINS
     END IF
     NULLIFY(temp_node%before,temp_node%after,temp_node%parent)
   END SUBROUTINE init_node
+
+  SUBROUTINE wipe_node(temp)
+    !
+    ! Purpose
+    !   This is a subroutine that wipes a lattice site of species specific
+    !  information, while leaving species independent information intact
+    !
+    !! WIPE_NODE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    IMPLICIT NONE
+    TYPE(node), POINTER :: temp_node
+    INTEGER :: x,y,z
+
+    temp%wait_time = 0.0
+    temp%sec_sp_num = 0
+    temp%sp_num = 0
+    temp%act_type = 0
+    temp%hop_dir = 0
+    temp%leftRight = 0
+  END SUBROUTINE wipe_node
 
   RECURSIVE SUBROUTINE new_reaction(i,j,k,root,temp,prevNode,nextNode,error)
     !
@@ -2203,18 +2211,13 @@ CONTAINS
     !  NOTE:
     !   When this subroutine gets first called, k should be 1
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! NEW_REACTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
     INTEGER, INTENT(INOUT), DIMENSION(3) :: i, j, k
     INTEGER               , DIMENSION(3) :: pr_coords
     INTEGER :: r1, r2, pr
     INTEGER :: error
     TYPE(node), POINTER :: root, temp, prevNode, nextNode
-
-    ! Initialize variables
-
 
     SELECT CASE (k(3))
     CASE(1)
@@ -2227,19 +2230,40 @@ CONTAINS
        pr = REACT_CUBE(k(1),k(2),k(3))
        pr_coords = j
        IF ( pr .EQ. 0 ) THEN
+          ! If there can be no reaction, delete species from tree
+          temp => matrix(i(1),i(2),i(3))
+          CALL delete_node(root,temp,prevNode,nextNode
+          ! Calculate new waiting time
+          CALL wait_calc()
+          ! Re-add node to tree
+          CALL add_node(root,temp)
           error = 1
           RETURN
        END IF
-       k(3) = 2    
+       k(3) = 2
     CASE(2)
        pr = REACT_CUBE(k(1),k(2),k(3))
-       IF ( pr .EQ. 0 ) THEN
+       ! If product is 0, then re-add hopping species to list
+       ! DO NOT do this if i=j, i.e. an excitation with 1 product
+       ! has occured
+       IF ( (pr .EQ. 0) .AND. (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
           temp => matrix(i(1),i(2),i(3))
           CALL delete_node(root,temp,prevNode,nextNode)
+          CALL wipe_node(temp)
           error = 0
           RETURN
        END IF
-       pr_coords = i
+       ! Special Case! R1 + * -> P1 + P2 + ...
+       ! if i=j, then non-special P2 overwrites P1 
+       IF ( k(2) .EQ. EXCNUM ) THEN
+          ! Test to see if k(2) is EXCNUM, if so, and pr!=0, get new site
+          CALL find_empty_site(i,j,error)
+          IF ( error .NE. 1 ) pr_coords = j
+       ELSE
+          ! For all other cases (the second product can be at site i
+          ! even when i=j
+          pr_coords = i ! For species
+       END IF
        k(3) = 3
     CASE(3)
        pr = REACT_CUBE(k(1),k(2),k(3))
@@ -2247,51 +2271,109 @@ CONTAINS
           error = 0
           RETURN
        END IF
-       CALL thirdman(pr_coords)
+       CALL find_empty_site(i,k,error)
+       IF ( (error .EQ. 1) .AND. (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
+          ! If there are no empty sites around i, and i!=j, try j
+          error = 0
+          CALL find_empty_site(j,k,error)
+          IF ( error .EQ. 1 ) THEN
+             ! If there are no empty sites around either i or j, quit...
+             PRINT *, "Unable to find a site for the third product!"
+             CALL EXIT()
+          END IF
+       END IF
+       ! Set prod coords to new k values
+       ! At this points, when the subroutine quits, i=P1,j=p2,k=P3...
+       pr_coords = k
     END SELECT
 
-
-
-
+    ! Once the case is selected, point to coords to place
+    ! product
     temp => matrix(pr_coords(1),pr_coords(2),pr_coords(3))
-    CALL delete_node(root,temp,prevNode,nextNode)
+    ! Place product
     IF ( pr .EQ. ELECNUM ) THEN
+       ! Ensure that the electron is placed on the same site
+       ! as the cation
+       IF ( DEBUG .EQV. .TRUE. ) THEN
+          IF ( .NOT. ALL(ABS(i-j) .EQ. 0) ) THEN
+             PRINT *, "Electron not placed on same site as cation!"
+             CALL EXIT()
+          END IF
+       END IF
+       ! The rest of the node should have a species on it already
+       ! just add the electron as the secondary node species
        temp%sec_sp_num = pr
-       temp%sp_num = 0
-       temp%wait_time = 0
-       temp%act_type = 0
-       temp%hop_dir = 0
     ELSE
+       ! Delete whatever is there, if the site isn't empty
+       IF ( temp%sp_num .NE. 0) CALL delete_node(root,temp,prevNode,nextNode)
        temp%sp_num = pr
        temp%sec_sp_num = 0
        CALL wait_calc(temp)
        CALL add_node(root,temp)
     END IF
 
+    ! Call subroutine again, and check for next product:
+    ! if the next product is zero, return
     CALL new_reaction(i,j,k,root,temp,prevNode,nextNode,error)
   END SUBROUTINE new_reaction
 
   RECURSIVE SUBROUTINE new_electron()
+    ! Takes as input a "se-box" struct containing the initial electron energy
+    ! and the coordinates at which it formed and does the following:
+    !   1) Calculates cross-sections
+    !   2) Hops the electron from inelastic collision at which the following can occur
+    !      i) Electron impact ionization -> form a new electron and call self
+    !     ii) Electron impact excitation -> chance of dissociating molecule
+    !   3) When the electron falls below ECUTOFF, it reacts to form a negative ion
+    !      which then reacts dissociatively with it's parent cation
+    !
+    ! NEW_ELECTRON !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
+    TYPE(se_info) :: new_se_box
+    TYPE(se_info) :: se_box
+    INTEGER, DIMENSION(3) :: curr,next,prev
+    INTEGER :: estep
+    INTEGER :: eswitch
+    INTEGER :: enull1,enull2
+    DOUBLE PRECISION :: emfp
+    DOUBLE PRECISION :: ee_loss
+    DOUBLE PRECISION :: de
+    DOUBLE PRECISION :: e_ion, e_exc
 
-    curr = i
-    next = j
-    ion_dist = 0
+    ! Initialize energy losses
+    e_ion = 0.0
+    e_exc = 0.0
+    ee_loss = 0
+
+    ! Initialize coordinates
+    prev = 0
+    curr = se_box%parent_coords
+    next = curr
+    estep = 0
+
+    ! Initialize switches
     enull1 = 0
     enull2 = 0
+    eswitch = 0
+
+    ! Initialize real variables
+    ion_dist = 0
     emfp = 0
     p = 0
     de = 0
-    estep = 0
-    eswitch = 0
-    ee_loss = 0
+
+    ! Initialize se_box
+    CALL se_info_init(se_box)
+
     ! Calculate track until the electron's energy is depleted
     DO WHILE ( se_box%se_energy .GE. ECUTOFF )
+       ! Calculate cross-sections for transport calculations
+       CALL esigma_suite(se_box)
        ! The electron's mean-free-path is a function of the total cross sections.
        ! Note: here, we have explicitly calculated the inelastic cross section and
        ! have approximated the elastic cross section to be 1.0E-17 cm^2
        CALL RANDOM_NUMBER(p)
-       emfp = 1./(RHO*(se_box%se_ineltot+1.0E-17)
+       emfp = 1./(RHO*(se_box%se_ineltot+1.0E-17))
        ! Determine the actual distance travelled
        de = -1.*emfp*LOG(1.-p)
        ! Multiply by shortening/lengthening factor
@@ -2319,8 +2401,10 @@ CONTAINS
           eswitch = 0
        END IF
 
+       ! Based on collision type, perform action
        SELECT CASE (eswitch)
        CASE(1)
+          ! Electron impact ionization
           IF ( matrix(next(1),next(2),next(3))%sp_num .NE. 0 ) THEN
              ! Calculate energy loss
              CALL e_ion_select(se_box,e_ion,enull1)
@@ -2328,18 +2412,70 @@ CONTAINS
              CALL RANDOM_NUMBER(p)
              ! Calculate new electron energy based on \DeltaE
              new_e_energy = p*(se_box%se_energy - e_ion)
+             ! Energy lost is sum of ionization energy + new electron energy
              ee_loss = e_ion + new_e_energy
-             se_box%se_energy = se_box%se_energy - ee_loss
              ! Ionize the species and call new_electron again
+             CALL new_reaction()
+             ! Now this site should have a cation and an electron as the secondary species
+             ! at the same site
+             IF ( DEBUG .EQV. .TRUE. ) THEN
+                IF ( matrix(next(1),next(2),next(3))%sec_sp_num .NE. ELECNUM ) THEN
+                   PRINT *, matrix(next(1),next(2),next(3))%sec_sp_num, &
+                        matrix(next(1),next(2),next(3)%sp_num
+                END IF
+             END IF
+             ! 1) Create new se_box
+             ALLOCATE(new_se_box)
+             ! 2) Populate the se_box with initial energy and parent coords
+             new_se_box%se_energy = new_e_energy
+             new_se_box%parent_coords = next
+             ! 3) Call new_electron and send it on its merry way
+             CALL new_electron(new_se_box)
+             ! 4) When it has lost energy and reacted back with its parent cation (above)
+             DEALLOCATE(new_se_box)
+             !    the species at the site above should now be neutral
+             IF ( DEBUG .EQV. .TRUE. ) THEN
+                PRINT *, "At the end of the EII cycle, the site now has:",&
+                     matrix(next(1),next(2),next(3))%sp_num
+             END IF
           END IF
-       CASE(0)       
+       CASE(0)
+          ! Electron impact excitation
+          CALL RANDOM_NUMBER(rand1)
+          IF ( (rand1 .LE. DISPROB) .AND. (matrix(next(1),next(2),next(3)%sp_num .NE. 0))) THEN
+             CALL new_reaction()
+          END IF
+          CALL e_ex_select(se_box,e_exc,enull2)
+          ! Energy lost is transition energy
+          ee_loss = e_exc
        END SELECT
+       ! Deduct energy lost by electron
+       se_box%se_energy = se_box%se_energy - ee_loss
     END DO
 
     ! Once the electron has fallen below the energy threshold, make
-    ! it react to form an anion with a surrounding species
-
+    ! Call transport until a non-vacant site is found
+    DO WHILE ( vacant .EQV. .TRUE. )
+       prev = curr
+       curr = next
+       CALL transport(prev,curr,next)
+       ! Test to make sure that the species isn't some other electron's cation
+       IF ( (matrix(next(1),next(2),next(3))%sp_num .NE. 0) .AND. &
+            (.NOT. ANY(IONLIST .EQ. matrix(next(1),next(2),next(3))%sp_num))) THEN
+          vacant = .FALSE.
+       END IF
+    END DO
+    ! Electron reacts to form an anion with a surrounding species
+    CALL new_reaction()
+    IF ( error .EQ. 1 ) THEN
+       PRINT *, "Electron couldn't form anion!"
+       CALL EXIT()
+    END IF
+    ! Make newly formed anion react with parent cation
+    CALL new_reaction()
+    IF ( error .EQ. 1) THEN
+       PRINT *, "Ions couldn't recombine!"
+       CALL EXIT()
+    END IF
   END SUBROUTINE new_electron
-
-
 END MODULE subroutines
