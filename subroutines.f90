@@ -194,367 +194,7 @@ CONTAINS
        j_out = j_in
        k_out = k_in
     END SELECT
-
   END SUBROUTINE hopping
-
-  SUBROUTINE lookaroundyou ( react_cube, coords, null, small_count, &
-       large_count, small_arr, large_arr, wait_list )
-    !
-    ! Purpose:
-    !   This subroutine is designed to look at the surrounding spaces in a
-    !  matrix and determine if any of them are possible co-reactants for
-    !  any reactions in the network used. If there is a match, null=0,
-    !  if there is no match found, i.e. no reacting partners, null=1.
-    !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !! LOOKAROUNDYOU !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    IMPLICIT NONE
-
-    !*****************
-    ! Input and output
-    !*****************
-
-    INTEGER(KIND=SHORT), INTENT(OUT)                             :: null
-    INTEGER            , INTENT(OUT)                             :: small_count
-    INTEGER            , INTENT(OUT)                             :: large_count
-    INTEGER(KIND=SHORT)             , DIMENSION(:,:,:), POINTER  :: react_cube
-    INTEGER            , INTENT(OUT), DIMENSION(6,4)             :: large_arr
-    INTEGER            , INTENT(OUT), DIMENSION(4,4)             :: small_arr
-    INTEGER            , INTENT(IN) , DIMENSION(3)               :: coords
-    INTEGER                         , DIMENSION(3)               :: new_coords
-    TYPE(wait_info)                 , DIMENSION(:)    , POINTER  :: wait_list
-
-
-    !****************
-    ! Local variables
-    !****************
-    INTEGER                                                      :: r1, r2
-    INTEGER                                                      :: i_re,j_re,k_re
-    INTEGER                                                      :: i_re2,j_re2,k_re2
-    INTEGER                                                      :: n
-
-
-    ! Initialize coordinates
-    i_re = coords(1)
-    j_re = coords(2)
-    k_re = coords(3)
-
-    ! Initialize counters
-    large_count  = 0
-    small_count = 0
-
-    ! Initialize arrays
-    large_arr = 0
-    small_arr = 0
-
-    ! If the site is on the top or bottom layers, limit the hopping
-    n=0
-    initial_loop: DO n=1,6
-       top_bottom: IF ( i_re .EQ. 1 .AND. ( n .EQ. 5 .OR. n .EQ. 6 ) ) THEN
-          ! If on top layer, stay on top layer
-          CONTINUE
-       ELSE IF ( i_re .EQ. dimens(1) .AND. n .EQ. 6 ) THEN
-          ! Don't hop down if on bottom layer
-          CONTINUE
-       ELSE
-          CALL hopping(i_re,j_re,k_re,i_re2,j_re2,k_re2,n,dimens)
-          IF ( DEBUG .EQV. .TRUE. ) THEN
-             PRINT *, 'i_re,j_re,k_re=',i_re,j_re,k_re
-             PRINT *, 'i_re2,j_re2,k_re2=',i_re2,j_re2,k_re2
-          END IF
-          new_coords(1) = i_re2
-          new_coords(2) = j_re2
-          new_coords(3) = k_re2
-          IF ( matrix(i_re2,j_re2,k_re2)%sp_num .NE. 0 ) THEN
-             IF ( ALL(coords .EQ. new_coords) .EQV. .FALSE.) THEN
-                ! Determine if the hopped to species can react with the hopping species
-                r1 = matrix(i_re,j_re,k_re)%sp_num
-                r2 = matrix(i_re2,j_re2,k_re2)%sp_num
-                CALL canreact(r1,r2,react_cube,null)
-                ! Determine if site is occupied and if species can react
-                IF ( null .EQ. 0 ) THEN
-                   large_arr(n,4) = 1
-                   large_count = large_count + 1
-                ELSE
-                   large_arr(n,4) = 0
-                END IF
-
-                large_arr(n,1)=i_re2
-                large_arr(n,2)=j_re2
-                large_arr(n,3)=k_re2
-             END IF
-          END IF
-       END IF top_bottom
-    END DO initial_loop
-
-    ! Only look at normal sites if there are no interstitial reactants
-    IF ( large_count .GT. 0 ) THEN
-       CONTINUE
-    ELSE
-       DO n=1,4 ! Go to a phantom position
-          IF ( n .EQ. 1 ) THEN
-             IF ( (j_re-1 .GT. 0) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3))) THEN
-                CALL hopping(i_re,j_re-1,k_re+1,i_re2,j_re2,k_re2,1,dimens)
-             ELSE
-                i_re2 = i_re
-                j_re2 = 1
-                k_re2 = 2
-             END IF
-          ELSE IF ( n .EQ. 2 ) THEN
-             IF ( (j_re-1 .GT. 0) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3))) THEN
-                CALL hopping(i_re,j_re-1,k_re-1,i_re2,j_re2,k_re2,2,dimens)
-             ELSE
-                i_re2 = i_re
-                j_re2 = 1
-                k_re2 = 2
-             END IF
-          ELSE IF ( n .EQ. 3 ) THEN
-             IF ( (j_re+1 .LE. dimens(2)) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3))) THEN
-                CALL hopping(i_re,j_re+1,k_re+1,i_re2,j_re2,k_re2,1,dimens)
-             ELSE
-                i_re2 = i_re
-                j_re2 = 1
-                k_re2 = 2
-             END IF
-          ELSE
-             IF ( (j_re+1 .LE. dimens(2)) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3))) THEN
-                CALL hopping(i_re,j_re+1,k_re-1,i_re2,j_re2,k_re2,2,dimens)
-             ELSE
-                i_re2 = i_re
-                j_re2 = 1
-                k_re2 = 2
-             END IF
-          END IF
-
-          ! Determine if the matrix site is occupied and can react
-          new_coords(1) = i_re2
-          new_coords(2) = j_re2
-          new_coords(3) = k_re2
-          IF ( matrix(i_re2,j_re2,k_re2)%sp_num .NE. 0 ) THEN
-             IF ( ALL(coords .EQ. new_coords) .EQV. .FALSE. ) THEN
-                r1 = matrix(i_re,j_re,k_re)%sp_num
-                r2 = matrix(i_re2,j_re2,k_re2)%sp_num
-                !             PRINT *, 'r1=',r1,'and r2=',r2
-                CALL canreact(r1,r2,react_cube,wait_list,null)
-                IF ( null .EQ. 0 ) THEN
-                   small_arr(n,4) = 1
-                   small_count = small_count + 1
-                ELSE
-                   small_arr(n,4) = 0
-                END IF
-                small_arr(n,1)=i_re2
-                small_arr(n,2)=j_re2
-                small_arr(n,3)=k_re2
-             ELSE
-                small_arr(n,1) = i_re
-                small_arr(n,2) = j_re
-                small_arr(n,3) = k_re
-                small_arr(n,4) = 0
-             END IF
-          END IF
-       END DO
-    END IF
-
-    ! Determine if there has been a null event
-    IF ( large_count .EQ. 0 .AND. small_count .EQ. 0 ) THEN
-       null = 1
-    ELSE
-       null = 0
-    END IF
-  END SUBROUTINE lookaroundyou
-
-  SUBROUTINE solarlottery( small_count,large_count, small_temp,large_temp, coords )
-    !
-    ! Purpose:
-    !   This subroutine looks at either the interstitial or normal neighbors
-    !  that contain a potential reacion partner and chooses one at random.
-    !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !! SOLARLOTTERY !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    IMPLICIT NONE
-
-    !*****************
-    ! Input and output
-    !*****************
-    INTEGER            , INTENT(IN)                                :: large_count   !number of interstitial reactants
-    INTEGER            , INTENT(IN)                                :: small_count  !number of normal reactants
-    INTEGER            , INTENT(OUT), DIMENSION(3)                 :: coords   !coordinates of selected site
-    INTEGER                         , DIMENSION(6,4)               :: large_temp  !array of interstitial neighbor coords
-    INTEGER                         , DIMENSION(4,4)               :: small_temp !array of normal neighbor coords
-
-    !****************
-    ! Local variables
-    !****************
-    INTEGER            , ALLOCATABLE, DIMENSION(:,:)               :: temp_arr !temporary array of coordinates
-    INTEGER                                                        :: i,n   !counters
-    INTEGER                                                        :: lucky    !index of selected coords
-    REAL                                                           :: rand     !random number
-
-    !    PRINT *, "Started solarlottery"
-    !    PRINT *, "large_count is: ", large_count
-    !    PRINT *, "small_count is: ", small_count
-
-    i = 1
-    IF ( large_count .NE. 0 ) THEN ! Check if any same type reactants exist
-       ALLOCATE ( temp_arr(large_count,3) )
-       DO n=1,SIZE(large_temp,1)
-          IF ( large_temp(n,4) .NE. 0 ) THEN
-             temp_arr(i,1) = large_temp(n,1)
-             temp_arr(i,2) = large_temp(n,2)
-             temp_arr(i,3) = large_temp(n,3)
-             i = i + 1
-          ELSE
-             CONTINUE
-          END IF
-       END DO
-    ELSE ! See if any opposite type reactants exist
-       ALLOCATE ( temp_arr(small_count,3) )
-       DO n=1,SIZE(small_temp,1)
-          IF ( small_temp(n,4) .NE. 0 ) THEN
-             temp_arr(i,1) = small_temp(n,1)
-             temp_arr(i,2) = small_temp(n,2)
-             temp_arr(i,3) = small_temp(n,3)
-             i = i + 1
-          ELSE
-             CONTINUE
-          END IF
-       END DO
-    END IF
-
-    !    PRINT *, "temp_arr size is: ", SIZE(temp_arr)
-    !    PRINT *, "The contents of temp_arr are: "
-    !    DO n=1,SIZE(temp_arr,1)
-    !      PRINT *, temp_arr(n,:)
-    !    END DO
-
-    CALL RANDOM_NUMBER(rand) ! Choose a random temp_arr element
-    coords = 0
-    IF ( SIZE(temp_arr,1) .EQ. 1 ) THEN
-       coords = temp_arr(1,:)
-       !      DO n=1,3
-       !        coords(n) = temp_arr(1,n)
-       !      END DO
-    ELSE
-       lucky = INT(rand*SIZE(temp_arr,1)) + 1
-       DO n=1,3
-          coords(n) = temp_arr(lucky,n)
-       END DO
-    END IF
-    !    PRINT *, "The coords are: ",coords, "ending Solarlottery"
-
-  END SUBROUTINE solarlottery
-
-  SUBROUTINE thirdman( prod,i_re,j_re,k_re, null, prod_coords)
-    !
-    ! Purpose:
-    !   This subroutine attempts to find an empty site to place a third product
-    !
-    !! THIRDMAN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    IMPLICIT NONE
-
-    !******************!
-    ! Input and output !
-    !******************!
-
-    INTEGER            , INTENT(IN)                                       :: prod !product to be placed
-    INTEGER(KIND=SHORT), INTENT(OUT)                                      :: null !error flag
-    INTEGER            , INTENT(IN)                                       :: i_re,j_re,k_re !coords of original site
-    INTEGER            , INTENT(OUT), DIMENSION(3)             , OPTIONAL :: prod_coords !product placement coords
-    REAL                            , DIMENSION(:)    , POINTER           :: en_list
-
-    !*****************!
-    ! Local variables !
-    !*****************!
-
-    INTEGER                                                               :: n,m !counters
-    INTEGER                                                               :: i_pr,j_pr,k_pr !product coords
-
-    DO n=1,6
-       IF ( i_re .EQ. 1 .AND. ( n .EQ. 5 .OR. n .EQ. 6 ) ) THEN
-          CONTINUE
-       ELSE IF ( i_re .EQ. dimens(1) .AND. n .EQ. 6 ) THEN
-          ! Don't hop down if on bottom layer
-          CONTINUE
-       ELSE
-          CALL hopping(i_re,j_re,k_re,i_pr,j_pr,k_pr,n,dimens)
-          IF ( matrix(i_pr,j_pr,k_pr)%sp_num .EQ. 0 ) THEN
-             GOTO 1985
-          END IF
-       END IF
-    END DO
-
-    DO m=1,4 ! Go to a phantom position
-       SELECT CASE (m)
-       CASE (1)
-          IF ((j_re-1 .GT. 0) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3))) THEN
-             CALL hopping(i_re,j_re-1,k_re+1,i_pr,j_pr,k_pr,1,dimens)
-             IF (matrix(i_pr,j_pr,k_pr)%sp_num .EQ. 0 ) THEN
-                GOTO 1985
-             ELSE
-                CONTINUE
-             END IF
-          ELSE
-             CONTINUE
-          END IF
-       CASE (2)
-          IF (((j_re-1 .GT. 0) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3)))) THEN
-             CALL hopping(i_re,j_re-1,k_re-1,i_pr,j_pr,k_pr,2,dimens)
-             IF (matrix(i_pr,j_pr,k_pr)%sp_num .EQ. 0 ) THEN
-                GOTO 1985
-             ELSE
-                CONTINUE
-             END IF
-          ELSE
-             CONTINUE
-          END IF
-       CASE (3)
-          IF ((j_re+1 .LE. dimens(2)) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3))) THEN
-             CALL hopping(i_re,j_re+1,k_re+1,i_pr,j_pr,k_pr,1,dimens)
-             IF (matrix(i_pr,j_pr,k_pr)%sp_num .EQ. 0 ) THEN
-                GOTO 1985
-             ELSE
-                CONTINUE
-             END IF
-          ELSE
-             CONTINUE
-          END IF
-       CASE (4)
-          IF ((j_re+1 .LE. dimens(2)) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3))) THEN
-             CALL hopping(i_re,j_re+1,k_re-1,i_pr,j_pr,k_pr,2,dimens)
-             IF (matrix(i_pr,j_pr,k_pr)%sp_num .EQ. 0 ) THEN
-                GOTO 1985
-             ELSE
-                GOTO 2001
-             END IF
-          ELSE
-             GOTO 2001
-          END IF
-       END SELECT
-
-2001   IF ( m .EQ. 4 ) THEN
-          null = 1
-          !          PRINT *, 'No reaction possible! ERROR!!!'
-          RETURN
-       END IF
-    END DO
-
-    ! Place reactant at chosen site
-1985 matrix(i_pr,j_pr,k_pr)%sp_num = prod
-    CALL wait_calc(i_pr,j_pr,k_pr)
-    temp => matrix(i_pr,j_pr,k_pr)
-    CALL add_node(root,temp)
-
-    ! Assign output coordinates array
-    IF ( PRESENT(prod_coords) ) THEN
-       prod_coords(1) = i_pr
-       prod_coords(2) = j_pr
-       prod_coords(3) = k_pr
-    END IF
-  END SUBROUTINE thirdman
 
   SUBROUTINE fallout ( o3_prod,o3_dest)
     ! Purpose:
@@ -567,9 +207,7 @@ CONTAINS
     ! Note:
     !   sgse is short for second-generation secondary eletron.
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! FALLOUT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
     !******************!
     ! Input and output !
@@ -589,13 +227,9 @@ CONTAINS
     INTEGER                                        :: count_count
     INTEGER                                        :: step,estep !distance the track is incremented
     INTEGER                                        :: switch,eswitch
-    INTEGER            , DIMENSION(3)              :: ev_coords !coordiantes of collision
-    INTEGER            , DIMENSION(3)              :: elec_coords
-    INTEGER            , DIMENSION(3)              :: prev, curr, next
-    INTEGER                                        :: enull1,enull2
-    REAL(KIND=DBL)                                 :: erand, emfp,de
+    INTEGER                                        :: ev_coords(3)
+    INTEGER                                        :: prcoords(3)
     REAL(KIND=DBL)                                 :: p,u,rand1 ! rand num
-    REAL(KIND=DBL)                                 :: ion_dist ! distance from last ionization
     REAL(KIND=DBL)                                 :: sigma_tot !total cross-section
     REAL(KIND=DBL)                                 :: mfp ! mean free path
     REAL(KIND=DBL)                                 :: dz ! move dist
@@ -629,7 +263,6 @@ CONTAINS
     !****************************************************************************!
     ! Preliminary  calculations                                                  !
     !****************************************************************************!
-
     count_count = 0
     BI_CALLS = 0
 
@@ -661,15 +294,16 @@ CONTAINS
     DO WHILE ( proceed .EQV. .FALSE. )
        CALL RANDOM_NUMBER(p)
        CALL RANDOM_NUMBER(u)
-
        ! the value will be in range [1,bound]
        x = 1 + FLOOR( dimens(3)*p )
        y = 1 + FLOOR( dimens(2)*u )
        z = 1
        IF ( TRACKPLOT .EQV. .TRUE. ) THEN
           PRINT *, "Trackplot on"
-          IF ( x .GT. ((dimens(3)/2)-(dimens(3)*0.1)) .AND. x .LT. ((dimens(3)/2)+(dimens(3)*0.1)) &
-               .AND. y .GT. ((dimens(2)/2)-(dimens(2)*0.1)) .AND. y .LT. ((dimens(2)/2)+(dimens(2)*0.1)) ) proceed = .TRUE.
+          IF ( x .GT. ((dimens(3)/2)-(dimens(3)*0.1)) .AND. &
+               x .LT. ((dimens(3)/2)+(dimens(3)*0.1)) .AND. &
+               y .GT. ((dimens(2)/2)-(dimens(2)*0.1)) .AND. &
+               y .LT. ((dimens(2)/2)+(dimens(2)*0.1)) ) proceed = .TRUE.
        ELSE
           proceed = .TRUE.
        END IF
@@ -692,24 +326,24 @@ CONTAINS
     num_els     = 0
 
     main_loop: DO WHILE ((dist_trav .LE. THICK) .AND. (ione .GE. 5.0 ))
-       IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Now entering loop: z=',z,' and dimens(1)=',dimens(1),' and step=',step
+       IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Now entering loop: z=',z,&
+            ' and dimens(1)=',dimens(1), &
+            ' and step=',step
        count_count = count_count + 1
-       !      IF ( MOD(count_count,1000) .EQ. 0 ) CALL counter(time, AB_UNIT_NUM, matrix, wait_list, 4,7)
+
        ! Define event coords
        ev_coords(1) = z+step
        ev_coords(2) = y
        ev_coords(3) = x
-       !      PRINT *, 'The event coords are:',ev_coords
+       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "The event coords in Fallout are:",ev_coords
 
        thinghit = matrix(ev_coords(1),ev_coords(2),ev_coords(3))%sp_num
-
 
        IF ( thinghit .NE. 0 ) THEN
           IF ( DEBUG .EQV. .TRUE. ) PRINT *, "The value of the matrix is:",thinghit
           ! If the site is occupied, then determine the type of event to occur
           CALL RANDOM_NUMBER(u)
           CALL RANDOM_NUMBER(rand1)
-
           !****************************************************************************!
           ! Determine the nature of the collision and the energy lost                  !
           !****************************************************************************!
@@ -728,12 +362,6 @@ CONTAINS
                   CALL p_ion_select(psigij,e_ion,e_se)
                   e_loss = e_ion + e_se
                   nature = "Ionization"
-                  se_box%se_energy = e_se
-                  !**********************
-                  ! For debugging \/ \/
-                  !**********************
-                  IF ( SECELEC .EQV. .FALSE. ) se_box%se_energy = 0D0
-                  !            ELSE IF ( rand1 .LE. DISPROB .OR. ANY(FRAGILE .EQ. -1*thinghit) ) THEN
                ELSE
                   ! Excitation will occur
                   num_exs = num_exs + 1
@@ -753,209 +381,41 @@ CONTAINS
           END ASSOCIATE
           ione = ione - e_loss
           CALL psigma_suite(ione,psigmas,psigij,psigexj)
+
           IF ( TRACKPLOT .EQV. .TRUE. ) THEN
              count_count = count_count + 1
              WRITE(TRACKPLOT_UNIT_NUM,*) ev_coords(1),',',ev_coords(2),',',ev_coords(3),', proton,',nature
           END IF
 
-          !****************************************************************************!
-          ! Elastic collision                                                          !
-          !****************************************************************************!
           IF ( switch .EQ. 0 ) THEN
-             !          PRINT *, "Elastic collision"
+             !****************************************************************************!
+             ! Elastic collision                                                          !
+             !****************************************************************************!
              !NB: FUTURE WORK TO ADD LATTICE DAMAGE
              CONTINUE
+          ELSE IF ( switch .EQ. 1 ) THEN ! Dissociate target species on track and place prods
              !****************************************************************************!
              ! Excitation                                                                 !
              !****************************************************************************!
-          ELSE IF ( switch .EQ. 1 ) THEN ! Dissociate target species on track and place prods
-             CALL cern( o3_prod,o3_dest,null, ev_coords, switch)
+             ! Place excitation on site
+             null = 0
+             matrix(ev_coords(1),ev_coords(2),ev_coords(3))$sec_sp_num = EXCNUM
+             prcoords = 1 ! Initialize product coordinates to 1 for recursive subroutine
+             CALL new_reaction(ev_coords,ev_coords,prcoords,root,temp,prevNode,nextNode,null)
              IF ( null .EQ. 1 ) RETURN
+          ELSE IF ( switch .EQ. 2 .AND. z+step .NE. 1 .AND. z+step .NE. 2 ) THEN
              !****************************************************************************!
              ! Ionization                                                                 !
              !****************************************************************************!
-          ELSE IF ( switch .EQ. 2 .AND. z+step .NE. 1 .AND. z+step .NE. 2 ) THEN
-             IF ( se_box%se_energy .LE. ECUTOFF ) THEN
-                CALL base_ionization( o3_prod,o3_dest,ev_coords, null )
-                IF ( null .EQ. 1 ) RETURN
-             ELSE
-                !
-                ! Generate secondary electrons/electron track
-                !
-                !*******************************************************************
-                ! Call base_ionization to generate the first-generation secondary electron
-                ! NB: the electron should be the second product in the "prods" array
-                !*******************************************************************
-                null = 0
-                CALL base_ionization( o3_prod,o3_dest,ev_coords, null,elec_coords )
-
-                IF ( TRACKPLOT .EQV. .TRUE. ) THEN
-                   count_count = count_count + 1
-                   WRITE(TRACKPLOT_UNIT_NUM,*) elec_coords(1),',',elec_coords(2),',',elec_coords(3),", electron, Ionization"
-                END IF
-
-                !GOTO jumps down to calling next random number
-                IF ( null .EQ. 1 ) GOTO 100
-                !*******************************************************************
-                ! Electron Impact Processes
-                !*******************************************************************
-                ! Note:
-                !  The processes in the following loop correspond to conventional
-                ! processes such as electron-impact excitation and ionization. These
-                ! types of collisional events are treated semi-classically.
-                !*******************************************************************
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                ! ELECTRON_IMPACT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                curr     = ev_coords
-                next     = elec_coords
-                ion_dist = 0
-                enull1   = 0
-                enull2   = 0
-                emfp     = 0
-                p        = 0
-                de       = 0
-                estep    = 0
-                eswitch  = 0
-                ee_loss  = 0
-                !Initialize se_box
-                IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Now initializing the se_box"
-                CALL se_info_init(se_box)
-                IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'se energy is:',se_box%se_energy,' and ECUTOFF is',ECUTOFF
-                DO WHILE ( se_box%se_energy .GE. ECUTOFF )
-                   IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Electron box initialized, calling loop'
-                   !If the electron no longer has sufficient
-                   !energy, exit the loop.
-                   IF ( enull1 .NE. 0 .AND. enull2 .NE. 0 ) EXIT
-
-                   !Calculate electron cross_sections
-                   CALL esigma_suite(se_box)
-                   IF ( DEBUG .EQV. .TRUE. ) PRINT *, "se_box%ineltot=", se_box%se_ineltot
-                   IF ( DEBUG .EQV. .TRUE. ) PRINT *, "se_box%se_energy=", se_box%se_energy
-
-                   !Calculate hopping distance
-                   emfp  = 1./(RHO*(se_box%se_ineltot+1.0e-17))
-                   CALL RANDOM_NUMBER(p)
-                   de    = -1.*emfp*LOG(1.-p)
-                   de    = de*ESTEPFAC
-                   estep = INT(de/C_PR)
-
-                   !Have a minumum hopping distance of 1
-                   IF ( estep .EQ. 0 ) estep = 1
-
-                   DO n=1,estep
-                      !Each transport hop is like one step
-                      prev = curr
-                      curr = next
-                      CALL transport(prev,curr,next,matrix)
-
-                      IF ( matrix(curr(1),curr(2),curr(3))%sp_num .EQ. O3NUM ) THEN
-                         CALL RANDOM_NUMBER(rand1)
-                         IF ( rand1 .LE. O3_DIS_BRANCHING ) THEN
-                            CALL cern( o3_prod,o3_dest,null, curr, 1 )
-                            WRITE(TRACKPLOT_UNIT_NUM,*) curr(1),',',curr(2),',',curr(3),", electron , Excitation"
-                         END IF
-                      END IF
-
-                      IF ( TRACKPLOT .EQV. .TRUE. ) THEN
-                         count_count = count_count + 1
-                         WRITE(TRACKPLOT_UNIT_NUM,*) curr(1),',',curr(2),',',curr(3),", electron , Movement"
-                      END IF
-                      ee_loss = se_box%se_energy*ELASTIC_LOSS
-                      se_box%se_energy =  se_box%se_energy - ee_loss
-                   END DO
-
-                   !Determine nature of event
-                   CALL RANDOM_NUMBER(erand)
-                   IF ( erand .GT. 0 .AND. erand .LE. (se_box%se_iontot/se_box%se_ineltot) ) THEN
-                      eswitch = 1
-                   ELSE
-                      eswitch = 0
-                   END IF
-
-                   !Carry out impact collision
-                   IF ( (matrix(next(1),next(2),next(3))%sp_num .NE. 0) .AND. (eswitch .EQ. 1) ) THEN
-                      !Electron impact ionization
-                      IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'EII: SE is hopping to site with',matrix(next(1),next(2),next(3))%sp_num
-                      CALL base_ionization(o3_prod,o3_dest,next, null )
-                      IF ( null .EQ. 1 ) GOTO 100
-                      CALL e_ion_select(se_box,e_ion,enull1)
-                      ee_loss = e_ion
-                      WRITE(TRACKPLOT_UNIT_NUM,*) next(1),',',next(2),',',next(3),", electron , Ionization"
-                   ELSE IF ( (matrix(next(1),next(2),next(3))%sp_num .NE. 0) .AND. (eswitch .EQ. 0) ) THEN
-                      !Electron impact excitation
-                      IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'EIE: SE is hopping to site with',matrix(next(1),next(2),next(3))
-                      CALL RANDOM_NUMBER(rand1)
-
-                      IF ( (rand1 .LE. DISPROB) .AND. (matrix(curr(1),curr(2),curr(3))%sp_num .NE. 0) ) THEN
-                         CALL cern( o3_prod,o3_dest,null, next, 1)
-                      ELSE IF ( ANY( FRAGILE .EQ. matrix(curr(1),curr(2),curr(3))%sp_num)) THEN
-                         ! Test for fragile species
-                         CALL cern( o3_prod,o3_dest,null, next, 1)
-                      END IF
-
-                      CALL e_ex_select(se_box,e_exc,enull2)
-                      ee_loss = e_exc
-                      WRITE(TRACKPLOT_UNIT_NUM,*) next(1),',',next(2),',',next(3),", electron , Excitation"
-                   END IF
-
-                   !Update the secondary electron energy
-                   !              PRINT *, 'E_se:',ese_point,' E_loss:',ee_loss
-                   se_box%se_energy = se_box%se_energy - ee_loss
-                END DO
-
-                !*******************************************************************
-                ! Sub-Excitation Processes
-                !*******************************************************************
-                ! Note:
-                !  The processes in the following loop correspond to low-energy, or
-                ! sub-excitation processes, in which the electron has lost enough energy
-                ! to be unable to excite the target efficiently.
-                !*******************************************************************
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                ! SUB_EXCITATION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                IF ( NSUBEX .NE. 0 ) THEN
-                   nn = 0
-                   exitcount = 0
-
-                   DO WHILE ( nn .LT. NSUBEX .AND. exitcount .LT. NEXIT) !NSUBEX is the number of sub-excitation collisions
-                      IF ( DEBUG .EQV. .TRUE. ) THEN
-                         PRINT *, 'nn=',nn
-                         PRINT *, 'exitcount=',exitcount
-                      END IF
-                      exitcount = exitcount + 1
-                      prev = curr
-                      curr = next
-                      CALL transport(prev,curr,next)
-
-                      IF ( TRACKPLOT .EQV. .TRUE. ) THEN
-                         count_count = count_count + 1
-                         WRITE(TRACKPLOT_UNIT_NUM,*) curr(1),',',curr(2),',',curr(3), ", subex electron, Movement"
-                      END IF
-
-                      IF ( matrix(next(1),next(2),next(3))%sp_num .NE. 0 ) THEN
-                         IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'matrix in subexloop=',matrix(next(1),next(2),next(3))%sp_num
-                         !Carry out dissociate electron attachment
-                         !NB: In the model, this is functionally identical to
-                         !an ordinary ionization
-                         CALL base_ionization(o3_prod,o3_dest,next, null )
-                         nn = nn + 1
-                         WRITE(TRACKPLOT_UNIT_NUM,*) next(1),',',next(2),',',next(3), ", subex electron, Ionization"
-                      END IF
-                   END DO
-                END IF
-                IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Finishing sub_excitation processes'
-
-                !Manual garbage collection
-                CALL se_info_garbage(se_box)
-             END IF
-          END IF
-       ELSE
-          IF (ev_coords(1) .EQ. SIZE(matrix,1)/2) THEN
-             RETURN
-          ELSE
-             CONTINUE
+             ! Initialize se_box with initial energy and parent coords
+             se_box%se_energy = e_se
+             IF ( SECELEC .EQV. .FALSE. ) se_box%se_energy = 0D0
+             se_box%parent_coords = ev_coords
+             CALL se_info_init(se_box)
+             ! Call new_electron
+             CALL new_electron(se_box,root,temp,prevNode,nextNode)
+             !Manual garbage collection
+             CALL se_info_garbage(se_box)
           END IF
        END IF
 
@@ -963,9 +423,8 @@ CONTAINS
        ! Track Plotting bit !
        !********************!
        dist_trav = dist_trav + dz
-
-       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "z=",z,"of",dimens(1)," which is",(REAL(z)/REAL(dimens(1)))*100,"% of thickness"
-
+       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "z=",z,"of",dimens(1),&
+            " which is",(REAL(z)/REAL(dimens(1)))*100,"% of thickness"
        ! Increment z for next cycle
        z = z + step
 
@@ -1071,7 +530,8 @@ CONTAINS
           CONTINUE
        ELSE
           CALL hopping(i_re,j_re,k_re,i_re2,j_re2,k_re2,n )
-          IF ( matrix(i_re2,j_re2,k_re2)%sp_num .EQ. 0 ) THEN
+          IF ( (matrix(i_re2,j_re2,k_re2)%sp_num .EQ. 0) .AND. &
+               (matrix(i_re2,j_re2,k_re2)%sec_sp_num .EQ. 0) ) THEN
              large_temp(n,1)=i_re2
              large_temp(n,2)=j_re2
              large_temp(n,3)=k_re2
@@ -1116,7 +576,8 @@ CONTAINS
              END IF
           END SELECT
 
-          IF ( matrix(i_re2,j_re2,k_re2)%sp_num .EQ. 0 ) THEN
+          IF ( (matrix(i_re2,j_re2,k_re2)%sp_num .EQ. 0) .AND. &
+               (matrix(i_re2,j_re2,k_re2)%sec_sp_num .EQ. 0) ) THEN
              small_temp(n,1)=i_re2
              small_temp(n,2)=j_re2
              small_temp(n,3)=k_re2
@@ -1226,9 +687,7 @@ CONTAINS
     !  ========      ==========           ===========
     !  20150415      C. Shingledecker     Original code
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! ACTION_FIGURE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
     ! Data dictionary
@@ -1290,9 +749,7 @@ CONTAINS
     !
     ! Warning!: As of original code, lateral bonds are not
     !  considered, as described in CH14.
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! WAIT_CALC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
     ! Data dictionary: variables passed to the subroutine
@@ -1335,9 +792,7 @@ CONTAINS
     !  ========      ==========           ===========
     !  20150427      C. Shingledecker     Original code
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!! COUNTER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! COUNTER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
     INTEGER                                          , POINTER :: o3_prod,o3_dest
@@ -1401,7 +856,7 @@ CONTAINS
     END IF
   END SUBROUTINE counter
 
-  SUBROUTINE transport(prev,curr,next,matrix)
+  SUBROUTINE transport(prev,curr,next)
     !
     ! Purpose:
     !    The purpose of this subroutine is to calculate the next step in the bulk
@@ -1412,38 +867,24 @@ CONTAINS
     !  ========      ==========           ===========
     !  20150811      C. Shingledecker     Original code
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!! TRANSPORT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! TRANSPORT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
-
     INTEGER            , INTENT(IN)          , DIMENSION(3)     :: prev !coordinates of previous location
     INTEGER            , INTENT(IN)          , DIMENSION(3)     :: curr !current coordinates
     INTEGER            , INTENT(OUT)         , DIMENSION(3)     :: next !coordinates of next position
-    INTEGER                         , POINTER, DIMENSION(:,:,:) :: matrix !the solid matrix
 
     !****************
     ! Local variables
     !****************
-
     INTEGER                                                      :: n !counters
-    INTEGER                                  , DIMENSION(3)      :: dimens !dimensions of ice matrix
     REAL                                                         :: insides
     REAL                                                         :: hopdist,nextdist
     REAL                                                         :: rand,rand2 !random number
     REAL                                                         :: sigma
     LOGICAL                                                      :: carnap
 
-    ! Obtain the dimensions of the matrix
-    dimens(1) = SIZE(matrix,1)
-    dimens(2) = SIZE(matrix,2)
-    dimens(3) = SIZE(matrix,3)
-
-    !    PRINT *,'The coordinates of the event are',in_coords
-
     insides = (curr(2)-prev(2))**2 + (curr(3)-prev(3))**2 + (curr(1)-prev(1))**2
     hopdist = SQRT( insides  )
-
 
     sigma = 0.0
     carnap = .FALSE.
@@ -1465,7 +906,7 @@ CONTAINS
              ! Don't hop down if on bottom layer
              CONTINUE
           ELSE
-             CALL hopping(curr(1),curr(2),curr(3),next(1),next(2),next(3),n,dimens )
+             CALL hopping(curr(1),curr(2),curr(3),next(1),next(2),next(3),n )
           END IF
        ELSE
           n = 1 + FLOOR(4*rand2)
@@ -1475,7 +916,7 @@ CONTAINS
              IF ( curr(2)-1 .GT. 0          .AND. &
                   curr(3)-1 .GT. 0          .AND. &
                   curr(3)+1 .LE. dimens(3) ) THEN
-                CALL hopping(curr(1),curr(2)-1,curr(3)+1,next(1),next(2),next(3),1,dimens)
+                CALL hopping(curr(1),curr(2)-1,curr(3)+1,next(1),next(2),next(3),1)
              ELSE
                 CONTINUE
              END IF
@@ -1483,7 +924,7 @@ CONTAINS
              IF ( curr(2)-1 .GT. 0          .AND. &
                   curr(3)-1 .GT. 0          .AND. &
                   curr(3)+1 .LE. dimens(3) ) THEN
-                CALL hopping(curr(1),curr(2)-1,curr(3)-1,next(1),next(2),next(3),2,dimens)
+                CALL hopping(curr(1),curr(2)-1,curr(3)-1,next(1),next(2),next(3),2)
              ELSE
                 CONTINUE
              END IF
@@ -1491,7 +932,7 @@ CONTAINS
              IF ( curr(2)+1 .LE. dimens(2)  .AND. &
                   curr(3)-1 .GT. 0          .AND. &
                   curr(3)+1 .LE. dimens(3) ) THEN
-                CALL hopping(curr(1),curr(2)+1,curr(3)-1,next(1),next(2),next(3),2,dimens)
+                CALL hopping(curr(1),curr(2)+1,curr(3)-1,next(1),next(2),next(3),2)
              ELSE
                 CONTINUE
              END IF
@@ -1499,14 +940,13 @@ CONTAINS
              IF ( curr(2)+1 .LE. dimens(2)  .AND. &
                   curr(3)-1 .GT. 0          .AND. &
                   curr(3)+1 .LE. dimens(3) ) THEN
-                CALL hopping(curr(1),curr(2)+1,curr(3)+1,next(1),next(2),next(3),1,dimens)
+                CALL hopping(curr(1),curr(2)+1,curr(3)+1,next(1),next(2),next(3),1)
              ELSE
                 CONTINUE
              END IF
           END SELECT
        END IF
        IF ( n .NE. 5 .AND. n .NE. 6 ) THEN
-          !  IF ( (curr(1) .NE. next(1) ) .AND. (curr(2) .NE. next(2) ) .AND. (curr(3) .NE. next(3))) THEN
           insides = (next(2)-prev(2))**2 + (next(3)-prev(3))**2
           sigma = SQRT( insides )
           insides = (next(2)-curr(2))**2 + (next(3)-curr(3))**2 + (next(1)-curr(1))**2
@@ -1529,9 +969,7 @@ CONTAINS
        !    PRINT *, 'next=',next
        !    PRINT *, 'hopdist=',hopdist,'sigma=',sigma,'carnap=',carnap
     END DO
-
     !  PRINT *, n
-
     RETURN
   END SUBROUTINE transport
 
@@ -1550,9 +988,7 @@ CONTAINS
     !   The Green-McNeal formalism is used for both proton ionization and
     ! excitation.
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! PSIGMA_SUITE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
     !Data dictionary: Input parameters
@@ -1628,9 +1064,7 @@ CONTAINS
     !   The Porter, Jackman, and Green formalism is used for allowed transitions
     ! and the Green-Dutta (1967) formalism is used for forbidden transitions.
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! ESIGMA_SUITE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
     !Data dictionary: Input parameters
@@ -1716,28 +1150,12 @@ CONTAINS
        END ASSOCIATE
     END DO
     se_box%se_alwd_extot = SUM(se_box%se_alwdsigs)
-    ! PRINT *, "Sum of allowed sigs is", se_box%se_alwd_extot
 
-    ! !(4) Calculate forbidden excitation cross-sections
-    ! !NB: As above, no loop is required, since the subroutine
-    ! !    returns an array of values
-    ! DO n=1,SIZE(o2_e_ex_fbdn)
-    !   ASSOCIATE( e => se_box%se_energy            , &
-    !     w => se_box%se_fbdn(n)%wj_fbdn   , &
-    !     f => se_box%se_fbdn(n)%fj_fbdn   , &
-    !     o => se_box%se_fbdn(n)%omega_fbdn, &
-    !     a => se_box%se_fbdn(n)%alpha_fbdn, &
-    !     b => se_box%se_fbdn(n)%beta_fbdn    )
-    !     se_box%se_fbdnsigs(n) = 0.0 !greendutta(e,f,w,o,a,b)
-    !   END ASSOCIATE
-    ! END DO
-    ! se_box%se_fbdn_extot = SUM(se_box%se_fbdnsigs)
-
-    !(5) The total electron impact excitation is the sum of the
+    !(4) The total electron impact excitation is the sum of the
     !    allowed and forbidden transition cross-sections
     se_box%se_extot = se_box%se_alwd_extot !+ se_box%se_fbdn_extot
 
-    !(6) Calculate the total cross-section as the sum of the
+    !(5) Calculate the total cross-section as the sum of the
     ! constituent cross-sections
     se_box%se_ineltot = se_box%se_iontot + se_box%se_extot
     RETURN
@@ -1756,9 +1174,7 @@ CONTAINS
     !   Two energies, in eV: the ionization energy from the selected continuum
     !  state and the kinetic energy of the secondary electron.
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! P_ION_SELECT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
     !Data dictionary: Input and output parameters
@@ -1784,7 +1200,6 @@ CONTAINS
     !(1) Calculate the probabilities of each state based on the relative size
     !    of the cross-sections
     sigtot   = SUM(psigij)
-    !    rn       = RAND()
     CALL RANDOM_NUMBER(rn)
 
     e_ion = 1234567d0 !Just to know what's happening for debugging
@@ -1819,9 +1234,7 @@ CONTAINS
     ! OUTPUT:
     !   In eV: the excitation energy from the selected discrete state.
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! P_EX_SELECT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
     !Data dictionary: Calling parameters
@@ -1843,7 +1256,6 @@ CONTAINS
     !(1) Calculate the probabilities of each state based on the relative size
     !    of the cross-sections
     sigtot   = SUM(psigexj)
-    !    rn       = RAND()
     CALL RANDOM_NUMBER(rn)
     prevprob = 0d0
     e_exc = 1234567d0 !Just to know what's happening for debugging
@@ -1864,9 +1276,7 @@ CONTAINS
     !   This subroutine is to determine the specific ionization state that an
     !  inelastic collision ionizes from.
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! E_ION_SELECT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
     !Data dictionary: Calling parameters
@@ -1930,7 +1340,6 @@ CONTAINS
     END DO
 
     !Draw a random number and determine the precise amount of energy lost.
-    !    rn       = RAND()
     CALL RANDOM_NUMBER(rn)
     prevprob = 0d0
     prob     = 0D0
@@ -1958,11 +1367,8 @@ CONTAINS
     !   This subroutine is to determine the specific excited state that an
     !  inelastic collision results in the target species being promoted to.
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! E_EX_SELECT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
-
     !Data dictionary: Calling parameters
     TYPE(se_info)                                  :: se_box
     DOUBLE PRECISION, INTENT(OUT)                        :: e_exc
@@ -1974,7 +1380,6 @@ CONTAINS
     DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:)        :: arr,temparr
     INTEGER                                              :: n, arrcount,i
     INTEGER                                              :: incount
-
 
     !Initialize values
     e_exc = 0D0
@@ -1995,23 +1400,11 @@ CONTAINS
        RETURN
     END IF
 
-    !Determine which type of transition will occur
-    !    rn       = RAND()
-    ! CALL RANDOM_NUMBER(rn)
-    ! prob = (se_box%se_alwd_extot/se_box%se_ineltot)
-    ! IF ( rn .GT. prob ) THEN
-    !   ALLOCATE(arr(SIZE(se_box%se_fbdnsigs),2))
-    !   arr = 0
-    !   arr(:,1) = se_box%se_fbdnsigs
-    !   arr(:,2) = se_box%se_fbdn%wj_fbdn
-    !   sigtot   = se_box%se_fbdn_extot
-    ! ELSE
     ALLOCATE(arr(SIZE(se_box%se_alwdsigs),2))
     arr = 0
     arr(:,1) = se_box%se_alwdsigs
     arr(:,2) = se_box%se_alwd%wj_alwd
     sigtot   = se_box%se_alwd_extot
-    ! END IF
 
     !Populate a new array with possible transitions
     DO n=1,SIZE(arr,1)
@@ -2031,7 +1424,6 @@ CONTAINS
     END DO
 
     !Draw a random number and determine the precise amount of energy lost.
-    !    rn       = RAND()
     CALL RANDOM_NUMBER(rn)
     prevprob = 0d0
     e_exc = 0d0 !Just to know what's happening for debugging
@@ -2051,9 +1443,7 @@ CONTAINS
     !   This subroutine is to determine the specific amount of energy lost by an
     !  ion in an elastic collisional event.
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! ELASTIC_EVENT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
 
     ! Data dictionary: Define calling parameters
@@ -2073,7 +1463,6 @@ CONTAINS
     afac = au(ZP,ZO2)
     gamfac = mass_fac(MP,MO2)
     e_lss = eps(energy,ZP,ZO2,MP,MO2,afac)
-    !    rn = RAND()
     CALL RANDOM_NUMBER(rn)
     bfac = b_magic(rn,afac,RHO2)
     CALL magic(e_lss,bfac,c2,s2,cmtheta)
@@ -2088,9 +1477,7 @@ CONTAINS
     !   This subroutine is to set up the se_info struct, which should only have
     !  an energy and parent coords assigned at the time of calling.
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! SE_INFO_INIT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     TYPE(se_info) :: se_box
 
     !(1) Initialize scalar values
@@ -2112,12 +1499,6 @@ CONTAINS
        se_box%se_alwd = o2_e_ex_alwd
        ALLOCATE(se_box%se_alwdsigs(SIZE(o2_e_ex_alwd)))
        se_box%se_alwdsigs = 0
-
-       ! !Initialize forbidden excitation arrays
-       ! ALLOCATE(se_box%se_fbdn(SIZE(o2_e_ex_fbdn)))
-       ! se_box%se_fbdn = o2_e_ex_fbdn
-       ! ALLOCATE(se_box%se_fbdnsigs(SIZE(o2_e_ex_fbdn)))
-       ! se_box%se_fbdnsigs = 0
        RETURN
     ELSE
        RETURN
@@ -2129,9 +1510,7 @@ CONTAINS
     ! Purpose:
     !   This subroutine is to garbage collect the memory used in the se_info struct
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! SE_INFO_GARBAGE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     TYPE(se_info) :: se_box
 
     IF ( ALLOCATED(se_box%se_ionst) .EQV. .TRUE. ) THEN
@@ -2139,8 +1518,6 @@ CONTAINS
        DEALLOCATE(se_box%se_ionsigs)
        DEALLOCATE(se_box%se_alwd)
        DEALLOCATE(se_box%se_alwdsigs)
-       ! DEALLOCATE(se_box%se_fbdn)
-       ! DEALLOCATE(se_box%se_fbdnsigs)
        RETURN
     ELSE
        RETURN
@@ -2232,6 +1609,7 @@ CONTAINS
        IF ( pr .EQ. 0 ) THEN
           ! If there can be no reaction, delete species from tree
           temp => matrix(i(1),i(2),i(3))
+          ! Delete node but DO NOT wipe it
           CALL delete_node(root,temp,prevNode,nextNode
           ! Calculate new waiting time
           CALL wait_calc()
@@ -2247,18 +1625,22 @@ CONTAINS
        ! DO NOT do this if i=j, i.e. an excitation with 1 product
        ! has occured
        IF ( (pr .EQ. 0) .AND. (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
+          ! If there is only one product, clear the site of R1
+          ! which now becomes a lattice vacancy
           temp => matrix(i(1),i(2),i(3))
           CALL delete_node(root,temp,prevNode,nextNode)
           CALL wipe_node(temp)
           error = 0
           RETURN
+       ELSE IF (pr .EQ. 0 ) THEN
+          error = 0
+          RETURN
        END IF
-       ! Special Case! R1 + * -> P1 + P2 + ...
        ! if i=j, then non-special P2 overwrites P1 
-       IF ( k(2) .EQ. EXCNUM ) THEN
+       IF ( ALL(ABS(i-j) .EQ. 0) ) THEN
           ! Test to see if k(2) is EXCNUM, if so, and pr!=0, get new site
-          CALL find_empty_site(i,j,error)
-          IF ( error .NE. 1 ) pr_coords = j
+          CALL find_empty_site(j,i,error) ! save out-coords to i, NOT j
+          IF ( error .NE. 1 ) pr_coords = i
        ELSE
           ! For all other cases (the second product can be at site i
           ! even when i=j
@@ -2305,9 +1687,11 @@ CONTAINS
        temp%sec_sp_num = pr
     ELSE
        ! Delete whatever is there, if the site isn't empty
-       IF ( temp%sp_num .NE. 0) CALL delete_node(root,temp,prevNode,nextNode)
+       IF ( temp%sp_num .NE. 0) THEN
+          CALL delete_node(root,temp,prevNode,nextNode)
+          CALL wipe_node(temp)
+       END IF
        temp%sp_num = pr
-       temp%sec_sp_num = 0
        CALL wait_calc(temp)
        CALL add_node(root,temp)
     END IF
@@ -2317,7 +1701,7 @@ CONTAINS
     CALL new_reaction(i,j,k,root,temp,prevNode,nextNode,error)
   END SUBROUTINE new_reaction
 
-  RECURSIVE SUBROUTINE new_electron()
+  RECURSIVE SUBROUTINE new_electron(se_box,root,temp,prevNode,nextNode)
     ! Takes as input a "se-box" struct containing the initial electron energy
     ! and the coordinates at which it formed and does the following:
     !   1) Calculates cross-sections
@@ -2331,14 +1715,15 @@ CONTAINS
     IMPLICIT NONE
     TYPE(se_info) :: new_se_box
     TYPE(se_info) :: se_box
-    INTEGER, DIMENSION(3) :: curr,next,prev
+    INTEGER :: curr(3),next(3),prev(3),prcoords(3)
     INTEGER :: estep
     INTEGER :: eswitch
-    INTEGER :: enull1,enull2
+    INTEGER :: error
     DOUBLE PRECISION :: emfp
     DOUBLE PRECISION :: ee_loss
     DOUBLE PRECISION :: de
     DOUBLE PRECISION :: e_ion, e_exc
+    TYPE(node), POINTER :: root,temp,prevNode,nextNode
 
     ! Initialize energy losses
     e_ion = 0.0
@@ -2352,8 +1737,6 @@ CONTAINS
     estep = 0
 
     ! Initialize switches
-    enull1 = 0
-    enull2 = 0
     eswitch = 0
 
     ! Initialize real variables
@@ -2361,9 +1744,6 @@ CONTAINS
     emfp = 0
     p = 0
     de = 0
-
-    ! Initialize se_box
-    CALL se_info_init(se_box)
 
     ! Calculate track until the electron's energy is depleted
     DO WHILE ( se_box%se_energy .GE. ECUTOFF )
@@ -2407,7 +1787,7 @@ CONTAINS
           ! Electron impact ionization
           IF ( matrix(next(1),next(2),next(3))%sp_num .NE. 0 ) THEN
              ! Calculate energy loss
-             CALL e_ion_select(se_box,e_ion,enull1)
+             CALL e_ion_select(se_box,e_ion,error)
              ! Call random number
              CALL RANDOM_NUMBER(p)
              ! Calculate new electron energy based on \DeltaE
@@ -2415,7 +1795,11 @@ CONTAINS
              ! Energy lost is sum of ionization energy + new electron energy
              ee_loss = e_ion + new_e_energy
              ! Ionize the species and call new_electron again
-             CALL new_reaction()
+             ! Place CRP pseudo reactant at site to indicate ionization
+             matrix(next(1),next(2),next(3))%sec_sp_num = CRPNUM
+             ! Initialize 3rd set of coordinates to 1
+             prcoords = 1
+             CALL new_reaction(next,next,prcoords,root,temp,prevNode,nextNode,error)
              ! Now this site should have a cation and an electron as the secondary species
              ! at the same site
              IF ( DEBUG .EQV. .TRUE. ) THEN
@@ -2424,15 +1808,16 @@ CONTAINS
                         matrix(next(1),next(2),next(3)%sp_num
                 END IF
              END IF
-             ! 1) Create new se_box
-             ALLOCATE(new_se_box)
-             ! 2) Populate the se_box with initial energy and parent coords
+             ! 1) Populate the se_box with initial energy and parent coords
              new_se_box%se_energy = new_e_energy
              new_se_box%parent_coords = next
+             ! 2) Call se_info_init to initialize the arrays in the se_box
+             CALL se_info_init(new_se_box)
              ! 3) Call new_electron and send it on its merry way
              CALL new_electron(new_se_box)
              ! 4) When it has lost energy and reacted back with its parent cation (above)
-             DEALLOCATE(new_se_box)
+             !    we can free-up the arrays in the se_box
+             CALL se_info_garbage(new_se_box)
              !    the species at the site above should now be neutral
              IF ( DEBUG .EQV. .TRUE. ) THEN
                 PRINT *, "At the end of the EII cycle, the site now has:",&
@@ -2443,9 +1828,13 @@ CONTAINS
           ! Electron impact excitation
           CALL RANDOM_NUMBER(rand1)
           IF ( (rand1 .LE. DISPROB) .AND. (matrix(next(1),next(2),next(3)%sp_num .NE. 0))) THEN
-             CALL new_reaction()
+             ! Place special excitation reactant at site
+             matrix(next(1),next(2),next(3))%sec_sp_num = EXCNUM
+             ! Initialize product coords to 1
+             prcoords = 1
+             CALL new_reaction(next,next,prcoords,root,temp,prevNode,nextNode,error)
           END IF
-          CALL e_ex_select(se_box,e_exc,enull2)
+          CALL e_ex_select(se_box,e_exc,error)
           ! Energy lost is transition energy
           ee_loss = e_exc
        END SELECT
@@ -2466,13 +1855,19 @@ CONTAINS
        END IF
     END DO
     ! Electron reacts to form an anion with a surrounding species
-    CALL new_reaction()
+    ! i=next,j=next,form negative anion
+    prcoords = 1 ! Initialize k(3)=1 for the recursive subroutine
+    ! Place electron at same site to form anion
+    matrix(next(1),next(2),next(3))%sec_sp_num = ELECNUM
+    CALL new_reaction(next,next,prcoords,root,temp,prevNode,nextNode,error)
     IF ( error .EQ. 1 ) THEN
        PRINT *, "Electron couldn't form anion!"
        CALL EXIT()
     END IF
-    ! Make newly formed anion react with parent cation
-    CALL new_reaction()
+    ! Make newly formed anion react with parent cation at %parent_coords
+    ! i=next,j=parent_coords
+    prcoords = 1
+    CALL new_reaction(next,se_box%parent_coords,prcoords,root,temp,nextNode,prevNode,error)
     IF ( error .EQ. 1) THEN
        PRINT *, "Ions couldn't recombine!"
        CALL EXIT()
