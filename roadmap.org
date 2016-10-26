@@ -1,0 +1,26 @@
+#+STARTUP: indent
+#+TITLE:  Roadmap for CIRIS
+#+AUTHOR: Christopher Shingledecker
+
+
+* Specific Subroutines
+** MAIN
+*** TODO add something like metahop to main loop
+*** TODO re-examine main loop for compatability with new subroutines
+** QBERT
+With the addition of the new global datastructures, some of the commands
+are now obsolete
+*** TODO incorporate new global data structures
+*** TODO add both anions and cations to IONLIST
+** COUNTER
+Make counter now run through the starting from root instead of traversing the
+whole matrix in a nested loop. Also, maybe count everything? Alternatively,
+just write out everything and have another script do the tallying
+** WAIT_CALC
+*** TODO look at 6 nearest neighbors and update binding energies accordingly
+*** TODO also calculate hop-dir, if not done already
+** BRANCHING
+Write a new subroutine that takes as input two reactants and returns
+a scalar product. Internally, call a random number and select products appropriate
+for the branching ratio
+

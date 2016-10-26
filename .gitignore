@@ -15,6 +15,7 @@ obj
 # emacs stuff
 \#*#
 .\#*
+*~
 
 # various output files
 *.txt

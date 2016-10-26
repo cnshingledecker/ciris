@@ -6,14 +6,15 @@ MODULE parameters
   !******************************************************************************
   ! Misc. Global Variables
   !******************************************************************************
-  TYPE(node), ALLOCATABLE, DIMENSION(:,:,:) :: MATRIX
-  INTEGER, DIMENSION(3) :: DIMENS
+  TYPE(node), ALLOCATABLE  :: MATRIX(:,:,:)
+  INTEGER  :: DIMENS(3)
   REAL(KIND=DBL) :: TIME
-  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: EN_LIST
-  INTEGER, ALLOCATABLE, DIMENSION(:) :: SP_LIST
-  INTEGER, ALLOCATABLE, DIMENSION(:,:,:) :: REACT_CUBE
-  INTEGER, ALLOCATABLE, DIMENSION(:) :: IONLIST
-  
+  REAL(KIND=DBL), ALLOCATABLE :: EN_LIST(:)
+  INTEGER, ALLOCATABLE :: SP_LIST(:)
+  INTEGER, ALLOCATABLE :: REACT_CUBE(:,:,:)
+  INTEGER, ALLOCATABLE :: IONLIST(:)
+  INTEGER              :: NUM_SPECIES
+  INTEGER              :: NUM_REACTS
   !******************************************************************************
   ! Input file names
   !******************************************************************************
