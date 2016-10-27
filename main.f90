@@ -1,4 +1,5 @@
 PROGRAM main
+  USE bsimple
   USE subroutines
   USE parameters
   USE typedefs
@@ -14,34 +15,31 @@ PROGRAM main
   INTEGER             :: loop_count
   INTEGER             :: xx,yy,zz
   INTEGER             :: i(3),j(3),k(3)
-  INTEGER             :: err1, err2     ! Error numbers for the files
-  INTEGER(KIND=SHORT) :: lines_spec     ! Number of lines in species file
-  INTEGER(KIND=SHORT) :: lines_react    ! Number of lines in reactions file
   INTEGER             :: count_num      ! Number of abundance file
   INTEGER             :: result
   INTEGER             :: time_check     ! DEBUGGING VAR
-  REAL(KIND=DBL)      :: cr_time        ! Time till next proton collision
-  REAL(KIND=DBL)      :: rndnum         ! Random number
-  REAL(KIND=DBL)      :: time_step      ! Time between abundance checks
-  REAL(KIND=DBL)      :: fluence        ! Run simulation until some max fluence
-  REAL(KIND=DBL)      :: time_diff !DEBUGGING VAR
-  REAL(KIND=DBL)      :: t1,t2
-  REAL(KIND=DBL)      :: cpu_total
-  REAL(KIND=DBL)      :: cpu_max_time
+  INTEGER             :: error
+  DOUBLE PRECISION      :: cr_time        ! Time till next proton collision
+  DOUBLE PRECISION      :: rndnum         ! Random number
+  DOUBLE PRECISION      :: time_step      ! Time between abundance checks
+  DOUBLE PRECISION      :: fluence        ! Run simulation until some max fluence
+  DOUBLE PRECISION      :: time_diff !DEBUGGING VAR
+  DOUBLE PRECISION      :: t1,t2
+  DOUBLE PRECISION      :: cpu_total
+  DOUBLE PRECISION      :: cpu_max_time
   CHARACTER(len=80)   :: hopping_file   ! File containing hopping data
   INTEGER, TARGET     :: o3_prod_target,o3_dest_target
   INTEGER, POINTER    :: o3_prod,o3_dest
-  INTEGER             :: spec_header,reac_header
-  INTEGER             :: num_species,num_reacts
   LOGICAL             :: not_infty
-  REAL(KIND=DBL)      :: total_fitness   ! Total fitness
+  DOUBLE PRECISION      :: total_fitness   ! Total fitness
   LOGICAL             :: unfit           ! TRUE if solution is too unfit -> stop simulation
-  INTEGER(KIND=LONG)  :: numprotons
+  INTEGER  :: numprotons
   INTEGER             :: o_temp,o2_temp,o3_temp
-  REAL(KIND=DBL)      :: temp_time
-  REAL(KIND=DBL)      :: j2, j3
-  REAL(KIND=DBL)      :: k12,k13
-  REAL(KIND=DBL)      :: geminacy
+  DOUBLE PRECISION      :: temp_time
+  DOUBLE PRECISION      :: j2, j3
+  DOUBLE PRECISION      :: k12,k13
+  DOUBLE PRECISION      :: geminacy
+  TYPE(node), POINTER :: root,temp,prevNode,nextNode
 
   PRINT *, "*************************"
   PRINT *, "***STARTING SIMULATION***"
@@ -51,6 +49,7 @@ PROGRAM main
   CALL SYSTEM("/bin/bash pre.sh")
   CALL initconstants()
   CALL store_rand()
+  SPECIAL_LIST = (/ CRPNUM, EXCNUM, ELECNUM /)
 
   ! Initialize total_fitness
   total_fitness = 0
@@ -151,7 +150,7 @@ PROGRAM main
         DO xx=1,DIMENS(1)
            temp => MATRIX(xx,yy,zz)
            CALL init_node(temp,xx,yy,zz)
-           CALL wait_calc(xx,yy,zz)
+           CALL wait_calc(temp)
            CALL add_node(root,temp)
         END DO
      END DO
@@ -167,12 +166,11 @@ PROGRAM main
   CALL RANDOM_SEED()
 
   ! Find species number for cosmic ray
-  cr_num  = ev_nums(2)
   CALL RANDOM_NUMBER(rndnum)
   cr_time = -1*( DLOG(rndnum)/CR_RATE )
 
   ! Get initial abundances
-  CALL COUNTER(o3_prod,o3_dest,numprotons,time,matrix_ptr,wait_list,4,7,wait_len)
+  CALL counter()
 
   !******************************************************************************
   ! Begin the simulation
@@ -184,7 +182,7 @@ PROGRAM main
   DO WHILE ( fluence .LE. FLUENCE_TOTAL .AND. .NOT. unfit)
      loop_count = loop_count + 1
      ! At the start of the simulation, or whenever it's time for a particle
-     IF ((loop_count .EQ. 1) .OR. (TIME .LE. cr_time))) THEN
+     IF ((loop_count .EQ. 1) .OR. (TIME .LE. cr_time)) THEN
 
      ! Calculate time to next cosmic-ray event
      not_infty = .FALSE.
@@ -203,7 +201,7 @@ PROGRAM main
      PROTON_ELOSS = 0.d0 !Reset protpn energy loss to 0
 
      ! Calculate track/damage
-     CALL fallout( o3_prod,o3_dest )
+     CALL fallout( o3_prod,o3_dest,root,temp,prevNode,nextNode )
      IF ( PROTON_ELOSS .GT. 0 ) numprotons = numprotons + 1
      ALTFLUENCE = numprotons/AREA
   ELSE
@@ -221,7 +219,7 @@ PROGRAM main
         IF ( matrix(j(1),j(2),j(3))%sp_num .EQ. 0 ) THEN
            ! Save sp_num
            tmp_sp_num = temp%sp_num
-           CALL delete_node(root,temp,prevNode,nextNode)
+           CALL delete_node(root,temp,prevNode,nextNode,error)
            IF ( DEBUG .EQV. .TRUE. ) THEN
               ! Test to make sure temp still points to the
               ! x,y,z coords of the matrix
@@ -234,7 +232,7 @@ PROGRAM main
                  CALL EXIT()
               END IF
            END IF
-           CALL wipe_node
+           CALL wipe_node(temp)
            ! Point temp to new location
            temp => matrix(j(1),j(2),j(3))
            ! Update species number
@@ -274,11 +272,11 @@ PROGRAM main
   !    IF ( fluence .GT. 5.0E12 .AND. fluence .LE. 5.0e14 ) TIME_FREQ = 10000
   !    IF ( fluence .GT. 5.0E14  )  TIME_FREQ = 100000
   time_check = time_check + 1
-  IF ( (MOD(time_check,TIME_FREQ) .EQ. 0) .AND. (wait_list(mindex)%sp_num .EQ. cr_num) ) THEN
-     CALL counter( o3_prod,o3_dest,numprotons,time, matrix_ptr,wait_list,4,7,wait_len)
+  IF ( (MOD(time_check,TIME_FREQ) .EQ. 0) ) THEN
+     CALL counter()
 
      ! Testing out the new fitness function
-     CALL fitness(unfit,o3_prod,o3_dest,ALTFLUENCE,total_fitness,dimens,matrix_ptr,wait_list)
+     CALL fitness(unfit,ALTFLUENCE,total_fitness)
 
      ! Perform reaction analytics
      IF ( (FLOAT(O_ABUNDANCE-o_temp) .GT. 0) .AND. (PROTON_ELOSS .GT. 0.0) ) THEN
@@ -301,12 +299,14 @@ PROGRAM main
      ! (3) X + O2 -> O + O
      ! This value is in units of s^-1
      !      j2 = ABS(FLOAT(O2_ABUNDANCE-o2_temp)/(DELTA_TIME*FLOAT(O2_ABUNDANCE)))
-     j2 = ABS(FLOAT(RATEINFO(1)%count + RATEINFO(3)%count + RATEINFO(5)%count)/(DELTA_TIME*FLOAT(O2_ABUNDANCE)))
+     j2 = ABS(FLOAT(RATEINFO(1)%count + RATEINFO(3)%count + RATEINFO(5)%count)/&
+          (DELTA_TIME*FLOAT(O2_ABUNDANCE)))
      IF ( ISNAN(j2) ) j2 = 0
      ! (4) X + O3 -> O2 + O
      ! This value is in units of s^-1
      !      j3 = ABS(FLOAT(O3_ABUNDANCE-o3_temp)/(DELTA_TIME*FLOAT(O3_ABUNDANCE)))
-     j3 = ABS(FLOAT(RATEINFO(2)%count + RATEINFO(4)%count + RATEINFO(6)%count)/(DELTA_TIME*FLOAT(O2_ABUNDANCE)))
+     j3 = ABS(FLOAT(RATEINFO(2)%count + RATEINFO(4)%count + RATEINFO(6)%count)/&
+          (DELTA_TIME*FLOAT(O2_ABUNDANCE)))
      IF ( ISNAN(j3) ) j3 = 0
      IF ( NO_OUTPUT .EQV. .FALSE.) WRITE(RATE_UNIT_NUM,*) geminacy,',',j2,',',j3,',',k12,',',k13
      RATEINFO%count = 0
@@ -324,7 +324,7 @@ PRINT *, "****************"
 PRINT *, "ENDING LOSALAMOS"
 PRINT *, "****************"
 
-CALL counter( o3_prod,o3_dest,numprotons,time,matrix_ptr,wait_list,4,7,wait_len)
+CALL counter()
 CLOSE(AB_UNIT_NUM)
 !CLOSE(1011)
 !CLOSE(1013)

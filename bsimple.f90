@@ -57,7 +57,7 @@ CONTAINS
       ! There is no tree yet.  Add the node right here.
       ptr => new_node
     ELSE IF ( new_node < ptr ) THEN
-!      IF ( (new_node%coord2) .EQ. 2 .AND. (new_node%coord3 .EQ. 2) ) PRINT *, new_node%tau,"<",ptr%tau
+!      IF ( (new_node%coord2) .EQ. 2 .AND. (new_node%coord3 .EQ. 2) ) PRINT *, new_node%wait_time,"<",ptr%wait_time
       IF ( ASSOCIATED(ptr%before) ) THEN
         CALL add_node ( ptr%before, new_node )
       ELSE
@@ -66,7 +66,7 @@ CONTAINS
         new_node%leftRight = 0
       END IF
     ELSE
-!      IF ( (new_node%coord2) .EQ. 2 .AND. (new_node%coord3 .EQ. 2) ) PRINT *, new_node%tau,">",ptr%tau
+!      IF ( (new_node%coord2) .EQ. 2 .AND. (new_node%coord3 .EQ. 2) ) PRINT *, new_node%wait_time,">",ptr%wait_time
       IF ( ASSOCIATED(ptr%after) ) THEN
         CALL add_node ( ptr%after, new_node )
       ELSE
@@ -91,7 +91,7 @@ CONTAINS
     END IF
 
     ! Write contents of current node.
-    !WRITE (*,*) ptr%tau, ptr%coord1, ptr%coord2, ptr%coord3
+    !WRITE (*,*) ptr%wait_time, ptr%coord1, ptr%coord2, ptr%coord3
 
     ! Write contents of next node.
     IF ( ASSOCIATED(ptr%after) ) THEN
@@ -142,8 +142,8 @@ CONTAINS
     INTEGER :: assocstat
 
     ! PRINT *, "Now in find previous"
-    ! PRINT *, "ptr at",ptr%coord1,ptr%coord2,ptr%coord3,ptr%tau
-    ! PRINT *, "search at",search%coord1,search%coord2,search%coord3,search%tau
+    ! PRINT *, "ptr at",ptr%coord1,ptr%coord2,ptr%coord3,ptr%wait_time
+    ! PRINT *, "search at",search%coord1,search%coord2,search%coord3,search%wait_time
     leftRight = 99
     assocstat = 0
 
@@ -159,8 +159,8 @@ CONTAINS
     SELECT CASE (assocstat)
     CASE(0)
       PRINT *, "Both pointers null! Exiting!!"
-      PRINT *, "search=",search%tau,search%omega,search%coord1,search%coord2,search%coord3
-      PRINT *, "ptr=",ptr%tau,ptr%omega,ptr%coord1,ptr%coord2,ptr%coord3
+      PRINT *, "search=",search%wait_time,search%coord1,search%coord2,search%coord3
+      PRINT *, "ptr=",ptr%wait_time,ptr%coord1,ptr%coord2,ptr%coord3
       PRINT *, "Now writing ptr"
       CALL write_node(ptr)
       PRINT *, "Now writing search:"
@@ -173,12 +173,12 @@ CONTAINS
         error = 0
         leftRight = 0
       ELSE IF ( search == ptr%after ) THEN
-  !      PRINT *, search%tau,"=after",ptr%tau
+  !      PRINT *, search%wait_time,"=after",ptr%wait_time
         prevNode => ptr
         error = 0
         leftRight = 1
       ELSE IF ( search < ptr ) THEN
-  !      PRINT *, search%tau," is less than ptr%before"
+  !      PRINT *, search%wait_time," is less than ptr%before"
           CALL find_previous (ptr%before, search, prevNode, leftRight, error)
       ELSE
         CALL find_previous (ptr%after, search, prevNode, leftRight, error)
@@ -193,7 +193,7 @@ CONTAINS
       END IF
     CASE(3)
       IF ( search == ptr%after ) THEN
-  !      PRINT *, search%tau,"=after",ptr%tau
+  !      PRINT *, search%wait_time,"=after",ptr%wait_time
         prevNode => ptr
         error = 0
         leftRight = 1
@@ -250,7 +250,7 @@ CONTAINS
     d3 = toDelete%coord3
 
     CALL node_type(toDelete,dType,onetype,twotype,0)
-    IF ( VERBOSE .EQV. .TRUE. ) THEN
+    IF ( NO_OUTPUT .EQV. .FALSE. ) THEN
       IF ( dType .EQ. 1 ) PRINT *, "dType=",dType,"onetype=",onetype
       IF (dType .EQ. 2 ) PRINT *, "dType=",dType,"twotype=",twotype
     END IF
@@ -286,41 +286,41 @@ CONTAINS
         PRINT *, "Error in onetype case: onetype=0"
         CALL EXIT()
       CASE (1)
-        IF ( VERBOSE .EQV. .TRUE. ) PRINT *, "onetype=",onetype
+        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "onetype=",onetype
         nextNode => toDelete%before
         prevNode => toDelete%parent
         nextNode%parent => prevNode        ! 1
         nextNode%leftRight = 0             ! 2
         prevNode%before => nextNode        ! 3
       CASE (2)
-        IF ( VERBOSE .EQV. .TRUE. ) PRINT *, "onetype=",onetype
+        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "onetype=",onetype
         nextNode => toDelete%before
         prevNode => toDelete%parent
         nextNode%parent => prevNode        ! 1
         prevNode%after =>  nextNode        ! 2
         nextNode%leftRight = 1             ! 3
       CASE (3)
-        IF ( VERBOSE .EQV. .TRUE. ) PRINT *, "onetype=",onetype
+        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "onetype=",onetype
         nextNode => toDelete%after
         prevNode => toDelete%parent
         nextNode%parent => prevNode        ! 1
         prevNode%before => nextNode        ! 2
         nextNode%leftRight = 0             ! 3
       CASE (4)
-        IF ( VERBOSE .EQV. .TRUE. ) PRINT *, "onetype=",onetype
+        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "onetype=",onetype
         nextNode => toDelete%after
         prevNode => toDelete%parent
         nextNode%parent => prevNode        ! 1
         prevNode%after => nextNode         ! 2
         nextNode%leftRight = 1             ! 3
       CASE (5)
-        IF ( VERBOSE .EQV. .TRUE. ) PRINT *, "onetype=",onetype
+        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "onetype=",onetype
         nextNode => toDelete%before
         NULLIFY(nextNode%parent)           ! 1
         nextNode%leftRight = -1            ! 2
         root => nextNode                   ! 3
       CASE (6)
-        IF ( VERBOSE .EQV. .TRUE. ) PRINT *, "onetype=",onetype
+        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "onetype=",onetype
         nextNode => toDelete%after
         NULLIFY(nextNode%parent)           ! 1
         nextNode%leftRight = -1            ! 2
@@ -337,13 +337,13 @@ CONTAINS
       CALL delete_node(root,toDelete,prevNode,nextNode,error)
       SELECT CASE (twotype)
       CASE (1)
-        IF ( VERBOSE .EQV. .TRUE. ) PRINT *, "twotype=",twotype
+        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
         prevNode => matrix(d1,d2,d3)%before
         prevNode%parent => toDelete ! 1
         toDelete%before => prevNode ! 2
         root => toDelete
       CASE (2)
-        IF ( VERBOSE .EQV. .TRUE. ) PRINT *, "twotype=",twotype
+        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
         prevNode => matrix(d1,d2,d3)%before
         nextNode => matrix(d1,d2,d3)%after
         prevNode%parent => toDelete ! 1
@@ -352,13 +352,13 @@ CONTAINS
         toDelete%after  => nextNode ! 4
         root => toDelete
       CASE (3)
-        IF ( VERBOSE .EQV. .TRUE. ) PRINT *, "twotype=",twotype
+        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
         prevNode => matrix(d1,d2,d3)%before
         prevNode%parent => toDelete ! 1
         toDelete%before => prevNode ! 2
         root => toDelete
       CASE (4)
-        IF ( VERBOSE .EQV. .TRUE. ) PRINT *, "twotype=",twotype
+        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
         prevNode => matrix(d1,d2,d3)%before
         nextNode => matrix(d1,d2,d3)%after
         prevNode%parent => toDelete ! 1
@@ -367,7 +367,7 @@ CONTAINS
         toDelete%after  => nextNode ! 4
         root => toDelete
       CASE (5)
-        IF ( VERBOSE .EQV. .TRUE. ) PRINT *, "twotype=",twotype
+        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
         prevNode => matrix(d1,d2,d3)%before
         prevNode%parent => toDelete                     ! 1
         toDelete%before => prevNode                     ! 2
@@ -380,7 +380,7 @@ CONTAINS
           prevNode%after  => toDelete
         END IF
       CASE (6)
-        IF ( VERBOSE .EQV. .TRUE. ) PRINT *, "twotype=",twotype
+        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
         prevNode => matrix(d1,d2,d3)%before
         nextNode => matrix(d1,d2,d3)%after
         prevNode%parent => toDelete                     ! 1
@@ -396,7 +396,7 @@ CONTAINS
           prevNode%after => toDelete
         END IF
       CASE (7)
-        IF ( VERBOSE .EQV. .TRUE. ) PRINT *, "twotype=",twotype
+        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
         prevNode => matrix(d1,d2,d3)%before
         prevNode%parent => toDelete                     ! 1
         toDelete%before => prevNode                     ! 2
@@ -409,7 +409,7 @@ CONTAINS
           prevNode%after  => toDelete
         END IF
       CASE (8)
-        IF ( VERBOSE .EQV. .TRUE. ) PRINT *, "twotype=",twotype
+        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
         prevNode => matrix(d1,d2,d3)%before
         nextNode => matrix(d1,d2,d3)%after
         prevNode%parent => toDelete                     ! 1
@@ -438,9 +438,9 @@ CONTAINS
     !
     TYPE (node), INTENT(IN) :: op1, op2
 
-    IF (op1%tau > op2%tau) THEN
+    IF (op1%wait_time > op2%wait_time) THEN
       greater_than = .TRUE.
-    ELSE IF ( op1%tau == op2%tau ) THEN
+    ELSE IF ( op1%wait_time == op2%wait_time ) THEN
       IF ( op1%coord1 > op2%coord1 ) THEN
         greater_than = .TRUE.
       ELSE IF ( op1%coord1 == op2%coord1 ) THEN
@@ -472,9 +472,9 @@ CONTAINS
     TYPE (node), INTENT(IN) :: op1, op2
 
 
-    IF (op1%tau < op2%tau) THEN
+    IF (op1%wait_time < op2%wait_time) THEN
       less_than = .TRUE.
-    ELSE IF ( op1%tau == op2%tau ) THEN
+    ELSE IF ( op1%wait_time == op2%wait_time ) THEN
       IF ( op1%coord1 < op2%coord1 ) THEN
         less_than = .TRUE.
       ELSE IF ( op1%coord1 == op2%coord1 ) THEN
@@ -505,7 +505,7 @@ CONTAINS
     !
     TYPE (node), INTENT(IN) :: op1, op2
 
-    IF ( (op1%tau == op2%tau ) .AND. &
+    IF ( (op1%wait_time == op2%wait_time ) .AND. &
          (op1%coord1 == op2%coord1) .AND. &
          (op1%coord2 == op2%coord2) .AND. &
          (op1%coord3 == op2%coord3) ) THEN

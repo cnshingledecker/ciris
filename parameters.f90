@@ -1,16 +1,14 @@
 MODULE parameters
   USE typedefs
-  !USE IFPORT
   SAVE
-
   !******************************************************************************
   ! Misc. Global Variables
   !******************************************************************************
-  TYPE(node), ALLOCATABLE  :: MATRIX(:,:,:)
+  TYPE(node), ALLOCATABLE, TARGET  :: MATRIX(:,:,:)
   INTEGER  :: DIMENS(3)
-  REAL(KIND=DBL) :: TIME
-  REAL(KIND=DBL), ALLOCATABLE :: EN_LIST(:)
-  INTEGER, ALLOCATABLE :: SP_LIST(:)
+  DOUBLE PRECISION :: TIME
+  DOUBLE PRECISION, ALLOCATABLE :: EN_LIST(:)
+  CHARACTER(LEN=20), ALLOCATABLE :: SP_LIST(:)
   INTEGER, ALLOCATABLE :: REACT_CUBE(:,:,:)
   INTEGER, ALLOCATABLE :: IONLIST(:)
   INTEGER              :: NUM_SPECIES
@@ -28,22 +26,14 @@ MODULE parameters
   DOUBLE PRECISION, PARAMETER :: EINIT       = 100D3                      ! Initial ion energy in eV
 
   !******************************************************************************
-  ! Precision Parameters
-  !******************************************************************************
-  INTEGER         , PARAMETER :: SHORT       = SELECTED_INT_KIND(3)
-  INTEGER         , PARAMETER :: LONG        = SELECTED_INT_KIND(9)
-  INTEGER         , PARAMETER :: SGL         = SELECTED_REAL_KIND(p=6,r=37)
-  INTEGER         , PARAMETER :: DBL         = SELECTED_REAL_KIND(p=13,r=200)
-
-  !******************************************************************************
   ! Matrix/Crystal Structure Parameters
   !******************************************************************************
-  REAL(KIND=DBL)  , PARAMETER :: CDIM        = 3.414e-8                    ! Crystal dimension in cm
-  REAL(KIND=DBL)  , PARAMETER :: BDIM        = 6.668e-8                    !    "
-  REAL(KIND=DBL)  , PARAMETER :: ADIM        = 9.225e-8                    !    "
-  REAL(KIND=DBL)  , PARAMETER :: BETACRYS    = 85.05                       ! Beta parameter in deg
-  REAL(KIND=DBL)  , PARAMETER :: C_PR        = CDIM*COS(90-BETACRYS)       ! Actual height of the crystal cube
-  REAL(KIND=DBL)  , PARAMETER :: RHO         = 1.313E22                    !4.78E27  ! Crystal density in cm^-3
+  DOUBLE PRECISION  , PARAMETER :: CDIM        = 3.414e-8                    ! Crystal dimension in cm
+  DOUBLE PRECISION  , PARAMETER :: BDIM        = 6.668e-8                    !    "
+  DOUBLE PRECISION  , PARAMETER :: ADIM        = 9.225e-8                    !    "
+  DOUBLE PRECISION  , PARAMETER :: BETACRYS    = 85.05                       ! Beta parameter in deg
+  DOUBLE PRECISION  , PARAMETER :: C_PR        = CDIM*COS(90-BETACRYS)       ! Actual height of the crystal cube
+  DOUBLE PRECISION  , PARAMETER :: RHO         = 1.313E22                    !4.78E27  ! Crystal density in cm^-3
   DOUBLE PRECISION, PARAMETER :: RHO2        = 0.01313                     !0.0286   !in Angstrom^-3
 
   !******************************************************************************
@@ -52,15 +42,15 @@ MODULE parameters
   INTEGER         , PARAMETER :: FIX1        = 150
   INTEGER         , PARAMETER :: FIX2        = 150
   INTEGER         , PARAMETER :: FIX3        = 150
-  REAL(KIND=DBL)  , PARAMETER :: THICK       = 6.0e-6                      !1.0e-5 ! Thickness of the ice in cm
-  REAL(KIND=DBL)  , PARAMETER :: EDGE        = 3.5e-6                      !1.0e-7 ! The edge of the crystal in cm
-  REAL(KIND=DBL)  , PARAMETER :: VOLUME      = THICK*EDGE*EDGE             ! Volume of ice chunk
-  REAL(KIND=DBL)  , PARAMETER :: KIN_TEMP    = 5.0D0                       ! Kinetic temperature in Kelvin
-  REAL(KIND=DBL)  , PARAMETER :: AREA        = EDGE*EDGE                   ! Area of irradiated surface in cm
-  REAL(KIND=DBL)  , PARAMETER :: CR_FLUX     = 1.0D11                      ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
-  REAL(KIND=DBL)  , PARAMETER :: CR_RATE     = CR_FLUX*AREA                ! Rate of proton arrival
-  REAL(KIND=DBL)  , PARAMETER :: NELEM       = 3.0*RHO*(THICK*EDGE*EDGE)   !Total matrix elements
-  REAL(KIND=DBL)  , PARAMETER :: TER         = THICK/EDGE                  !Thick to edge ratio
+  DOUBLE PRECISION  , PARAMETER :: THICK       = 6.0e-6                      !1.0e-5 ! Thickness of the ice in cm
+  DOUBLE PRECISION  , PARAMETER :: EDGE        = 3.5e-6                      !1.0e-7 ! The edge of the crystal in cm
+  DOUBLE PRECISION  , PARAMETER :: VOLUME      = THICK*EDGE*EDGE             ! Volume of ice chunk
+  DOUBLE PRECISION  , PARAMETER :: KIN_TEMP    = 5.0D0                       ! Kinetic temperature in Kelvin
+  DOUBLE PRECISION  , PARAMETER :: AREA        = EDGE*EDGE                   ! Area of irradiated surface in cm
+  DOUBLE PRECISION  , PARAMETER :: CR_FLUX     = 1.0D11                      ! Proton/Cosmic-ray flux in n(H+) cm^-2 s^-1
+  DOUBLE PRECISION  , PARAMETER :: CR_RATE     = CR_FLUX*AREA                ! Rate of proton arrival
+  DOUBLE PRECISION  , PARAMETER :: NELEM       = 3.0*RHO*(THICK*EDGE*EDGE)   !Total matrix elements
+  DOUBLE PRECISION  , PARAMETER :: TER         = THICK/EDGE                  !Thick to edge ratio
   INTEGER         , PARAMETER :: NEDGE       = FLOOR((NELEM/TER)**(1./3.)) !Edge elements
   INTEGER         , PARAMETER :: NTHICK      = FLOOR(NEDGE*TER)            !Thickness elements
 
@@ -99,15 +89,15 @@ MODULE parameters
   INTEGER                     :: NEXIT                                     ! Max sub-ex loop iters
   REAL                        :: STEPFAC           = 0.1                   ! Determines freq. between colls. for protons
   REAL                        :: ESTEPFAC          = 0.1                   ! Determines freq. between colls. for electrons
-  REAL(KIND=DBL)              :: ALTFLUENCE        = 0.d0
-  REAL(KIND=DBL)  , PARAMETER :: TIME_TOTAL        = 1D5                   ! Total time in s
-  REAL(KIND=DBL)              :: AVAL              = 33                    ! Parameter for Gamma distribution
-  REAL(KIND=DBL)  , PARAMETER :: ECUTOFF           = 9.0D0                 ! Secondary cutoff energy in eV
-  REAL(KIND=DBL)  , PARAMETER :: PCUTOFF           = 5.0D0                 ! Primary ion cutoff energy in eV
-  REAL(KIND=DBL)  , PARAMETER :: FLUENCE_TOTAL     = 1.0D15
-  REAL(KIND=DBL)  , PARAMETER :: SUBEXHITPROB      = 0.5
-  REAL(KIND=DBL)              :: FITNESS_THRESHOLD = 1E20  ! if fitness value exceeds this, terminate
-  REAL(KIND=DBL)              :: ELASTIC_LOSS      = 0.001
+  DOUBLE PRECISION              :: ALTFLUENCE        = 0.d0
+  DOUBLE PRECISION  , PARAMETER :: TIME_TOTAL        = 1D5                   ! Total time in s
+  DOUBLE PRECISION              :: AVAL              = 33                    ! Parameter for Gamma distribution
+  DOUBLE PRECISION  , PARAMETER :: ECUTOFF           = 9.0D0                 ! Secondary cutoff energy in eV
+  DOUBLE PRECISION  , PARAMETER :: PCUTOFF           = 5.0D0                 ! Primary ion cutoff energy in eV
+  DOUBLE PRECISION  , PARAMETER :: FLUENCE_TOTAL     = 1.0D15
+  DOUBLE PRECISION  , PARAMETER :: SUBEXHITPROB      = 0.5
+  DOUBLE PRECISION              :: FITNESS_THRESHOLD = 1E20  ! if fitness value exceeds this, terminate
+  DOUBLE PRECISION              :: ELASTIC_LOSS      = 0.001
 
   !******************************************************************************
   ! Branching Ratios
@@ -137,8 +127,8 @@ MODULE parameters
   INTEGER                                  :: O_ABUNDANCE  = 0
   INTEGER                                  :: O2_ABUNDANCE = 0
   INTEGER                                  :: O3_ABUNDANCE = 0
-  REAL(KIND=DBL)                           :: DELTA_TIME   = 0.d0
-  REAL(KIND=DBL)                           :: PROTON_ELOSS = 0.d0
+  DOUBLE PRECISION                           :: DELTA_TIME   = 0.d0
+  DOUBLE PRECISION                           :: PROTON_ELOSS = 0.d0
   TYPE(rate_info), DIMENSION(8)            :: RATEINFO
 
   !******************************************************************************
@@ -153,11 +143,9 @@ MODULE parameters
 
 
   !******************************************************************************
-  ! Array Parameters
+  ! Array Variables
   !******************************************************************************
-  INTEGER, DIMENSION(1)       :: FAST_REACTS  = (/ ONUM /)                   ! 4 ! Species that react upon formation
-  INTEGER, DIMENSION(1)       :: FRAGILE      = (/ O2NUM /)                    ! 7 ! Species that dissociate easily
-  INTEGER, DIMENSION(2)       :: SPECIAL_LIST = (/ CRPNUM, EXCNUM, ELECNUM /)
+  INTEGER :: SPECIAL_LIST(3) = 0
   INTEGER                     :: TIME_FREQ    = 1  !1000000
 
   !******************************************************************************
@@ -168,66 +156,64 @@ MODULE parameters
   LOGICAL         , PARAMETER :: QUIET        = .FALSE.
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
-  LOGICAL         , PARAMETER :: TEST_WRONG   = .FALSE.
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
   LOGICAL         , PARAMETER :: O3_ANALYTICS = .FALSE.
 
-  CONTAINS
-
+CONTAINS
   SUBROUTINE initconstants ()
-      INTEGER :: err
-      CHARACTER(LEN=32) :: var
-      CHARACTER(LEN=32) :: val
+    INTEGER :: err
+    CHARACTER(LEN=32) :: var
+    CHARACTER(LEN=32) :: val
 
-      ! Open file for reading
-      OPEN(UNIT=200, FILE=PARAMS_FILE, STATUS='OLD', ACTION='READ', IOSTAT=err)
-      IF (err .NE. 0) THEN
-          PRINT *, "ERROR: Failed to open params.dat file for reading"
-          CALL EXIT(-1)
-      END IF
+    ! Open file for reading
+    OPEN(UNIT=200, FILE=PARAMS_FILE, STATUS='OLD', ACTION='READ', IOSTAT=err)
+    IF (err .NE. 0) THEN
+       PRINT *, "ERROR: Failed to open params.dat file for reading"
+       CALL EXIT(-1)
+    END IF
 
-      ! Read in the file
-      DO
-        READ(200,*,IOSTAT=err) var, val
-        IF ( err .NE. 0 ) EXIT
-        ! Store value
-        SELECT CASE (var)
-!          CASE ("TRL_NU")
-!              READ(val, *) TRL_NU
-          CASE ("DISPROB")
-              READ(val, *) DISPROB
-          CASE ("NSUBEX")
-              READ(val, *) NSUBEX
-          CASE ("STEPFAC")
-              READ(val, *) STEPFAC
-          CASE ("ESTEPFAC")
-              READ(val, *) ESTEPFAC
-          CASE ("AVAL")
-              READ(val, *) AVAL
-          CASE ("O2_ION_BRANCHING")
-              READ(val, *) O2_ION_BRANCHING
-          CASE ("O_ION_BRANCHING")
-              READ(val, *) O_ION_BRANCHING
-          CASE ("O3_DIS_BRANCHING")
-              READ(val, *) O3_DIS_BRANCHING
-          CASE ("O3_O_ION_BRANCHING")
-              READ(val, *) O3_0_ION_BRANCHING
-          CASE ("O3_O2_ION_BRANCHING")
-              READ(val, *) O3_O2_ION_BRANCHING
-          CASE ("O_O2_BRANCHING")
-              READ(val, *) O_O2_BRANCHING
-          CASE ("FRAGILE")
-              READ(val, *) FRAGILE
-          CASE("ELASTIC_LOSS")
-              READ(val, *) ELASTIC_LOSS
-          CASE DEFAULT
-              PRINT *, "WARNING: Unexpect variable name '", var, "'. Ignoring..."
-        END SELECT
-      END DO
+    ! Read in the file
+    DO
+       READ(200,*,IOSTAT=err) var, val
+       IF ( err .NE. 0 ) EXIT
+       ! Store value
+       SELECT CASE (var)
+          !          CASE ("TRL_NU")
+          !              READ(val, *) TRL_NU
+       CASE ("DISPROB")
+          READ(val, *) DISPROB
+       CASE ("NSUBEX")
+          READ(val, *) NSUBEX
+       CASE ("STEPFAC")
+          READ(val, *) STEPFAC
+       CASE ("ESTEPFAC")
+          READ(val, *) ESTEPFAC
+       CASE ("AVAL")
+          READ(val, *) AVAL
+       CASE ("O2_ION_BRANCHING")
+          READ(val, *) O2_ION_BRANCHING
+       CASE ("O_ION_BRANCHING")
+          READ(val, *) O_ION_BRANCHING
+       CASE ("O3_DIS_BRANCHING")
+          READ(val, *) O3_DIS_BRANCHING
+       CASE ("O3_O_ION_BRANCHING")
+          READ(val, *) O3_0_ION_BRANCHING
+       CASE ("O3_O2_ION_BRANCHING")
+          READ(val, *) O3_O2_ION_BRANCHING
+       CASE ("O_O2_BRANCHING")
+          READ(val, *) O_O2_BRANCHING
+       CASE ("FRAGILE")
+          READ(val, *) FRAGILE
+       CASE("ELASTIC_LOSS")
+          READ(val, *) ELASTIC_LOSS
+       CASE DEFAULT
+          PRINT *, "WARNING: Unexpect variable name '", var, "'. Ignoring..."
+       END SELECT
+    END DO
 
-      ! NEXIT seems to be the only variable that depended on one of these...
-      NEXIT = 10*NSUBEX
-      CLOSE(200)
+    ! NEXIT seems to be the only variable that depended on one of these...
+    NEXIT = 10*NSUBEX
+    CLOSE(200)
   END SUBROUTINE initconstants
 
 END MODULE parameters

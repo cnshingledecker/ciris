@@ -37,7 +37,7 @@ SUBROUTINE qbert()
   USE parameters
   IMPLICIT NONE
   ! Input and output
-  INTEGER(KIND=SHORT)              :: temp_prods(3)
+  INTEGER              :: temp_prods(3)
   INTEGER                          :: ierror1, ierror2
   INTEGER                          :: n, k, n1, n3
   INTEGER                          :: prod, i, j
@@ -102,7 +102,7 @@ SUBROUTINE qbert()
      CALL lookup( "CRP", NUM_SPECIES, SP_LIST,  CRPNUM)
      CALL lookup( '*'  , NUM_SPECIES, SP_LIST,  EXCNUM )
      CALL lookup( 'e'  , NUM_SPECIES, SP_LIST,  ELECNUM )
-     SPECIAL_LIST = (/ CRPNUM, EXCNUM /)     
+     SPECIAL_LIST = (/ CRPNUM, EXCNUM, ELECNUM /)     
 
      i_count = 1
      DO n=1,NUM_SPECIES
@@ -152,8 +152,8 @@ END SUBROUTINE qbert
 SUBROUTINE sort_energies( prods, A_en, B_en, C_en )
   USE parameters
   IMPLICIT NONE
-  INTEGER(KIND=SHORT), INTENT(INOUT), DIMENSION(3) :: prods
-  INTEGER(KIND=SHORT)               , DIMENSION(3) :: temp
+  INTEGER, INTENT(INOUT), DIMENSION(3) :: prods
+  INTEGER               , DIMENSION(3) :: temp
   REAL               , INTENT(IN)                  :: A_en, B_en, C_en
 
   IF ( A_en .GT. B_en ) THEN

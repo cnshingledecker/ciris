@@ -7,15 +7,15 @@
   #FCFLAGS =  -O3 -static-intel
   FCFLAGS = -O3 -march=native
 
-OBJECTS = qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o specdata.o gp.o
+OBJECTS = qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o specdata.o gp.o branchmod.o bsimple.o
 
 PROGRAM = losalamos
 
 
-$(PROGRAM): qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o
+$(PROGRAM): qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o branching.o bsimple.o
 	$(FC) -o $(PROGRAM) *.o $(FCFLAGS)
 
-main.o: main.f90 subroutines.o parameters.o typedefs.o functiondefs.o gp.o
+main.o: main.f90 subroutines.o parameters.o typedefs.o functiondefs.o gp.o branchmod.o bsimple.o
 	$(FC) -c main.f90 $(FCFLAGS)
 
 typedefs.o: typedefs.f90
@@ -27,11 +27,17 @@ specdata.o: specdata.f90 typedefs.o
 qbert.o: qbert.f90 subroutines.o parameters.o
 	$(FC) -c qbert.f90 $(FCFLAGS)
 
-subroutines.o: subroutines.f90 mc_toolbox.o typedefs.o functiondefs.o parameters.o specdata.o
+subroutines.o: subroutines.f90 mc_toolbox.o typedefs.o functiondefs.o parameters.o specdata.o branchmod.o bsimple.o
 	$(FC) -c subroutines.f90 $(FCFLAGS)
 
 parameters.o: parameters.f90 typedefs.o
 	$(FC) -c parameters.f90 $(FCFLAGS)
+
+bsimple.o: bsimple.f90 parameters.o typedefs.o
+	$(FC) -c bsimple.f90 $(FCFLAGS)
+
+branchmod.o: branchmod.f90 parameters.o
+	$(FC) -c branchmod.f90 $(FCFLAGS)
 
 mc_toolbox.o: mc_toolbox.f90
 	$(FC) -c mc_toolbox.f90 $(FCFLAGS)
@@ -39,7 +45,7 @@ mc_toolbox.o: mc_toolbox.f90
 functiondefs.o: functiondefs.f90 parameters.o typedefs.o
 	$(FC) -c functiondefs.f90 $(FCFLAGS)
 
-gp.o: gp.f90 parameters.o typedefs.o
+gp.o: gp.f90 parameters.o typedefs.o subroutines.f90
 	$(FC) -c gp.f90 $(FCFLAGS)
 
 static: qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o

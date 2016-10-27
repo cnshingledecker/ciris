@@ -1,11 +1,11 @@
 MODULE subroutines
+  USE bsimple
+  USE branchmod
   USE parameters
   USE typedefs
   USE functiondefs
   USE mc_toolbox
   USE specdata
-
-
 CONTAINS
   ! *********************************************************
   ! ******* SUBROUTINES *************************************
@@ -17,25 +17,19 @@ CONTAINS
     !  in a list and gives the index of a matching result and an
     !  error if there is no match.
     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! LOOKUP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
-
     !*****************
     ! Input and output
     !*****************
-
     INTEGER            , INTENT(IN)                    :: nlines
     INTEGER            , INTENT(OUT)                   :: n
     CHARACTER(*)       , INTENT(IN)                    :: string
     CHARACTER(len=10)  , INTENT(IN), DIMENSION(nlines) :: array
-
     !****************
     ! Local variables
     !****************
-
-    INTEGER(KIND=SHORT)                                :: i
+    INTEGER                                :: i
     CHARACTER(len=10)              , DIMENSION(1)      :: string_arr
 
     ! Go through the array and compare the supplied string with the
@@ -56,14 +50,13 @@ CONTAINS
     !
     !! LINECOUNT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
-
     !*****************
     ! Input and output
     !*****************
     INTEGER            , INTENT(IN)  :: unitnum
     INTEGER            , INTENT(OUT) :: errcode
-    INTEGER(KIND=SHORT), INTENT(OUT) :: lines
-    INTEGER(KIND=SHORT)              :: adv
+    INTEGER, INTENT(OUT) :: lines
+    INTEGER              :: adv
     CHARACTER(LEN=100)               :: line
     INTEGER                          :: header_num
 
@@ -80,7 +73,7 @@ CONTAINS
     REWIND(unitnum)
   END SUBROUTINE linecount
 
-  SUBROUTINE hopping ( i_in, j_in, k_in, i_out, j_out, k_out, prob, dimens )
+  SUBROUTINE hopping ( i_in, j_in, k_in, i_out, j_out, k_out, prob )
     !
     ! Purpose:
     !   The purpose of this  is to move a species from one site to another.
@@ -90,100 +83,88 @@ CONTAINS
     !
     !! HOPPING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
-
     !*****************
     ! Input and output
     !*****************
-
     INTEGER            , INTENT(IN)                          :: i_in, j_in, k_in
     INTEGER            , INTENT(OUT)                         :: i_out, j_out, k_out
     INTEGER            , INTENT(IN)                          :: prob
-    INTEGER            , INTENT(IN), DIMENSION(3)            :: dimens !dimension of matrix
-
 
     ! Determine the direction of travel based on input number
     ! note that the second and third indices, j and k, are
     ! incremented by +- 2
     SELECT CASE (prob)
-
-
     CASE (1)
        ! hop back => k-2
        IF ( k_in .EQ. 1 .OR. k_in .EQ. 2 ) THEN
-          IF ( MOD(dimens(3),2) .EQ. 1 ) THEN
-             IF ( k_in .EQ. 1 ) k_out = dimens(3)
-             IF ( k_in .EQ. 2 ) k_out = dimens(3)-1
+          IF ( MOD(DIMENS(3),2) .EQ. 1 ) THEN
+             IF ( k_in .EQ. 1 ) k_out = DIMENS(3)
+             IF ( k_in .EQ. 2 ) k_out = DIMENS(3)-1
           ELSE
-             IF ( k_in .EQ. 1 ) k_out = dimens(3)-1
-             IF ( k_in .EQ. 2 ) k_out = dimens(3)
+             IF ( k_in .EQ. 1 ) k_out = DIMENS(3)-1
+             IF ( k_in .EQ. 2 ) k_out = DIMENS(3)
           END IF
        ELSE
           k_out = k_in-2
        END IF
        i_out = i_in
        j_out = j_in
-
     CASE (2)
        ! hop forward => k+2
-       IF ( k_in .EQ. dimens(3) .OR. k_in .EQ. dimens(3)-1 ) THEN
-          IF ( MOD(dimens(3),2) .EQ. 1 ) THEN
-             IF ( k_in .EQ. dimens(3) ) k_out = 1
-             IF ( k_in .EQ. dimens(3)-1 ) k_out = 2
+       IF ( k_in .EQ. DIMENS(3) .OR. k_in .EQ. DIMENS(3)-1 ) THEN
+          IF ( MOD(DIMENS(3),2) .EQ. 1 ) THEN
+             IF ( k_in .EQ. DIMENS(3) ) k_out = 1
+             IF ( k_in .EQ. DIMENS(3)-1 ) k_out = 2
           ELSE
-             IF ( k_in .EQ. dimens(3) ) k_out = 2
-             IF ( k_in .EQ. dimens(3)-1) k_out = 1
+             IF ( k_in .EQ. DIMENS(3) ) k_out = 2
+             IF ( k_in .EQ. DIMENS(3)-1) k_out = 1
           END IF
        ELSE
           k_out = k_in + 2
        END IF
        i_out = i_in
        j_out = j_in
-
     CASE (3)
        ! hop left => j-2
        IF ( j_in .EQ. 1 .OR. j_in .EQ. 2 ) THEN
-          IF ( MOD(dimens(2),2) .EQ. 1 ) THEN
-             IF ( j_in .EQ. 1 ) j_out = dimens(2)
-             IF ( j_in .EQ. 2 ) j_out = dimens(2)-1
+          IF ( MOD(DIMENS(2),2) .EQ. 1 ) THEN
+             IF ( j_in .EQ. 1 ) j_out = DIMENS(2)
+             IF ( j_in .EQ. 2 ) j_out = DIMENS(2)-1
           ELSE
-             IF ( j_in .EQ. 1 ) j_out = dimens(2)-1
-             IF ( j_in .EQ. 2 ) j_out = dimens(2)
+             IF ( j_in .EQ. 1 ) j_out = DIMENS(2)-1
+             IF ( j_in .EQ. 2 ) j_out = DIMENS(2)
           END IF
        ELSE
           j_out = j_in-2
        END IF
        i_out = i_in
        k_out = k_in
-
     CASE (4)
        ! hop right => j+2
-       IF ( j_in .EQ. dimens(2) .OR. j_in .EQ. dimens(2)-1 ) THEN
-          IF ( MOD(dimens(2),2) .EQ. 1 ) THEN
-             IF ( j_in .EQ. dimens(2) ) j_out = 1
-             IF ( j_in .EQ. dimens(2)-1) j_out = 2
+       IF ( j_in .EQ. DIMENS(2) .OR. j_in .EQ. DIMENS(2)-1 ) THEN
+          IF ( MOD(DIMENS(2),2) .EQ. 1 ) THEN
+             IF ( j_in .EQ. DIMENS(2) ) j_out = 1
+             IF ( j_in .EQ. DIMENS(2)-1) j_out = 2
           ELSE
-             IF ( j_in .EQ. dimens(2)) j_out = 2
-             IF ( j_in .EQ. dimens(2)-1) j_out = 1
+             IF ( j_in .EQ. DIMENS(2)) j_out = 2
+             IF ( j_in .EQ. DIMENS(2)-1) j_out = 1
           END IF
        ELSE
           j_out = j_in+2
        END IF
        i_out = i_in
        k_out = k_in
-
-
     CASE (5)
        ! hop down => i+1
        ! Hopping to the monolayer above or below the current
-       ! one involves +- 1 to the first dimension (i)
-       IF ( i_in .EQ. dimens(1) ) THEN
+       ! one involves +- 1 to the first DIMENSion (i)
+       IF ( i_in .EQ. DIMENS(1) ) THEN
           i_out = i_in
        ELSE
           i_out = i_in+1
        END IF
        j_out = j_in
        k_out = k_in
-
     CASE (6)
        ! hop up => i-1
        IF ( i_in .EQ. 1 ) THEN
@@ -196,7 +177,7 @@ CONTAINS
     END SELECT
   END SUBROUTINE hopping
 
-  SUBROUTINE fallout ( o3_prod,o3_dest)
+  SUBROUTINE fallout ( o3_prod,o3_dest,root,temp,prevNode,nextNode)
     ! Purpose:
     !   To calculate the track of a particle of ionizing radiation through a
     !  crystaline solid.
@@ -212,47 +193,46 @@ CONTAINS
     !******************!
     ! Input and output !
     !******************!
-    INTEGER                              , POINTER :: o3_prod,o3_dest
-
+    INTEGER            , POINTER :: o3_prod,o3_dest
     !*****************!
     ! Local variables !
     !*****************!
-    INTEGER(KIND=SHORT)                            :: null
-    INTEGER                                        :: n,nn,jj
-    INTEGER                                        :: num_elecs ! number of secondary electrons pruduced
-    INTEGER                                        :: num_izns
-    INTEGER                                        :: num_exs, num_els
-    INTEGER                                        :: x,y,z !coordinates of cosmic-ray along track
-    INTEGER                                        :: exitcount
-    INTEGER                                        :: count_count
-    INTEGER                                        :: step,estep !distance the track is incremented
-    INTEGER                                        :: switch,eswitch
-    INTEGER                                        :: ev_coords(3)
-    INTEGER                                        :: prcoords(3)
-    REAL(KIND=DBL)                                 :: p,u,rand1 ! rand num
-    REAL(KIND=DBL)                                 :: sigma_tot !total cross-section
-    REAL(KIND=DBL)                                 :: mfp ! mean free path
-    REAL(KIND=DBL)                                 :: dz ! move dist
-    REAL(KIND=DBL)                                 :: dist_trav !distance travelled since last collision
-    REAL(KIND=DBL)                                 :: e_loss,e_ion,e_exc,ee_loss
-    REAL(KIND=DBL)                                 :: labtheta
-    REAL(KIND=DBL)                       , TARGET  :: e_se
-    REAL(KIND=DBL)                                 :: subexrand
-    DOUBLE PRECISION                     , TARGET  :: energy_target
-    DOUBLE PRECISION                     , POINTER :: ione
-    DOUBLE PRECISION   , DIMENSION(:)    , POINTER :: psigij,psigexj
-    CHARACTER(len=15)                              :: nature
-    TYPE(SIGMA_BOX)    , DIMENSION(:)    , POINTER :: psigmas
-    TYPE(SE_INFO)                                  :: se_box
+    INTEGER          :: null
+    INTEGER                      :: n,nn,jj
+    INTEGER                      :: num_elecs ! number of secondary electrons pruduced
+    INTEGER                      :: num_izns
+    INTEGER                      :: num_exs, num_els
+    INTEGER                      :: x,y,z !coordinates of cosmic-ray along track
+    INTEGER                      :: exitcount
+    INTEGER                      :: count_count
+    INTEGER                      :: step,estep !distance the track is incremented
+    INTEGER                      :: switch,eswitch
+    INTEGER                      :: ev_coords(3)
+    INTEGER                      :: prcoords(3)
+    DOUBLE PRECISION               :: p,u,rand1 ! rand num
+    DOUBLE PRECISION               :: sigma_tot !total cross-section
+    DOUBLE PRECISION               :: mfp ! mean free path
+    DOUBLE PRECISION               :: dz ! move dist
+    DOUBLE PRECISION               :: dist_trav !distance travelled since last collision
+    DOUBLE PRECISION               :: e_loss,e_ion,e_exc,ee_loss
+    DOUBLE PRECISION               :: labtheta
+    DOUBLE PRECISION     , TARGET  :: e_se
+    DOUBLE PRECISION               :: subexrand
+    DOUBLE PRECISION   , TARGET  :: energy_target
+    DOUBLE PRECISION   , POINTER :: ione
+    DOUBLE PRECISION   , POINTER :: psigij(:),psigexj(:)
+    CHARACTER(len=15)            :: nature
+    TYPE(SIGMA_BOX)    , POINTER :: psigmas(:)
+    TYPE(SE_INFO)                :: se_box
     !*************************************************************************
     !Proton cross-section data, to be phased out and replaced with a struct as
     !with se_box
     !*************************************************************************
-    DOUBLE PRECISION   , DIMENSION(:), ALLOCATABLE, TARGET :: psigij_target,psigexj_target
-    TYPE(SIGMA_BOX)    , DIMENSION(:), ALLOCATABLE, TARGET :: psigmas_target
+    DOUBLE PRECISION, ALLOCATABLE, TARGET :: psigij_target(:),psigexj_target(:)
+    TYPE(SIGMA_BOX),  ALLOCATABLE, TARGET :: psigmas_target(:)
     INTEGER :: thinghit
     LOGICAL :: proceed
-
+    TYPE(node), POINTER :: root,temp,prevNode,nextNode
 
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****Starting Fallout*****'
     IF ( TRACKPLOT .EQV. .TRUE. ) THEN
@@ -295,15 +275,15 @@ CONTAINS
        CALL RANDOM_NUMBER(p)
        CALL RANDOM_NUMBER(u)
        ! the value will be in range [1,bound]
-       x = 1 + FLOOR( dimens(3)*p )
-       y = 1 + FLOOR( dimens(2)*u )
+       x = 1 + FLOOR( DIMENS(3)*p )
+       y = 1 + FLOOR( DIMENS(2)*u )
        z = 1
        IF ( TRACKPLOT .EQV. .TRUE. ) THEN
           PRINT *, "Trackplot on"
-          IF ( x .GT. ((dimens(3)/2)-(dimens(3)*0.1)) .AND. &
-               x .LT. ((dimens(3)/2)+(dimens(3)*0.1)) .AND. &
-               y .GT. ((dimens(2)/2)-(dimens(2)*0.1)) .AND. &
-               y .LT. ((dimens(2)/2)+(dimens(2)*0.1)) ) proceed = .TRUE.
+          IF ( x .GT. ((DIMENS(3)/2)-(DIMENS(3)*0.1)) .AND. &
+               x .LT. ((DIMENS(3)/2)+(DIMENS(3)*0.1)) .AND. &
+               y .GT. ((DIMENS(2)/2)-(DIMENS(2)*0.1)) .AND. &
+               y .LT. ((DIMENS(2)/2)+(DIMENS(2)*0.1)) ) proceed = .TRUE.
        ELSE
           proceed = .TRUE.
        END IF
@@ -327,7 +307,7 @@ CONTAINS
 
     main_loop: DO WHILE ((dist_trav .LE. THICK) .AND. (ione .GE. 5.0 ))
        IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Now entering loop: z=',z,&
-            ' and dimens(1)=',dimens(1), &
+            ' and DIMENS(1)=',DIMENS(1), &
             ' and step=',step
        count_count = count_count + 1
 
@@ -384,7 +364,8 @@ CONTAINS
 
           IF ( TRACKPLOT .EQV. .TRUE. ) THEN
              count_count = count_count + 1
-             WRITE(TRACKPLOT_UNIT_NUM,*) ev_coords(1),',',ev_coords(2),',',ev_coords(3),', proton,',nature
+             WRITE(TRACKPLOT_UNIT_NUM,*) ev_coords(1),',',ev_coords(2),',',ev_coords(3),&
+                  ', proton,',nature
           END IF
 
           IF ( switch .EQ. 0 ) THEN
@@ -399,7 +380,7 @@ CONTAINS
              !****************************************************************************!
              ! Place excitation on site
              null = 0
-             matrix(ev_coords(1),ev_coords(2),ev_coords(3))$sec_sp_num = EXCNUM
+             matrix(ev_coords(1),ev_coords(2),ev_coords(3))%sec_sp_num = EXCNUM
              prcoords = 1 ! Initialize product coordinates to 1 for recursive subroutine
              CALL new_reaction(ev_coords,ev_coords,prcoords,root,temp,prevNode,nextNode,null)
              IF ( null .EQ. 1 ) RETURN
@@ -423,8 +404,8 @@ CONTAINS
        ! Track Plotting bit !
        !********************!
        dist_trav = dist_trav + dz
-       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "z=",z,"of",dimens(1),&
-            " which is",(REAL(z)/REAL(dimens(1)))*100,"% of thickness"
+       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "z=",z,"of",DIMENS(1),&
+            " which is",(REAL(z)/REAL(DIMENS(1)))*100,"% of thickness"
        ! Increment z for next cycle
        z = z + step
 
@@ -449,7 +430,7 @@ CONTAINS
        ! Determine whether or not the site is occupied by dividing the
        ! Delta z by the height of the crystal cube, i.e. \Delta ml =
        ! \Delta z(m) * (1ml/c(m))
-       step = INT((dz/(THICK/REAL(dimens(1)))))
+       step = INT((dz/(THICK/REAL(DIMENS(1)))))
 
        ! Make sure the next site is different than the previous one
        IF ( z+step .EQ. z ) THEN
@@ -458,7 +439,7 @@ CONTAINS
 
        ! Make sure the site is greater than the previous one
        IF (step .LE. 0. ) GOTO 100
-       IF (z+step .GE. dimens(1) ) THEN
+       IF (z+step .GE. DIMENS(1) ) THEN
           IF ( TRACKPLOT .EQV. .TRUE. ) THEN
              IF ( (count_count .GT. TRACKMIN) .AND. (count_count .LT. TRACKMAX) ) THEN
                 CALL EXIT()
@@ -495,7 +476,7 @@ CONTAINS
     !*****************
     INTEGER            , INTENT(IN) , DIMENSION(3)               :: in_coords !coords of reaction site
     INTEGER            , INTENT(OUT), DIMENSION(3)               :: out_coords !coords for product
-    INTEGER(KIND=SHORT)                                          :: null !null error flag
+    INTEGER                                          :: null !null error flag
     !****************
     ! Local variables
     !****************
@@ -525,7 +506,7 @@ CONTAINS
        IF ( i_re .EQ. 1 .AND. ( n .EQ. 5 .OR. n .EQ. 6 ) ) THEN
           ! If on top layer, stay on top layer
           CONTINUE
-       ELSE IF ( i_re .EQ. dimens(1) .AND. n .EQ. 6 ) THEN
+       ELSE IF ( i_re .EQ. DIMENS(1) .AND. n .EQ. 6 ) THEN
           ! Don't hop down if on bottom layer
           CONTINUE
        ELSE
@@ -543,33 +524,32 @@ CONTAINS
     IF ( large_count .GT. 0 ) THEN
        CONTINUE
     ELSE
-
        DO n=1,4
           ! Go to a phantom position to hop to nearest neighbors
           SELECT CASE (n)
           CASE (1)
-             IF ( (j_re-1 .GT. 0) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3))) THEN
+             IF ( (j_re-1 .GT. 0) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. DIMENS(3))) THEN
                 CALL hopping(i_re,j_re-1,k_re+1,i_re2,j_re2,k_re2,1)
              ELSE
                 GOTO 1944
              END IF
 
           CASE (2)
-             IF ( (j_re-1 .GT. 0) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3))) THEN
+             IF ( (j_re-1 .GT. 0) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. DIMENS(3))) THEN
                 CALL hopping(i_re,j_re-1,k_re-1,i_re2,j_re2,k_re2,2)
              ELSE
                 GOTO 1944
              END IF
 
           CASE (3)
-             IF ( (j_re+1 .LE. dimens(2)) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3))) THEN
+             IF ( (j_re+1 .LE. DIMENS(2)) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. DIMENS(3))) THEN
                 CALL hopping(i_re,j_re+1,k_re-1,i_re2,j_re2,k_re2,2)
              ELSE
                 GOTO 1944
              END IF
 
           CASE (4)
-             IF ( (j_re+1 .LE. dimens(2)) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. dimens(3))) THEN
+             IF ( (j_re+1 .LE. DIMENS(2)) .AND. (k_re-1 .GT. 0) .AND. (k_re+1 .LE. DIMENS(3))) THEN
                 CALL hopping(i_re,j_re+1,k_re+1,i_re2,j_re2,k_re2,1)
              ELSE
                 GOTO 1944
@@ -655,77 +635,6 @@ CONTAINS
     END IF
   END SUBROUTINE find_empty_site
 
-  SUBROUTINE action_figure ( temp )
-    !
-    ! Purpose:
-    !  The purpose of this subroutine is to take the
-    !  first element of the waiting list, which will
-    !  have been determined using the "roll_call"
-    !  subroutine, decide which action should be
-    !  performed, i.e. desorption or diffusion. In
-    !  the case of bulk species, i.e. i .NE. 1,
-    !  there is only the possibility of bulk diffusion.
-    !
-    ! Note:
-    !  The subroutine returns an integer value,
-    !  called the "flag" that is used by the code
-    !  to execute the appropriate action, e.g.
-    !  thermal hopping. The values of the flag are:
-    !
-    !  -- act_type = 1 => thermal hopping
-    !  -- act_type = 2 => desorption
-    !  -- act_type = 3 => fast reaction
-    !
-    ! Note:
-    !  This subroutine is only called in the case of
-    !  the normal motions of mobile species. It is
-    !  NOT called for cosmic-ray or photon events,
-    !  which are treated separately.
-    !
-    ! Documentation:
-    !  DATE          PROGRAMMER           DESCRIPTION
-    !  ========      ==========           ===========
-    !  20150415      C. Shingledecker     Original code
-    !
-    !! ACTION_FIGURE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    IMPLICIT NONE
-
-    ! Data dictionary
-    TYPE(node), POINTER                                 :: temp
-    REAL(KIND=DBL)                                      :: b_1 !thermal surface hopping rate
-    REAL(KIND=DBL)                                      :: b_2 !surface desorption rate
-    REAL(KIND=DBL)                                      :: comp_val !to determine which action occurs
-    REAL(KIND=DBL), INTENT(IN)                          :: rand_num
-    REAL                      , DIMENSION(:)  , POINTER :: en_list
-    TYPE (wait_info)          , DIMENSION(:)  , POINTER :: wait_list
-
-    ! (1) Decide whether or not the species is on the surface
-    IF ( temp%coord1 .EQ. 1 ) THEN
-       ! (1a) Species is on the surface
-       ! Calculate b-rates to compare
-       b_1 = trl_nu * EXP( -1*(  en_list(wait_list(index)%sp_num)*E_SURF / kin_temp  ) )
-       b_2 = trl_nu * EXP( -1*(  en_list(wait_list(index)%sp_num)        / kin_temp  ) )
-       comp_val = b_1 / (b_1 + b_2)
-       ! Decide whether desorption or hopping occurs
-       IF ( rand_num .LT. comp_val ) THEN
-          ! Diffusion occurs
-          temp%act_type = 1
-       ELSE
-          ! Desorption occurs
-          temp%act_type = 2
-       END IF
-    ELSE
-       ! (1b) Species is in the bulk
-       ! Only hopping (diffusion) can occur
-       temp%act_type = 1
-    END IF
-
-    ! If the species is in fast reacting
-    IF( ANY(FAST_REACTS .EQ. temp%sp_num) ) THEN
-       temp%act_type = 3
-    END IF
-  END SUBROUTINE action_figure
-
   SUBROUTINE wait_calc ( temp )
     !
     ! Purpose:
@@ -747,39 +656,73 @@ CONTAINS
     !  ========      ==========           ===========
     !  20150414      C. Shingledecker     Original code
     !
-    ! Warning!: As of original code, lateral bonds are not
-    !  considered, as described in CH14.
+    !
+    !  This subroutine changes the following properties in the node
+    !  1) wait_time
+    !  2) hop_dir
+    !  3) act_type
+    !
     !! WAIT_CALC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
-
-    ! Data dictionary: variables passed to the subroutine
     TYPE(node), POINTER :: temp
-    REAL(KIND=DBL)                                       :: rand_num  !pseudorandom number
-    REAL(KIND=DBL)                                       :: b_1       !surface thermal hopping rate
-    REAL(KIND=DBL)                                       :: b_2       !surface desorption rate
-    REAL(KIND=DBL)                                       :: b_3       !bulk diffusion rate
-    REAL(KIND=DBL)                                       :: b         !total rate, from CH14
+    INTEGER             :: n
+    INTEGER             :: ix,iy,iz
+    DOUBLE PRECISION                                       :: rand_num  !pseudorandom number
+    DOUBLE PRECISION                                       :: b_1       !surface thermal hopping rate
+    DOUBLE PRECISION                                       :: b_2       !surface desorption rate
+    DOUBLE PRECISION                                       :: b_3       !bulk diffusion rate
+    DOUBLE PRECISION                                       :: b         !total rate, from CH14
+    DOUBLE PRECISION                                       :: comp_val
+    DOUBLE PRECISION                                       :: el_tmp
 
-    IF ( wait_list(index)%i .EQ. 1 ) THEN
+    ! Initialize variables
+    el_tmp = 0
+
+    ! Decide whether or not the species is on the surface    
+    IF ( temp%coord1 .EQ. 1 ) THEN
+       DO n=1,5
+          CALL hopping(temp%coord1,temp%coord2,temp%coord3,ix,iy,iz,n)
+          IF ( matrix(ix,iy,iz)%sp_num .NE. 0 ) el_tmp = el_tmp + 0.1*EN_LIST(matrix(ix,iy,iz)%sp_num)
+       END DO
        ! Surface species, separate rates for
        ! desorption and diffusion
-       b_1 = trl_nu*EXP( -1*( ( en_list(temp%sp_num)*E_SURF) / kin_temp ) )
-       b_2 = trl_nu*EXP( -1*( en_list(temp%sp_num)           / kin_temp ) )
+       b_1 = trl_nu*EXP( -1*((EN_LIST(temp%sp_num)*E_SURF + el_tmp) / kin_temp ) )
+       b_2 = trl_nu*EXP( -1*((EN_LIST(temp%sp_num) + el_tmp) / kin_temp ) )
        b = b_1 + b_2
+       comp_val = b_1 / (b_1 + b_2)
+       CALL RANDOM_NUMBER(rand_num)
+       ! Decide whether desorption or hopping occurs
+       IF ( rand_num .LT. comp_val ) THEN
+          ! Diffusion occurs
+          temp%act_type = 1
+       ELSE
+          ! Desorption occurs
+          temp%act_type = 2
+       END IF
     ELSE
        ! Bulk species, only bulk diffusion
-       b_3 = trl_nu*EXP( -1*( en_list(temp%sp_num)*E_BULK    / kin_temp ) )
+       b_3 = trl_nu*EXP( -1*( EN_LIST(temp%sp_num)*E_BULK    / kin_temp ) )
        b = b_3
+       ! Only hopping (diffusion) can occur
+       temp%act_type = 1       
     END IF
-    CALL RANDOM_NUMBER(rand_num)
-    ! Calculate waiting time
-    temp%wait_time = (-1*LOG(rand_num) / b) + time
 
-    ! Assign action type for next move
-    CALL action_figure(temp)
+    ! Calculate waiting time
+    CALL RANDOM_NUMBER(rand_num)
+    temp%wait_time = (-1*LOG(rand_num) / b) + TIME
+
+    ! Get hopping direction
+    temp%hop_dir = 1 + FLOOR((6+1-1)*rand_num)
+    IF ( DEBUG .EQV. .TRUE. ) THEN
+       ! Test for hopping in ranges
+       IF ( (temp%hop_dir .GT. 6) .OR. (temp%hop_dir .LT. 1) ) THEN
+          PRINT *, "Hopping out of ranges!"
+          CALL EXIT()
+       END IF
+    END IF
   END SUBROUTINE wait_calc
 
-  SUBROUTINE counter(o3_prod,o3_dest,numprotons,sp1,sp2)
+  SUBROUTINE counter()
     !
     ! Purpose:
     !   The purpose of this subroutine is to count
@@ -794,36 +737,26 @@ CONTAINS
     !
     !! COUNTER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
-
-    INTEGER                                          , POINTER :: o3_prod,o3_dest
-    INTEGER(KIND=LONG) , INTENT(IN)                            :: numprotons
     INTEGER                                                    :: i,j,k,nn
-    INTEGER                                                    :: o_count,o2_count,o3_count,sp3
-    INTEGER            , INTENT(IN)                            :: sp1, sp2
-    REAL(KIND=DBL)                                             :: volume
-    REAL(KIND=DBL)                                             :: denom
-    REAL(KIND=DBL)                                             :: area
-    REAL(KIND=DBL)                                             :: fluence
+    INTEGER                                                    :: o_count,o2_count,o3_count
+    DOUBLE PRECISION                                             :: denom
+    DOUBLE PRECISION                                             :: area
+    DOUBLE PRECISION                                             :: fluence
     CHARACTER(len=80)                                          :: varfmt
 
-    !    volume = THICK*EDGE*EDGE
     area   = EDGE*EDGE
     denom = THICK*EDGE*EDGE*1.0E20
-    sp3 = 1
     o_count = 0
     o2_count = 0
     o3_count = 0
-    wrong_count = 0
     ! Method 1 of fluence calculation
-    fluence  = CR_FLUX*time ! Note: This is the x-value for the objective function
+    fluence  = CR_FLUX*TIME ! Note: This is the x-value for the objective function
     ! Method 2 of fluence calculation (only use 1 at a time )
     ! fluence = numprotons/area
 
-
-    IF ( TEST_WRONG .EQV. .TRUE. ) OPEN(UNIT=1013,FILE="counter_test_wrong_spaces.txt",STATUS='REPLACE')
-    DO k = 1,dimens(3)
-       DO j = 1,dimens(2)
-          DO i = 1,dimens(1)
+    DO k = 1,DIMENS(3)
+       DO j = 1,DIMENS(2)
+          DO i = 1,DIMENS(1)
              IF ( matrix(i,j,k)%sp_num .EQ. O3NUM ) THEN
                 o3_count = o3_count + 1
              ELSE IF ( matrix(i,j,k)%sp_num .EQ. O2NUM ) THEN
@@ -840,18 +773,15 @@ CONTAINS
     O3_ABUNDANCE = o3_count
 
     IF ( NO_OUTPUT .EQV. .FALSE. ) THEN
-       WRITE(AB_UNIT_NUM,*) ALTFLUENCE,',', fluence,',',time,',',o2_count,',',o_count,',',o3_count,',',numprotons
+       WRITE(AB_UNIT_NUM,*) ALTFLUENCE,',', fluence,',',TIME,',',o2_count,','&
+            ,o_count,',',o3_count
     END IF
 
     IF ( QUIET .EQV. .FALSE. ) THEN
        varfmt = "(A6,ES10.4,A9,ES10.4)"
-       PRINT varfmt, " TIME=",time,"FLUENCE=",fluence
+       PRINT varfmt, " TIME=",TIME,"FLUENCE=",fluence
        varfmt = "(A5,ES10.4,A6,ES10.4)"
        PRINT varfmt, " [O]=",o_count/denom," [O3]=",o3_count/denom
-       varfmt = "(A16,F10.4,A16,I10)"
-       PRINT *, '[O3] PROD/DEST =', (REAL(o3_prod)/REAL(o3_dest))," WAIT LENGTH=",wait_len
-       PRINT *, 'O3_prod=',o3_prod, 'O3_dest=',o3_dest
-       PRINT *, 'denom=',denom
        PRINT *, '***********************************************************************'
     END IF
   END SUBROUTINE counter
@@ -902,7 +832,7 @@ CONTAINS
           IF ( curr(1) .EQ. 1 .AND. ( n .EQ. 5 .OR. n .EQ. 6 ) ) THEN
              ! If on top layer, stay on top layer
              CONTINUE
-          ELSE IF ( curr(1) .EQ. dimens(1) .AND. n .EQ. 6 ) THEN
+          ELSE IF ( curr(1) .EQ. DIMENS(1) .AND. n .EQ. 6 ) THEN
              ! Don't hop down if on bottom layer
              CONTINUE
           ELSE
@@ -915,7 +845,7 @@ CONTAINS
           CASE (1)
              IF ( curr(2)-1 .GT. 0          .AND. &
                   curr(3)-1 .GT. 0          .AND. &
-                  curr(3)+1 .LE. dimens(3) ) THEN
+                  curr(3)+1 .LE. DIMENS(3) ) THEN
                 CALL hopping(curr(1),curr(2)-1,curr(3)+1,next(1),next(2),next(3),1)
              ELSE
                 CONTINUE
@@ -923,23 +853,23 @@ CONTAINS
           CASE (2)
              IF ( curr(2)-1 .GT. 0          .AND. &
                   curr(3)-1 .GT. 0          .AND. &
-                  curr(3)+1 .LE. dimens(3) ) THEN
+                  curr(3)+1 .LE. DIMENS(3) ) THEN
                 CALL hopping(curr(1),curr(2)-1,curr(3)-1,next(1),next(2),next(3),2)
              ELSE
                 CONTINUE
              END IF
           CASE (3)
-             IF ( curr(2)+1 .LE. dimens(2)  .AND. &
+             IF ( curr(2)+1 .LE. DIMENS(2)  .AND. &
                   curr(3)-1 .GT. 0          .AND. &
-                  curr(3)+1 .LE. dimens(3) ) THEN
+                  curr(3)+1 .LE. DIMENS(3) ) THEN
                 CALL hopping(curr(1),curr(2)+1,curr(3)-1,next(1),next(2),next(3),2)
              ELSE
                 CONTINUE
              END IF
           CASE (4)
-             IF ( curr(2)+1 .LE. dimens(2)  .AND. &
+             IF ( curr(2)+1 .LE. DIMENS(2)  .AND. &
                   curr(3)-1 .GT. 0          .AND. &
-                  curr(3)+1 .LE. dimens(3) ) THEN
+                  curr(3)+1 .LE. DIMENS(3) ) THEN
                 CALL hopping(curr(1),curr(2)+1,curr(3)+1,next(1),next(2),next(3),1)
              ELSE
                 CONTINUE
@@ -1558,7 +1488,7 @@ CONTAINS
     !
     !! WIPE_NODE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
-    TYPE(node), POINTER :: temp_node
+    TYPE(node), POINTER :: temp
     INTEGER :: x,y,z
 
     temp%wait_time = 0.0
@@ -1590,11 +1520,11 @@ CONTAINS
     !
     !! NEW_REACTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
-    INTEGER, INTENT(INOUT), DIMENSION(3) :: i, j, k
-    INTEGER               , DIMENSION(3) :: pr_coords
-    INTEGER :: r1, r2, pr
-    INTEGER :: error
-    TYPE(node), POINTER :: root, temp, prevNode, nextNode
+    INTEGER, INTENT(INOUT)          :: i(3),j(3),k(3)
+    INTEGER                         :: pr_coords(3)
+    INTEGER                         :: r1, r2, pr
+    INTEGER                         :: error
+    TYPE(node)            , POINTER :: root, temp, prevNode, nextNode
 
     SELECT CASE (k(3))
     CASE(1)
@@ -1604,15 +1534,15 @@ CONTAINS
             ALL(ABS(i-j) .EQ. 0))
        k(1) = r1
        k(2) = r2
-       pr = REACT_CUBE(k(1),k(2),k(3))
+       pr = branching(k(1),k(2),k(3))
        pr_coords = j
        IF ( pr .EQ. 0 ) THEN
           ! If there can be no reaction, delete species from tree
           temp => matrix(i(1),i(2),i(3))
           ! Delete node but DO NOT wipe it
-          CALL delete_node(root,temp,prevNode,nextNode
+          CALL delete_node(root,temp,prevNode,nextNode,error)
           ! Calculate new waiting time
-          CALL wait_calc()
+          CALL wait_calc(temp)
           ! Re-add node to tree
           CALL add_node(root,temp)
           error = 1
@@ -1620,7 +1550,7 @@ CONTAINS
        END IF
        k(3) = 2
     CASE(2)
-       pr = REACT_CUBE(k(1),k(2),k(3))
+       pr = branching(k(1),k(2),k(3))
        ! If product is 0, then re-add hopping species to list
        ! DO NOT do this if i=j, i.e. an excitation with 1 product
        ! has occured
@@ -1628,7 +1558,7 @@ CONTAINS
           ! If there is only one product, clear the site of R1
           ! which now becomes a lattice vacancy
           temp => matrix(i(1),i(2),i(3))
-          CALL delete_node(root,temp,prevNode,nextNode)
+          CALL delete_node(root,temp,prevNode,nextNode,error)
           CALL wipe_node(temp)
           error = 0
           RETURN
@@ -1648,7 +1578,7 @@ CONTAINS
        END IF
        k(3) = 3
     CASE(3)
-       pr = REACT_CUBE(k(1),k(2),k(3))
+       pr = branching(k(1),k(2),k(3))
        IF ( pr .EQ. 0 ) THEN
           error = 0
           RETURN
@@ -1688,7 +1618,7 @@ CONTAINS
     ELSE
        ! Delete whatever is there, if the site isn't empty
        IF ( temp%sp_num .NE. 0) THEN
-          CALL delete_node(root,temp,prevNode,nextNode)
+          CALL delete_node(root,temp,prevNode,nextNode,error)
           CALL wipe_node(temp)
        END IF
        temp%sp_num = pr
@@ -1715,15 +1645,19 @@ CONTAINS
     IMPLICIT NONE
     TYPE(se_info) :: new_se_box
     TYPE(se_info) :: se_box
+    INTEGER :: n
     INTEGER :: curr(3),next(3),prev(3),prcoords(3)
     INTEGER :: estep
     INTEGER :: eswitch
     INTEGER :: error
+    REAL               :: erand
     DOUBLE PRECISION :: emfp
+    DOUBLE PRECISION :: new_e_energy
     DOUBLE PRECISION :: ee_loss
     DOUBLE PRECISION :: de
     DOUBLE PRECISION :: e_ion, e_exc
     TYPE(node), POINTER :: root,temp,prevNode,nextNode
+    LOGICAL :: vacant
 
     ! Initialize energy losses
     e_ion = 0.0
@@ -1740,9 +1674,8 @@ CONTAINS
     eswitch = 0
 
     ! Initialize real variables
-    ion_dist = 0
     emfp = 0
-    p = 0
+    erand = 0
     de = 0
 
     ! Calculate track until the electron's energy is depleted
@@ -1752,10 +1685,10 @@ CONTAINS
        ! The electron's mean-free-path is a function of the total cross sections.
        ! Note: here, we have explicitly calculated the inelastic cross section and
        ! have approximated the elastic cross section to be 1.0E-17 cm^2
-       CALL RANDOM_NUMBER(p)
+       CALL RANDOM_NUMBER(erand)
        emfp = 1./(RHO*(se_box%se_ineltot+1.0E-17))
        ! Determine the actual distance travelled
-       de = -1.*emfp*LOG(1.-p)
+       de = -1.*emfp*LOG(1.-erand)
        ! Multiply by shortening/lengthening factor
        de = de*ESTEPFAC
        ! Convert to integer value
@@ -1789,9 +1722,9 @@ CONTAINS
              ! Calculate energy loss
              CALL e_ion_select(se_box,e_ion,error)
              ! Call random number
-             CALL RANDOM_NUMBER(p)
+             CALL RANDOM_NUMBER(erand)
              ! Calculate new electron energy based on \DeltaE
-             new_e_energy = p*(se_box%se_energy - e_ion)
+             new_e_energy = erand*(se_box%se_energy - e_ion)
              ! Energy lost is sum of ionization energy + new electron energy
              ee_loss = e_ion + new_e_energy
              ! Ionize the species and call new_electron again
@@ -1805,7 +1738,7 @@ CONTAINS
              IF ( DEBUG .EQV. .TRUE. ) THEN
                 IF ( matrix(next(1),next(2),next(3))%sec_sp_num .NE. ELECNUM ) THEN
                    PRINT *, matrix(next(1),next(2),next(3))%sec_sp_num, &
-                        matrix(next(1),next(2),next(3)%sp_num
+                        matrix(next(1),next(2),next(3))%sp_num
                 END IF
              END IF
              ! 1) Populate the se_box with initial energy and parent coords
@@ -1814,7 +1747,7 @@ CONTAINS
              ! 2) Call se_info_init to initialize the arrays in the se_box
              CALL se_info_init(new_se_box)
              ! 3) Call new_electron and send it on its merry way
-             CALL new_electron(new_se_box)
+             CALL new_electron(new_se_box,root,temp,prevNode,nextNode)
              ! 4) When it has lost energy and reacted back with its parent cation (above)
              !    we can free-up the arrays in the se_box
              CALL se_info_garbage(new_se_box)
@@ -1826,8 +1759,8 @@ CONTAINS
           END IF
        CASE(0)
           ! Electron impact excitation
-          CALL RANDOM_NUMBER(rand1)
-          IF ( (rand1 .LE. DISPROB) .AND. (matrix(next(1),next(2),next(3)%sp_num .NE. 0))) THEN
+          CALL RANDOM_NUMBER(erand)
+          IF ( (erand .LE. DISPROB) .AND. (matrix(next(1),next(2),next(3))%sp_num .NE. 0)) THEN
              ! Place special excitation reactant at site
              matrix(next(1),next(2),next(3))%sec_sp_num = EXCNUM
              ! Initialize product coords to 1
@@ -1844,6 +1777,7 @@ CONTAINS
 
     ! Once the electron has fallen below the energy threshold, make
     ! Call transport until a non-vacant site is found
+    vacant = .TRUE. 
     DO WHILE ( vacant .EQV. .TRUE. )
        prev = curr
        curr = next
