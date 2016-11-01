@@ -31,6 +31,7 @@ PROGRAM main
   INTEGER, TARGET     :: o3_prod_target,o3_dest_target
   INTEGER, POINTER    :: o3_prod,o3_dest
   LOGICAL             :: not_infty
+  LOGICAL             :: cr_arrival
   DOUBLE PRECISION      :: total_fitness   ! Total fitness
   LOGICAL             :: unfit           ! TRUE if solution is too unfit -> stop simulation
   INTEGER  :: numprotons
@@ -173,14 +174,16 @@ PROGRAM main
   ! Begin the simulation
   !******************************************************************************
   loop_count = 0
-  fluence = time * CR_FLUX
-  unfit = .FALSE.
+  fluence    = time * CR_FLUX
+  unfit      = .FALSE.
+  cr_arrival = .FALSE.
   PRINT *, "Now  beginning loop"
   DO WHILE ( fluence .LE. FLUENCE_TOTAL .AND. .NOT. unfit)
      loop_count = loop_count + 1
      ! At the start of the simulation, or whenever it's time for a particle
      CALL find_min(root, temp)
      IF (temp%wait_time .GT. cr_time) THEN
+        cr_arrival = .TRUE.
         TIME = cr_time
         ! Calculate time to next cosmic-ray event
         not_infty = .FALSE.
@@ -204,7 +207,7 @@ PROGRAM main
         ALTFLUENCE = numprotons/AREA
      ELSE
         TIME = temp%wait_time
-!        PRINT *, "Min time is:",temp%wait_time,"Min species is:",temp%sp_num
+        !        PRINT *, "Min time is:",temp%wait_time,"Min species is:",temp%sp_num
         i(1) = temp%coord1
         i(2) = temp%coord2
         i(3) = temp%coord3
@@ -259,44 +262,48 @@ PROGRAM main
      !    IF ( fluence .GT. 5.0E12 .AND. fluence .LE. 5.0e14 ) TIME_FREQ = 10000
      !    IF ( fluence .GT. 5.0E14  )  TIME_FREQ = 100000
      time_check = time_check + 1
-     IF ( (MOD(time_check,TIME_FREQ) .EQ. 0) ) THEN
+     IF ( (MOD(time_check,TIME_FREQ) .EQ. 0) .AND. (cr_arrival .EQV. .TRUE.) ) THEN
+        cr_arrival = .FALSE.
+
         CALL counter()
 
         ! Testing out the new fitness function
         CALL fitness(unfit,ALTFLUENCE,total_fitness)
 
-        ! Perform reaction analytics
-        IF ( (FLOAT(O_ABUNDANCE-o_temp) .GT. 0) .AND. (PROTON_ELOSS .GT. 0.0) ) THEN
-           geminacy = FLOAT(O_ABUNDANCE-o_temp)/PROTON_ELOSS
-        ELSE
-           geminacy = 0.d0
-        END IF
-        DELTA_TIME = time - temp_time
-        ! Calculate rate-coefficient for the following reactions:
-        ! (1) O + O2 -> O3
-        ! This value should have units of cm^6 s^-1
-        k12 = (FLOAT(RATEINFO(7)%count)/VOLUME)/DELTA_TIME
-        k12 = k12/((FLOAT(O_ABUNDANCE)/VOLUME)*((FLOAT(O2_ABUNDANCE)/VOLUME)**2))
-        IF ( ISNAN(k12) .OR. (k12 .GT. 1e30)) k12 = 0
-        ! (2) O + O3 -> O2 + O2
-        ! This value should be in units of cm^3 s^-1
-        k13 = (FLOAT(RATEINFO(8)%count)/VOLUME)/DELTA_TIME
-        k13 = k13/((FLOAT(O_ABUNDANCE)/VOLUME)*((FLOAT(O3_ABUNDANCE)/VOLUME)))
-        IF ( ISNAN(k13) .OR. (k13 .GT. 1e30)) k13 = 0
-        ! (3) X + O2 -> O + O
-        ! This value is in units of s^-1
-        !      j2 = ABS(FLOAT(O2_ABUNDANCE-o2_temp)/(DELTA_TIME*FLOAT(O2_ABUNDANCE)))
-        j2 = ABS(FLOAT(RATEINFO(1)%count + RATEINFO(3)%count + RATEINFO(5)%count)/&
-             (DELTA_TIME*FLOAT(O2_ABUNDANCE)))
-        IF ( ISNAN(j2) ) j2 = 0
-        ! (4) X + O3 -> O2 + O
-        ! This value is in units of s^-1
-        !      j3 = ABS(FLOAT(O3_ABUNDANCE-o3_temp)/(DELTA_TIME*FLOAT(O3_ABUNDANCE)))
-        j3 = ABS(FLOAT(RATEINFO(2)%count + RATEINFO(4)%count + RATEINFO(6)%count)/&
-             (DELTA_TIME*FLOAT(O2_ABUNDANCE)))
-        IF ( ISNAN(j3) ) j3 = 0
-        IF ( NO_OUTPUT .EQV. .FALSE.) WRITE(RATE_UNIT_NUM,*) geminacy,',',j2,',',j3,',',k12,',',k13
-        RATEINFO%count = 0
+        ratecalc: IF ( CALC_RATES .EQV. .TRUE. ) THEN
+           ! Perform reaction analytics
+           IF ( (FLOAT(O_ABUNDANCE-o_temp) .GT. 0) .AND. (PROTON_ELOSS .GT. 0.0) ) THEN
+              geminacy = FLOAT(O_ABUNDANCE-o_temp)/PROTON_ELOSS
+           ELSE
+              geminacy = 0.d0
+           END IF
+           DELTA_TIME = time - temp_time
+           ! Calculate rate-coefficient for the following reactions:
+           ! (1) O + O2 -> O3
+           ! This value should have units of cm^6 s^-1
+           k12 = (FLOAT(RATEINFO(7)%count)/VOLUME)/DELTA_TIME
+           k12 = k12/((FLOAT(O_ABUNDANCE)/VOLUME)*((FLOAT(O2_ABUNDANCE)/VOLUME)**2))
+           IF ( ISNAN(k12) .OR. (k12 .GT. 1e30)) k12 = 0
+           ! (2) O + O3 -> O2 + O2
+           ! This value should be in units of cm^3 s^-1
+           k13 = (FLOAT(RATEINFO(8)%count)/VOLUME)/DELTA_TIME
+           k13 = k13/((FLOAT(O_ABUNDANCE)/VOLUME)*((FLOAT(O3_ABUNDANCE)/VOLUME)))
+           IF ( ISNAN(k13) .OR. (k13 .GT. 1e30)) k13 = 0
+           ! (3) X + O2 -> O + O
+           ! This value is in units of s^-1
+           !      j2 = ABS(FLOAT(O2_ABUNDANCE-o2_temp)/(DELTA_TIME*FLOAT(O2_ABUNDANCE)))
+           j2 = ABS(FLOAT(RATEINFO(1)%count + RATEINFO(3)%count + RATEINFO(5)%count)/&
+                (DELTA_TIME*FLOAT(O2_ABUNDANCE)))
+           IF ( ISNAN(j2) ) j2 = 0
+           ! (4) X + O3 -> O2 + O
+           ! This value is in units of s^-1
+           !      j3 = ABS(FLOAT(O3_ABUNDANCE-o3_temp)/(DELTA_TIME*FLOAT(O3_ABUNDANCE)))
+           j3 = ABS(FLOAT(RATEINFO(2)%count + RATEINFO(4)%count + RATEINFO(6)%count)/&
+                (DELTA_TIME*FLOAT(O2_ABUNDANCE)))
+           IF ( ISNAN(j3) ) j3 = 0
+           IF ( NO_OUTPUT .EQV. .FALSE.) WRITE(RATE_UNIT_NUM,*) geminacy,',',j2,',',j3,',',k12,',',k13
+           RATEINFO%count = 0
+        END IF ratecalc
 
         CALL CPU_TIME(t2)
         cpu_total = cpu_total + (t2-t1)

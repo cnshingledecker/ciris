@@ -103,7 +103,6 @@ MODULE parameters
   ! Branching Ratios
   !******************************************************************************
   REAL                        :: O_ION_BRANCHING     = 0.0 ! O+ + O- -> O2
-  REAL                        :: O3_DIS_BRANCHING    = 0.0 ! 0.0 ! O3 + * -> O2 + 0
   REAL                        :: O2_ION_BRANCHING    = 0.0 ! O2- + O2+ -> O3 + O
   REAL                        :: O3_O_ION_BRANCHING  = 0.0 ! O3+ + O- or O3- + O+ -> O3 + O
   REAL                        :: O3_O2_ION_BRANCHING = 0.0 ! O3+ + O2- or O3- + O2+ -> O2 + O2 + O
@@ -146,18 +145,19 @@ MODULE parameters
   ! Array Variables
   !******************************************************************************
   INTEGER :: SPECIAL_LIST(3) = 0
-  INTEGER                     :: TIME_FREQ    = 1000000  !1000000
+  INTEGER                     :: TIME_FREQ    = 10000  !1000000
 
   !******************************************************************************
   ! Switches
   !******************************************************************************
   LOGICAL         , PARAMETER :: FIXED_SIZE   = .FALSE.
-  LOGICAL         , PARAMETER :: NO_OUTPUT    = .FALSE.
+  LOGICAL         , PARAMETER :: NO_OUTPUT    = .TRUE.
   LOGICAL         , PARAMETER :: QUIET        = .FALSE.
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
   LOGICAL         , PARAMETER :: O3_ANALYTICS = .FALSE.
+  LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
 
 CONTAINS
   SUBROUTINE initconstants ()
@@ -194,8 +194,6 @@ CONTAINS
           READ(val, *) O2_ION_BRANCHING
        CASE ("O_ION_BRANCHING")
           READ(val, *) O_ION_BRANCHING
-       CASE ("O3_DIS_BRANCHING")
-          READ(val, *) O3_DIS_BRANCHING
        CASE ("O3_O_ION_BRANCHING")
           READ(val, *) O3_0_ION_BRANCHING
        CASE ("O3_O2_ION_BRANCHING")

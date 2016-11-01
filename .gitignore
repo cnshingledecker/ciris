@@ -25,6 +25,7 @@ obj
 *.pdf
 *.png
 *.ipynb
+*.out
 
 # explicit files
 losalamos
