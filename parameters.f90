@@ -8,7 +8,7 @@ MODULE parameters
   INTEGER  :: DIMENS(3)
   DOUBLE PRECISION :: TIME
   DOUBLE PRECISION, ALLOCATABLE :: EN_LIST(:)
-  CHARACTER(LEN=20), ALLOCATABLE :: SP_LIST(:)
+  CHARACTER(LEN=10), ALLOCATABLE :: SP_LIST(:)
   INTEGER, ALLOCATABLE :: REACT_CUBE(:,:,:)
   INTEGER, ALLOCATABLE :: IONLIST(:)
   INTEGER              :: NUM_SPECIES
@@ -146,7 +146,7 @@ MODULE parameters
   ! Array Variables
   !******************************************************************************
   INTEGER :: SPECIAL_LIST(3) = 0
-  INTEGER                     :: TIME_FREQ    = 1  !1000000
+  INTEGER                     :: TIME_FREQ    = 1000000  !1000000
 
   !******************************************************************************
   ! Switches

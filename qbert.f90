@@ -77,6 +77,7 @@ SUBROUTINE qbert()
      ion_num       =  0
      species_count =  0
      line          = '0'
+     r_array       = '0'
 
      ! Read the contents of the species file and create the SP_LIST and energy_list
      DO n=1,NUM_SPECIES
@@ -86,11 +87,14 @@ SUBROUTINE qbert()
            BACKSPACE (UNIT=1,IOSTAT=ierror1)
            READ(1,*,IOSTAT=ierror1) SP_LIST(species_count), EN_LIST(species_count)
            tempName = TRIM(SP_LIST(species_count))
+           SP_LIST(species_count) = tempName
            ! Tally up the total number of anions and cations
            IF ( (tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .EQ. '-') .OR. &
                 (tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .EQ. '+')) THEN
-              ion_num = ion_num + 1
-              ion_temp(species_count) = species_count
+              IF ( tempName(1:1) .NE. '*') THEN 
+                ion_num = ion_num + 2
+                ion_temp(species_count) = species_count
+              END IF
            END IF
         ELSE
            CONTINUE
@@ -121,8 +125,8 @@ SUBROUTINE qbert()
            BACKSPACE (UNIT=2,IOSTAT=ierror2)
            READ(2,*,IOSTAT=ierror2) r_array(n1,1), r_array(n1,2), r_array(n1,3), &
                 r_array(n1,4), r_array(n1,5)
-           CALL lookup(r_array(n1,1),NUM_SPECIES,SP_LIST,i)
-           CALL lookup(r_array(n1,2),NUM_SPECIES,SP_LIST,j)
+           CALL lookup(TRIM(r_array(n1,1)),NUM_SPECIES,SP_LIST,i)
+           CALL lookup(TRIM(r_array(n1,2)),NUM_SPECIES,SP_LIST,j)
            k=0
            DO n3=3,5
               k = k + 1

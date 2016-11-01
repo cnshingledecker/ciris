@@ -3,16 +3,16 @@
   #FC = ifort
 
 # Flags
-  #FCFLAGS = -g  -march=native -fbounds-check -Wall
+  FCFLAGS = -g  -march=native -fbounds-check -Wall -pg
   #FCFLAGS =  -O3 -static-intel
-  FCFLAGS = -O3 -march=native
+  #FCFLAGS = -O3 -march=native
 
 OBJECTS = qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o specdata.o gp.o branchmod.o bsimple.o
 
 PROGRAM = losalamos
 
 
-$(PROGRAM): qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o branching.o bsimple.o
+$(PROGRAM): qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o branchmod.o bsimple.o
 	$(FC) -o $(PROGRAM) *.o $(FCFLAGS)
 
 main.o: main.f90 subroutines.o parameters.o typedefs.o functiondefs.o gp.o branchmod.o bsimple.o

@@ -58,7 +58,10 @@ CONTAINS
 
     branching = REACT_CUBE(r1,r2,pr)
 
-    IF ( DEBUG .EQV. .TRUE. ) PRINT *, "BRANCHING=",branching
+    IF ( DEBUG .EQV. .TRUE. ) THEN
+       PRINT *, REACT_CUBE(r1,r2,:)
+       PRINT *, "BRANCHING=",branching
+    END IF
     IF ( branching .EQ. 0 ) THEN
        ! Restore original values to react cube
        !****************************************************************************

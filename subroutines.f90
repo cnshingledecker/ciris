@@ -317,7 +317,7 @@ CONTAINS
        ev_coords(3) = x
        IF ( DEBUG .EQV. .TRUE. ) PRINT *, "The event coords in Fallout are:",ev_coords
 
-       thinghit = matrix(ev_coords(1),ev_coords(2),ev_coords(3))%sp_num
+       thinghit = MATRIX(ev_coords(1),ev_coords(2),ev_coords(3))%sp_num
 
        IF ( thinghit .NE. 0 ) THEN
           IF ( DEBUG .EQV. .TRUE. ) PRINT *, "The value of the matrix is:",thinghit
@@ -380,7 +380,7 @@ CONTAINS
              !****************************************************************************!
              ! Place excitation on site
              null = 0
-             matrix(ev_coords(1),ev_coords(2),ev_coords(3))%sec_sp_num = EXCNUM
+             MATRIX(ev_coords(1),ev_coords(2),ev_coords(3))%sec_sp_num = EXCNUM
              prcoords = 1 ! Initialize product coordinates to 1 for recursive subroutine
              CALL new_reaction(ev_coords,ev_coords,prcoords,root,temp,prevNode,nextNode,null)
              IF ( null .EQ. 1 ) RETURN
@@ -388,6 +388,24 @@ CONTAINS
              !****************************************************************************!
              ! Ionization                                                                 !
              !****************************************************************************!
+             temp => MATRIX(ev_coords(1),ev_coords(2),ev_coords(3))
+             ! Place CRP at secondary site for reaction
+             temp%sec_sp_num = CRPNUM
+             ! Initialize product coords
+             prcoords = 1
+             ! Call new_reaction to form electron
+             CALL new_reaction(ev_coords,ev_coords,prcoords,root,temp,prevNode,nextNode,null)
+             IF ( DEBUG .EQV. .TRUE. ) PRINT *, temp%sp_num, temp%sec_sp_num
+             ! Test to make sure that the new reaction worked properly
+             IF ( DEBUG .EQV. .TRUE. ) THEN
+                IF ( (.NOT. ANY(IONLIST .EQ. temp%sp_num)) .OR. &
+                     (ELECNUM .NE. temp%sec_sp_num) ) THEN
+                   PRINT *, "Ionization not successful!! Products not as expected!"
+                   PRINT *, temp%sp_num
+                   PRINT *, temp%sec_sp_num
+                   CALL EXIT()
+                END IF
+             END IF
              ! Initialize se_box with initial energy and parent coords
              se_box%se_energy = e_se
              IF ( SECELEC .EQV. .FALSE. ) se_box%se_energy = 0D0
@@ -459,7 +477,7 @@ CONTAINS
     IF ( DEBUG .EQV. .TRUE. ) PRINT *, '*****Ending Fallout*****'
   END SUBROUTINE fallout
 
-  SUBROUTINE find_empty_site( in_coords,out_coords,null )
+  RECURSIVE SUBROUTINE find_empty_site( in_coords,out_coords,null )
     ! Purose:
     !   This subtroutine takes some ion/bulk interaction site and finds a nearby
     !  empty site to put a second product. The return of the function is a set of
@@ -480,6 +498,7 @@ CONTAINS
     !****************
     ! Local variables
     !****************
+    INTEGER                                                      :: prev(3),curr(3),next(3)
     INTEGER                                                      :: large_count
     INTEGER                                                      :: small_count
     INTEGER                                                      :: lucky !index of selected site, from rand
@@ -490,6 +509,7 @@ CONTAINS
     INTEGER                         , DIMENSION(4,3)             :: small_temp
     INTEGER            , ALLOCATABLE, DIMENSION(:,:)             :: temp_arr !temporary empty site array
     REAL                                                         :: rand !random number
+    LOGICAL                                                      :: vacant
 
     ! Initialize counters and arrays
     large_count   = 0
@@ -502,8 +522,8 @@ CONTAINS
 
     large_temp = 0
     small_temp = 0
-    DO n=1,6
-       IF ( i_re .EQ. 1 .AND. ( n .EQ. 5 .OR. n .EQ. 6 ) ) THEN
+    scc: DO n=1,6
+       layercond: IF ( i_re .EQ. 1 .AND. ( n .EQ. 5 .OR. n .EQ. 6 ) ) THEN
           ! If on top layer, stay on top layer
           CONTINUE
        ELSE IF ( i_re .EQ. DIMENS(1) .AND. n .EQ. 6 ) THEN
@@ -511,20 +531,20 @@ CONTAINS
           CONTINUE
        ELSE
           CALL hopping(i_re,j_re,k_re,i_re2,j_re2,k_re2,n )
-          IF ( (matrix(i_re2,j_re2,k_re2)%sp_num .EQ. 0) .AND. &
-               (matrix(i_re2,j_re2,k_re2)%sec_sp_num .EQ. 0) ) THEN
+          IF ( (MATRIX(i_re2,j_re2,k_re2)%sp_num .EQ. 0) .AND. &
+               (MATRIX(i_re2,j_re2,k_re2)%sec_sp_num .EQ. 0) ) THEN
              large_temp(n,1)=i_re2
              large_temp(n,2)=j_re2
              large_temp(n,3)=k_re2
              large_count = large_count + 1
           END IF
-       END IF
-    END DO
+       END IF layercond
+    END DO scc
 
-    IF ( large_count .GT. 0 ) THEN
+    largecount: IF ( large_count .GT. 0 ) THEN
        CONTINUE
     ELSE
-       DO n=1,4
+       phantom: DO n=1,4
           ! Go to a phantom position to hop to nearest neighbors
           SELECT CASE (n)
           CASE (1)
@@ -556,26 +576,34 @@ CONTAINS
              END IF
           END SELECT
 
-          IF ( (matrix(i_re2,j_re2,k_re2)%sp_num .EQ. 0) .AND. &
-               (matrix(i_re2,j_re2,k_re2)%sec_sp_num .EQ. 0) ) THEN
+          IF ( (MATRIX(i_re2,j_re2,k_re2)%sp_num .EQ. 0) .AND. &
+               (MATRIX(i_re2,j_re2,k_re2)%sec_sp_num .EQ. 0) ) THEN
              small_temp(n,1)=i_re2
              small_temp(n,2)=j_re2
              small_temp(n,3)=k_re2
              small_count = small_count + 1
           END IF
 1944      CONTINUE
-       END DO
-    END IF
+       END DO phantom
+    END IF largecount
 
     ! Determine if there has been a null event
-    IF ( large_count .EQ. 0 .AND. small_count .EQ. 0 ) THEN
-       null = 1
-       !      PRINT *, 'ERROR: No reaction in Krell possible'
-       out_coords = 314159
+    nullevent: IF ( large_count .EQ. 0 .AND. small_count .EQ. 0 ) THEN
+       IF ( DEBUG .EQV. .TRUE.) PRINT *, "314159!"
+       vacant = .TRUE.
+       curr = in_coords
+       next = in_coords
+       movefind: DO WHILE ( vacant .EQV. .TRUE. )
+          prev = curr
+          curr = next
+          CALL transport(prev,curr,next)
+          CALL find_empty_site(next,out_coords,null)
+          IF ( null .EQ. 0 ) vacant = .FALSE.
+       END DO movefind
        RETURN
     ELSE
        null = 0
-    END IF
+    END IF nullevent
 
     ! populate the temp_arr such that it consists of only
     ! coordinates where there are empty spaces
@@ -678,11 +706,11 @@ CONTAINS
     ! Initialize variables
     el_tmp = 0
 
-    ! Decide whether or not the species is on the surface    
+    ! Decide whether or not the species is on the surface
     IF ( temp%coord1 .EQ. 1 ) THEN
        DO n=1,5
           CALL hopping(temp%coord1,temp%coord2,temp%coord3,ix,iy,iz,n)
-          IF ( matrix(ix,iy,iz)%sp_num .NE. 0 ) el_tmp = el_tmp + 0.1*EN_LIST(matrix(ix,iy,iz)%sp_num)
+          IF ( MATRIX(ix,iy,iz)%sp_num .NE. 0 ) el_tmp = el_tmp + 0.1*EN_LIST(MATRIX(ix,iy,iz)%sp_num)
        END DO
        ! Surface species, separate rates for
        ! desorption and diffusion
@@ -704,7 +732,7 @@ CONTAINS
        b_3 = trl_nu*EXP( -1*( EN_LIST(temp%sp_num)*E_BULK    / kin_temp ) )
        b = b_3
        ! Only hopping (diffusion) can occur
-       temp%act_type = 1       
+       temp%act_type = 1
     END IF
 
     ! Calculate waiting time
@@ -757,11 +785,11 @@ CONTAINS
     DO k = 1,DIMENS(3)
        DO j = 1,DIMENS(2)
           DO i = 1,DIMENS(1)
-             IF ( matrix(i,j,k)%sp_num .EQ. O3NUM ) THEN
+             IF ( MATRIX(i,j,k)%sp_num .EQ. O3NUM ) THEN
                 o3_count = o3_count + 1
-             ELSE IF ( matrix(i,j,k)%sp_num .EQ. O2NUM ) THEN
+             ELSE IF ( MATRIX(i,j,k)%sp_num .EQ. O2NUM ) THEN
                 o2_count = o2_count + 1
-             ELSE IF ( matrix(i,j,k)%sp_num .EQ. ONUM ) THEN
+             ELSE IF ( MATRIX(i,j,k)%sp_num .EQ. ONUM ) THEN
                 o_count = o_count + 1
              END IF
           END DO
@@ -782,6 +810,8 @@ CONTAINS
        PRINT varfmt, " TIME=",TIME,"FLUENCE=",fluence
        varfmt = "(A5,ES10.4,A6,ES10.4)"
        PRINT varfmt, " [O]=",o_count/denom," [O3]=",o3_count/denom
+       PRINT *, '***********************************************************************'
+       PRINT *, "O=",O_ABUNDANCE,"O3=",O3_ABUNDANCE
        PRINT *, '***********************************************************************'
     END IF
   END SUBROUTINE counter
@@ -1454,7 +1484,7 @@ CONTAINS
     END IF
   END SUBROUTINE se_info_garbage
 
-  SUBROUTINE init_node(temp_node,x,y,z)
+  SUBROUTINE init_node(root,temp_node,x,y,z)
     !
     ! Purpose
     !   This is a subroutine that compares a string value to values
@@ -1463,7 +1493,7 @@ CONTAINS
     !
     !! INIT_NODE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
-    TYPE(node), POINTER :: temp_node
+    TYPE(node), POINTER :: root, temp_node
     INTEGER :: x,y,z
 
     temp_node%wait_time = 0.0
@@ -1474,13 +1504,30 @@ CONTAINS
     temp_node%act_type = 0
     temp_node%hop_dir = 0
     temp_node%leftRight = 0
-    IF ( (MOD(y,2) .EQ. 1) .AND. (MOD(z,2) .EQ. 1) ) THEN
-       temp_node%sp_num = -1
-    END IF
+
     NULLIFY(temp_node%before,temp_node%after,temp_node%parent)
+
+    IF ( (MOD(y,2) .EQ. 1) .AND. (MOD(z,2) .EQ. 1) ) THEN
+       temp_node%sp_num = 1
+       CALL wait_calc(temp_node)
+       CALL add_node(root,temp_node)
+       ! Test for parent association
+       IF ( DEBUG .EQV. .TRUE. ) THEN
+          IF ( (root%coord1 .EQ. temp_node%coord1) .AND. &
+               (root%coord2 .EQ. temp_node%coord2) .AND. &
+               (root%coord3 .EQ. temp_node%coord3) ) THEN
+             CONTINUE
+          ELSE
+             IF ( .NOT. ASSOCIATED(temp_node%parent)) THEN
+                PRINT *, "temp_node parent not associated!"
+                CALL EXIT()
+             END IF
+          END IF
+       END IF
+    END IF
   END SUBROUTINE init_node
 
-  SUBROUTINE wipe_node(temp)
+  SUBROUTINE wipe_node(x,y,z)
     !
     ! Purpose
     !   This is a subroutine that wipes a lattice site of species specific
@@ -1491,12 +1538,16 @@ CONTAINS
     TYPE(node), POINTER :: temp
     INTEGER :: x,y,z
 
+    temp => MATRIX(x,y,z)
     temp%wait_time = 0.0
     temp%sec_sp_num = 0
     temp%sp_num = 0
     temp%act_type = 0
     temp%hop_dir = 0
-    temp%leftRight = 0
+    temp%leftRight = -1
+    IF ( ASSOCIATED(temp%parent) ) NULLIFY(temp%parent)
+    IF ( ASSOCIATED(temp%before) ) NULLIFY(temp%before)
+    IF ( ASSOCIATED(temp%after)  ) NULLIFY(temp%after)
   END SUBROUTINE wipe_node
 
   RECURSIVE SUBROUTINE new_reaction(i,j,k,root,temp,prevNode,nextNode,error)
@@ -1528,9 +1579,9 @@ CONTAINS
 
     SELECT CASE (k(3))
     CASE(1)
-       r1 = matrix(i(1),i(2),i(3))%sp_num
-       r2 = MERGE(matrix(i(1),i(2),i(3))%sec_sp_num,&
-            matrix(j(1),j(2),j(3))%sp_num,&
+       r1 = MATRIX(i(1),i(2),i(3))%sp_num
+       r2 = MERGE(MATRIX(i(1),i(2),i(3))%sec_sp_num,&
+            MATRIX(j(1),j(2),j(3))%sp_num,&
             ALL(ABS(i-j) .EQ. 0))
        k(1) = r1
        k(2) = r2
@@ -1538,7 +1589,7 @@ CONTAINS
        pr_coords = j
        IF ( pr .EQ. 0 ) THEN
           ! If there can be no reaction, delete species from tree
-          temp => matrix(i(1),i(2),i(3))
+          temp => MATRIX(i(1),i(2),i(3))
           ! Delete node but DO NOT wipe it
           CALL delete_node(root,temp,prevNode,nextNode,error)
           ! Calculate new waiting time
@@ -1557,25 +1608,23 @@ CONTAINS
        IF ( (pr .EQ. 0) .AND. (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
           ! If there is only one product, clear the site of R1
           ! which now becomes a lattice vacancy
-          temp => matrix(i(1),i(2),i(3))
+          temp => MATRIX(i(1),i(2),i(3))
           CALL delete_node(root,temp,prevNode,nextNode,error)
-          CALL wipe_node(temp)
+          CALL wipe_node(i(1),i(2),i(3))
           error = 0
           RETURN
        ELSE IF (pr .EQ. 0 ) THEN
           error = 0
           RETURN
        END IF
-       ! if i=j, then non-special P2 overwrites P1 
-       IF ( ALL(ABS(i-j) .EQ. 0) ) THEN
+       ! if i=j, then non-special P2 overwrites P1
+       IF ( (ALL(ABS(i-j) .EQ. 0)) .AND. (.NOT. ANY(SPECIAL_LIST .EQ. pr)) ) THEN
           ! Test to see if k(2) is EXCNUM, if so, and pr!=0, get new site
           CALL find_empty_site(j,i,error) ! save out-coords to i, NOT j
-          IF ( error .NE. 1 ) pr_coords = i
-       ELSE
-          ! For all other cases (the second product can be at site i
-          ! even when i=j
-          pr_coords = i ! For species
        END IF
+       ! For all other cases (the second product can be at site i
+       ! even when i=j
+       pr_coords = i ! For species
        k(3) = 3
     CASE(3)
        pr = branching(k(1),k(2),k(3))
@@ -1583,25 +1632,25 @@ CONTAINS
           error = 0
           RETURN
        END IF
-       CALL find_empty_site(i,k,error)
+       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Third product=:",pr
+       CALL find_empty_site(i,pr_coords,error)
        IF ( (error .EQ. 1) .AND. (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
           ! If there are no empty sites around i, and i!=j, try j
           error = 0
-          CALL find_empty_site(j,k,error)
+          CALL find_empty_site(j,pr_coords,error)
           IF ( error .EQ. 1 ) THEN
              ! If there are no empty sites around either i or j, quit...
              PRINT *, "Unable to find a site for the third product!"
              CALL EXIT()
           END IF
        END IF
-       ! Set prod coords to new k values
        ! At this points, when the subroutine quits, i=P1,j=p2,k=P3...
-       pr_coords = k
+       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Third product coords are:",pr_coords
     END SELECT
 
     ! Once the case is selected, point to coords to place
     ! product
-    temp => matrix(pr_coords(1),pr_coords(2),pr_coords(3))
+    temp => MATRIX(pr_coords(1),pr_coords(2),pr_coords(3))
     ! Place product
     IF ( pr .EQ. ELECNUM ) THEN
        ! Ensure that the electron is placed on the same site
@@ -1619,7 +1668,8 @@ CONTAINS
        ! Delete whatever is there, if the site isn't empty
        IF ( temp%sp_num .NE. 0) THEN
           CALL delete_node(root,temp,prevNode,nextNode,error)
-          CALL wipe_node(temp)
+          CALL wipe_node(pr_coords(1),pr_coords(2),pr_coords(3))
+          temp => MATRIX(pr_coords(1),pr_coords(2),pr_coords(3))
        END IF
        temp%sp_num = pr
        CALL wait_calc(temp)
@@ -1628,7 +1678,12 @@ CONTAINS
 
     ! Call subroutine again, and check for next product:
     ! if the next product is zero, return
-    CALL new_reaction(i,j,k,root,temp,prevNode,nextNode,error)
+    IF ( k(3) .LT. 3 ) THEN
+       CALL new_reaction(i,j,k,root,temp,prevNode,nextNode,error)
+    ELSE
+       k = pr_coords
+       RETURN
+    END IF
   END SUBROUTINE new_reaction
 
   RECURSIVE SUBROUTINE new_electron(se_box,root,temp,prevNode,nextNode)
@@ -1650,6 +1705,7 @@ CONTAINS
     INTEGER :: estep
     INTEGER :: eswitch
     INTEGER :: error
+    INTEGER :: cation, anion
     REAL               :: erand
     DOUBLE PRECISION :: emfp
     DOUBLE PRECISION :: new_e_energy
@@ -1677,6 +1733,7 @@ CONTAINS
     emfp = 0
     erand = 0
     de = 0
+    prevNode => MATRIX(se_box%parent_coords(1),se_box%parent_coords(2),se_box%parent_coords(3))
 
     ! Calculate track until the electron's energy is depleted
     DO WHILE ( se_box%se_energy .GE. ECUTOFF )
@@ -1718,7 +1775,8 @@ CONTAINS
        SELECT CASE (eswitch)
        CASE(1)
           ! Electron impact ionization
-          IF ( matrix(next(1),next(2),next(3))%sp_num .NE. 0 ) THEN
+          temp => MATRIX(next(1),next(2),next(3))
+          IF ((temp%sp_num .NE. 0) .AND. (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
              ! Calculate energy loss
              CALL e_ion_select(se_box,e_ion,error)
              ! Call random number
@@ -1729,16 +1787,17 @@ CONTAINS
              ee_loss = e_ion + new_e_energy
              ! Ionize the species and call new_electron again
              ! Place CRP pseudo reactant at site to indicate ionization
-             matrix(next(1),next(2),next(3))%sec_sp_num = CRPNUM
+             temp%sec_sp_num = CRPNUM
              ! Initialize 3rd set of coordinates to 1
              prcoords = 1
              CALL new_reaction(next,next,prcoords,root,temp,prevNode,nextNode,error)
+             temp => MATRIX(next(1),next(2),next(3))
              ! Now this site should have a cation and an electron as the secondary species
              ! at the same site
              IF ( DEBUG .EQV. .TRUE. ) THEN
-                IF ( matrix(next(1),next(2),next(3))%sec_sp_num .NE. ELECNUM ) THEN
-                   PRINT *, matrix(next(1),next(2),next(3))%sec_sp_num, &
-                        matrix(next(1),next(2),next(3))%sp_num
+                IF ( temp%sec_sp_num .NE. ELECNUM ) THEN
+                   PRINT *, temp%sec_sp_num, &
+                        temp%sp_num
                 END IF
              END IF
              ! 1) Populate the se_box with initial energy and parent coords
@@ -1754,15 +1813,15 @@ CONTAINS
              !    the species at the site above should now be neutral
              IF ( DEBUG .EQV. .TRUE. ) THEN
                 PRINT *, "At the end of the EII cycle, the site now has:",&
-                     matrix(next(1),next(2),next(3))%sp_num
+                     MATRIX(next(1),next(2),next(3))%sp_num
              END IF
           END IF
        CASE(0)
           ! Electron impact excitation
           CALL RANDOM_NUMBER(erand)
-          IF ( (erand .LE. DISPROB) .AND. (matrix(next(1),next(2),next(3))%sp_num .NE. 0)) THEN
+          IF ( (erand .LE. DISPROB) .AND. (MATRIX(next(1),next(2),next(3))%sp_num .NE. 0)) THEN
              ! Place special excitation reactant at site
-             matrix(next(1),next(2),next(3))%sec_sp_num = EXCNUM
+             MATRIX(next(1),next(2),next(3))%sec_sp_num = EXCNUM
              ! Initialize product coords to 1
              prcoords = 1
              CALL new_reaction(next,next,prcoords,root,temp,prevNode,nextNode,error)
@@ -1777,30 +1836,39 @@ CONTAINS
 
     ! Once the electron has fallen below the energy threshold, make
     ! Call transport until a non-vacant site is found
-    vacant = .TRUE. 
+    vacant = .TRUE.
+    prevNode => MATRIX(se_box%parent_coords(1),se_box%parent_coords(2),se_box%parent_coords(3))
     DO WHILE ( vacant .EQV. .TRUE. )
        prev = curr
        curr = next
        CALL transport(prev,curr,next)
        ! Test to make sure that the species isn't some other electron's cation
-       IF ( (matrix(next(1),next(2),next(3))%sp_num .NE. 0) .AND. &
-            (.NOT. ANY(IONLIST .EQ. matrix(next(1),next(2),next(3))%sp_num))) THEN
+       IF ( (MATRIX(next(1),next(2),next(3))%sp_num .NE. 0) .AND. &
+            (.NOT. ANY(IONLIST .EQ. MATRIX(next(1),next(2),next(3))%sp_num))) THEN
           vacant = .FALSE.
        END IF
     END DO
+    temp => MATRIX(next(1),next(2),next(3))
     ! Electron reacts to form an anion with a surrounding species
     ! i=next,j=next,form negative anion
     prcoords = 1 ! Initialize k(3)=1 for the recursive subroutine
     ! Place electron at same site to form anion
-    matrix(next(1),next(2),next(3))%sec_sp_num = ELECNUM
+    temp%sec_sp_num = ELECNUM
     CALL new_reaction(next,next,prcoords,root,temp,prevNode,nextNode,error)
-    IF ( error .EQ. 1 ) THEN
+    anion = temp%sp_num
+    IF ( (error .EQ. 1) .OR. (.NOT. ANY(IONLIST .EQ. anion)) ) THEN
        PRINT *, "Electron couldn't form anion!"
        CALL EXIT()
     END IF
     ! Make newly formed anion react with parent cation at %parent_coords
     ! i=next,j=parent_coords
     prcoords = 1
+    prevNode => MATRIX(se_box%parent_coords(1),se_box%parent_coords(2),se_box%parent_coords(3))
+    cation = prevNode%sp_num
+    IF ( .NOT. ANY(IONLIST .EQ. cation)) THEN
+       PRINT *, "Parent coords not a cation!!"
+       CALL EXIT()
+    END IF
     CALL new_reaction(next,se_box%parent_coords,prcoords,root,temp,nextNode,prevNode,error)
     IF ( error .EQ. 1) THEN
        PRINT *, "Ions couldn't recombine!"

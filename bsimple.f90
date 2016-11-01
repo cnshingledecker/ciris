@@ -250,183 +250,171 @@ CONTAINS
     d3 = toDelete%coord3
 
     CALL node_type(toDelete,dType,onetype,twotype,0)
-    IF ( NO_OUTPUT .EQV. .FALSE. ) THEN
-      IF ( dType .EQ. 1 ) PRINT *, "dType=",dType,"onetype=",onetype
-      IF (dType .EQ. 2 ) PRINT *, "dType=",dType,"twotype=",twotype
+    IF ( DEBUG .EQV. .TRUE. ) THEN
+       IF ( dType .EQ. 1 ) PRINT *, "dType=",dType,"onetype=",onetype
+       IF (dType .EQ. 2 ) PRINT *, "dType=",dType,"twotype=",twotype
     END IF
 
     SELECT CASE (dType)
     CASE (0)
-      ! Since toDelete corresponds to a persistant lattice site, we just nullify
-      ! the pointers and will re-add it to the tree later
-      IF ( toDelete == root ) THEN
-        NULLIFY(root)
-        RETURN
-      ELSE
-        prevNode => toDelete%parent
-        IF ( toDelete%leftRight .EQ. 0 ) THEN
-          NULLIFY(prevNode%before,toDelete%parent)
-        ELSE IF ( toDelete%leftRight .EQ. 1 ) THEN
-          NULLIFY(prevNode%after,toDelete%parent)
-        ELSE
-          IF ( toDelete == root ) THEN
-            CONTINUE
+       ! Since toDelete corresponds to a persistant lattice site, we just nullify
+       ! the pointers and will re-add it to the tree later
+       IF ( toDelete == root ) THEN
+          NULLIFY(root)
+          RETURN
+       ELSE
+          prevNode => toDelete%parent
+          IF ( toDelete%leftRight .EQ. 0 ) THEN
+             NULLIFY(prevNode%before,toDelete%parent)
+          ELSE IF ( toDelete%leftRight .EQ. 1 ) THEN
+             NULLIFY(prevNode%after,toDelete%parent)
           ELSE
-            PRINT *, "leftRight=",toDelete%leftRight
-!            CALL write_matrix_dataframe(root%coord1,root%coord2,root%coord3)
-!            CALL write_matrix_dataframe(toDelete%coord1,toDelete%coord2,toDelete%coord3)
-            CALL EXIT()
+             IF ( toDelete == root ) THEN
+                CONTINUE
+             ELSE
+                IF ( DEBUG .EQV. .TRUE. ) PRINT *, "leftRight=",toDelete%leftRight
+                !            CALL write_matrix_dataframe(root%coord1,root%coord2,root%coord3)
+                !            CALL write_matrix_dataframe(toDelete%coord1,toDelete%coord2,toDelete%coord3)
+                CALL EXIT()
+             END IF
           END IF
-        END IF
-      END IF
-      toDelete%leftRight = -1
+       END IF
+       toDelete%leftRight = -1
     CASE (1)
-      SELECT CASE (onetype)
-      CASE (0)
-        PRINT *, "Error in onetype case: onetype=0"
-        CALL EXIT()
-      CASE (1)
-        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "onetype=",onetype
-        nextNode => toDelete%before
-        prevNode => toDelete%parent
-        nextNode%parent => prevNode        ! 1
-        nextNode%leftRight = 0             ! 2
-        prevNode%before => nextNode        ! 3
-      CASE (2)
-        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "onetype=",onetype
-        nextNode => toDelete%before
-        prevNode => toDelete%parent
-        nextNode%parent => prevNode        ! 1
-        prevNode%after =>  nextNode        ! 2
-        nextNode%leftRight = 1             ! 3
-      CASE (3)
-        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "onetype=",onetype
-        nextNode => toDelete%after
-        prevNode => toDelete%parent
-        nextNode%parent => prevNode        ! 1
-        prevNode%before => nextNode        ! 2
-        nextNode%leftRight = 0             ! 3
-      CASE (4)
-        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "onetype=",onetype
-        nextNode => toDelete%after
-        prevNode => toDelete%parent
-        nextNode%parent => prevNode        ! 1
-        prevNode%after => nextNode         ! 2
-        nextNode%leftRight = 1             ! 3
-      CASE (5)
-        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "onetype=",onetype
-        nextNode => toDelete%before
-        NULLIFY(nextNode%parent)           ! 1
-        nextNode%leftRight = -1            ! 2
-        root => nextNode                   ! 3
-      CASE (6)
-        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "onetype=",onetype
-        nextNode => toDelete%after
-        NULLIFY(nextNode%parent)           ! 1
-        nextNode%leftRight = -1            ! 2
-        root => nextNode                   ! 3
-      END SELECT
-      PRINT *, "Nullifying pointers"
-      NULLIFY(matrix(d1,d2,d3)%before,matrix(d1,d2,d3)%after,matrix(d1,d2,d3)%parent)
-      matrix(d1,d2,d3)%leftRight = -1
-      PRINT *, "Pointers nullified"
+       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "onetype=",onetype
+       SELECT CASE (onetype)
+       CASE (0)
+          PRINT *, "Error in onetype case: onetype=0"
+          CALL EXIT()
+       CASE (1)
+          nextNode => toDelete%before
+          prevNode => toDelete%parent
+          nextNode%parent => prevNode        ! 1
+          nextNode%leftRight = 0             ! 2
+          prevNode%before => nextNode        ! 3
+       CASE (2)
+          nextNode => toDelete%before
+          prevNode => toDelete%parent
+          nextNode%parent => prevNode        ! 1
+          prevNode%after =>  nextNode        ! 2
+          nextNode%leftRight = 1             ! 3
+       CASE (3)
+          nextNode => toDelete%after
+          prevNode => toDelete%parent
+          nextNode%parent => prevNode        ! 1
+          prevNode%before => nextNode        ! 2
+          nextNode%leftRight = 0             ! 3
+       CASE (4)
+          nextNode => toDelete%after
+          prevNode => toDelete%parent
+          nextNode%parent => prevNode        ! 1
+          prevNode%after => nextNode         ! 2
+          nextNode%leftRight = 1             ! 3
+       CASE (5)
+          nextNode => toDelete%before
+          NULLIFY(nextNode%parent)           ! 1
+          nextNode%leftRight = -1            ! 2
+          root => nextNode                   ! 3
+       CASE (6)
+          nextNode => toDelete%after
+          NULLIFY(nextNode%parent)           ! 1
+          nextNode%leftRight = -1            ! 2
+          root => nextNode                   ! 3
+       END SELECT
+       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Nullifying pointers"
+       NULLIFY(matrix(d1,d2,d3)%before,matrix(d1,d2,d3)%after,matrix(d1,d2,d3)%parent)
+       matrix(d1,d2,d3)%leftRight = -1
+       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Pointers nullified"
     CASE (2)
-      ! First step is to delete the min of toDelete%after
-      CALL find_min(toDelete%after,nextNode)
-      toDelete => nextNode
-      CALL delete_node(root,toDelete,prevNode,nextNode,error)
-      SELECT CASE (twotype)
-      CASE (1)
-        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
-        prevNode => matrix(d1,d2,d3)%before
-        prevNode%parent => toDelete ! 1
-        toDelete%before => prevNode ! 2
-        root => toDelete
-      CASE (2)
-        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
-        prevNode => matrix(d1,d2,d3)%before
-        nextNode => matrix(d1,d2,d3)%after
-        prevNode%parent => toDelete ! 1
-        nextNode%parent => toDelete ! 2
-        toDelete%before => prevNode ! 3
-        toDelete%after  => nextNode ! 4
-        root => toDelete
-      CASE (3)
-        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
-        prevNode => matrix(d1,d2,d3)%before
-        prevNode%parent => toDelete ! 1
-        toDelete%before => prevNode ! 2
-        root => toDelete
-      CASE (4)
-        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
-        prevNode => matrix(d1,d2,d3)%before
-        nextNode => matrix(d1,d2,d3)%after
-        prevNode%parent => toDelete ! 1
-        nextNode%parent => toDelete ! 2
-        toDelete%before => prevNode ! 3
-        toDelete%after  => nextNode ! 4
-        root => toDelete
-      CASE (5)
-        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
-        prevNode => matrix(d1,d2,d3)%before
-        prevNode%parent => toDelete                     ! 1
-        toDelete%before => prevNode                     ! 2
-        toDelete%parent => matrix(d1,d2,d3)%parent      ! 3
-        toDelete%leftRight = matrix(d1,d2,d3)%leftRight ! 4
-        prevNode => matrix(d1,d2,d3)%parent
-        IF ( toDelete%leftRight .EQ. 0 ) THEN           ! 5
-          prevNode%before => toDelete
-        ELSE
-          prevNode%after  => toDelete
-        END IF
-      CASE (6)
-        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
-        prevNode => matrix(d1,d2,d3)%before
-        nextNode => matrix(d1,d2,d3)%after
-        prevNode%parent => toDelete                     ! 1
-        nextNode%parent => toDelete                     ! 2
-        toDelete%before => prevNode                     ! 3
-        toDelete%after  => nextNode                     ! 4
-        toDelete%parent => matrix(d1,d2,d3)%parent      ! 5
-        toDelete%leftRight = matrix(d1,d2,d3)%leftRight ! 6
-        prevNode => matrix(d1,d2,d3)%parent
-        IF ( toDelete%leftRight .EQ. 0 ) THEN           ! 7
-          prevNode%before => toDelete
-        ELSE
-          prevNode%after => toDelete
-        END IF
-      CASE (7)
-        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
-        prevNode => matrix(d1,d2,d3)%before
-        prevNode%parent => toDelete                     ! 1
-        toDelete%before => prevNode                     ! 2
-        toDelete%parent => matrix(d1,d2,d3)%parent      ! 3
-        toDelete%leftRight = matrix(d1,d2,d3)%leftRight ! 4
-        prevNode => matrix(d1,d2,d3)%parent
-        IF ( toDelete%leftRight .EQ. 0 ) THEN           ! 5
-          prevNode%before => toDelete
-        ELSE
-          prevNode%after  => toDelete
-        END IF
-      CASE (8)
-        IF ( NO_OUTPUT .EQV. .FALSE. ) PRINT *, "twotype=",twotype
-        prevNode => matrix(d1,d2,d3)%before
-        nextNode => matrix(d1,d2,d3)%after
-        prevNode%parent => toDelete                     ! 1
-        nextNode%parent => toDelete                     ! 2
-        toDelete%before => prevNode                     ! 3
-        toDelete%after  => nextNode                     ! 4
-        toDelete%parent => matrix(d1,d2,d3)%parent      ! 5
-        toDelete%leftRight = matrix(d1,d2,d3)%leftRight ! 6
-        prevNode => matrix(d1,d2,d3)%parent
-        IF ( toDelete%leftRight .EQ. 0 ) THEN           ! 7
-          prevNode%before => toDelete
-        ELSE
-          prevNode%after => toDelete
-        END IF
-      END SELECT
-      NULLIFY(matrix(d1,d2,d3)%before,matrix(d1,d2,d3)%after,matrix(d1,d2,d3)%parent)
-      matrix(d1,d2,d3)%leftRight = -1
+       ! First step is to delete the min of toDelete%after
+       CALL find_min(toDelete%after,nextNode)
+       toDelete => nextNode
+       CALL delete_node(root,toDelete,prevNode,nextNode,error)
+       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "twotype=",twotype
+       SELECT CASE (twotype)
+       CASE (1)
+          prevNode => matrix(d1,d2,d3)%before
+          prevNode%parent => toDelete ! 1
+          toDelete%before => prevNode ! 2
+          root => toDelete
+       CASE (2)
+          prevNode => matrix(d1,d2,d3)%before
+          nextNode => matrix(d1,d2,d3)%after
+          prevNode%parent => toDelete ! 1
+          nextNode%parent => toDelete ! 2
+          toDelete%before => prevNode ! 3
+          toDelete%after  => nextNode ! 4
+          root => toDelete
+       CASE (3)
+          prevNode => matrix(d1,d2,d3)%before
+          prevNode%parent => toDelete ! 1
+          toDelete%before => prevNode ! 2
+          root => toDelete
+       CASE (4)
+          prevNode => matrix(d1,d2,d3)%before
+          nextNode => matrix(d1,d2,d3)%after
+          prevNode%parent => toDelete ! 1
+          nextNode%parent => toDelete ! 2
+          toDelete%before => prevNode ! 3
+          toDelete%after  => nextNode ! 4
+          root => toDelete
+       CASE (5)
+          prevNode => matrix(d1,d2,d3)%before
+          prevNode%parent => toDelete                     ! 1
+          toDelete%before => prevNode                     ! 2
+          toDelete%parent => matrix(d1,d2,d3)%parent      ! 3
+          toDelete%leftRight = matrix(d1,d2,d3)%leftRight ! 4
+          prevNode => matrix(d1,d2,d3)%parent
+          IF ( toDelete%leftRight .EQ. 0 ) THEN           ! 5
+             prevNode%before => toDelete
+          ELSE
+             prevNode%after  => toDelete
+          END IF
+       CASE (6)
+          prevNode => matrix(d1,d2,d3)%before
+          nextNode => matrix(d1,d2,d3)%after
+          prevNode%parent => toDelete                     ! 1
+          nextNode%parent => toDelete                     ! 2
+          toDelete%before => prevNode                     ! 3
+          toDelete%after  => nextNode                     ! 4
+          toDelete%parent => matrix(d1,d2,d3)%parent      ! 5
+          toDelete%leftRight = matrix(d1,d2,d3)%leftRight ! 6
+          prevNode => matrix(d1,d2,d3)%parent
+          IF ( toDelete%leftRight .EQ. 0 ) THEN           ! 7
+             prevNode%before => toDelete
+          ELSE
+             prevNode%after => toDelete
+          END IF
+       CASE (7)
+          prevNode => matrix(d1,d2,d3)%before
+          prevNode%parent => toDelete                     ! 1
+          toDelete%before => prevNode                     ! 2
+          toDelete%parent => matrix(d1,d2,d3)%parent      ! 3
+          toDelete%leftRight = matrix(d1,d2,d3)%leftRight ! 4
+          prevNode => matrix(d1,d2,d3)%parent
+          IF ( toDelete%leftRight .EQ. 0 ) THEN           ! 5
+             prevNode%before => toDelete
+          ELSE
+             prevNode%after  => toDelete
+          END IF
+       CASE (8)
+          prevNode => matrix(d1,d2,d3)%before
+          nextNode => matrix(d1,d2,d3)%after
+          prevNode%parent => toDelete                     ! 1
+          nextNode%parent => toDelete                     ! 2
+          toDelete%before => prevNode                     ! 3
+          toDelete%after  => nextNode                     ! 4
+          toDelete%parent => matrix(d1,d2,d3)%parent      ! 5
+          toDelete%leftRight = matrix(d1,d2,d3)%leftRight ! 6
+          prevNode => matrix(d1,d2,d3)%parent
+          IF ( toDelete%leftRight .EQ. 0 ) THEN           ! 7
+             prevNode%before => toDelete
+          ELSE
+             prevNode%after => toDelete
+          END IF
+       END SELECT
+       NULLIFY(matrix(d1,d2,d3)%before,matrix(d1,d2,d3)%after,matrix(d1,d2,d3)%parent)
+       matrix(d1,d2,d3)%leftRight = -1
     END SELECT
   END SUBROUTINE delete_node
 
