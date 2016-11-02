@@ -198,8 +198,8 @@ CONTAINS
           READ(val, *) O3_0_ION_BRANCHING
        CASE ("O3_O2_ION_BRANCHING")
           READ(val, *) O3_O2_ION_BRANCHING
-       CASE ("O_O2_BRANCHING")
-          READ(val, *) O_O2_BRANCHING
+!       CASE ("O_O2_BRANCHING")
+!          READ(val, *) O_O2_BRANCHING
        CASE ("FRAGILE")
           READ(val, *) FRAGILE
        CASE("ELASTIC_LOSS")
