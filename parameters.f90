@@ -94,7 +94,7 @@ MODULE parameters
   DOUBLE PRECISION              :: AVAL              = 33                    ! Parameter for Gamma distribution
   DOUBLE PRECISION  , PARAMETER :: ECUTOFF           = 9.0D0                 ! Secondary cutoff energy in eV
   DOUBLE PRECISION  , PARAMETER :: PCUTOFF           = 5.0D0                 ! Primary ion cutoff energy in eV
-  DOUBLE PRECISION  , PARAMETER :: FLUENCE_TOTAL     = 1.0D15
+  DOUBLE PRECISION  , PARAMETER :: FLUENCE_TOTAL     = 5.0D15
   DOUBLE PRECISION  , PARAMETER :: SUBEXHITPROB      = 0.5
   DOUBLE PRECISION              :: FITNESS_THRESHOLD = 1E20  ! if fitness value exceeds this, terminate
   DOUBLE PRECISION              :: ELASTIC_LOSS      = 0.001
@@ -152,7 +152,7 @@ MODULE parameters
   !******************************************************************************
   LOGICAL         , PARAMETER :: FIXED_SIZE   = .FALSE.
   LOGICAL         , PARAMETER :: NO_OUTPUT    = .TRUE.
-  LOGICAL         , PARAMETER :: QUIET        = .FALSE.
+  LOGICAL         , PARAMETER :: QUIET        = .TRUE.
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
