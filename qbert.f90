@@ -37,7 +37,6 @@ SUBROUTINE qbert()
   USE parameters
   IMPLICIT NONE
   ! Input and output
-  INTEGER              :: temp_prods(3)
   INTEGER                          :: ierror1, ierror2
   INTEGER                          :: n, k, n1, n3
   INTEGER                          :: prod, i, j

@@ -177,7 +177,7 @@ CONTAINS
     END SELECT
   END SUBROUTINE hopping
 
-  SUBROUTINE fallout ( o3_prod,o3_dest,root,temp,prevNode,nextNode)
+  SUBROUTINE fallout ( root,temp,prevNode,nextNode)
     ! Purpose:
     !   To calculate the track of a particle of ionizing radiation through a
     !  crystaline solid.
@@ -190,23 +190,14 @@ CONTAINS
     !
     !! FALLOUT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
-    !******************!
-    ! Input and output !
-    !******************!
-    INTEGER            , POINTER :: o3_prod,o3_dest
-    !*****************!
-    ! Local variables !
-    !*****************!
     INTEGER          :: null
-    INTEGER                      :: n,nn,jj
     INTEGER                      :: num_elecs ! number of secondary electrons pruduced
     INTEGER                      :: num_izns
     INTEGER                      :: num_exs, num_els
     INTEGER                      :: x,y,z !coordinates of cosmic-ray along track
-    INTEGER                      :: exitcount
     INTEGER                      :: count_count
-    INTEGER                      :: step,estep !distance the track is incremented
-    INTEGER                      :: switch,eswitch
+    INTEGER                      :: step !distance the track is incremented
+    INTEGER                      :: switch
     INTEGER                      :: ev_coords(3)
     INTEGER                      :: prcoords(3)
     DOUBLE PRECISION               :: p,u,rand1 ! rand num
@@ -214,10 +205,9 @@ CONTAINS
     DOUBLE PRECISION               :: mfp ! mean free path
     DOUBLE PRECISION               :: dz ! move dist
     DOUBLE PRECISION               :: dist_trav !distance travelled since last collision
-    DOUBLE PRECISION               :: e_loss,e_ion,e_exc,ee_loss
+    DOUBLE PRECISION               :: e_loss,e_ion,e_exc
     DOUBLE PRECISION               :: labtheta
     DOUBLE PRECISION     , TARGET  :: e_se
-    DOUBLE PRECISION               :: subexrand
     DOUBLE PRECISION   , TARGET  :: energy_target
     DOUBLE PRECISION   , POINTER :: ione
     DOUBLE PRECISION   , POINTER :: psigij(:),psigexj(:)
@@ -374,9 +364,7 @@ CONTAINS
              !****************************************************************************!
              !NB: FUTURE WORK TO ADD LATTICE DAMAGE
              CONTINUE
-          ELSE IF ( switch .EQ. 1 ) THEN ! Dissociate target species on track and place prods
-             !****************************************************************************!
-             ! Excitation                                                                 !
+          ELSE IF ( switch .EQ. 1 ) THEN ! Dissociate target species on track and pla       !
              !****************************************************************************!
              ! Place excitation on site
              null = 0
@@ -765,7 +753,7 @@ CONTAINS
     !
     !! COUNTER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
-    INTEGER                                                    :: i,j,k,nn
+    INTEGER                                                    :: i,j,k
     INTEGER                                                    :: o_count,o2_count,o3_count
     DOUBLE PRECISION                                             :: denom
     DOUBLE PRECISION                                             :: area
@@ -1230,7 +1218,7 @@ CONTAINS
     RETURN
   END SUBROUTINE p_ex_select
 
-  SUBROUTINE e_ion_select(se_box,e_loss,null)
+  SUBROUTINE e_ion_select(se_box,e_ion,e_se,null)
     !
     ! Purpose:
     !   This subroutine is to determine the specific ionization state that an
@@ -1241,11 +1229,10 @@ CONTAINS
 
     !Data dictionary: Calling parameters
     TYPE(se_info)                                  :: se_box
-    DOUBLE PRECISION   , INTENT(OUT)                     :: e_loss
+    DOUBLE PRECISION   , INTENT(OUT)                     :: e_ion, e_se
     INTEGER            , INTENT(OUT)                     :: null
 
     !Data dictionary: Local variables
-    DOUBLE PRECISION                                     :: e_ion,e_se,e_exc
     DOUBLE PRECISION                                     :: sigtot
     DOUBLE PRECISION                                     :: prob,prevprob
     DOUBLE PRECISION                                     :: rn
@@ -1266,8 +1253,6 @@ CONTAINS
     !Initialize values
     e_ion = 0D0
     e_se  = 0D0
-    e_exc = 0D0
-    e_loss = 0D0
 
     !Initialize integers
     n        = 0
@@ -1282,42 +1267,44 @@ CONTAINS
     arr(:,2) = se_box%se_ionst%i_energy
     sigtot   = se_box%se_iontot
 
-    !Populate a new array with possible transitions
-    DO n=1,SIZE(arr,1)
-       IF ( arr(n,1) .NE. 0.0 ) arrcount = arrcount + 1
-       IF ( n .EQ. SIZE(arr,1) ) THEN
-          ALLOCATE(temparr(arrcount,2))
-          temparr = 0
-          incount = 1
-          DO i=1,SIZE(arr,1)
-             IF ( arr(i,1) .NE. 0.0 ) THEN
-                temparr(incount,1) = arr(i,1)
-                temparr(incount,2) = arr(i,2)
-                incount = incount + 1
-             END IF
-          END DO
-       END IF
-    END DO
+    IF ( SIZE(arr,1) .EQ. 1 ) THEN
+       e_ion = arr(1,2)
+    ELSE
+       !Populate a new array with possible transitions
+       DO n=1,SIZE(arr,1)
+          IF ( arr(n,1) .NE. 0.0 ) arrcount = arrcount + 1
+          IF ( n .EQ. SIZE(arr,1) ) THEN
+             ALLOCATE(temparr(arrcount,2))
+             temparr = 0
+             incount = 1
+             DO i=1,SIZE(arr,1)
+                IF ( arr(i,1) .NE. 0.0 ) THEN
+                   temparr(incount,1) = arr(i,1)
+                   temparr(incount,2) = arr(i,2)
+                   incount = incount + 1
+                END IF
+             END DO
+          END IF
+       END DO
 
-    !Draw a random number and determine the precise amount of energy lost.
-    CALL RANDOM_NUMBER(rn)
-    prevprob = 0d0
-    prob     = 0D0
-    DO n=1,SIZE(temparr,1)
-       prob = (temparr(n,1)/sigtot) + prevprob
-       IF ( rn .GT. prevprob .AND. rn .LE. prob ) THEN
-          e_ion = temparr(n,2)
-          RETURN
-       END IF
-       prevprob = prob
-    END DO
+       !Draw a random number and determine the precise amount of energy lost.
+       CALL RANDOM_NUMBER(rn)
+       prevprob = 0d0
+       prob     = 0D0
+       DO n=1,SIZE(temparr,1)
+          prob = (temparr(n,1)/sigtot) + prevprob
+          IF ( rn .GT. prevprob .AND. rn .LE. prob ) THEN
+             e_ion = temparr(n,2)
+             RETURN
+          END IF
+          prevprob = prob
+       END DO
+    END IF
 
     !Draw another pseudo-random number, this time from a Gamma distribution
     !to determine the kinetic energy of the low-energy electron.
-    !
-    !NB: The input to rgamma, aval, is a global parameter
-    e_se = rgamma(AVAL)
-    e_loss = e_ion + e_se
+    CALL RANDOM_NUMBER(rn)
+    e_se = rn*(se_box%se_energy - e_ion)
     RETURN
   END SUBROUTINE e_ion_select
 
@@ -1637,7 +1624,7 @@ CONTAINS
        IF ( (error .EQ. 1) .AND. (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
           ! If there are no empty sites around i, and i!=j, try j
           error = 0
-          CALL find_empty_site(j,pr_coords,error)
+         CALL find_empty_site(j,pr_coords,error)
           IF ( error .EQ. 1 ) THEN
              ! If there are no empty sites around either i or j, quit...
              PRINT *, "Unable to find a site for the third product!"
@@ -1778,11 +1765,11 @@ CONTAINS
           temp => MATRIX(next(1),next(2),next(3))
           IF ((temp%sp_num .NE. 0) .AND. (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
              ! Calculate energy loss
-             CALL e_ion_select(se_box,e_ion,error)
+             CALL e_ion_select(se_box,e_ion,new_e_energy,error)
              ! Call random number
              CALL RANDOM_NUMBER(erand)
              ! Calculate new electron energy based on \DeltaE
-             new_e_energy = erand*(se_box%se_energy - e_ion)
+!             new_e_energy = erand*(se_box%se_energy - e_ion)
              ! Energy lost is sum of ionization energy + new electron energy
              ee_loss = e_ion + new_e_energy
              ! Ionize the species and call new_electron again

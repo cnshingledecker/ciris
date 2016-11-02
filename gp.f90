@@ -21,8 +21,6 @@ CONTAINS
     DOUBLE PRECISION                                             :: model
     DOUBLE PRECISION                                             :: fit
     DOUBLE PRECISION                                             :: part1, part2
-    TYPE(wait_info)                , DIMENSION(:)    , POINTER :: wait_list
-    INTEGER                                                    :: i, j, k
 
     CALL counter()
 

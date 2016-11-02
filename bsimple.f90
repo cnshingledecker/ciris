@@ -216,18 +216,6 @@ CONTAINS
     END IF
   END SUBROUTINE find_min
 
-  RECURSIVE SUBROUTINE find_max (ptr, search)
-    IMPLICIT NONE
-    TYPE (node), POINTER :: ptr    ! Pointer to curr pos. in tree
-    TYPE (node), POINTER :: search ! Pointer to minimum value
-
-    IF ( ASSOCIATED(ptr%after) ) THEN
-      CALL find_min ( ptr%after, search )
-    ELSE
-      search => ptr
-    END IF
-  END SUBROUTINE find_max
-
   RECURSIVE SUBROUTINE delete_node (root, toDelete, prevNode, nextNode, error)
     !
     !  Purpose:

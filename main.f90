@@ -10,13 +10,11 @@ PROGRAM main
   !******************************************************************************
   ! Data dictionary
   !******************************************************************************
-  INTEGER             :: n
   INTEGER             :: tmp_sp_num
   INTEGER             :: loop_count
   INTEGER             :: xx,yy,zz
   INTEGER             :: i(3),j(3),k(3)
   INTEGER             :: count_num      ! Number of abundance file
-  INTEGER             :: result
   INTEGER             :: time_check     ! DEBUGGING VAR
   INTEGER             :: error
   DOUBLE PRECISION      :: cr_time        ! Time till next proton collision
@@ -202,7 +200,7 @@ PROGRAM main
         PROTON_ELOSS = 0.d0 !Reset protpn energy loss to 0
 
         ! Calculate track/damage
-        CALL fallout( o3_prod,o3_dest,root,temp,prevNode,nextNode )
+        CALL fallout( root,temp,prevNode,nextNode )
         IF ( PROTON_ELOSS .GT. 0 ) numprotons = numprotons + 1
         ALTFLUENCE = numprotons/AREA
      ELSE
