@@ -15,7 +15,7 @@ constraints = Dict(
     "O2_ION_BRANCHING" => 0.0:0.1:1.0, #set
     "O3_O_ION_BRANCHING" => 0.0:0.1:1.0, #set
     "O3_O2_ION_BRANCHING" => 0.0:0.1:1.0, #set
-    "O_O2_BRANCING" => 0.0:0.0:0.0, #float
+    "O_O2_BRANCING" => 0.0:0.1:0.0, #float
     "NSUBEX" => 0:1:20, #int
 )
 parameters = collect(keys(constraints))
@@ -32,11 +32,6 @@ end
 #       Maybe something like a probability distribution?
 function breed(solution1, solution2)
     child = mixTraits(solution1, solution2)
-    #bred_traits = rand(1:4)
-    #for i = 1:bred_traits
-    #    k = rand(parameters)
-    #    child[k] = breedValue(solution1[k], solution2[k], constraints[k])
-    #end
     return child
 end
 

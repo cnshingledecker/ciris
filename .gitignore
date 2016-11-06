@@ -1,3 +1,6 @@
+#
+archipelago/
+
 # bin stuff in general
 bin
 obj
@@ -28,6 +31,7 @@ obj
 *.out
 
 # explicit files
+ciris
 losalamos
 ticket_master.csv
 #abundance.csv
