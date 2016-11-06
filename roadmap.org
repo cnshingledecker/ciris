@@ -24,3 +24,26 @@ Write a new subroutine that takes as input two reactants and returns
 a scalar product. Internally, call a random number and select products appropriate
 for the branching ratio
 
+* Running CIRIS on Rivanna
+** Slurm script
+*** 1) run program using unique parameters from $ticket file
+
+$ ./losalamos
+
+*** 2) After program has run, copy params.dat -> $ticket.dat
+
+$ dirname=(`basename $PWD`)
+
+*** 3) copy $ticket.dat -> /done/$ticket.dat
+
+$ cp params.dat ../done/$dirname
+
+*** 4) copy $id_slurm.out -> /accounting/$ticket.out
+
+$ cp *SLURM* ../accounting/$dirname
+
+*** 5) rm -rf $ticket directory
+
+$ rm -rf ../$dirname
+
+*** 6) end
