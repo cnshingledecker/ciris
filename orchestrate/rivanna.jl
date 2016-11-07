@@ -9,6 +9,7 @@ Also check
 module Rivanna
 
 using Base.Random.uuid4
+using DataFrames
 include("parameter_writer.jl") # ParameterIO module
 
 # environment parameters
@@ -41,7 +42,7 @@ end
 # Submit a job
 function submitJob(island)
     # pick first file from todo
-    file = readdir("$ROOT/$island/todo") 
+    file = readdir("$ROOT/$island/todo")
     file = file[1]
     # Make a directory in the root directory with the filename
     println("Now making $island/prog/$file")
@@ -62,7 +63,7 @@ function submitJob(island)
 #    run(`sbatch $ROOT/$island/prog/$file/ciris.slurm`)
     run(`$ROOT/$island/prog/$file/ciris.slurm`)
     # return the ticket id
-    return 
+    return
 end
 
 # Copies a local file to the grid relative to ROOT
@@ -74,12 +75,6 @@ end
 # NOTE: does NOT split!
 function fetchCat(filename)
     return strip(run(`cat $ROOT/$filename`))
-end
-
-# Gets all done files from an island
-function fetchDone(island)
-    # grid output has an extra entry - the directory being ls'ed
-    return split(strip(run(`ls $ROOT/$island/done`)), "\n")[2:end]
 end
 
 # Gets done size for an island
@@ -127,39 +122,44 @@ end
 
 # drop lowest 20% of candidates, returns number of files deleted
 function cull(island)
-    # get candidates for removal
-    files = fetchDone(island)
-
     # build an array of fitnesses and map to connect score to file
-    scores = []
-    fitness_map = Dict()
-    for filename in files
-        try
-          file = split(fetchCat("$island/done/$filename"), "\n")
-          # get line of fitness score -- should be exactly 1
-          fitness = float(filter(line -> contains(line, "FITNESS,"), file)[1][9:end])
-          push!(scores, fitness)
-          fitness_map[fitness] = filename
-        catch error
-          if isa(error, BoundsError)
-            println("$filename is messed up: removing")
-            run(`rm -rf $filename`)
-            println("Bad file removed...")
-          end
+    fitness_map = DataFrame()
+    fitness_map[:Path] = readdir("$ROOT/$island/done")
+    fitness_map[:Fitness] = -1.0
+    for i in 1:size(fitness_map[:Path],1)
+        f = open(filename)
+        fitscore = -1.0
+        for line in readlines(f)
+            if length(line) > 8
+                if line[1:8] == "FITNESS,"
+                    fitscore = float(line[9:end])
+                    fitness_map[:Fitness][i] = fitscore
+                end
+            end
+        end
+        if fitness_map[:Fitness][i] < 0
+            println("$filename is Screwy, deleting!")
+            run(`rm $filename`)
+            deleterows!(fitness_map,i)
         end
     end
-    sort!(scores)
+
+    sort!(fitness_map, cols = [order(:Fitness)])
 
     # the first 80% are fit
-    fit = round(Int, 0.8 * length(scores))
+    fit = round(Int, 0.8 * length(fitness_map[:Fitness]))
+    println("Keeping $fit out of $(length(fitness_map[:Fitness]))")
+    culled = 0
     # the last 20% should be removed
-    for score in drop(scores, fit)
-        # delete each file
-        file = fitness_map[score]
-        println("deleting file: $file")
-        rmFile("$island/done/$file")
+    for i in 1:length(fitness_map[:Fitness])
+        if i >= fit
+            # delete each file
+            file = fitness_map[:Path][i]
+            run(`rm $ROOT/$island/done/$file`)
+            culled = culled + 1
+        end
     end
-    return length(scores) - fit
+    return culled
 end
 
 # creates directory hierarchy

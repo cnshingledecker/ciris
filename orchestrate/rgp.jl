@@ -9,11 +9,12 @@
 include("parameter_writer.jl")
 include("rivanna.jl")
 include("maintainence.jl")
+using DataFrames
 
 # island population constants
 MIN_WORK      = 1  # max number of jobs/island
-MIN_TODO      = 50 # min todo size/island
-MAX_DONE      = 10 # max done size/island
+MIN_TODO      = 10 # min todo size/island
+MAX_DONE      = 5 # max done size/island
 EXILE         = 25 # not implemented yet...
 MUTATE_CHANCE = 5  # 1 out of...
 EXILE_CHANCE  = 5  # 1 out of...
@@ -104,7 +105,7 @@ function do_maintainence(islands)
         done_size = Rivanna.fetchDoneSize(island)
         println("In do_maintainence, $island has $(done_size) done jobs")
         if done_size > MAX_DONE
-            println("$(done_size) < $(MAX_DONE)")
+            println("$(done_size) > $(MAX_DONE)")
             gap = MAX_DONE - done_size
             deleted = Rivanna.cull(island)
             println("$island: culled $deleted")
@@ -141,7 +142,7 @@ while true
     for i=1:5
         do_maintainence(Rivanna.ISLANDS)
         # sleep
-        sleep(100)
+        sleep(1)
         island_num = i - 1
     end
     println("Finishing loop")
