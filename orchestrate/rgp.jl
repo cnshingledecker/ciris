@@ -22,13 +22,12 @@ EXILE_CHANCE  = 5  # 1 out of...
 # Some sanity assertions
 @assert MIN_WORK < MIN_TODO "Max possible jobs/island exceeds minimum population threshold!"
 
-
 # control logic for maintaining jobs and islands
 function do_maintainence(islands)
     # check if todo population should be bolstered
+    temp_best_fitness = 9.9E12
     for island in islands
         todo_size = Rivanna.fetchTodoSize(island)
-        println("In rgp.jl, called todo_size in do_maintainence")
         if todo_size < MIN_TODO
             deficit = MIN_TODO - todo_size
             println("$island should be bolstered")
@@ -42,12 +41,13 @@ function do_maintainence(islands)
             # add "deficit" number of files
             mutated = 0
             bred = 0
+            cd("$(Rivanna.ROOT)/$island/done")
             for j=1:deficit
                 if rand(1:MUTATE_CHANCE) == 1
                     #mutate
                     # pick a random file and fetch its contents
-                    file_contents = Rivanna.fetchCat("$island/done/$(rand(done_files))")
-                    parsed_file = ParameterIO.readSolution(IOBuffer(file_contents))
+                    file_contents = "$(Rivanna.ROOT)/$island/done/$(rand(done_files))"
+                    parsed_file = ParameterIO.readSolution(file_contents)
                     # drop fitness and seed
                     delete!(parsed_file, "FITNESS")
                     delete!(parsed_file, "SEED")
@@ -56,17 +56,19 @@ function do_maintainence(islands)
                         ParameterIO.mutate!(parsed_file)
                     end
                     name = ParameterIO.writeSolution(parsed_file)
-                    Rivanna.cpLG(name, "$island/todo")
-                    run(`rm $name`)
+                    run(`cp $(Rivanna.ROOT)/$island/done/$name $(Rivanna.ROOT)/$island/todo`)
+                    run(`rm $(Rivanna.ROOT)/$island/done/$name`)
                     mutated = mutated + 1
                 else
                     #breed
                     # pick two files at random
                     f1, f2 = rand(done_files, 2)
-                    f1_contents = Rivanna.fetchCat("$island/done/$f1")
-                    f2_contents = Rivanna.fetchCat("$island/done/$f2")
-                    f1_parsed = ParameterIO.readSolution(IOBuffer(f1_contents))
-                    f2_parsed = ParameterIO.readSolution(IOBuffer(f2_contents))
+#                    f1_contents = Rivanna.fetchCat("$(Rivanna.ROOT)/$island/done/$f1")
+                    f1_contents = "$(Rivanna.ROOT)/$island/done/$f1"
+#                    f2_contents = Rivanna.fetchCat("$(Rivanna.ROOT)/$island/done/$f2")
+                    f2_contents = "$(Rivanna.ROOT)/$island/done/$f2"
+                    f1_parsed = ParameterIO.readSolution(f1_contents)
+                    f2_parsed = ParameterIO.readSolution(f2_contents)
                     delete!(f1_parsed, "FITNESS")
                     delete!(f2_parsed, "FITNESS")
                     delete!(f1_parsed, "SEED")
@@ -74,8 +76,8 @@ function do_maintainence(islands)
                     # breed and stash new candidate
                     child = ParameterIO.breed(f1_parsed, f2_parsed)
                     name = ParameterIO.writeSolution(child)
-                    Rivanna.cpLG(name, "$island/todo")
-                    run(`rm $name`)
+                    run(`cp $(Rivanna.ROOT)/$island/done/$name $(Rivanna.ROOT)/$island/todo`)
+                    run(`rm $(Rivanna.ROOT)/$island/done/$name`)
                     bred = bred + 1
                 end
             end
@@ -86,31 +88,25 @@ function do_maintainence(islands)
     # check if more jobs should be submitted
     for island in islands
         jobs_in_progress = round(Int,size(readdir("$(Rivanna.ROOT)/$island/prog"),1))
-        println("In second loop $island jobs: $jobs_in_progress")
         if jobs_in_progress < MIN_WORK
             # below threshold!
             new_jobs = MIN_WORK - jobs_in_progress
-            println("Making $new_jobs for $island")
             for j=1:new_jobs
-                println("Now calling submitJob")
                 Rivanna.submitJob(island)
-                println("Submitted job")
             end
         end
     end
 
     # check if done population is too big
     for island in islands
-        println("In third loop of do_maintainence")
         done_size = Rivanna.fetchDoneSize(island)
-        println("In do_maintainence, $island has $(done_size) done jobs")
         if done_size > MAX_DONE
-            println("$(done_size) > $(MAX_DONE)")
             gap = MAX_DONE - done_size
-            deleted = Rivanna.cull(island)
+            deleted, temp_best_fitness = Rivanna.cull(island)
             println("$island: culled $deleted")
         end
     end
+    return temp_best_fitness
 end
 
 println("GP SYSTEM FOR CIRIS\n")
@@ -137,10 +133,17 @@ else
 end
 
 # the main loop
+BEST_FITNESS  = 9.9E12
+temp_best = BEST_FITNESS
 while true
-    println("Starting loop again...")
+    println("************************************")
+    println("BEST_FITNESS=$(BEST_FITNESS)")
+    println("************************************")
     for i=1:5
-        do_maintainence(Rivanna.ISLANDS)
+        temp_best = do_maintainence(Rivanna.ISLANDS)
+        if temp_best < BEST_FITNESS
+            BEST_FITNESS = temp_best
+        end
         # sleep
         sleep(1)
         island_num = i - 1

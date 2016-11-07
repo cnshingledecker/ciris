@@ -45,12 +45,9 @@ function submitJob(island)
     file = readdir("$ROOT/$island/todo")
     file = file[1]
     # Make a directory in the root directory with the filename
-    println("Now making $island/prog/$file")
     run(`mkdir $ROOT/$island/prog/$file`)
     cd("$ROOT/$island/prog/$file")
-    println("now in directory",pwd())
     # Populate the new directory with the inputs/src
-    println("Now copying inputs to $island/prog/$file")
     srcfiles = readdir("$ROOT/src")
     for srcfile in srcfiles
       run(`cp $ROOT/src/$srcfile $ROOT/$island/prog/$file/`)
@@ -74,7 +71,9 @@ end
 # Cats a file given a path relative to root
 # NOTE: does NOT split!
 function fetchCat(filename)
-    return strip(run(`cat $ROOT/$filename`))
+    f = open(filename)
+    lines = readlines(f)
+    return lines
 end
 
 # Gets done size for an island
@@ -126,14 +125,18 @@ function cull(island)
     fitness_map = DataFrame()
     fitness_map[:Path] = readdir("$ROOT/$island/done")
     fitness_map[:Fitness] = -1.0
+    best_fitness = 9E12
     for i in 1:size(fitness_map[:Path],1)
-        f = open(filename)
+        f = open("$ROOT/$island/done/$(fitness_map[:Path][i])")
         fitscore = -1.0
         for line in readlines(f)
             if length(line) > 8
                 if line[1:8] == "FITNESS,"
                     fitscore = float(line[9:end])
                     fitness_map[:Fitness][i] = fitscore
+                    if fitscore < best_fitness 
+                        best_fitness = fitscore
+                    end
                 end
             end
         end
@@ -159,7 +162,7 @@ function cull(island)
             culled = culled + 1
         end
     end
-    return culled
+    return culled, best_fitness
 end
 
 # creates directory hierarchy
