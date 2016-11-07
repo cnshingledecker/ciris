@@ -21,45 +21,13 @@ EXILE_CHANCE  = 5  # 1 out of...
 # Some sanity assertions
 @assert MIN_WORK < MIN_TODO "Max possible jobs/island exceeds minimum population threshold!"
 
-# reads a ticket store into memory
-function readTickets(filename)
-    file = readcsv(filename)
-    return Dict(zip(file[:,1], file[:,2]))
-end
-
-# writes a ticket store into memory
-function writeTickets(filename, tickets)
-    if isempty(tickets)
-        run(`rm $filename`)
-    else
-        writecsv(filename, tickets)
-    end
-end
-
-# counts the number of tickets per island
-function countTickets(tickets)
-    count = Dict()
-    for k in keys(tickets)
-        # values are of the form <island>/prog/<filename>
-        island = split(tickets[k], '/')[1]
-        if !haskey(count, island)
-            count[island] = 1
-        else
-            count[island] = count[island] + 1
-        end
-    end
-    return count
-end
-
-# name of ticket store (present from previous runs
-TICKET_MASTER = "ticket_master.csv"
-tickets = isfile(TICKET_MASTER) ? readTickets(TICKET_MASTER) : Dict()
 
 # control logic for maintaining jobs and islands
 function do_maintainence(islands)
     # check if todo population should be bolstered
     for island in islands
         todo_size = Rivanna.fetchTodoSize(island)
+        println("In rgp.jl, called todo_size in do_maintainence")
         if todo_size < MIN_TODO
             deficit = MIN_TODO - todo_size
             println("$island should be bolstered")
@@ -115,28 +83,28 @@ function do_maintainence(islands)
     end
 
     # check if more jobs should be submitted
-    ticket_count = countTickets(tickets)
-    println("ticket count: ", ticket_count)
     for island in islands
-        jobs_in_progress = get(ticket_count, island, 0)
-        println("$island jobs: $jobs_in_progress")
+        jobs_in_progress = round(Int,size(readdir("$(Rivanna.ROOT)/$island/prog"),1))
+        println("In second loop $island jobs: $jobs_in_progress")
         if jobs_in_progress < MIN_WORK
             # below threshold!
             new_jobs = MIN_WORK - jobs_in_progress
             println("Making $new_jobs for $island")
             for j=1:new_jobs
                 println("Now calling submitJob")
-                ticket, path = Rivanna.submitJob(island)
+                Rivanna.submitJob(island)
                 println("Submitted job")
-                tickets[ticket] = path
             end
         end
     end
 
     # check if done population is too big
     for island in islands
+        println("In third loop of do_maintainence")
         done_size = Rivanna.fetchDoneSize(island)
+        println("In do_maintainence, $island has $(done_size) done jobs")
         if done_size > MAX_DONE
+            println("$(done_size) < $(MAX_DONE)")
             gap = MAX_DONE - done_size
             deleted = Rivanna.cull(island)
             println("$island: culled $deleted")
@@ -177,11 +145,4 @@ while true
         island_num = i - 1
     end
     println("Finishing loop")
-    #    println("Time to quit?")
-    #    if !isfile("GO")
-    #        println("Quitting...")
-    #        break
-    #    end
 end
-writeTickets(TICKET_MASTER, tickets)
-Rivanna.cleanup()

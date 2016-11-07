@@ -46,6 +46,8 @@ function submitJob(island)
     # Make a directory in the root directory with the filename
     println("Now making $island/prog/$file")
     run(`mkdir $ROOT/$island/prog/$file`)
+    cd("$ROOT/$island/prog/$file")
+    println("now in directory",pwd())
     # Populate the new directory with the inputs/src
     println("Now copying inputs to $island/prog/$file")
     srcfiles = readdir("$ROOT/src")
@@ -60,8 +62,7 @@ function submitJob(island)
 #    run(`sbatch $ROOT/$island/prog/$file/ciris.slurm`)
     run(`$ROOT/$island/prog/$file/ciris.slurm`)
     # return the ticket id
-    println("Ticket=",file, "at=$ROOT/$island/prog/$file")
-    return file, "$ROOT/$island/prog/$file"
+    return 
 end
 
 # Copies a local file to the grid relative to ROOT
@@ -84,8 +85,8 @@ end
 # Gets done size for an island
 function fetchDoneSize(island)
     # grid output has an extra entry - the directory being ls'ed
-    println("$island/done has $length elements")
     length = round(Int,size(readdir("$ROOT/$island/done"),1))
+    println("$island/done has $length elements")
     return length
 end
 
