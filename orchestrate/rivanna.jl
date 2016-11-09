@@ -57,8 +57,8 @@ function submitJob(island)
     run(`mv $ROOT/$island/todo/$file $ROOT/$island/prog/$file/params.dat`)
     # Now the new directory with all the name=$file should have all the
     # necessary input: submit slurm script
-#    run(`sbatch $ROOT/$island/prog/$file/ciris.slurm`)
-    run(`$ROOT/$island/prog/$file/ciris.slurm`)
+    run(`sbatch $ROOT/$island/prog/$file/ciris.slurm`)
+#    run(`$ROOT/$island/prog/$file/ciris.slurm`)
     # return the ticket id
     return
 end

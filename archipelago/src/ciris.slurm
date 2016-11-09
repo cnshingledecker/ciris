@@ -12,7 +12,7 @@
 echo $PWD
 
 # 1) Run the program
-./ciris
+$PWD/ciris
 #echo Insert CIRIS here
 
 # 2) After the program has run, get the ticket name (current directory)
@@ -23,7 +23,7 @@ echo $dirname is dirname
 cp params.dat ../../done/$dirname
 
 # 4) Copy slurm output to accounting
-#cp slurm-* ../../accounting/$dirname
+cp slurm-* ../../accounting/$dirname
 
 # 5) Remove the current directory
 rm -rf $PWD

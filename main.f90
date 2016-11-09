@@ -256,17 +256,17 @@ PROGRAM main
         END SELECT
      END IF
 
-     !    IF ( fluence .LE. 5.0E12 ) TIME_FREQ = 100000
-     !    IF ( fluence .GT. 5.0E12 .AND. fluence .LE. 5.0e14 ) TIME_FREQ = 10000
-     !    IF ( fluence .GT. 5.0E14  )  TIME_FREQ = 100000
-     time_check = time_check + 1
-     IF ( (MOD(time_check,TIME_FREQ) .EQ. 0) .AND. (cr_arrival .EQV. .TRUE.) ) THEN
+     IF ( fluence .LE. 5.0E12 ) TIME_FREQ = 10
+     IF ( fluence .GT. 5.0E12 .AND. fluence .LE. 5.0e14 ) TIME_FREQ = 100
+     IF ( fluence .GT. 5.0E14  )  TIME_FREQ = 1000
+     IF ( cr_arrival .EQV. .TRUE. ) THEN 
+        time_check = time_check + 1
         cr_arrival = .FALSE.
 
-        CALL counter()
-
-        ! Testing out the new fitness function
-        CALL fitness(unfit,ALTFLUENCE,total_fitness)
+        IF ( MOD(time_check, TIME_FREQ) .EQ. 0 ) THEN
+          CALL counter()
+          CALL fitness(unfit,ALTFLUENCE,total_fitness)
+        END IF
 
         ratecalc: IF ( CALC_RATES .EQV. .TRUE. ) THEN
            ! Perform reaction analytics

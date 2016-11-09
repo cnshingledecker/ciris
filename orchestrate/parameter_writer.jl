@@ -3,7 +3,7 @@ module ParameterIO
 using Base.Random.uuid4
 
 constraints = Dict(
-    "O" => 55:1:800, #Int
+    "O" => 55:1:400, #Int
     "O3" => 100:1:800, #Int
     "ELASTIC_LOSS" => 0.0:0.0001:0.5, #float
 #    "TRL_NU" => 1E10:1E10:1E12, #float
@@ -15,7 +15,7 @@ constraints = Dict(
     "O2_ION_BRANCHING" => 0.0:0.1:1.0, #set
     "O3_O_ION_BRANCHING" => 0.0:0.1:1.0, #set
     "O3_O2_ION_BRANCHING" => 0.0:0.1:1.0, #set
-    "O_O2_BRANCING" => 0.0:0.1:0.0, #float
+    "O_O2_BRANCING" => 0.0:0.1:1.0, #float
     "NSUBEX" => 0:1:20, #int
 )
 parameters = collect(keys(constraints))

@@ -1,1 +1,1 @@
-./rgp.jl "/home/cns/losalamos/archipelago" "G0" 
+julia -L rgp.jl "/scratch/cns7ae/losalamos/archipelago" "G0"
