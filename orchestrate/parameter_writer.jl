@@ -6,7 +6,7 @@ constraints = Dict(
     "O" => 55:1:400, #Int
     "O3" => 100:1:800, #Int
     "ELASTIC_LOSS" => 0.0:0.0001:0.5, #float
-#    "TRL_NU" => 1E10:1E10:1E12, #float
+    "TRL_NU" => 1E10:1E10:1E12, #float
     "DISPROB" => 0.0:0.1:1.0, #float
     "STEPFAC" => 1E-2:1E-4:1.0, #float
     "ESTEPFAC" => 1E-2:1E-3:1.0, #float
@@ -16,7 +16,7 @@ constraints = Dict(
     "O3_O_ION_BRANCHING" => 0.0:0.1:1.0, #set
     "O3_O2_ION_BRANCHING" => 0.0:0.1:1.0, #set
     "O_O2_BRANCING" => 0.0:0.1:1.0, #float
-    "NSUBEX" => 0:1:20, #int
+    "O3_DIS_BRANCHING" => 0.0:0.1:1.0, #float
 )
 parameters = collect(keys(constraints))
 

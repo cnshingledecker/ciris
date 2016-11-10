@@ -42,7 +42,7 @@ MODULE parameters
   INTEGER         , PARAMETER :: FIX1        = 150
   INTEGER         , PARAMETER :: FIX2        = 150
   INTEGER         , PARAMETER :: FIX3        = 150
-  DOUBLE PRECISION  , PARAMETER :: THICK       = 6.0e-6                      !1.0e-5 ! Thickness of the ice in cm
+  DOUBLE PRECISION  , PARAMETER :: THICK       = 1.0e-5                      !1.0e-5 ! Thickness of the ice in cm
   DOUBLE PRECISION  , PARAMETER :: EDGE        = 3.5e-6                      !1.0e-7 ! The edge of the crystal in cm
   DOUBLE PRECISION  , PARAMETER :: VOLUME      = THICK*EDGE*EDGE             ! Volume of ice chunk
   DOUBLE PRECISION  , PARAMETER :: KIN_TEMP    = 5.0D0                       ! Kinetic temperature in Kelvin
@@ -85,7 +85,6 @@ MODULE parameters
   !******************************************************************************
   INTEGER         , PARAMETER :: IONS              = 6                     ! Number of anions in species list
   INTEGER         , PARAMETER :: TIME_COUNTS       = 2                     ! Times the model will check abundances
-  INTEGER                     :: NSUBEX            = 2                     ! Number of sub-excitation interactions
   INTEGER                     :: NEXIT                                     ! Max sub-ex loop iters
   REAL                        :: STEPFAC           = 0.1                   ! Determines freq. between colls. for protons
   REAL                        :: ESTEPFAC          = 0.1                   ! Determines freq. between colls. for electrons
@@ -107,6 +106,7 @@ MODULE parameters
   REAL                        :: O3_O_ION_BRANCHING  = 0.0 ! O3+ + O- or O3- + O+ -> O3 + O
   REAL                        :: O3_O2_ION_BRANCHING = 0.0 ! O3+ + O2- or O3- + O2+ -> O2 + O2 + O
   REAL                        :: O_O2_BRANCHING      = 0.0
+  REAL                        :: O3_DIS_BRANCHING    = 0.0
 
   !******************************************************************************
   ! Output File Unit Numbers
@@ -114,20 +114,20 @@ MODULE parameters
   INTEGER         , PARAMETER :: AB_UNIT_NUM        = 1009                        ! Abundance output file
   INTEGER         , PARAMETER :: RATE_UNIT_NUM      = 1946                        ! Rate output file
   INTEGER         , PARAMETER :: TRACKPLOT_UNIT_NUM = 2016
-  INTEGER         , PARAMETER :: O3_NUM             = 777
-
+  INTEGER         , PARAMETER :: REACTIONS_UNIT_NUM = 777
 
   !******************************************************************************
   ! Analytics Parameters
   !******************************************************************************
   INTEGER                      , PARAMETER :: TRACKMIN     = 5000
   INTEGER                      , PARAMETER :: TRACKMAX     = 1000000
+  INTEGER                                  :: COUNT_COUNT  = 0.0
   INTEGER                                  :: BI_CALLS     = 0
   INTEGER                                  :: O_ABUNDANCE  = 0
   INTEGER                                  :: O2_ABUNDANCE = 0
   INTEGER                                  :: O3_ABUNDANCE = 0
-  DOUBLE PRECISION                           :: DELTA_TIME   = 0.d0
-  DOUBLE PRECISION                           :: PROTON_ELOSS = 0.d0
+  DOUBLE PRECISION                         :: DELTA_TIME   = 0.d0
+  DOUBLE PRECISION                         :: PROTON_ELOSS = 0.d0
   TYPE(rate_info), DIMENSION(8)            :: RATEINFO
 
   !******************************************************************************
@@ -152,11 +152,11 @@ MODULE parameters
   !******************************************************************************
   LOGICAL         , PARAMETER :: FIXED_SIZE   = .FALSE.
   LOGICAL         , PARAMETER :: NO_OUTPUT    = .TRUE.
-  LOGICAL         , PARAMETER :: QUIET        = .TRUE.
+  LOGICAL         , PARAMETER :: QUIET        = .FALSE.
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
-  LOGICAL         , PARAMETER :: O3_ANALYTICS = .FALSE.
+  LOGICAL         , PARAMETER :: O3_ANALYTICS = .TRUE.
   LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
 
 CONTAINS
@@ -178,12 +178,10 @@ CONTAINS
        IF ( err .NE. 0 ) EXIT
        ! Store value
        SELECT CASE (var)
-          !          CASE ("TRL_NU")
-          !              READ(val, *) TRL_NU
+       CASE ("TRL_NU")
+          READ(val, *) TRL_NU
        CASE ("DISPROB")
           READ(val, *) DISPROB
-       CASE ("NSUBEX")
-          READ(val, *) NSUBEX
        CASE ("STEPFAC")
           READ(val, *) STEPFAC
        CASE ("ESTEPFAC")
@@ -198,10 +196,10 @@ CONTAINS
           READ(val, *) O3_0_ION_BRANCHING
        CASE ("O3_O2_ION_BRANCHING")
           READ(val, *) O3_O2_ION_BRANCHING
-!       CASE ("O_O2_BRANCHING")
-!          READ(val, *) O_O2_BRANCHING
-       CASE ("FRAGILE")
-          READ(val, *) FRAGILE
+       CASE ("O3_DIS_BRANCHING")
+          READ(val, *) O3_DIS_BRANCHING
+       CASE ("O_O2_BRANCHING")
+          READ(val, *) O_O2_BRANCHING
        CASE("ELASTIC_LOSS")
           READ(val, *) ELASTIC_LOSS
        CASE DEFAULT

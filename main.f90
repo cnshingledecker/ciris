@@ -65,14 +65,24 @@ PROGRAM main
 
   ! Open files
   hopping_file = "hopping_data.txt"
-  OPEN(UNIT=AB_UNIT_NUM,FILE="abundance.csv",POSITION='APPEND', STATUS='REPLACE')
-  OPEN(UNIT=RATE_UNIT_NUM,FILE="rates.csv",POSITION='APPEND', STATUS='REPLACE')
 
-  !Below for debugging and analytics
-  IF ( DEBUG .EQV. .TRUE. ) OPEN(UNIT=777,FILE='reaction_analytics.csv',&
-       STATUS='REPLACE',POSITION='APPEND')
-  IF ( O3_ANALYTICS .EQV. .TRUE. ) OPEN(UNIT=O3_NUM,FILE='ozone_reactions.csv',&
-       STATUS='REPLACE',POSITION='APPEND')
+  OPEN(UNIT=AB_UNIT_NUM,&
+       FILE="abundance.csv",&
+       POSITION='APPEND', &
+       STATUS='REPLACE')
+
+  OPEN(UNIT=RATE_UNIT_NUM,&
+       FILE="rates.csv",&
+       POSITION='APPEND', &
+       STATUS='REPLACE')
+
+  IF ( O3_ANALYTICS .EQV. .TRUE. ) THEN
+     OPEN(UNIT=REACTIONS_UNIT_NUM,&
+          FILE='ozone_reactions.csv', &
+          STATUS='REPLACE',&
+          POSITION='APPEND')
+     CLOSE(REACTIONS_UNIT_NUM)
+  END IF
 
   ! Nullify pointers
   NULLIFY ( o3_prod,o3_dest )
@@ -256,16 +266,21 @@ PROGRAM main
         END SELECT
      END IF
 
-     IF ( fluence .LE. 5.0E12 ) TIME_FREQ = 10
-     IF ( fluence .GT. 5.0E12 .AND. fluence .LE. 5.0e14 ) TIME_FREQ = 100
-     IF ( fluence .GT. 5.0E14  )  TIME_FREQ = 1000
+     ! Set count logarithmically
+     IF ( fluence .LE. 1.0E12 )                           TIME_FREQ = 10
+     IF ( fluence .GT. 1.0E12 .AND. fluence .LE. 1.0e14 ) TIME_FREQ = 100
+     IF ( fluence .GT. 1.0E14 .AND. fluence .LE. 1.0e15 ) TIME_FREQ = 1000
+     IF ( fluence .GT. 1.0E15 .AND. fluence .LE. 5.0e16 ) TIME_FREQ = 10000
+
+     ! If event this loop is a collision...
      IF ( cr_arrival .EQV. .TRUE. ) THEN 
         time_check = time_check + 1
         cr_arrival = .FALSE.
 
+        ! If count%freq = 0, run counter
         IF ( MOD(time_check, TIME_FREQ) .EQ. 0 ) THEN
-          CALL counter()
-          CALL fitness(unfit,ALTFLUENCE,total_fitness)
+           CALL counter()
+           CALL fitness(unfit,ALTFLUENCE,total_fitness)
         END IF
 
         ratecalc: IF ( CALC_RATES .EQV. .TRUE. ) THEN

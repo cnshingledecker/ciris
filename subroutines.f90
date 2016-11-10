@@ -195,7 +195,6 @@ CONTAINS
     INTEGER                      :: num_izns
     INTEGER                      :: num_exs, num_els
     INTEGER                      :: x,y,z !coordinates of cosmic-ray along track
-    INTEGER                      :: count_count
     INTEGER                      :: step !distance the track is incremented
     INTEGER                      :: switch
     INTEGER                      :: ev_coords(3)
@@ -1748,6 +1747,10 @@ CONTAINS
           ! Calculate approximate elastic energy loss
           ee_loss = se_box%se_energy*ELASTIC_LOSS
           se_box%se_energy = se_box%se_energy - ee_loss
+          IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+             count_count = count_count + 1
+             WRITE(TRACKPLOT_UNIT_NUM,*) curr(1),',',curr(2),',',curr(3),', electron, movement'
+          END IF
        END DO
 
        ! Determine the nature of the inelastic event
@@ -1805,8 +1808,7 @@ CONTAINS
           END IF
        CASE(0)
           ! Electron impact excitation
-          CALL RANDOM_NUMBER(erand)
-          IF ( (erand .LE. DISPROB) .AND. (MATRIX(next(1),next(2),next(3))%sp_num .NE. 0)) THEN
+          IF ( MATRIX(next(1),next(2),next(3))%sp_num .NE. 0 ) THEN
              ! Place special excitation reactant at site
              MATRIX(next(1),next(2),next(3))%sec_sp_num = EXCNUM
              ! Initialize product coords to 1
@@ -1833,6 +1835,10 @@ CONTAINS
        IF ( (MATRIX(next(1),next(2),next(3))%sp_num .NE. 0) .AND. &
             (.NOT. ANY(IONLIST .EQ. MATRIX(next(1),next(2),next(3))%sp_num))) THEN
           vacant = .FALSE.
+       END IF
+       IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+          count_count = count_count + 1
+          WRITE(TRACKPLOT_UNIT_NUM,*) curr(1),',',curr(2),',',curr(3),', sub-excitation electron, movement'
        END IF
     END DO
     temp => MATRIX(next(1),next(2),next(3))
