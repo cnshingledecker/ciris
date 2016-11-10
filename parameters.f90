@@ -152,11 +152,11 @@ MODULE parameters
   !******************************************************************************
   LOGICAL         , PARAMETER :: FIXED_SIZE   = .FALSE.
   LOGICAL         , PARAMETER :: NO_OUTPUT    = .TRUE.
-  LOGICAL         , PARAMETER :: QUIET        = .FALSE.
+  LOGICAL         , PARAMETER :: QUIET        = .TRUE.
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
-  LOGICAL         , PARAMETER :: O3_ANALYTICS = .TRUE.
+  LOGICAL         , PARAMETER :: O3_ANALYTICS = .FALSE.
   LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
 
 CONTAINS

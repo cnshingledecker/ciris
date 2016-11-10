@@ -267,10 +267,10 @@ PROGRAM main
      END IF
 
      ! Set count logarithmically
-     IF ( fluence .LE. 1.0E12 )                           TIME_FREQ = 10
-     IF ( fluence .GT. 1.0E12 .AND. fluence .LE. 1.0e14 ) TIME_FREQ = 100
-     IF ( fluence .GT. 1.0E14 .AND. fluence .LE. 1.0e15 ) TIME_FREQ = 1000
-     IF ( fluence .GT. 1.0E15 .AND. fluence .LE. 5.0e16 ) TIME_FREQ = 10000
+     IF ( fluence .LE. 5.0E12 )                           TIME_FREQ = 10
+     IF ( fluence .GT. 5.0E12 .AND. fluence .LE. 5.0e14 ) TIME_FREQ = 100
+     IF ( fluence .GT. 5.0E14 .AND. fluence .LE. 5.0e15 ) TIME_FREQ = 1000
+     IF ( fluence .GT. 5.0E15 .AND. fluence .LE. 5.0e16 ) TIME_FREQ = 10000
 
      ! If event this loop is a collision...
      IF ( cr_arrival .EQV. .TRUE. ) THEN 

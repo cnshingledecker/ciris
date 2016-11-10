@@ -1,11 +1,11 @@
 # Compiler
-#FC = gfortran
-FC = ifort
+FC = gfortran
+#FC = ifort
 
 # Flags
-#FCFLAGS = -g  -march=native -fbounds-check -Wall -pg
+FCFLAGS = -g  -march=native -fbounds-check -Wall -pg
 #FCFLAGS =  -O3 -static-intel
-FCFLAGS = -O4 -march=native
+#FCFLAGS = -O4 -march=native
 
 OBJECTS = qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o specdata.o gp.o branchmod.o bsimple.o
 
