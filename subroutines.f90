@@ -485,11 +485,12 @@ CONTAINS
     !****************
     ! Local variables
     !****************
+    INTEGER                                                      :: i, j, k
     INTEGER                                                      :: prev(3),curr(3),next(3)
     INTEGER                                                      :: large_count
     INTEGER                                                      :: small_count
     INTEGER                                                      :: lucky !index of selected site, from rand
-    INTEGER                                                      :: i,n !counters
+    INTEGER                                                      :: n !counters
     INTEGER                                                      :: i_re, j_re, k_re !in coords
     INTEGER                                                      :: i_re2,j_re2,k_re2 !out coords
     INTEGER                         , DIMENSION(6,3)             :: large_temp
@@ -576,19 +577,39 @@ CONTAINS
 
     ! Determine if there has been a null event
     nullevent: IF ( large_count .EQ. 0 .AND. small_count .EQ. 0 ) THEN
-       IF ( DEBUG .EQV. .TRUE.) PRINT *, "314159!"
-       vacant = .TRUE.
-       curr = in_coords
-       next = in_coords
-       movefind: DO WHILE ( vacant .EQV. .TRUE. )
-          prev = curr
-          curr = next
-          CALL transport(prev,curr,next)
-          CALL find_empty_site(next,out_coords,null)
-          IF ( null .EQ. 0 ) vacant = .FALSE.
-       END DO movefind
-       RETURN
+       checkall: IF ( FIND_EMPTY_COUNT .GT. FINDMAX ) THEN
+          DO i = 1,DIMENS(3)
+             DO j = 1,DIMENS(2)
+                DO k = 1,DIMENS(1)
+                   isempty: IF ( MATRIX(i,j,k)%sp_num .EQ. 0 ) THEN
+                      out_coords(1) = i
+                      out_coords(2) = j
+                      out_coords(3) = k
+                      null = 0
+                      RETURN
+                   END IF isempty
+                END DO
+             END DO
+          END DO
+          PRINT *, "Could not find site in all matrix!!!!"
+          CALL EXIT()
+       ELSE
+          IF ( DEBUG .EQV. .TRUE.) PRINT *, "314159!"
+          vacant = .TRUE.
+          curr = in_coords
+          next = in_coords
+          movefind: DO WHILE ( vacant .EQV. .TRUE. )
+             FIND_EMPTY_COUNT = FIND_EMPTY_COUNT + 1
+             prev = curr
+             curr = next
+             CALL transport(prev,curr,next)
+             CALL find_empty_site(next,out_coords,null)
+             IF ( null .EQ. 0 ) vacant = .FALSE.
+          END DO movefind
+          RETURN
+       END IF checkall
     ELSE
+       FIND_EMPTY_COUNT = 0
        null = 0
     END IF nullevent
 

@@ -122,6 +122,8 @@ MODULE parameters
   INTEGER                      , PARAMETER :: TRACKMIN     = 5000
   INTEGER                      , PARAMETER :: TRACKMAX     = 1000000
   INTEGER                                  :: COUNT_COUNT  = 0.0
+  INTEGER                                  :: FIND_EMPTY_COUNT = 0
+  INTEGER                                  :: FINDMAX     = 1000
   INTEGER                                  :: BI_CALLS     = 0
   INTEGER                                  :: O_ABUNDANCE  = 0
   INTEGER                                  :: O2_ABUNDANCE = 0
