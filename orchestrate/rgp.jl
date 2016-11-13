@@ -86,6 +86,7 @@ function do_maintainence(islands)
     end
 
     # check if more jobs should be submitted
+    # Check to see if one needs to clean out the prog folder
     for island in islands
         jobs_in_progress = round(Int,size(readdir("$(Rivanna.ROOT)/$island/prog"),1))
         if jobs_in_progress < MIN_WORK
@@ -139,14 +140,28 @@ while true
     println("************************************")
     println("BEST_FITNESS=$(BEST_FITNESS)")
     println("************************************")
-    for i=1:5
         temp_best = do_maintainence(Rivanna.ISLANDS)
+        for island in Rivanna.ISLANDS
+          njobs = parse(Int,readstring(pipeline(`squeue -u cns7ae`,`wc -l`)))
+          println("There are $njobs running currently on $(length(Rivanna.ISLANDS))")
+          nprog = parse(Int,readstring(pipeline(`ls $(Rivanna.ROOT)/$island/prog`,`wc -l`)))
+          println("There are $nprog current jobs in $island/prog")
+          # If the number of jobs is less than the maxjob, rm all jobs
+          println("nimwork =$MIN_WORK")
+          if njobs < MIN_WORK 
+             run(`rm -rvf $(Rivanna.ROOT)/$island/prog/*`) 
+             println("Deleting prog jobs")
+          njobs = parse(Int,readstring(pipeline(`squeue -u cns7ae`,`wc -l`)))
+          println("After Deletions!: There are $njobs running currently on $(length(Rivanna.ISLANDS))")
+          nprog = parse(Int,readstring(pipeline(`ls $(Rivanna.ROOT)/$island/prog`,`wc -l`)))
+          println("After Deletions:! There are $nprog current jobs in $island/prog")
+
+          end
+        end 
         if temp_best < BEST_FITNESS
             BEST_FITNESS = temp_best
         end
         # sleep
-        sleep(1)
-        island_num = i - 1
-    end
+        sleep(30)
     println("Finishing loop")
 end

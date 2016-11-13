@@ -15,7 +15,7 @@ constraints = Dict(
     "O2_ION_BRANCHING" => 0.0:0.1:1.0, #set
     "O3_O_ION_BRANCHING" => 0.0:0.1:1.0, #set
     "O3_O2_ION_BRANCHING" => 0.0:0.1:1.0, #set
-    "O_O2_BRANCING" => 0.0:0.1:1.0, #float
+    "O_O2_BRANCHING" => 0.0:0.001:1.0, #float
     "O3_DIS_BRANCHING" => 0.0:0.1:1.0, #float
 )
 parameters = collect(keys(constraints))
@@ -59,6 +59,7 @@ function breedValue(val1::AbstractFloat, val2::AbstractFloat, c::FloatRange)
     end
     return min + rand() * (max-min)
 end
+
 function breedValue(val1::Integer, val2::Integer, c::UnitRange)
     min = val1
     max = val2
@@ -68,13 +69,6 @@ function breedValue(val1::Integer, val2::Integer, c::UnitRange)
         max = tmp
     end
     return rand(min:max)
-end
-function breedValue(val1::ASCIIString, val2::ASCIIString, c::Array{ASCIIString})
-    # can't really narrow the selection so just pick something at random
-    return rand(c)
-end
-function breedValue(val1, val2, c)
-    println("DEBUG: Couldn't match types - skipping. They were: $val1|$(typeof(val1)) $val2|$(typeof(val2)) $c|$(typeof(c))")
 end
 
 ###################################

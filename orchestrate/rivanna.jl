@@ -47,18 +47,23 @@ function submitJob(island)
     # Make a directory in the root directory with the filename
     run(`mkdir $ROOT/$island/prog/$file`)
     cd("$ROOT/$island/prog/$file")
+
     # Populate the new directory with the inputs/src
-    srcfiles = readdir("$ROOT/src")
-    for srcfile in srcfiles
-      run(`cp $ROOT/src/$srcfile $ROOT/$island/prog/$file/`)
-    end
+    run(`cp /scratch/cns7ae/losalamos/ciris.slurm $ROOT/$island/prog/$file/`)
+    run(`cp /scratch/cns7ae/losalamos/ciris $ROOT/$island/prog/$file/`)
+    run(`cp /scratch/cns7ae/losalamos/reactions.dat $ROOT/$island/prog/$file/`)
+    run(`cp /scratch/cns7ae/losalamos/species.dat $ROOT/$island/prog/$file/`)
+    run(`cp /scratch/cns7ae/losalamos/pre.sh $ROOT/$island/prog/$file/`)
+    run(`cp /scratch/cns7ae/losalamos/post.sh $ROOT/$island/prog/$file/`)
+
     run(`chmod 777 $ROOT/$island/prog/$file/ciris.slurm`)
     # Copy the params from TODO to local params.dat
     run(`mv $ROOT/$island/todo/$file $ROOT/$island/prog/$file/params.dat`)
+
     # Now the new directory with all the name=$file should have all the
     # necessary input: submit slurm script
     run(`sbatch $ROOT/$island/prog/$file/ciris.slurm`)
-#    run(`$ROOT/$island/prog/$file/ciris.slurm`)
+#    run(`$ROOT/$island/prog/$file/ciris.slurm &`)
     # return the ticket id
     return
 end
@@ -141,8 +146,8 @@ function cull(island)
             end
         end
         if fitness_map[:Fitness][i] < 0
-            println("$filename is Screwy, deleting!")
-            run(`rm $filename`)
+            println("$(fitness_map[:Path][i]) is Screwy, deleting!")
+            run(`rm $ROOT/$island/done/$(fitness_map[:Path][i])`)
             deleterows!(fitness_map,i)
         end
     end
