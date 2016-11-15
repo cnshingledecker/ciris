@@ -174,6 +174,10 @@ CONTAINS
        IF ( err .NE. 0 ) EXIT
        ! Store value
        SELECT CASE (var)
+       CASE ("O")
+          CONTINUE
+       CASE ("O3")
+          CONTINUE
        CASE ("TRL_NU")
           READ(val, *) TRL_NU
        CASE ("O2_DISPROB")

@@ -88,6 +88,14 @@ CONTAINS
                 ! O3- + O2+ -> O3 + O + O
                 prods = (/ O3NUM, O2NUM, 0 /)
              END IF
+          ELSE IF ( r1 .EQ. 9 .AND. r2 .EQ. 8 .OR. r1 .EQ. 8 .AND. r2 .EQ. 9 ) THEN
+             IF ( rnum .LE. O3_DISPROB ) THEN
+                ! O3- + O2+ -> O3* + O2 -> O + O2 + O2
+                prods = (/ ONUM, O2NUM, O3NUM /)
+             ELSE
+                ! O3- + O2+ -> O3 + O + O
+                prods = (/ O3NUM, O3NUM, 0 /)
+             END IF
           END IF branchcond
 
           ! If none of the conditionals proc, the react cube should get the original values
