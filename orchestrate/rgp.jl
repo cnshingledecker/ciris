@@ -12,12 +12,12 @@ include("maintainence.jl")
 using DataFrames
 
 # island population constants
-MIN_WORK      = 5  # max number of jobs/island
-MIN_TODO      = 100 # min todo size/island
-MAX_DONE      = 10 # max done size/island
+MIN_WORK      = 10  # max number of jobs/island
+MIN_TODO      = 200 # min todo size/island
+MAX_DONE      = 30 # max done size/island
 EXILE         = 25 # not implemented yet...
 MUTATE_CHANCE = 3  # 1 out of...
-EXILE_CHANCE  = 5  # 1 out of...
+EXILE_CHANCE  = 4  # 1 out of...
 
 # Some sanity assertions
 @assert MIN_WORK < MIN_TODO "Max possible jobs/island exceeds minimum population threshold!"
@@ -136,6 +136,7 @@ end
 # the main loop
 BEST_FITNESS  = 9.9E12
 temp_best = BEST_FITNESS
+count_count = 0
 while true
     println("************************************")
     println("BEST_FITNESS=$(BEST_FITNESS)")
@@ -143,14 +144,14 @@ while true
         temp_best = do_maintainence(Rivanna.ISLANDS)
         for island in Rivanna.ISLANDS
           njobs = parse(Int,readstring(pipeline(`squeue -u cns7ae`,`wc -l`)))
-          println("There are $njobs running currently on $(length(Rivanna.ISLANDS))")
           nprog = parse(Int,readstring(pipeline(`ls $(Rivanna.ROOT)/$island/prog`,`wc -l`)))
-          println("There are $nprog current jobs in $island/prog")
           # If the number of jobs is less than the maxjob, rm all jobs
-          println("nimwork =$MIN_WORK")
-          if njobs < MIN_WORK 
-             run(`rm -rvf $(Rivanna.ROOT)/$island/prog/*`) 
-             println("Deleting prog jobs")
+          if njobs < nprog  
+             println("$njobs in queue < $nprog in prog")
+             run(`echo Deleting jobs in $(Rivanna.ROOT)/G0/prog`) 
+             run(`ls $(Rivanna.ROOT)/G0/prog`) 
+             run(`rm -rf $(Rivanna.ROOT)/G0/prog`) 
+             run(`mkdir $(Rivanna.ROOT)/G0/prog`) 
           njobs = parse(Int,readstring(pipeline(`squeue -u cns7ae`,`wc -l`)))
           println("After Deletions!: There are $njobs running currently on $(length(Rivanna.ISLANDS))")
           nprog = parse(Int,readstring(pipeline(`ls $(Rivanna.ROOT)/$island/prog`,`wc -l`)))

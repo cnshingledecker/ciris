@@ -63,7 +63,7 @@ function submitJob(island)
     # Now the new directory with all the name=$file should have all the
     # necessary input: submit slurm script
     run(`sbatch $ROOT/$island/prog/$file/ciris.slurm`)
-#    run(`$ROOT/$island/prog/$file/ciris.slurm &`)
+#    run(`$ROOT/$island/prog/$file/ciris.slurm`)
     # return the ticket id
     return
 end
@@ -147,8 +147,11 @@ function cull(island)
         end
         if fitness_map[:Fitness][i] < 0
             println("$(fitness_map[:Path][i]) is Screwy, deleting!")
+            run(`cat $ROOT/$island/done/$(fitness_map[:Path][i])`)
             run(`rm $ROOT/$island/done/$(fitness_map[:Path][i])`)
+            println("Deleted $ROOT/$island/done/$(fitness_map[:Path][i])")
             deleterows!(fitness_map,i)
+            println("Deleted row $i in fitness_map")
         end
     end
 
