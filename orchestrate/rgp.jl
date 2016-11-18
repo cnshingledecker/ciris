@@ -12,9 +12,9 @@ include("maintainence.jl")
 using DataFrames
 
 # island population constants
-MIN_WORK      = 10  # max number of jobs/island
-MIN_TODO      = 200 # min todo size/island
-MAX_DONE      = 30 # max done size/island
+MIN_WORK      = 3  # max number of jobs/island
+MIN_TODO      = 100 # min todo size/island
+MAX_DONE      = 10 # max done size/island
 EXILE         = 25 # not implemented yet...
 MUTATE_CHANCE = 3  # 1 out of...
 EXILE_CHANCE  = 4  # 1 out of...

@@ -1,10 +1,10 @@
 function finish {
     # re-start service
-   ./CMD
+   ./RCMD
 }
 while :
     do
         trap finish EXIT
-        ./CMD
+        ./RCMD
 done
 

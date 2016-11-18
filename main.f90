@@ -40,9 +40,9 @@ PROGRAM main
   DOUBLE PRECISION      :: geminacy
   TYPE(node), POINTER :: root,temp,prevNode,nextNode
 
-  PRINT *, "*************************"
-  PRINT *, "***STARTING SIMULATION***"
-  PRINT *, "*************************"
+  PRINT *, "********************"
+  PRINT *, "***STARTING CIRIS***"
+  PRINT *, "********************"
 
   ! Read in constants and save seed
   CALL SYSTEM("/bin/bash pre.sh")
@@ -327,9 +327,9 @@ PROGRAM main
      fluence = time * CR_FLUX
   END DO
 
-  PRINT *, "****************"
-  PRINT *, "ENDING LOSALAMOS"
-  PRINT *, "****************"
+  PRINT *, "************"
+  PRINT *, "ENDING CIRIS" 
+  PRINT *, "************"
 
   CALL counter()
   CLOSE(AB_UNIT_NUM)

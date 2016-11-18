@@ -62,8 +62,8 @@ function submitJob(island)
 
     # Now the new directory with all the name=$file should have all the
     # necessary input: submit slurm script
-    run(`sbatch $ROOT/$island/prog/$file/ciris.slurm`)
-#    run(`$ROOT/$island/prog/$file/ciris.slurm`)
+#    run(`sbatch $ROOT/$island/prog/$file/ciris.slurm`)
+    run(`$ROOT/$island/prog/$file/ciris.slurm`)
     # return the ticket id
     return
 end
@@ -156,6 +156,7 @@ function cull(island)
     end
 
     sort!(fitness_map, cols = [order(:Fitness)])
+    println("sorted fitness map")
 
     # the first 80% are fit
     fit = round(Int, 0.8 * length(fitness_map[:Fitness]))

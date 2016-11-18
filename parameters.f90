@@ -152,8 +152,8 @@ MODULE parameters
   DOUBLE PRECISION :: ELASTIC_LOSS = 0.001  ! Percent of total energy lost per electron hop
   DOUBLE PRECISION :: AVAL         = 33     ! Parameter for Gamma distribution
   DOUBLE PRECISION :: STEPFAC      = 0.1    ! Determines freq. between colls. for protons
-  DOUBLE PRECISION :: ESTEPFAC     = 0.1    ! Determines freq. between colls. for electrons
-  DOUBLE PRECISION :: TRL_NU       = 2.6E11 ! Trial frequency, for the rates, in 1/s
+  DOUBLE PRECISION :: ESTEPFAC     = 1.0    ! Determines freq. between colls. for electrons
+  DOUBLE PRECISION :: TRL_NU       = 1.0E12 ! Trial frequency, for the rates, in 1/s
 
 CONTAINS
   SUBROUTINE initconstants ()
@@ -178,16 +178,16 @@ CONTAINS
           CONTINUE
        CASE ("O3")
           CONTINUE
-       CASE ("TRL_NU")
-          READ(val, *) TRL_NU
+!       CASE ("TRL_NU")
+!          READ(val, *) TRL_NU
        CASE ("O2_DISPROB")
           READ(val, *) O2_DISPROB
        CASE ("O3_DISPROB")
           READ(val, *) O3_DISPROB
        CASE ("STEPFAC")
           READ(val, *) STEPFAC
-       CASE ("ESTEPFAC")
-          READ(val, *) ESTEPFAC
+!       CASE ("ESTEPFAC")
+!          READ(val, *) ESTEPFAC
        CASE ("AVAL")
           READ(val, *) AVAL
        CASE("ELASTIC_LOSS")

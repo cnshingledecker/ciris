@@ -6,11 +6,11 @@ constraints = Dict(
     "O" => 55:0.01:400,               #1
     "O3" => 100:0.01:800,             #2
     "ELASTIC_LOSS" => 0.0:0.0001:0.5, #3
-    "TRL_NU" => 1E10:1E10:1E12,       #4
+#    "TRL_NU" => 1E10:1E10:1E12,       #4
     "O2_DISPROB" => 0.0:0.001:1.0,    #5
     "O3_DISPROB" => 0.0:0.001:1.0,    #6
     "STEPFAC" => 1E-3:1E-4:1.0,       #7
-    "ESTEPFAC" => 1E-3:1E-3:1.0,      #8
+#    "ESTEPFAC" => 1E-3:1E-3:1.0,      #8
     "AVAL" => 1:1:60,                 #9
 )
 parameters = collect(keys(constraints))

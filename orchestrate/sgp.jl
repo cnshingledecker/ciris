@@ -12,12 +12,13 @@ include("maintainence.jl")
 using DataFrames
 
 # island population constants
-MIN_WORK      = 0  # min number of jobs/island
+MIN_WORK      = 10  # min number of jobs/island
 MIN_TODO      = 200 # min todo size/island
 MAX_DONE      = 30 # max done size/island
 EXILE         = 25 # not implemented yet...
 MUTATE_CHANCE = 3  # 1 out of...
 EXILE_CHANCE  = 4  # 1 out of...
+culldone      = false
 
 # Some sanity assertions
 @assert MIN_WORK < MIN_TODO "Max possible jobs/island exceeds minimum population threshold!"
@@ -89,11 +90,13 @@ function do_maintainence(islands)
     # Check to see if one needs to clean out the prog folder
     for island in islands
         jobs_in_progress = round(Int,size(readdir("$(Scratch.ROOT)/$island/prog"),1))
-        if jobs_in_progress == MIN_WORK
+        println("Jobs_in_progress = $jobs_in_progress")
+        if jobs_in_progress == 0
             # below threshold!
             new_jobs = MIN_WORK - jobs_in_progress
             for j=1:new_jobs
                 Scratch.submitJob(island)
+                println("job $j started")
             end
             culldone = true
         end

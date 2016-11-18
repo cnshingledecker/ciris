@@ -43,27 +43,39 @@ end
 function submitJob(island)
     # pick first file from todo
     file = readdir("$ROOT/$island/todo")
-    file = file[1]
+    file = file[1:10]
     # Make a directory in the root directory with the filename
-    run(`mkdir $ROOT/$island/prog/$file`)
-    cd("$ROOT/$island/prog/$file")
 
-    # Populate the new directory with the inputs/src
-    run(`cp /scratch/cns7ae/losalamos/ciris.slurm $ROOT/$island/prog/$file/`)
-    run(`cp /scratch/cns7ae/losalamos/ciris $ROOT/$island/prog/$file/`)
-    run(`cp /scratch/cns7ae/losalamos/reactions.dat $ROOT/$island/prog/$file/`)
-    run(`cp /scratch/cns7ae/losalamos/species.dat $ROOT/$island/prog/$file/`)
-    run(`cp /scratch/cns7ae/losalamos/pre.sh $ROOT/$island/prog/$file/`)
-    run(`cp /scratch/cns7ae/losalamos/post.sh $ROOT/$island/prog/$file/`)
-
-    run(`chmod 777 $ROOT/$island/prog/$file/ciris.slurm`)
-    # Copy the params from TODO to local params.dat
-    run(`mv $ROOT/$island/todo/$file $ROOT/$island/prog/$file/params.dat`)
+    for item in file
+        run(`mkdir $ROOT/$island/prog/$item`)
+        cd("$ROOT/$island/prog/$item")
+        # Populate the new directory with the inputs/src
+        run(`cp /scratch/cns7ae/losalamos/ciris.slurm $ROOT/$island/prog/$item/`)
+        run(`cp /scratch/cns7ae/losalamos/ciris $ROOT/$island/prog/$item/`)
+        run(`cp /scratch/cns7ae/losalamos/reactions.dat $ROOT/$island/prog/$item/`)
+        run(`cp /scratch/cns7ae/losalamos/species.dat $ROOT/$island/prog/$item/`)
+        run(`cp /scratch/cns7ae/losalamos/pre.sh $ROOT/$island/prog/$item/`)
+        run(`cp /scratch/cns7ae/losalamos/post.sh $ROOT/$island/prog/$item/`)
+        run(`chmod 777 $ROOT/$island/prog/$item/ciris.slurm`)
+        # Copy the params from TODO to local params.dat
+        run(`mv $ROOT/$island/todo/$item $ROOT/$island/prog/$item/params.dat`)
+    end
 
     # Now the new directory with all the name=$file should have all the
     # necessary input: submit slurm script
 #    run(`sbatch $ROOT/$island/prog/$file/ciris.slurm`)
-    run(`$ROOT/$island/prog/$file/ciris.slurm &`)
+    run(
+        `$ROOT/$island/prog/$(file[1])/ciris.slurm` &
+        `$ROOT/$island/prog/$(file[2])/ciris.slurm` &
+        `$ROOT/$island/prog/$(file[3])/ciris.slurm` &
+        `$ROOT/$island/prog/$(file[4])/ciris.slurm` &
+        `$ROOT/$island/prog/$(file[5])/ciris.slurm` &
+        `$ROOT/$island/prog/$(file[6])/ciris.slurm` &
+        `$ROOT/$island/prog/$(file[7])/ciris.slurm` &
+        `$ROOT/$island/prog/$(file[8])/ciris.slurm` &
+        `$ROOT/$island/prog/$(file[9])/ciris.slurm` &
+        `$ROOT/$island/prog/$(file[10])/ciris.slurm`
+        )
     # return the ticket id
     return
 end
@@ -139,7 +151,7 @@ function cull(island)
                 if line[1:8] == "FITNESS,"
                     fitscore = float(line[9:end])
                     fitness_map[:Fitness][i] = fitscore
-                    if fitscore < best_fitness 
+                    if fitscore < best_fitness
                         best_fitness = fitscore
                     end
                 end
