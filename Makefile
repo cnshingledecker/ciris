@@ -1,6 +1,6 @@
 # Compiler
-#FC = gfortran
-FC = ifort
+FC = gfortran
+#FC = ifort
 
 # Flags
 #FCFLAGS = -g  -march=native -fbounds-check -Wall -pg

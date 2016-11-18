@@ -809,8 +809,13 @@ CONTAINS
     O3_ABUNDANCE = o3_count
 
     IF ( NO_OUTPUT .EQV. .FALSE. ) THEN
-       WRITE(AB_UNIT_NUM,*) ALTFLUENCE,',', fluence,',',TIME,',',o2_count,','&
-            ,o_count,',',o3_count
+       WRITE(AB_UNIT_NUM,*) &
+            ALTFLUENCE,',', & ! 1. Float64
+            fluence,','   , & ! 2. Float64
+            TIME,','      , & ! 3. Float64
+            o2_count,','  , & ! 4. Int64
+            o_count,','   , & ! 5. Int64
+            o3_count          ! 6. Int64
     END IF
 
     IF ( QUIET .EQV. .FALSE. ) THEN

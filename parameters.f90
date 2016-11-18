@@ -86,7 +86,7 @@ MODULE parameters
   DOUBLE PRECISION, PARAMETER :: TIME_TOTAL        = 1D5    ! Total time in s
   DOUBLE PRECISION, PARAMETER :: ECUTOFF           = 9.0D0  ! Secondary cutoff energy in eV
   DOUBLE PRECISION, PARAMETER :: PCUTOFF           = 5.0D0  ! Primary ion cutoff energy in eV
-  DOUBLE PRECISION, PARAMETER :: FLUENCE_TOTAL     = 5.0D15
+  DOUBLE PRECISION, PARAMETER :: FLUENCE_TOTAL     = 1.0D15
   DOUBLE PRECISION, PARAMETER :: SUBEXHITPROB      = 0.5
   DOUBLE PRECISION            :: FITNESS_THRESHOLD = 1E20   ! if fitness value exceeds this, terminate
 
@@ -136,12 +136,12 @@ MODULE parameters
   ! Switches
   !******************************************************************************
   LOGICAL         , PARAMETER :: FIXED_SIZE   = .FALSE.
-  LOGICAL         , PARAMETER :: NO_OUTPUT    = .TRUE.
+  LOGICAL         , PARAMETER :: NO_OUTPUT    = .FALSE.
   LOGICAL         , PARAMETER :: QUIET        = .TRUE.
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
-  LOGICAL         , PARAMETER :: O3_ANALYTICS = .FALSE.
+  LOGICAL         , PARAMETER :: O3_ANALYTICS = .TRUE.
   LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
 
   !******************************************************************************

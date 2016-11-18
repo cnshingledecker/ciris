@@ -104,18 +104,23 @@ CONTAINS
           reaction(2) = r2
           reaction(3:5) = prods
 
-          ! If checking reactions, print out reactants and products
-          o3check: IF ( (O3_ANALYTICS .EQV. .TRUE.) ) THEN
-             IF ( ANY(reaction .EQ. O3NUM) ) THEN
-                IF ( SUM(prods) .GT. 0 ) THEN
-                   OPEN(FILE="ozone_reactions.csv", UNIT=REACTIONS_UNIT_NUM, STATUS="UNKNOWN", POSITION="APPEND")
-                   WRITE(REACTIONS_UNIT_NUM,*) r1,',',r2,',',prods(1),',',prods(2),',',prods(3),',',TIME*CR_FLUX
-                   CLOSE(REACTIONS_UNIT_NUM)
-                END IF
-             END IF
-          END IF o3check
        END IF isdis
     END IF firstcall
+
+    ! If checking reactions, print out reactants and products
+    o3check: IF ( (O3_ANALYTICS .EQV. .TRUE.) ) THEN
+       IF ( ANY(reaction .EQ. O3NUM) ) THEN
+          IF ( SUM(prods) .GT. 0 ) THEN
+             OPEN(FILE="ozone_reactions.csv", UNIT=REACTIONS_UNIT_NUM, STATUS="UNKNOWN", POSITION="APPEND")
+             IF ( r1 .LE. r2 ) THEN
+                WRITE(REACTIONS_UNIT_NUM,*) r1,',',r2,',',prods(1),',',prods(2),',',prods(3),',',TIME*CR_FLUX
+             ELSE
+                WRITE(REACTIONS_UNIT_NUM,*) r2,',',r1,',',prods(1),',',prods(2),',',prods(3),',',TIME*CR_FLUX
+             END IF
+             CLOSE(REACTIONS_UNIT_NUM)
+          END IF
+       END IF
+    END IF o3check
 
     branching = REACT_CUBE(r1,r2,pr)
 
