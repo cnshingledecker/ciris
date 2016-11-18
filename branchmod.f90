@@ -9,8 +9,10 @@ CONTAINS
     INTEGER :: reaction(5)
     REAL    :: rnum
 
+    prods = 0
+    reaction = 0
+
     firstcall: IF ( pr .EQ. 1 ) THEN
-       reaction = 0
        CALL RANDOM_NUMBER(rnum)
        prods = REACT_CUBE(r1,r2,:)
 
@@ -100,13 +102,12 @@ CONTAINS
 
           ! If none of the conditionals proc, the react cube should get the original values
           REACT_CUBE(r1,r2,:) = prods
-          reaction(1) = r1
-          reaction(2) = r2
-          reaction(3:5) = prods
-
        END IF isdis
     END IF firstcall
 
+    reaction(1) = r1
+    reaction(2) = r2
+    reaction(3:5) = prods
     ! If checking reactions, print out reactants and products
     o3check: IF ( (O3_ANALYTICS .EQV. .TRUE.) ) THEN
        IF ( ANY(reaction .EQ. O3NUM) ) THEN
