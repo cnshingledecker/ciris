@@ -1758,10 +1758,10 @@ CONTAINS
        emfp = 1./(RHO*(se_box%se_ineltot+1.0E-17))
        ! Determine the actual distance travelled
        de = -1.*emfp*LOG(1.-erand)
-       ! Multiply by shortening/lengthening factor
-       de = de*ESTEPFAC
+
        ! Convert to integer value
        estep = INT(de/C_PR)
+
        ! If the estep = 0, force it to 1
        IF ( estep .EQ. 0 ) estep = 1
 
