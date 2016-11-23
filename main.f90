@@ -20,7 +20,6 @@ PROGRAM main
   DOUBLE PRECISION      :: cr_time        ! Time till next proton collision
   DOUBLE PRECISION      :: rndnum         ! Random number
   DOUBLE PRECISION      :: time_step      ! Time between abundance checks
-  DOUBLE PRECISION      :: fluence        ! Run simulation until some max fluence
   DOUBLE PRECISION      :: time_diff !DEBUGGING VAR
   DOUBLE PRECISION      :: t1,t2
   DOUBLE PRECISION      :: cpu_total
@@ -182,14 +181,20 @@ PROGRAM main
   ! Begin the simulation
   !******************************************************************************
   loop_count = 0
-  fluence    = time * CR_FLUX
+  FLUENCE    = time * CR_FLUX
   unfit      = .FALSE.
   cr_arrival = .FALSE.
   PRINT *, "Now  beginning loop"
-  DO WHILE ( fluence .LE. FLUENCE_TOTAL .AND. .NOT. unfit)
+  DO WHILE ( FLUENCE .LE. FLUENCE_TOTAL .AND. .NOT. unfit)
      loop_count = loop_count + 1
      ! At the start of the simulation, or whenever it's time for a particle
      CALL find_min(root, temp)
+
+     IF ( temp%wait_time .LT. TIME ) THEN
+       PRINT *, "ERROR!!!!! temptime < TIME!!!!!"
+       CALL EXIT()
+     END IF
+
      IF ( temp%sp_num .EQ. ONUM) THEN
        N_OHOP = N_OHOP + 1
      ElSE IF ( temp%sp_num .EQ. O3NUM ) THEN 
@@ -218,7 +223,6 @@ PROGRAM main
         ! Calculate track/damage
         CALL fallout( root,temp,prevNode,nextNode )
         IF ( PROTON_ELOSS .GT. 0 ) numprotons = numprotons + 1
-        ALTFLUENCE = numprotons/AREA
      ELSE
         TIME = temp%wait_time
         !        PRINT *, "Min time is:",temp%wait_time,"Min species is:",temp%sp_num
@@ -272,22 +276,29 @@ PROGRAM main
         END SELECT
      END IF
 
-     ! Set count logarithmically
-     IF ( fluence .LE. 5.0E12 )                           TIME_FREQ = 10
-     IF ( fluence .GT. 5.0E12 .AND. fluence .LE. 5.0e14 ) TIME_FREQ = 100
-     IF ( fluence .GT. 5.0E14 .AND. fluence .LE. 5.0e15 ) TIME_FREQ = 1000
-     IF ( fluence .GT. 5.0E15 .AND. fluence .LE. 5.0e16 ) TIME_FREQ = 3000
+     ! update FLUENCE
+     FLUENCE = TIME*CR_FLUX
+
+     IF ( FLUENCE .GT. 9.53e14 ) THEN
+       PRINT *, "Uh, oh... here we go..."
+     END IF
 
      ! If event this loop is a collision...
-     IF ( cr_arrival .EQV. .TRUE. ) THEN 
+!     IF ( cr_arrival .EQV. .TRUE. ) THEN 
+        CALL CPU_TIME(t2)
+        cpu_total = cpu_total + (t2-t1)
+        time_diff = t2-t1 
         time_check = time_check + 1
         cr_arrival = .FALSE.
 
         ! If count%freq = 0, run counter
-        IF ( MOD(time_check, TIME_FREQ) .EQ. 0 ) THEN
+        IF ( time_diff .GT. 1.0 ) THEN
            CALL counter()
-           CALL fitness(unfit,ALTFLUENCE,total_fitness)
-           PRINT *, "OHOPS=",N_OHOP,"O3HOPS=",N_O3HOP
+           CALL fitness(unfit,FLUENCE,total_fitness)
+           PRINT *, "OHOPS=",N_OHOP,"O3HOPS=",N_O3HOP,"SUM=",N_OHOP+N_O3HOP
+           PRINT *, "TIME_FREQ=",TIME_FREQ
+           t1 = t2
+           PRINT *, "time_diff=",time_diff
            N_OHOP = 0
            N_O3HOP = 0
         END IF
@@ -327,13 +338,7 @@ PROGRAM main
            RATEINFO%count = 0
         END IF ratecalc
 
-        CALL CPU_TIME(t2)
-        cpu_total = cpu_total + (t2-t1)
-        time_diff = time
-        t1 = t2
-     END IF
-     ! update fluence
-     fluence = time * CR_FLUX
+!     END IF
   END DO
 
   PRINT *, "************"

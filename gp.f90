@@ -3,7 +3,7 @@ MODULE gp
   USE typedefs
   USE subroutines
 CONTAINS
-  SUBROUTINE fitness(unfit,fluence,total_fitness)
+  SUBROUTINE fitness(unfit,FLUENCE,total_fitness)
     ! Purpose:
     !    This subroutine measures the fitness of the current simulation.
     !  the resulting fitness is added to the total fitness thusfar.
@@ -11,7 +11,7 @@ CONTAINS
     !! FITNESS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
     LOGICAL                                                    :: unfit
-    DOUBLE PRECISION                                             :: fluence
+    DOUBLE PRECISION                                             :: FLUENCE
     DOUBLE PRECISION   , INTENT(OUT)                             :: total_fitness
     INTEGER                                                    :: err
     CHARACTER(LEN=80), PARAMETER                               :: FITNESS_FILE = 'fitness_results'
@@ -28,21 +28,21 @@ CONTAINS
     denom     = THICK*EDGE*EDGE*1.0E20    ! volume * 1E20
 
     ! hard-ncoded expected value (objective) function
-    objective = (4*(fluence**0.8))/(1E13**0.8+fluence**0.8) 
+    objective = (4*(FLUENCE**0.8))/(1E13**0.8+FLUENCE**0.8) 
     model     = REAL(O3_ABUNDANCE)/denom
 
     !NB: Alternate method for calculating fitness
     part1 = (((objective + ABS(objective - model)) / objective)*(-100.0)) + 100.0
-    part2 = (((LOG10(FLUENCE_TOTAL) + ABS(LOG10(FLUENCE_TOTAL/fluence))) / &
+    part2 = (((LOG10(FLUENCE_TOTAL) + ABS(LOG10(FLUENCE_TOTAL/FLUENCE))) / &
          LOG10(FLUENCE_TOTAL))*(-100.0)) + 100.0
     fit = ABS(part1) + ABS(part2)
 
     IF ( ISNAN(fit) .EQV. .FALSE. ) total_fitness  = total_fitness + fit
     IF ( QUIET .EQV. .FALSE. ) THEN
        varfmt = "(A7,ES10.4,A5,F10.4)"
-       WRITE (*,varfmt) 'F_obj( ', fluence, ' ) = ', objective
+       WRITE (*,varfmt) 'F_obj( ', FLUENCE, ' ) = ', objective
        varfmt = "(A9,ES10.4,A5,F10.4)"
-       WRITE (*,varfmt) 'F_model( ', fluence, ' ) = ', model
+       WRITE (*,varfmt) 'F_model( ', FLUENCE, ' ) = ', model
        !    varfmt = "A15,F10.4)"
        PRINT *, 'Total fitness: ', total_fitness
        PRINT *, '***********************************************************************'
@@ -56,13 +56,13 @@ CONTAINS
     ! save results to a file
     !    OPEN(UNIT=201, FILE=FITNESS_FILE, ACCESS='APPEND', ACTION='WRITE', IOSTAT=err)
     varfmt = "(A9,ES10.4,A12,ES10.4)"
-    WRITE(*,varfmt) "FITNESS=",total_fitness,"at FLUENCE=",fluence
+    WRITE(*,varfmt) "FITNESS=",total_fitness,"at FLUENCE=",FLUENCE
     OPEN(UNIT=201, FILE=FITNESS_FILE, STATUS='REPLACE', ACTION='WRITE', IOSTAT=err)
     IF (err .NE. 0) THEN
        PRINT *, "ERROR: Failed to open fitness_results file for writing"
        CALL EXIT()
     ELSE
-       WRITE(201, *) fluence, objective, model, total_fitness
+       WRITE(201, *) FLUENCE, objective, model, total_fitness
        CLOSE(201)
     END IF
   END SUBROUTINE fitness

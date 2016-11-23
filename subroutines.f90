@@ -810,7 +810,7 @@ CONTAINS
 
     IF ( NO_OUTPUT .EQV. .FALSE. ) THEN
        WRITE(AB_UNIT_NUM,*) &
-            ALTFLUENCE,',', & ! 1. Float64
+            FLUENCE,',', & ! 1. Float64
             fluence,','   , & ! 2. Float64
             TIME,','      , & ! 3. Float64
             o2_count,','  , & ! 4. Int64

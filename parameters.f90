@@ -82,7 +82,7 @@ MODULE parameters
   !******************************************************************************
   INTEGER         , PARAMETER :: IONS              = 6      ! Number of anions in species list
   INTEGER         , PARAMETER :: TIME_COUNTS       = 2      ! Times the model will check abundances
-  DOUBLE PRECISION            :: ALTFLUENCE        = 0.d0
+  DOUBLE PRECISION            :: FLUENCE        = 0.d0
   DOUBLE PRECISION, PARAMETER :: TIME_TOTAL        = 1D5    ! Total time in s
   DOUBLE PRECISION, PARAMETER :: ECUTOFF           = 9.0D0  ! Secondary cutoff energy in eV
   DOUBLE PRECISION, PARAMETER :: PCUTOFF           = 5.0D0  ! Primary ion cutoff energy in eV
@@ -134,7 +134,7 @@ MODULE parameters
   ! Array Variables
   !******************************************************************************
   INTEGER                     :: SPECIAL_LIST(3) = 0
-  INTEGER                     :: TIME_FREQ       = 100000  !1000000
+  INTEGER                     :: TIME_FREQ       = 10000  !1000000
 
   !******************************************************************************
   ! Switches
@@ -145,7 +145,7 @@ MODULE parameters
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
-  LOGICAL         , PARAMETER :: O3_ANALYTICS = .TRUE.
+  LOGICAL         , PARAMETER :: O3_ANALYTICS = .FALSE.
   LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
 
   !******************************************************************************
