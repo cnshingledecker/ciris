@@ -86,7 +86,7 @@ MODULE parameters
   DOUBLE PRECISION, PARAMETER :: TIME_TOTAL        = 1D5    ! Total time in s
   DOUBLE PRECISION, PARAMETER :: ECUTOFF           = 9.0D0  ! Secondary cutoff energy in eV
   DOUBLE PRECISION, PARAMETER :: PCUTOFF           = 5.0D0  ! Primary ion cutoff energy in eV
-  DOUBLE PRECISION, PARAMETER :: FLUENCE_TOTAL     = 1.0D15
+  DOUBLE PRECISION, PARAMETER :: FLUENCE_TOTAL     = 1.0D16
   DOUBLE PRECISION, PARAMETER :: SUBEXHITPROB      = 0.5
   DOUBLE PRECISION, PARAMETER :: FITNESS_THRESHOLD = 1E20   ! Terminate if FITNESS > this
   DOUBLE PRECISION, PARAMETER :: ELASTIC_LOSS      = 0.0    ! Percent of Etot lost per electron hop
@@ -113,6 +113,8 @@ MODULE parameters
   INTEGER                     :: O_ABUNDANCE  = 0
   INTEGER                     :: O2_ABUNDANCE = 0
   INTEGER                     :: O3_ABUNDANCE = 0
+  INTEGER                     :: N_OHOP       = 0
+  INTEGER                     :: N_O3HOP      = 0
   DOUBLE PRECISION            :: DELTA_TIME   = 0.d0
   DOUBLE PRECISION            :: PROTON_ELOSS = 0.d0
   TYPE(rate_info)             :: RATEINFO(8)
@@ -139,7 +141,7 @@ MODULE parameters
   !******************************************************************************
   LOGICAL         , PARAMETER :: FIXED_SIZE   = .FALSE.
   LOGICAL         , PARAMETER :: NO_OUTPUT    = .FALSE.
-  LOGICAL         , PARAMETER :: QUIET        = .TRUE.
+  LOGICAL         , PARAMETER :: QUIET        = .FALSE.
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.

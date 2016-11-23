@@ -190,6 +190,12 @@ PROGRAM main
      loop_count = loop_count + 1
      ! At the start of the simulation, or whenever it's time for a particle
      CALL find_min(root, temp)
+     IF ( temp%sp_num .EQ. ONUM) THEN
+       N_OHOP = N_OHOP + 1
+     ElSE IF ( temp%sp_num .EQ. O3NUM ) THEN 
+       N_O3HOP = N_O3HOP + 1
+     END IF
+
      IF (temp%wait_time .GT. cr_time) THEN
         cr_arrival = .TRUE.
         TIME = cr_time
@@ -270,7 +276,7 @@ PROGRAM main
      IF ( fluence .LE. 5.0E12 )                           TIME_FREQ = 10
      IF ( fluence .GT. 5.0E12 .AND. fluence .LE. 5.0e14 ) TIME_FREQ = 100
      IF ( fluence .GT. 5.0E14 .AND. fluence .LE. 5.0e15 ) TIME_FREQ = 1000
-     IF ( fluence .GT. 5.0E15 .AND. fluence .LE. 5.0e16 ) TIME_FREQ = 10000
+     IF ( fluence .GT. 5.0E15 .AND. fluence .LE. 5.0e16 ) TIME_FREQ = 3000
 
      ! If event this loop is a collision...
      IF ( cr_arrival .EQV. .TRUE. ) THEN 
@@ -281,6 +287,9 @@ PROGRAM main
         IF ( MOD(time_check, TIME_FREQ) .EQ. 0 ) THEN
            CALL counter()
            CALL fitness(unfit,ALTFLUENCE,total_fitness)
+           PRINT *, "OHOPS=",N_OHOP,"O3HOPS=",N_O3HOP
+           N_OHOP = 0
+           N_O3HOP = 0
         END IF
 
         ratecalc: IF ( CALC_RATES .EQV. .TRUE. ) THEN
