@@ -24,6 +24,7 @@ PROGRAM main
   DOUBLE PRECISION      :: t1,t2
   DOUBLE PRECISION      :: cpu_total
   DOUBLE PRECISION      :: cpu_max_time
+  CHARACTER(len=10)   :: chartime
   CHARACTER(len=80)   :: hopping_file   ! File containing hopping data
   INTEGER, TARGET     :: o3_prod_target,o3_dest_target
   INTEGER, POINTER    :: o3_prod,o3_dest
@@ -66,7 +67,7 @@ PROGRAM main
   hopping_file = "hopping_data.txt"
 
   OPEN(UNIT=AB_UNIT_NUM,&
-       FILE="abundance.csv",&
+       FILE="abundance.wsv",&
        POSITION='APPEND', &
        STATUS='REPLACE')
 
@@ -279,13 +280,10 @@ PROGRAM main
      ! update FLUENCE
      FLUENCE = TIME*CR_FLUX
 
-     IF ( FLUENCE .GT. 9.53e14 ) THEN
-       PRINT *, "Uh, oh... here we go..."
-     END IF
-
      ! If event this loop is a collision...
 !     IF ( cr_arrival .EQV. .TRUE. ) THEN 
-        CALL CPU_TIME(t2)
+        CALL date_and_time(TIME=chartime)
+        READ(chartime,*) t2
         cpu_total = cpu_total + (t2-t1)
         time_diff = t2-t1 
         time_check = time_check + 1

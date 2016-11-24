@@ -145,7 +145,7 @@ MODULE parameters
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
-  LOGICAL         , PARAMETER :: O3_ANALYTICS = .FALSE.
+  LOGICAL         , PARAMETER :: O3_ANALYTICS = .TRUE.
   LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
 
   !******************************************************************************

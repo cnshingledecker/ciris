@@ -8,9 +8,11 @@ CONTAINS
     INTEGER :: prods(3)
     INTEGER :: reaction(5)
     REAL    :: rnum
+    CHARACTER(80) :: varfmt
 
     prods = 0
     reaction = 0
+    varfmt = "(5I10,ES15.4)"
 
     firstcall: IF ( pr .EQ. 1 ) THEN
        CALL RANDOM_NUMBER(rnum)
@@ -98,6 +100,22 @@ CONTAINS
                 ! O3- + O2+ -> O3 + O + O
                 prods = (/ O3NUM, O3NUM, 0 /)
              END IF
+          ELSE IF ( r1 .EQ. 2 .AND. r2 .EQ. ELECNUM .OR. r1 .EQ. ELECNUM .AND. r2 .EQ. 2 ) THEN
+             IF ( rnum .LE. O2_DISPROB ) THEN
+                ! e + O2+ -> O2* -> O + O
+                prods = (/ ONUM, ONUM, 0 /)
+             ELSE
+                ! e + O2+ -> O2
+                prods = (/ O2NUM, 0, 0 /)
+             END IF
+          ELSE IF ( r1 .EQ. 8 .AND. r2 .EQ. ELECNUM .OR. r1 .EQ. ELECNUM .AND. r2 .EQ. 8 ) THEN
+             IF ( rnum .LE. O2_DISPROB ) THEN
+                ! e + O3+ -> O3* -> O2 + O
+                prods = (/ O2NUM, ONUM, 0 /)
+             ELSE
+                ! e + O3+ -> O3
+                prods = (/ O3NUM, 0, 0 /)
+             END IF
           END IF branchcond
 
           ! If none of the conditionals proc, the react cube should get the original values
@@ -112,11 +130,11 @@ CONTAINS
     o3check: IF ( (O3_ANALYTICS .EQV. .TRUE.) ) THEN
        IF ( ANY(reaction .EQ. O3NUM) ) THEN
           IF ( SUM(prods) .GT. 0 ) THEN
-             OPEN(FILE="ozone_reactions.csv", UNIT=REACTIONS_UNIT_NUM, STATUS="UNKNOWN", POSITION="APPEND")
+             OPEN(FILE="ozone_reactions.wsv", UNIT=REACTIONS_UNIT_NUM, STATUS="UNKNOWN", POSITION="APPEND")
              IF ( r1 .LE. r2 ) THEN
-                WRITE(REACTIONS_UNIT_NUM,*) r1,',',r2,',',prods(1),',',prods(2),',',prods(3),',',TIME*CR_FLUX
+                WRITE(REACTIONS_UNIT_NUM,varfmt) r1,r2,prods(1),prods(2),prods(3),FLUENCE
              ELSE
-                WRITE(REACTIONS_UNIT_NUM,*) r2,',',r1,',',prods(1),',',prods(2),',',prods(3),',',TIME*CR_FLUX
+                WRITE(REACTIONS_UNIT_NUM,varfmt) r2,r1,prods(1),prods(2),prods(3),FLUENCE
              END IF
              CLOSE(REACTIONS_UNIT_NUM)
           END IF

@@ -809,12 +809,12 @@ CONTAINS
     O3_ABUNDANCE = o3_count
 
     IF ( NO_OUTPUT .EQV. .FALSE. ) THEN
-       WRITE(AB_UNIT_NUM,*) &
-            FLUENCE,',', & ! 1. Float64
-            fluence,','   , & ! 2. Float64
-            TIME,','      , & ! 3. Float64
-            o2_count,','  , & ! 4. Int64
-            o_count,','   , & ! 5. Int64
+       varfmt = "(2ES15.4,3I10)"
+       WRITE(AB_UNIT_NUM,varfmt) &
+            FLUENCE, & ! 1. Float64
+            TIME,    & ! 3. Float64
+            o2_count, & ! 4. Int64
+            o_count, & ! 5. Int64
             o3_count          ! 6. Int64
     END IF
 
@@ -1589,6 +1589,7 @@ CONTAINS
     INTEGER                         :: error
     TYPE(node)            , POINTER :: root, temp, prevNode, nextNode
 
+    error = 0
     SELECT CASE (k(3))
     CASE(1)
        r1 = MATRIX(i(1),i(2),i(3))%sp_num
@@ -1609,6 +1610,7 @@ CONTAINS
           ! Re-add node to tree
           CALL add_node(root,temp)
           error = 1
+          PRINT *, "Products = 0:",r1,"+",r2,"=",pr
           RETURN
        END IF
        k(3) = 2
@@ -1712,12 +1714,14 @@ CONTAINS
     IMPLICIT NONE
     TYPE(se_info) :: new_se_box
     TYPE(se_info) :: se_box
-    INTEGER :: n
+    INTEGER :: n,m
     INTEGER :: curr(3),next(3),prev(3),prcoords(3)
     INTEGER :: estep
     INTEGER :: eswitch
     INTEGER :: error
     INTEGER :: cation, anion
+    INTEGER :: nhops
+    INTEGER :: hopCoords(6,3)
     REAL               :: erand
     DOUBLE PRECISION :: emfp
     DOUBLE PRECISION :: new_e_energy
@@ -1726,6 +1730,7 @@ CONTAINS
     DOUBLE PRECISION :: e_ion, e_exc
     TYPE(node), POINTER :: root,temp,prevNode,nextNode
     LOGICAL :: vacant
+    LOGICAL :: react_with_parent
 
     ! Initialize energy losses
     e_ion = 0.0
@@ -1798,7 +1803,7 @@ CONTAINS
              ! Call random number
              CALL RANDOM_NUMBER(erand)
              ! Calculate new electron energy based on \DeltaE
-!             new_e_energy = erand*(se_box%se_energy - e_ion)
+             !             new_e_energy = erand*(se_box%se_energy - e_ion)
              ! Energy lost is sum of ionization energy + new electron energy
              ee_loss = e_ion + new_e_energy
              ! Ionize the species and call new_electron again
@@ -1834,9 +1839,10 @@ CONTAINS
           END IF
        CASE(0)
           ! Electron impact excitation
-          IF ( MATRIX(next(1),next(2),next(3))%sp_num .NE. 0 ) THEN
+          temp => MATRIX(next(1),next(2),next(3))
+          IF ((temp%sp_num .NE. 0) .AND. (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
              ! Place special excitation reactant at site
-             MATRIX(next(1),next(2),next(3))%sec_sp_num = EXCNUM
+             temp%sec_sp_num = EXCNUM
              ! Initialize product coords to 1
              prcoords = 1
              CALL new_reaction(next,next,prcoords,root,temp,prevNode,nextNode,error)
@@ -1849,36 +1855,72 @@ CONTAINS
        se_box%se_energy = se_box%se_energy - ee_loss
     END DO
 
-    ! Once the electron has fallen below the energy threshold, make
-    ! Call transport until a non-vacant site is found
     vacant = .TRUE.
     prevNode => MATRIX(se_box%parent_coords(1),se_box%parent_coords(2),se_box%parent_coords(3))
-    DO WHILE ( vacant .EQV. .TRUE. )
-       prev = curr
-       curr = next
-       CALL transport(prev,curr,next)
-       ! Test to make sure that the species isn't some other electron's cation
-       IF ( (MATRIX(next(1),next(2),next(3))%sp_num .NE. 0) .AND. &
-            (.NOT. ANY(IONLIST .EQ. MATRIX(next(1),next(2),next(3))%sp_num))) THEN
-          vacant = .FALSE.
-       END IF
-       IF ( TRACKPLOT .EQV. .TRUE. ) THEN
-          count_count = count_count + 1
-          WRITE(TRACKPLOT_UNIT_NUM,*) curr(1),',',curr(2),',',curr(3),', sub-excitation electron, movement'
-       END IF
+    nhops = 0
+    react_with_parent = .FALSE.
+    hopCoords = 0 
+    curr = next
+    ! Once the electron has fallen below the energy threshold, make
+    ! Call transport until a non-vacant site is found
+    DO n=1,6
+      CALL hopping(curr(1),curr(2),curr(3),next(1),next(2),next(3),n)
+      hopCoords(n,:) = next
+      temp => MATRIX(next(1),next(2),next(3))
+      ! Test to make sure that the species isn't some other electron's cation
+      IF ( (temp%sp_num .NE. 0) .AND. &
+           (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
+         vacant = .FALSE.
+         EXIT
+      END IF
     END DO
-    temp => MATRIX(next(1),next(2),next(3))
-    ! Electron reacts to form an anion with a surrounding species
-    ! i=next,j=next,form negative anion
-    prcoords = 1 ! Initialize k(3)=1 for the recursive subroutine
-    ! Place electron at same site to form anion
-    temp%sec_sp_num = ELECNUM
-    CALL new_reaction(next,next,prcoords,root,temp,prevNode,nextNode,error)
-    anion = temp%sp_num
-    IF ( (error .EQ. 1) .OR. (.NOT. ANY(IONLIST .EQ. anion)) ) THEN
-       PRINT *, "Electron couldn't form anion!"
-       CALL EXIT()
+
+    ! If no site has been found, expand the search region
+    IF ( vacant .EQV. .TRUE. ) THEN
+      DO n=1,6
+        prev = hopCoords(n,:)
+        DO m=1,6
+          CALL hopping(prev(1),prev(2),prev(3),next(1),next(2),next(3),m)
+          temp => MATRIX(next(1),next(2),next(3))
+          ! Test to make sure that the species isn't some other electron's cation
+          IF ( (temp%sp_num .NE. 0) .AND. &
+               (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
+             vacant = .FALSE.
+             EXIT
+          END IF
+        END DO
+        IF ( vacant .EQV. .FALSE. ) EXIT
+      END DO
     END IF
+
+    ! IF still no occupied site has been found, have electron react with parent
+    IF ( vacant .EQV. .TRUE. ) THEN
+      react_with_parent = .TRUE.
+      next = se_box%parent_coords
+      temp => MATRIX(next(1),next(2),next(3))
+      temp%sec_sp_num = ELECNUM
+    END IF
+
+    ! Form anion, if a suitable target was found
+    IF ( react_with_parent .EQV. .FALSE. ) THEN
+       ! Electron reacts to form an anion with a surrounding species
+       ! i=next,j=next,form negative anion
+       prcoords = 1 ! Initialize k(3)=1 for the recursive subroutine
+       ! Place electron at same site to form anion
+       temp%sec_sp_num = ELECNUM
+       CALL new_reaction(next,next,prcoords,root,temp,prevNode,nextNode,error)
+       anion = temp%sp_num
+       IF ( (error .EQ. 1) .OR. (.NOT. ANY(IONLIST .EQ. anion)) ) THEN
+          PRINT *, "Electron couldn't form anion!"
+          PRINT *, temp%sp_num
+          PRINT *, temp%sec_sp_num
+          PRINT *, next
+          next = se_box%parent_coords
+          temp => MATRIX(next(1),next(2),next(3))
+          temp%sec_sp_num = ELECNUM
+       END IF
+    END IF
+
     ! Make newly formed anion react with parent cation at %parent_coords
     ! i=next,j=parent_coords
     prcoords = 1
@@ -1888,9 +1930,17 @@ CONTAINS
        PRINT *, "Parent coords not a cation!!"
        CALL EXIT()
     END IF
+
     CALL new_reaction(next,se_box%parent_coords,prcoords,root,temp,nextNode,prevNode,error)
+
     IF ( error .EQ. 1) THEN
        PRINT *, "Ions couldn't recombine!"
+       temp => MATRIX(next(1),next(2),next(3))
+       PRINT *, temp%sp_num
+       PRINT *, temp%sec_sp_num
+       PRINT *, "ELECNUM is:",ELECNUM," and EXCNUM is:",EXCNUM
+       PRINT *, next
+       PRINT *, se_box%parent_coords
        CALL EXIT()
     END IF
   END SUBROUTINE new_electron
