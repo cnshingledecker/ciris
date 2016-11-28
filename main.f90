@@ -192,14 +192,14 @@ PROGRAM main
      CALL find_min(root, temp)
 
      IF ( temp%wait_time .LT. TIME ) THEN
-       PRINT *, "ERROR!!!!! temptime < TIME!!!!!"
-       CALL EXIT()
+        PRINT *, "ERROR!!!!! temptime < TIME!!!!!"
+        CALL EXIT()
      END IF
 
      IF ( temp%sp_num .EQ. ONUM) THEN
-       N_OHOP = N_OHOP + 1
-     ElSE IF ( temp%sp_num .EQ. O3NUM ) THEN 
-       N_O3HOP = N_O3HOP + 1
+        N_OHOP = N_OHOP + 1
+     ElSE IF ( temp%sp_num .EQ. O3NUM ) THEN
+        N_O3HOP = N_O3HOP + 1
      END IF
 
      IF (temp%wait_time .GT. cr_time) THEN
@@ -281,16 +281,23 @@ PROGRAM main
      FLUENCE = TIME*CR_FLUX
 
      ! If event this loop is a collision...
-!     IF ( cr_arrival .EQV. .TRUE. ) THEN 
+     crarrive: IF ( cr_arrival .EQV. .TRUE. ) THEN
         CALL date_and_time(TIME=chartime)
         READ(chartime,*) t2
         cpu_total = cpu_total + (t2-t1)
-        time_diff = t2-t1 
+        time_diff = t2-t1
         time_check = time_check + 1
         cr_arrival = .FALSE.
 
+        ! Set time_freq
+        IF ( FLUENCE .GT. 1.0d13 ) TIME_FREQ = 100
+        IF ( FLUENCE .GT. 1.0d14 ) TIME_FREQ = 1000
+        IF ( FLUENCE .GT. 1.0d15 ) TIME_FREQ = 10000
+        IF ( FLUENCE .GT. 1.0d16 ) TIME_FREQ = 100000
+
         ! If count%freq = 0, run counter
-        IF ( time_diff .GT. 1.0 ) THEN
+        checktime: IF ( MOD(time_check,TIME_FREQ) .EQ. 0 ) THEN
+           !        IF ( time_diff .GT. 1.0 ) THEN
            CALL counter()
            CALL fitness(unfit,FLUENCE,total_fitness)
            PRINT *, "OHOPS=",N_OHOP,"O3HOPS=",N_O3HOP,"SUM=",N_OHOP+N_O3HOP
@@ -299,7 +306,7 @@ PROGRAM main
            PRINT *, "time_diff=",time_diff
            N_OHOP = 0
            N_O3HOP = 0
-        END IF
+        END IF checktime
 
         ratecalc: IF ( CALC_RATES .EQV. .TRUE. ) THEN
            ! Perform reaction analytics
@@ -336,11 +343,11 @@ PROGRAM main
            RATEINFO%count = 0
         END IF ratecalc
 
-!     END IF
+     END IF crarrive
   END DO
 
   PRINT *, "************"
-  PRINT *, "ENDING CIRIS" 
+  PRINT *, "ENDING CIRIS"
   PRINT *, "************"
 
   CALL counter()

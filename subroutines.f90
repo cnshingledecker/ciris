@@ -1610,7 +1610,7 @@ CONTAINS
           ! Re-add node to tree
           CALL add_node(root,temp)
           error = 1
-          PRINT *, "Products = 0:",r1,"+",r2,"=",pr
+          IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Products = 0:",r1,"+",r2,"=",pr
           RETURN
        END IF
        k(3) = 2

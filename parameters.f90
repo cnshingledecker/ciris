@@ -145,7 +145,7 @@ MODULE parameters
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
-  LOGICAL         , PARAMETER :: O3_ANALYTICS = .TRUE.
+  LOGICAL         , PARAMETER :: O3_ANALYTICS = .FALSE.
   LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
 
   !******************************************************************************
@@ -153,8 +153,8 @@ MODULE parameters
   !******************************************************************************
   DOUBLE PRECISION :: O2_DISPROB   = 0      ! O2 dissociation probability
   DOUBLE PRECISION :: O3_DISPROB   = 0      ! O3 dissociation probability
-  DOUBLE PRECISION :: AVAL         = 33     ! Parameter for Gamma distribution
-  DOUBLE PRECISION :: STEPFAC      = 0.1    ! Determines freq. between colls. for protons
+  DOUBLE PRECISION :: AVAL         = 15     ! Parameter for Gamma distribution
+  DOUBLE PRECISION :: STEPFAC      = 1      ! Determines freq. between colls. for protons
 
 CONTAINS
   SUBROUTINE initconstants ()
@@ -196,5 +196,4 @@ CONTAINS
     NEXIT = 10*NSUBEX
     CLOSE(200)
   END SUBROUTINE initconstants
-
 END MODULE parameters
