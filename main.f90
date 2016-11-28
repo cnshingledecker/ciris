@@ -203,6 +203,7 @@ PROGRAM main
      END IF
 
      IF (temp%wait_time .GT. cr_time) THEN
+        time_check = time_check + 1
         cr_arrival = .TRUE.
         TIME = cr_time
         ! Calculate time to next cosmic-ray event
@@ -286,24 +287,30 @@ PROGRAM main
         READ(chartime,*) t2
         cpu_total = cpu_total + (t2-t1)
         time_diff = t2-t1
-        time_check = time_check + 1
         cr_arrival = .FALSE.
 
         ! Set time_freq
-        IF ( FLUENCE .GT. 1.0d13 ) TIME_FREQ = 100
-        IF ( FLUENCE .GT. 1.0d14 ) TIME_FREQ = 1000
-        IF ( FLUENCE .GT. 1.0d15 ) TIME_FREQ = 10000
-        IF ( FLUENCE .GT. 1.0d16 ) TIME_FREQ = 100000
+        IF ( FLUENCE .GT. 1.0d13 ) THEN 
+          TIME_FREQ = 10 
+        ELSE IF ( FLUENCE .GT. 1.0d14 ) THEN 
+          TIME_FREQ = 1000
+        ELSE IF ( FLUENCE .GT. 1.0d15 ) THEN 
+          TIME_FREQ = 10000
+        ELSE IF ( FLUENCE .GT. 1.0d16 ) THEN 
+          TIME_FREQ = 100000
+        END IF
+
+!        IF ( MOD(time_check,1000) .EQ. 0 ) PRINT *, "FLUENCE=",FLUENCE
 
         ! If count%freq = 0, run counter
         checktime: IF ( MOD(time_check,TIME_FREQ) .EQ. 0 ) THEN
            !        IF ( time_diff .GT. 1.0 ) THEN
            CALL counter()
            CALL fitness(unfit,FLUENCE,total_fitness)
-           PRINT *, "OHOPS=",N_OHOP,"O3HOPS=",N_O3HOP,"SUM=",N_OHOP+N_O3HOP
-           PRINT *, "TIME_FREQ=",TIME_FREQ
+!           PRINT *, "OHOPS=",N_OHOP,"O3HOPS=",N_O3HOP,"SUM=",N_OHOP+N_O3HOP
+!           PRINT *, "TIME_FREQ=",TIME_FREQ
            t1 = t2
-           PRINT *, "time_diff=",time_diff
+!           PRINT *, "time_diff=",time_diff
            N_OHOP = 0
            N_O3HOP = 0
         END IF checktime
