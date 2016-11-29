@@ -290,14 +290,14 @@ PROGRAM main
         cr_arrival = .FALSE.
 
         ! Set time_freq
-        IF ( FLUENCE .GT. 1.0d13 ) THEN 
+        IF ( FLUENCE .GT. 1.0d13 .AND. FLUENCE .LT. 1.0d14 ) THEN 
           TIME_FREQ = 10 
-        ELSE IF ( FLUENCE .GT. 1.0d14 ) THEN 
+        ELSE IF ( FLUENCE .GT. 1.0d14 .AND. FLUENCE .LT. 1.0d15) THEN 
+          TIME_FREQ = 100
+        ELSE IF ( FLUENCE .GT. 1.0d15 .AND. FLUENCE .LT. 1.0d16) THEN 
           TIME_FREQ = 1000
-        ELSE IF ( FLUENCE .GT. 1.0d15 ) THEN 
-          TIME_FREQ = 10000
         ELSE IF ( FLUENCE .GT. 1.0d16 ) THEN 
-          TIME_FREQ = 100000
+          TIME_FREQ = 10000
         END IF
 
 !        IF ( MOD(time_check,1000) .EQ. 0 ) PRINT *, "FLUENCE=",FLUENCE

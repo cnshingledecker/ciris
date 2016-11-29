@@ -38,7 +38,7 @@ CONTAINS
     fit = ABS(part1) + ABS(part2)
 
     IF ( ISNAN(fit) .EQV. .FALSE. ) total_fitness  = total_fitness + fit
-    IF ( QUIET .EQV. .FALSE. ) THEN
+!    IF ( QUIET .EQV. .FALSE. ) THEN
        varfmt = "(A7,ES10.4,A5,F10.4)"
        WRITE (*,varfmt) 'F_obj( ', FLUENCE, ' ) = ', objective
        varfmt = "(A9,ES10.4,A5,F10.4)"
@@ -46,7 +46,7 @@ CONTAINS
        !    varfmt = "A15,F10.4)"
        PRINT *, 'Total fitness: ', total_fitness
        PRINT *, '***********************************************************************'
-    END IF
+!    END IF
 
     ! if current solution's total_fitness score is too big, save time and end the simulation
     IF (total_fitness > FITNESS_THRESHOLD) THEN
@@ -55,8 +55,8 @@ CONTAINS
 
     ! save results to a file
     !    OPEN(UNIT=201, FILE=FITNESS_FILE, ACCESS='APPEND', ACTION='WRITE', IOSTAT=err)
-    varfmt = "(A9,ES10.4,A12,ES10.4)"
-    WRITE(*,varfmt) "FITNESS=",total_fitness,"at FLUENCE=",FLUENCE
+    varfmt = "(A9,ES10.4,A12,ES10.4,A10,I15)"
+    WRITE(*,varfmt) "FITNESS=",total_fitness,"at FLUENCE=",FLUENCE,"TIME_FREQ=",TIME_FREQ
     OPEN(UNIT=201, FILE=FITNESS_FILE, STATUS='REPLACE', ACTION='WRITE', IOSTAT=err)
     IF (err .NE. 0) THEN
        PRINT *, "ERROR: Failed to open fitness_results file for writing"

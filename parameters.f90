@@ -86,7 +86,7 @@ MODULE parameters
   DOUBLE PRECISION, PARAMETER :: TIME_TOTAL        = 1D5    ! Total time in s
   DOUBLE PRECISION, PARAMETER :: ECUTOFF           = 9.0D0  ! Secondary cutoff energy in eV
   DOUBLE PRECISION, PARAMETER :: PCUTOFF           = 5.0D0  ! Primary ion cutoff energy in eV
-  DOUBLE PRECISION, PARAMETER :: FLUENCE_TOTAL     = 1.0D16
+  DOUBLE PRECISION, PARAMETER :: FLUENCE_TOTAL     = 1.0D15
   DOUBLE PRECISION, PARAMETER :: SUBEXHITPROB      = 0.5
   DOUBLE PRECISION, PARAMETER :: FITNESS_THRESHOLD = 1E20   ! Terminate if FITNESS > this
   DOUBLE PRECISION, PARAMETER :: ELASTIC_LOSS      = 0.0    ! Percent of Etot lost per electron hop
