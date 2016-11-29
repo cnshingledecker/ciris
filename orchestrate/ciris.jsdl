@@ -2,11 +2,11 @@
 <jsdl:JobDefinition xmlns:jsdl-hpcpa="http://schemas.ggf.org/jsdl/2006/07/jsdl-hpcpa" xmlns:hpcfse-ac="http://schemas.ogf.org/hpcp/2007/11/ac" xmlns:jsdl-sweep="http://schemas.ogf.org/jsdl/2009/03/sweep" xmlns:jsdl-posix="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix" xmlns:jsdl-spmd="http://schemas.ogf.org/jsdl/2007/02/jsdl-spmd" xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl" xmlns:wss="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:ns8="http://vcgr.cs.virginia.edu/jsdl/genii" xmlns:ns9="http://schemas.ogf.org/jsdl/2009/03/sweep/functions">
     <jsdl:JobDescription>
         <jsdl:JobIdentification>
-            <jsdl:JobName>losalamos worker (PLACEHOLDER1)</jsdl:JobName>
+            <jsdl:JobName>ciris worker (PLACEHOLDER1)</jsdl:JobName>
         </jsdl:JobIdentification>
         <jsdl:Application>
             <jsdl-posix:POSIXApplication>
-                <jsdl-posix:Executable>losalamos</jsdl-posix:Executable>
+                <jsdl-posix:Executable>ciris</jsdl-posix:Executable>
                 <jsdl-posix:Output>out</jsdl-posix:Output>
                 <jsdl-posix:Error>err</jsdl-posix:Error>
             </jsdl-posix:POSIXApplication>
@@ -19,12 +19,12 @@
             </jsdl:OperatingSystem>
         </jsdl:Resources>
         <jsdl:DataStaging>
-            <jsdl:FileName>losalamos</jsdl:FileName>
+            <jsdl:FileName>ciris</jsdl:FileName>
             <jsdl:CreationFlag>overwrite</jsdl:CreationFlag>
             <jsdl:DeleteOnTermination>true</jsdl:DeleteOnTermination>
             <jsdl:HandleAsArchive>false</jsdl:HandleAsArchive>
             <jsdl:Source>
-                <jsdl:URI>rns:/home/xcg.virginia.edu/cns7ae/archipelago/losalamos</jsdl:URI>
+                <jsdl:URI>rns:/home/xcg.virginia.edu/cns7ae/archipelago/ciris</jsdl:URI>
             </jsdl:Source>
         </jsdl:DataStaging>
         <jsdl:DataStaging>

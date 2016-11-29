@@ -1,7 +1,7 @@
 #!/usr/bin/julia
 #=
  = gp.jl
- =  Orchestration program for genetic programming of losalamos
+ =  Orchestration program for genetic programming of ciris
  =
  = Alex Thomas
  =#

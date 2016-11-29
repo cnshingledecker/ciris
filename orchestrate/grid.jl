@@ -31,7 +31,7 @@ g_out, g_in, g_proc = initGrid()
 
 # read in JSDL file, sub placeholders, and write out JSDL
 function generateJSDL(target_file, island)
-    jsdl = readall("losalamos.jsdl")
+    jsdl = readall("ciris.jsdl")
     jsdl = replace(jsdl, "PLACEHOLDER0", target_file)
     jsdl = replace(jsdl, "PLACEHOLDER1", island)
     file = open("tmp.jsdl", "w")
