@@ -3,12 +3,11 @@ module ParameterIO
 using Base.Random.uuid4
 
 constraints = Dict(
-    "O" => 55:0.01:400,               #1
-    "O3" => 100:0.01:800,             #2
-    "O2_DISPROB" => 0.0:0.001:1.0,    #5
-    "O3_DISPROB" => 0.0:0.001:1.0,    #6
-    "STEPFAC" => 1E-3:1E-4:1.0,       #7
-    "AVAL" => 1:1:60,                 #9
+    "O"          => 55:10:400  , #1
+    "O3"         => 100:10:800 , #2
+    "O2_DISPROB" => 0.0:0.1:1.0, #3
+    "O3_DISPROB" => 0.0:0.1:1.0, #4
+    "AVAL"       => 1:1:60     , #5
 )
 parameters = collect(keys(constraints))
 

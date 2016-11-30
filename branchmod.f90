@@ -36,15 +36,7 @@ CONTAINS
              END IF
           END IF
        ELSE
-          branchcond: IF ( r1 .EQ. ONUM .AND. r2 .EQ. O2NUM .OR. r1 .EQ. O2NUM .AND. r2 .EQ. ONUM ) THEN
-             IF ( rnum .LE. O3_DISPROB ) THEN
-                ! O + O2 -> O3* -> O + O2
-                prods = (/ O2NUM, ONUM, 0 /)
-             ELSE
-                ! O + O2 -> O3
-                prods = (/O3NUM, 0, 0 /)
-             END IF
-          ELSE IF ( r1 .EQ. 2 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 2 ) THEN
+          branchcond: IF ( r1 .EQ. 2 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 2 ) THEN
              IF ( rnum .LE. O2_DISPROB ) THEN
                 ! O2+ + O2- -> O2* + O2 -> O + O + O2
                 prods = (/ ONUM, ONUM, O2NUM /)

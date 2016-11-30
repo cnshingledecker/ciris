@@ -32,7 +32,6 @@ PROGRAM main
   LOGICAL             :: cr_arrival
   DOUBLE PRECISION      :: total_fitness   ! Total fitness
   LOGICAL             :: unfit           ! TRUE if solution is too unfit -> stop simulation
-  INTEGER  :: numprotons
   INTEGER             :: o_temp,o2_temp,o3_temp
   DOUBLE PRECISION      :: temp_time
   DOUBLE PRECISION      :: j2, j3
@@ -43,6 +42,7 @@ PROGRAM main
   PRINT *, "********************"
   PRINT *, "***STARTING CIRIS***"
   PRINT *, "********************"
+
 
   ! Read in constants and save seed
   CALL SYSTEM("/bin/bash pre.sh")
@@ -179,6 +179,15 @@ PROGRAM main
   CALL counter()
 
   !******************************************************************************
+  ! Print fitting parameters 
+  !******************************************************************************
+  PRINT *, "Ed(O)=",EN_LIST(ONUM)
+  PRINT *, "Ed(O3)=",EN_LIST(O3NUM)
+  PRINT *, "Pdis(O2)=",O2_DISPROB
+  PRINT *, "Pdis(O3)=",O3_DISPROB
+  PRINT *, "Aval=",AVAL
+
+  !******************************************************************************
   ! Begin the simulation
   !******************************************************************************
   loop_count = 0
@@ -203,6 +212,7 @@ PROGRAM main
      END IF
 
      IF (temp%wait_time .GT. cr_time) THEN
+        NUMPROTONS = NUMPROTONS + 1
         time_check = time_check + 1
         cr_arrival = .TRUE.
         TIME = cr_time
@@ -226,6 +236,7 @@ PROGRAM main
         CALL fallout( root,temp,prevNode,nextNode )
         IF ( PROTON_ELOSS .GT. 0 ) numprotons = numprotons + 1
      ELSE
+        IF ( FIX_FREQ .EQV. .TRUE. ) time_check = time_check + 1
         TIME = temp%wait_time
         !        PRINT *, "Min time is:",temp%wait_time,"Min species is:",temp%sp_num
         i(1) = temp%coord1
@@ -280,37 +291,33 @@ PROGRAM main
 
      ! update FLUENCE
      FLUENCE = TIME*CR_FLUX
+!     FLUENCE = DBLE(NUMPROTONS)/AREA
 
      ! If event this loop is a collision...
-     crarrive: IF ( cr_arrival .EQV. .TRUE. ) THEN
+     crarrive: IF ( (cr_arrival .EQV. .TRUE.) .OR. (FIX_FREQ .EQV. .TRUE. ) )THEN
         CALL date_and_time(TIME=chartime)
         READ(chartime,*) t2
         cpu_total = cpu_total + (t2-t1)
         time_diff = t2-t1
         cr_arrival = .FALSE.
 
-        ! Set time_freq
-        IF ( FLUENCE .GT. 1.0d13 .AND. FLUENCE .LT. 1.0d14 ) THEN 
-          TIME_FREQ = 10 
-        ELSE IF ( FLUENCE .GT. 1.0d14 .AND. FLUENCE .LT. 1.0d15) THEN 
-          TIME_FREQ = 100
-        ELSE IF ( FLUENCE .GT. 1.0d15 .AND. FLUENCE .LT. 1.0d16) THEN 
-          TIME_FREQ = 1000
-        ELSE IF ( FLUENCE .GT. 1.0d16 ) THEN 
-          TIME_FREQ = 10000
+        IF ( FIX_FREQ .EQV. .FALSE. ) THEN
+           ! Set time_freq
+           IF ( FLUENCE .GT. 1.0d13 .AND. FLUENCE .LT. 1.0d14 ) THEN 
+              TIME_FREQ = 10 
+           ELSE IF ( FLUENCE .GT. 1.0d14 .AND. FLUENCE .LT. 1.0d15) THEN 
+              TIME_FREQ = 100
+           ELSE IF ( FLUENCE .GT. 1.0d15 .AND. FLUENCE .LT. 1.0d16) THEN 
+              TIME_FREQ = 1000
+           ELSE IF ( FLUENCE .GT. 1.0d16 ) THEN 
+              TIME_FREQ = 10000
+           END IF
         END IF
 
-!        IF ( MOD(time_check,1000) .EQ. 0 ) PRINT *, "FLUENCE=",FLUENCE
-
-        ! If count%freq = 0, run counter
         checktime: IF ( MOD(time_check,TIME_FREQ) .EQ. 0 ) THEN
-           !        IF ( time_diff .GT. 1.0 ) THEN
            CALL counter()
            CALL fitness(unfit,FLUENCE,total_fitness)
-!           PRINT *, "OHOPS=",N_OHOP,"O3HOPS=",N_O3HOP,"SUM=",N_OHOP+N_O3HOP
-!           PRINT *, "TIME_FREQ=",TIME_FREQ
            t1 = t2
-!           PRINT *, "time_diff=",time_diff
            N_OHOP = 0
            N_O3HOP = 0
         END IF checktime

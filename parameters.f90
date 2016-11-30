@@ -13,6 +13,7 @@ MODULE parameters
   INTEGER          , ALLOCATABLE         :: IONLIST(:)
   INTEGER                                :: NUM_SPECIES
   INTEGER                                :: NUM_REACTS
+  INTEGER                                :: NUMPROTONS = 0
 
   !******************************************************************************
   ! Input file names
@@ -86,11 +87,12 @@ MODULE parameters
   DOUBLE PRECISION, PARAMETER :: TIME_TOTAL        = 1D5    ! Total time in s
   DOUBLE PRECISION, PARAMETER :: ECUTOFF           = 9.0D0  ! Secondary cutoff energy in eV
   DOUBLE PRECISION, PARAMETER :: PCUTOFF           = 5.0D0  ! Primary ion cutoff energy in eV
-  DOUBLE PRECISION, PARAMETER :: FLUENCE_TOTAL     = 1.0D15
+  DOUBLE PRECISION, PARAMETER :: FLUENCE_TOTAL     = 1.0D16
   DOUBLE PRECISION, PARAMETER :: SUBEXHITPROB      = 0.5
   DOUBLE PRECISION, PARAMETER :: FITNESS_THRESHOLD = 1E20   ! Terminate if FITNESS > this
   DOUBLE PRECISION, PARAMETER :: ELASTIC_LOSS      = 0.0    ! Percent of Etot lost per electron hop
   DOUBLE PRECISION, PARAMETER :: TRL_NU            = 1.0E12 ! Trial frequency, for the rates, in 1/s
+  DOUBLE PRECISION, PARAMETER :: STEPFAC           = 1.0d0  ! Determines freq. between colls. for protons
 
 
   !******************************************************************************
@@ -134,19 +136,20 @@ MODULE parameters
   ! Array Variables
   !******************************************************************************
   INTEGER                     :: SPECIAL_LIST(3) = 0
-  INTEGER                     :: TIME_FREQ       = 1  !1000000
+  INTEGER                     :: TIME_FREQ       = 1000000  !1000000
 
   !******************************************************************************
   ! Switches
   !******************************************************************************
   LOGICAL         , PARAMETER :: FIXED_SIZE   = .FALSE.
-  LOGICAL         , PARAMETER :: NO_OUTPUT    = .TRUE.
-  LOGICAL         , PARAMETER :: QUIET        = .TRUE.
+  LOGICAL         , PARAMETER :: NO_OUTPUT    = .FALSE.
+  LOGICAL         , PARAMETER :: QUIET        = .FALSE.
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
   LOGICAL         , PARAMETER :: O3_ANALYTICS = .FALSE.
   LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
+  LOGICAL         , PARAMETER :: FIX_FREQ     = .TRUE. 
 
   !******************************************************************************
   ! Fitting parameters
@@ -154,7 +157,6 @@ MODULE parameters
   DOUBLE PRECISION :: O2_DISPROB   = 0      ! O2 dissociation probability
   DOUBLE PRECISION :: O3_DISPROB   = 0      ! O3 dissociation probability
   DOUBLE PRECISION :: AVAL         = 15     ! Parameter for Gamma distribution
-  DOUBLE PRECISION :: STEPFAC      = 1      ! Determines freq. between colls. for protons
 
 CONTAINS
   SUBROUTINE initconstants ()
@@ -183,8 +185,6 @@ CONTAINS
           READ(val, *) O2_DISPROB
        CASE ("O3_DISPROB")
           READ(val, *) O3_DISPROB
-       CASE ("STEPFAC")
-          READ(val, *) STEPFAC
        CASE ("AVAL")
           READ(val, *) AVAL
        CASE DEFAULT
