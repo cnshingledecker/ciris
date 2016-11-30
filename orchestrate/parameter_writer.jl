@@ -3,8 +3,8 @@ module ParameterIO
 using Base.Random.uuid4
 
 constraints = Dict(
-    "O"          => 55:10:400  , #1
-    "O3"         => 100:10:800 , #2
+    "O"          => 55:10:600  , #1
+    "O3"         => 100:10:1200 , #2
     "O2_DISPROB" => 0.0:0.1:1.0, #3
     "O3_DISPROB" => 0.0:0.1:1.0, #4
     "AVAL"       => 1:1:60     , #5

@@ -149,7 +149,7 @@ MODULE parameters
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
   LOGICAL         , PARAMETER :: O3_ANALYTICS = .FALSE.
   LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
-  LOGICAL         , PARAMETER :: FIX_FREQ     = .TRUE. 
+  LOGICAL         , PARAMETER :: FIX_FREQ     = .FALSE. 
 
   !******************************************************************************
   ! Fitting parameters
