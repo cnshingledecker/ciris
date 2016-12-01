@@ -234,6 +234,7 @@ CONTAINS
     !****************************************************************************!
     count_count = 0
     BI_CALLS = 0
+    PROTON_ELOSS = 0
 
     ! Calculate the initial cross-sections based on the initial ion energy
     ALLOCATE(psigmas_target(3))
@@ -346,7 +347,7 @@ CONTAINS
                CALL elastic_event(ione,e_loss,labtheta)
                nature = "Elastic"
             END IF
-            PROTON_ELOSS = e_loss
+            PROTON_ELOSS = PROTON_ELOSS + e_loss
           END ASSOCIATE
           ione = ione - e_loss
           CALL psigma_suite(ione,psigmas,psigij,psigexj)
@@ -737,7 +738,15 @@ CONTAINS
        END IF
     ELSE
        ! Bulk species, only bulk diffusion
-       b_3 = trl_nu*EXP( -1*( EN_LIST(temp%sp_num)*E_BULK    / kin_temp ) )
+       IF ( (MOD(temp%coord2,2) .EQ. 1) .AND. (MOD(temp%coord3,2) .EQ. 1) ) THEN
+          DO n=1,5
+             CALL hopping(temp%coord1,temp%coord2,temp%coord3,ix,iy,iz,n)
+             IF ( MATRIX(ix,iy,iz)%sp_num .NE. 0 ) el_tmp = el_tmp + 0.1*EN_LIST(MATRIX(ix,iy,iz)%sp_num)
+          END DO
+          b_3 = trl_nu*EXP( -1*((EN_LIST(temp%sp_num)*E_BULK + el_tmp)/ kin_temp ) )
+       ELSE
+          b_3 = trl_nu*EXP( -1*( EN_LIST(temp%sp_num)*E_BULK     / kin_temp ) )
+       END IF
        b = b_3
        ! Only hopping (diffusion) can occur
        temp%act_type = 1

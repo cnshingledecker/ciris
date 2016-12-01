@@ -136,7 +136,7 @@ MODULE parameters
   ! Array Variables
   !******************************************************************************
   INTEGER                     :: SPECIAL_LIST(3) = 0
-  INTEGER                     :: TIME_FREQ       = 1000000  !1000000
+  INTEGER                     :: TIME_FREQ       = 1  !1000000
 
   !******************************************************************************
   ! Switches
@@ -147,9 +147,10 @@ MODULE parameters
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
-  LOGICAL         , PARAMETER :: O3_ANALYTICS = .FALSE.
+  LOGICAL         , PARAMETER :: O3_ANALYTICS = .TRUE.
   LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
-  LOGICAL         , PARAMETER :: FIX_FREQ     = .FALSE. 
+  LOGICAL         , PARAMETER :: FIX_FREQ     = .FALSE.
+  LOGICAL         , PARAMETER :: FAST_REACTS  = .TRUE.
 
   !******************************************************************************
   ! Fitting parameters

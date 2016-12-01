@@ -12,6 +12,7 @@ PROGRAM main
   !******************************************************************************
   INTEGER             :: tmp_sp_num
   INTEGER             :: loop_count
+  INTEGER             :: n
   INTEGER             :: xx,yy,zz
   INTEGER             :: i(3),j(3),k(3)
   INTEGER             :: count_num      ! Number of abundance file
@@ -32,6 +33,7 @@ PROGRAM main
   LOGICAL             :: cr_arrival
   DOUBLE PRECISION      :: total_fitness   ! Total fitness
   LOGICAL             :: unfit           ! TRUE if solution is too unfit -> stop simulation
+  LOGICAL             :: success
   INTEGER             :: o_temp,o2_temp,o3_temp
   DOUBLE PRECISION      :: temp_time
   DOUBLE PRECISION      :: j2, j3
@@ -179,7 +181,7 @@ PROGRAM main
   CALL counter()
 
   !******************************************************************************
-  ! Print fitting parameters 
+  ! Print fitting parameters
   !******************************************************************************
   PRINT *, "Ed(O)=",EN_LIST(ONUM)
   PRINT *, "Ed(O3)=",EN_LIST(O3NUM)
@@ -197,14 +199,23 @@ PROGRAM main
   PRINT *, "Now  beginning loop"
   DO WHILE ( FLUENCE .LE. FLUENCE_TOTAL .AND. .NOT. unfit)
      loop_count = loop_count + 1
-     ! At the start of the simulation, or whenever it's time for a particle
+
+     !******************************************************************************
+     ! Find the minimum time species
+     !******************************************************************************
      CALL find_min(root, temp)
 
+     !******************************************************************************
+     ! Sanity check to make sure new time isn't less than old time
+     !******************************************************************************
      IF ( temp%wait_time .LT. TIME ) THEN
         PRINT *, "ERROR!!!!! temptime < TIME!!!!!"
         CALL EXIT()
      END IF
 
+     !******************************************************************************
+     ! Incremement hop counters for analytics
+     !******************************************************************************
      IF ( temp%sp_num .EQ. ONUM) THEN
         N_OHOP = N_OHOP + 1
      ElSE IF ( temp%sp_num .EQ. O3NUM ) THEN
@@ -212,7 +223,9 @@ PROGRAM main
      END IF
 
      IF (temp%wait_time .GT. cr_time) THEN
-        NUMPROTONS = NUMPROTONS + 1
+        !************************************************************************
+        ! Call cosmic ray if new time is greater than next cr arrival
+        !************************************************************************
         time_check = time_check + 1
         cr_arrival = .TRUE.
         TIME = cr_time
@@ -230,24 +243,44 @@ PROGRAM main
         o_temp       = O_ABUNDANCE
         o2_temp      = O2_ABUNDANCE
         o3_temp      = O3_ABUNDANCE
-        PROTON_ELOSS = 0.d0 !Reset protpn energy loss to 0
 
         ! Calculate track/damage
         CALL fallout( root,temp,prevNode,nextNode )
-        IF ( PROTON_ELOSS .GT. 0 ) numprotons = numprotons + 1
+        IF ( PROTON_ELOSS .GT. 0 ) NUMPROTONS = NUMPROTONS + 1
      ELSE
+        !*************************************************************************
+        ! Call cosmic ray if new time is greater than next cr arrival
+        !*************************************************************************
         IF ( FIX_FREQ .EQV. .TRUE. ) time_check = time_check + 1
         TIME = temp%wait_time
         !        PRINT *, "Min time is:",temp%wait_time,"Min species is:",temp%sp_num
         i(1) = temp%coord1
         i(2) = temp%coord2
         i(3) = temp%coord3
+
         ! If it is a regular species, decide it hopping or desorption
         SELECT CASE (temp%act_type)
         CASE(1) ! The species hops
+           success = .FALSE.
+
+           ! If species is atomic oxygen, check for nearby reactants
+           IF ( ( temp%sp_num .EQ. ONUM ) .AND. (FAST_REACTS .EQV. .TRUE.) ) THEN
+              DO n = 1,6
+                 CALL hopping(temp%coord1,temp%coord2,temp%coord3,&
+                      j(1),j(2),j(3),n)
+                 IF ( MATRIX(j(1),j(2),j(3))%sp_num .NE. 0 ) THEN
+                    success = .TRUE.
+                    EXIT
+                 END IF
+              END DO
+           END IF
+
            ! Call hopping to get new coords
-           CALL hopping(temp%coord1,temp%coord2,temp%coord3,&
-                j(1),j(2),j(3),temp%hop_dir)
+           IF ( success .EQV. .FALSE. ) THEN
+              CALL hopping(temp%coord1,temp%coord2,temp%coord3,&
+                   j(1),j(2),j(3),temp%hop_dir)
+           END IF
+
            nextNode => MATRIX(j(1),j(2),j(3))
            ! If the site is empty, move product there
            IF ( (nextNode%sp_num .EQ. 0) .OR. (ALL(ABS(j-i) .EQ. 0)) ) THEN
@@ -290,8 +323,8 @@ PROGRAM main
      END IF
 
      ! update FLUENCE
-     FLUENCE = TIME*CR_FLUX
-!     FLUENCE = DBLE(NUMPROTONS)/AREA
+     !FLUENCE = TIME*CR_FLUX
+     FLUENCE = DBLE(NUMPROTONS)/AREA
 
      ! If event this loop is a collision...
      crarrive: IF ( (cr_arrival .EQV. .TRUE.) .OR. (FIX_FREQ .EQV. .TRUE. ) )THEN
@@ -303,13 +336,13 @@ PROGRAM main
 
         IF ( FIX_FREQ .EQV. .FALSE. ) THEN
            ! Set time_freq
-           IF ( FLUENCE .GT. 1.0d13 .AND. FLUENCE .LT. 1.0d14 ) THEN 
-              TIME_FREQ = 10 
-           ELSE IF ( FLUENCE .GT. 1.0d14 .AND. FLUENCE .LT. 1.0d15) THEN 
+           IF ( FLUENCE .GT. 1.0d13 .AND. FLUENCE .LT. 1.0d14 ) THEN
+              TIME_FREQ = 10
+           ELSE IF ( FLUENCE .GT. 1.0d14 .AND. FLUENCE .LT. 1.0d15) THEN
               TIME_FREQ = 100
-           ELSE IF ( FLUENCE .GT. 1.0d15 .AND. FLUENCE .LT. 1.0d16) THEN 
+           ELSE IF ( FLUENCE .GT. 1.0d15 .AND. FLUENCE .LT. 1.0d16) THEN
               TIME_FREQ = 1000
-           ELSE IF ( FLUENCE .GT. 1.0d16 ) THEN 
+           ELSE IF ( FLUENCE .GT. 1.0d16 ) THEN
               TIME_FREQ = 10000
            END IF
         END IF
