@@ -275,6 +275,35 @@ PROGRAM main
               END DO
            END IF
 
+           ! If there is still no co-reactant, look at "phantom" surrounding sites
+           phantom: DO n=1,4 ! Go to a phantom position
+              IF ( n .EQ. 1 ) THEN
+                 IF ( i(2)-1 .GT. 0           .AND. &
+                      i(3)-1 .GT. 0           .AND. &
+                      i(3)+1 .LE. dimens(3) ) THEN
+                    CALL hopping(i(1),i(2)-1,i(3)+1,i_re2,j_re2,k_re2,1)
+                 END IF
+              ELSE IF ( n .EQ. 2 ) THEN
+                 IF ( i(2)-1 .GT. 0           .AND. &
+                      i(3)-1 .GT. 0           .AND. &
+                      i(3)+1 .LE. dimens(3) ) THEN
+                    CALL hopping(i(1),i(2)-1,i(3)-1,i_re2,j_re2,k_re2,2)
+                 END IF
+              ELSE IF ( n .EQ. 3 ) THEN
+                 IF ( i(2)+1 .LE. dimens(2)    .AND. &
+                      i(3)-1 .GT. 0            .AND. &
+                      i(3)+1 .LE. dimens(3) ) THEN
+                    CALL hopping(i(1),i(2)+1,i(3)+1,i_re2,j_re2,k_re2,1)
+                 END IF
+              ELSE
+                 IF ( i(2)+1 .LE. dimens(2)    .AND. &
+                      i(3)-1 .GT. 0            .AND. &
+                      i(3)+1 .LE. dimens(3) ) THEN
+                    CALL hopping(i(1),i(2)+1,i(3)-1,i_re2,j_re2,k_re2,2)
+                 END IF
+              END IF
+           END DO phantom
+
            ! Call hopping to get new coords
            IF ( success .EQV. .FALSE. ) THEN
               CALL hopping(temp%coord1,temp%coord2,temp%coord3,&
