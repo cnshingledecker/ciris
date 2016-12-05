@@ -183,17 +183,17 @@ function cull(island)
     fitness_map = Dict()
     for filename in files
         try
-            file = split(fetchCat("$island/done/$filename"), "\n")
-            # get line of fitness score -- should be exactly 1
-            fitness = float(filter(join(line) -> contains(join(line), "FITNESS,"), file)[1][9:end])
-            push!(scores, fitness)
-            fitness_map[fitness] = filename
+          file = split(fetchCat("$island/done/$filename"), "\n")
+          # get line of fitness score -- should be exactly 1
+          fitness = float(filter(line -> contains(line, "FITNESS,"), file)[1][9:end])
+          push!(scores, fitness)
+          fitness_map[fitness] = filename
         catch error
-            if isa(error, BoundsError)
-                println("$filename is messed up: removing")
-                submitInput("rm -rf $filename")
-                println("Bad file removed...")
-            end
+          if isa(error, BoundsError)
+            println("$filename is messed up: removing")
+            submitInput("rm -rf $filename")
+            println("Bad file removed...")
+          end
         end
     end
     sort!(scores)
