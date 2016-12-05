@@ -142,12 +142,12 @@ MODULE parameters
   ! Switches
   !******************************************************************************
   LOGICAL         , PARAMETER :: FIXED_SIZE   = .FALSE.
-  LOGICAL         , PARAMETER :: NO_OUTPUT    = .FALSE.
-  LOGICAL         , PARAMETER :: QUIET        = .FALSE.
+  LOGICAL         , PARAMETER :: NO_OUTPUT    = .TRUE.
+  LOGICAL         , PARAMETER :: QUIET        = .TRUE.
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
-  LOGICAL         , PARAMETER :: O3_ANALYTICS = .TRUE.
+  LOGICAL         , PARAMETER :: O3_ANALYTICS = .FALSE.
   LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
   LOGICAL         , PARAMETER :: FIX_FREQ     = .FALSE.
   LOGICAL         , PARAMETER :: FAST_REACTS  = .TRUE.

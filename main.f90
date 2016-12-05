@@ -268,7 +268,8 @@ PROGRAM main
               DO n = 1,6
                  CALL hopping(temp%coord1,temp%coord2,temp%coord3,&
                       j(1),j(2),j(3),n)
-                 IF ( MATRIX(j(1),j(2),j(3))%sp_num .NE. 0 ) THEN
+                 IF ( (MATRIX(j(1),j(2),j(3))%sp_num .NE. 0 ) .AND. &
+                      (.NOT. ALL(ABS(i-j) .EQ. 0)) )THEN
                     success = .TRUE.
                     EXIT
                  END IF
@@ -276,57 +277,86 @@ PROGRAM main
            END IF
 
            ! If there is still no co-reactant, look at "phantom" surrounding sites
-           IF ( success .EQV. .FALSE. ) THEN
-              phantom: DO n=1,4 ! Go to a phantom position
-                 IF ( n .EQ. 1 ) THEN
+           IF ( (success .EQV. .FALSE.) .AND. &
+                (FAST_REACTS .EQV. .TRUE.) .AND. &
+                (temp%sp_num .EQ. ONUM) ) THEN
+              phantom: DO n=1,6 ! Go to a phantom position
+                SELECT CASE (n)
+                 CASE(1)
                     IF ( i(2)-1 .GT. 0           .AND. &
                          i(3)-1 .GT. 0           .AND. &
                          i(3)+1 .LE. dimens(3) ) THEN
                        DO m=1,6
                           CALL hopping(i(1),i(2)-1,i(3)+1,j(1),j(2),j(3),1)
-                          IF ( MATRIX(j(1),j(2),j(3))%sp_num .NE. 0 ) THEN
+                          IF ( (MATRIX(j(1),j(2),j(3))%sp_num .NE. 0) .AND. &
+                               (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
                              success = .TRUE.
                              EXIT
                           END IF
                        END DO
                     END IF
-                 ELSE IF ( n .EQ. 2 ) THEN
+                  CASE(2)
                     IF ( i(2)-1 .GT. 0           .AND. &
                          i(3)-1 .GT. 0           .AND. &
                          i(3)+1 .LE. dimens(3) ) THEN
                        DO m=1,6
                           CALL hopping(i(1),i(2)-1,i(3)-1,j(1),j(2),j(3),2)
-                          IF ( MATRIX(j(1),j(2),j(3))%sp_num .NE. 0 ) THEN
+                          IF ( (MATRIX(j(1),j(2),j(3))%sp_num .NE. 0 ) .AND. &
+                               (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
                              success = .TRUE.
                              EXIT
                           END IF
                        END DO
                     END IF
-                 ELSE IF ( n .EQ. 3 ) THEN
+                  CASE(3)
                     IF ( i(2)+1 .LE. dimens(2)    .AND. &
                          i(3)-1 .GT. 0            .AND. &
                          i(3)+1 .LE. dimens(3) ) THEN
                        DO m=1,6
                           CALL hopping(i(1),i(2)+1,i(3)+1,j(1),j(2),j(3),1)
-                          IF ( MATRIX(j(1),j(2),j(3))%sp_num .NE. 0 ) THEN
+                          IF ( (MATRIX(j(1),j(2),j(3))%sp_num .NE. 0 ) .AND. &
+                               (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
                              success = .TRUE.
                              EXIT
                           END IF
                        END DO
                     END IF
-                 ELSE
+                  CASE(4)
                     IF ( i(2)+1 .LE. dimens(2)    .AND. &
                          i(3)-1 .GT. 0            .AND. &
                          i(3)+1 .LE. dimens(3) ) THEN
                        DO m=1,6
                           CALL hopping(i(1),i(2)+1,i(3)-1,j(1),j(2),j(3),2)
-                          IF ( MATRIX(j(1),j(2),j(3))%sp_num .NE. 0 ) THEN
+                          IF ( (MATRIX(j(1),j(2),j(3))%sp_num .NE. 0 ) .AND. &
+                               (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
                              success = .TRUE.
                              EXIT
                           END IF
                        END DO
                     END IF
-                 END IF
+                  CASE(5)
+                    IF ( i(1)+1 .LE. dimens(1) ) THEN
+                       DO m=1,6
+                          CALL hopping(i(1)+1,i(2),i(3),j(1),j(2),j(3),2)
+                          IF ( (MATRIX(j(1),j(2),j(3))%sp_num .NE. 0 ) .AND. &
+                               (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
+                             success = .TRUE.
+                             EXIT
+                          END IF
+                       END DO
+                    END IF
+                  CASE(6)
+                    IF ( i(1)-1 .GT. 0 ) THEN
+                       DO m=1,6
+                          CALL hopping(i(1)-1,i(2),i(3),j(1),j(2),j(3),2)
+                          IF ( (MATRIX(j(1),j(2),j(3))%sp_num .NE. 0 ) .AND. &
+                               (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
+                             success = .TRUE.
+                             EXIT
+                          END IF
+                       END DO
+                    END IF
+                  END SELECT
                  IF ( success .EQV. .TRUE. ) EXIT
               END DO phantom
            END IF

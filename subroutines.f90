@@ -738,15 +738,15 @@ CONTAINS
        END IF
     ELSE
        ! Bulk species, only bulk diffusion
-       IF ( (MOD(temp%coord2,2) .EQ. 1) .AND. (MOD(temp%coord3,2) .EQ. 1) ) THEN
-          DO n=1,5
-             CALL hopping(temp%coord1,temp%coord2,temp%coord3,ix,iy,iz,n)
-             IF ( MATRIX(ix,iy,iz)%sp_num .NE. 0 ) el_tmp = el_tmp + 0.1*EN_LIST(MATRIX(ix,iy,iz)%sp_num)
-          END DO
-          b_3 = trl_nu*EXP( -1*((EN_LIST(temp%sp_num)*E_BULK + el_tmp)/ kin_temp ) )
-       ELSE
+!       IF ( (MOD(temp%coord2,2) .EQ. 1) .AND. (MOD(temp%coord3,2) .EQ. 1) ) THEN
+!          DO n=1,5
+!             CALL hopping(temp%coord1,temp%coord2,temp%coord3,ix,iy,iz,n)
+!             IF ( MATRIX(ix,iy,iz)%sp_num .NE. 0 ) el_tmp = el_tmp + 0.1*EN_LIST(MATRIX(ix,iy,iz)%sp_num)
+!          END DO
+!          b_3 = trl_nu*EXP( -1*((EN_LIST(temp%sp_num)*E_BULK + el_tmp)/ kin_temp ) )
+!       ELSE
           b_3 = trl_nu*EXP( -1*( EN_LIST(temp%sp_num)*E_BULK     / kin_temp ) )
-       END IF
+!       END IF
        b = b_3
        ! Only hopping (diffusion) can occur
        temp%act_type = 1

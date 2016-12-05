@@ -44,54 +44,6 @@ CONTAINS
                 ! O2+ + O2- -> O2 + O2
                 prods = (/ O2NUM, O2NUM, 0 /)
              END IF
-          ELSE IF ( r1 .EQ. 8 .AND. r2 .EQ. 6 .OR. r1 .EQ. 6 .AND. r2 .EQ. 8 ) THEN
-             IF ( rnum .LE. O2_DISPROB ) THEN
-                ! O- + O3+ -> O2* + O2 -> O + O + O2
-                prods = (/ ONUM, ONUM, O2NUM /)
-             ELSE
-                ! O- + O3+ -> O2 + O2
-                prods = (/ O2NUM, O2NUM, 0 /)
-             END IF
-          ELSE IF ( r1 .EQ. 9 .AND. r2 .EQ. 5 .OR. r1 .EQ. 5 .AND. r2 .EQ. 9 ) THEN
-             IF ( rnum .LE. O2_DISPROB ) THEN
-                ! O3- + O+ -> O2* + O2 -> O + O + O2
-                prods = (/ ONUM, ONUM, O2NUM /)
-             ELSE
-                ! O3- + O+ -> O2 + O2
-                prods = (/ O2NUM, O2NUM, 0 /)
-             END IF
-          ELSE IF ( r1 .EQ. 5 .AND. r2 .EQ. 6 .OR. r1 .EQ. 6 .AND. r2 .EQ. 5 ) THEN
-             IF ( rnum .LE. O2_DISPROB ) THEN
-                ! O+ + O- -> O2* -> O + O
-                prods = (/ ONUM, ONUM, 0 /)
-             ELSE
-                ! O+ + O- -> O2
-                prods = (/ O2NUM, 0, 0 /)
-             END IF
-          ELSE IF ( r1 .EQ. 8 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 8 ) THEN
-             IF ( rnum .LE. O3_DISPROB ) THEN
-                ! O3+ + O2- -> O3* + O2 -> O + O2 + O2
-                prods = (/ ONUM, O2NUM, O2NUM /)
-             ELSE
-                ! O3+ + O2- -> O3 + O + O
-                prods = (/ O3NUM, O2NUM, 0 /)
-             END IF
-          ELSE IF ( r1 .EQ. 9 .AND. r2 .EQ. 2 .OR. r1 .EQ. 2 .AND. r2 .EQ. 9 ) THEN
-             IF ( rnum .LE. O3_DISPROB ) THEN
-                ! O3- + O2+ -> O3* + O2 -> O + O2 + O2
-                prods = (/ ONUM, O2NUM, O2NUM /)
-             ELSE
-                ! O3- + O2+ -> O3 + O + O
-                prods = (/ O3NUM, O2NUM, 0 /)
-             END IF
-          ELSE IF ( r1 .EQ. 9 .AND. r2 .EQ. 8 .OR. r1 .EQ. 8 .AND. r2 .EQ. 9 ) THEN
-             IF ( rnum .LE. O3_DISPROB ) THEN
-                ! O3- + O2+ -> O3* + O2 -> O + O2 + O2
-                prods = (/ ONUM, O2NUM, O3NUM /)
-             ELSE
-                ! O3- + O2+ -> O3 + O + O
-                prods = (/ O3NUM, O3NUM, 0 /)
-             END IF
           ELSE IF ( r1 .EQ. 2 .AND. r2 .EQ. ELECNUM .OR. r1 .EQ. ELECNUM .AND. r2 .EQ. 2 ) THEN
              IF ( rnum .LE. O2_DISPROB ) THEN
                 ! e + O2+ -> O2* -> O + O
@@ -99,14 +51,6 @@ CONTAINS
              ELSE
                 ! e + O2+ -> O2
                 prods = (/ O2NUM, 0, 0 /)
-             END IF
-          ELSE IF ( r1 .EQ. 8 .AND. r2 .EQ. ELECNUM .OR. r1 .EQ. ELECNUM .AND. r2 .EQ. 8 ) THEN
-             IF ( rnum .LE. O2_DISPROB ) THEN
-                ! e + O3+ -> O3* -> O2 + O
-                prods = (/ O2NUM, ONUM, 0 /)
-             ELSE
-                ! e + O3+ -> O3
-                prods = (/ O3NUM, 0, 0 /)
              END IF
           END IF branchcond
 
