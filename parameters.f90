@@ -155,9 +155,9 @@ MODULE parameters
   !******************************************************************************
   ! Fitting parameters
   !******************************************************************************
-  DOUBLE PRECISION :: O2_DISPROB   = 0      ! O2 dissociation probability
-  DOUBLE PRECISION :: O3_DISPROB   = 0      ! O3 dissociation probability
-  DOUBLE PRECISION :: AVAL         = 15     ! Parameter for Gamma distribution
+  DOUBLE PRECISION :: O2_DISPROB   = 1.0d0      ! O2 dissociation probability
+  DOUBLE PRECISION :: O3_DISPROB   = 1.0d0      ! O3 dissociation probability
+  DOUBLE PRECISION :: AVAL         = 15.0d0     ! Parameter for Gamma distribution
 
 CONTAINS
   SUBROUTINE initconstants ()
@@ -182,10 +182,10 @@ CONTAINS
           CONTINUE
        CASE ("O3")
           CONTINUE
-       CASE ("O2_DISPROB")
-          READ(val, *) O2_DISPROB
-       CASE ("O3_DISPROB")
-          READ(val, *) O3_DISPROB
+!       CASE ("O2_DISPROB")
+!          READ(val, *) O2_DISPROB
+!       CASE ("O3_DISPROB")
+!          READ(val, *) O3_DISPROB
        CASE ("AVAL")
           READ(val, *) AVAL
        CASE DEFAULT
