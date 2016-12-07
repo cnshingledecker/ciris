@@ -2,23 +2,28 @@ PROGRAM newnet
   USE newmod
   IMPLICIT NONE
   ! Input and output
-  TYPE(species) , POINTER          :: sp_root, sp_temp, sp_temp2
-  TYPE(reaction), POINTER          :: re_root, re_temp
+  TYPE(species) , POINTER          :: sp_head, sp_tail, sp_temp
+  TYPE(reaction), POINTER          :: re_head, re_tail
   INTEGER                          :: ierror1, ierror2
   INTEGER                          :: n
   INTEGER                          :: i_count
-  CHARACTER(LEN=10)                :: tempName
+  INTEGER                          :: rtype
+  CHARACTER(LEN=10)                :: tempName,r1,r2,p1,p2,p3
   CHARACTER(LEN=10)                :: line
+  DOUBLE PRECISION                 :: e_d
+  DOUBLE PRECISION                 :: arrh_alpha,arrh_beta,arrh_gamma
+
 
   INTEGER :: NUM_SPECIES, NUM_REACTS
   INTEGER :: CRPNUM, EXCNUM, ELECNUM, SPECIAL_LIST(3)
   INTEGER, ALLOCATABLE :: IONLIST(:)
+  NUM_SPECIES = 0
+  NUM_REACTS = 0
+
 
   ! Open files
   OPEN(UNIT=1,FILE="species.dat"  ,STATUS='OLD',ACTION='READ',IOSTAT=ierror1)
   OPEN(UNIT=2,FILE="reactions.dat",STATUS='OLD',ACTION='READ',IOSTAT=ierror2)
-  ALLOCATE(sp_root,sp_temp,sp_temp2)
-  ALLOCATE(re_root,re_temp)
 
   fileopen: IF ( ierror1 .EQ. 0 .AND. ierror2 .EQ. 0 ) THEN
 
@@ -34,28 +39,38 @@ PROGRAM newnet
            NUM_SPECIES = NUM_SPECIES + 1
            BACKSPACE(UNIT=1,IOSTAT=ierror1)
            ! Re-read line and save values to appropriate data-structure elements
-           READ(1,*,IOSTAT=ierror1) sp_temp%name, sp_temp%e_d
-           sp_temp%ion = .FALSE.
-           sp_temp%special = .FALSE.
-           sp_temp%id = NUM_SPECIES
-           CALL add_species(sp_root,sp_temp)
-           tempName = TRIM(sp_temp%name)
+           READ(1,*,IOSTAT=ierror1) tempName,e_d
+           addspecies: IF ( .NOT. ASSOCIATED(sp_head)) THEN
+              ALLOCATE(sp_head)
+              sp_tail => sp_head
+              NULLIFY(sp_tail%next)
+           ELSE
+              ALLOCATE(sp_tail%next)
+              sp_tail => sp_tail%next
+              NULLIFY(sp_tail%next)
+           END IF addspecies
+           sp_tail%name = tempName
+           sp_tail%e_d = e_d
+           sp_tail%ion = .FALSE.
+           sp_tail%special = .FALSE.
+           sp_tail%id = NUM_SPECIES
+           tempName = TRIM(sp_tail%name)
            ! Tally up the total number of anions, cations, and special species
            specialion: IF ( (tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .EQ. '-') &
                 .OR. (tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .EQ. '+')) THEN
               IF ( tempName(1:1) .NE. '*') THEN
-                 sp_temp%ion = .TRUE.
+                 sp_tail%ion = .TRUE.
                  i_count = i_count + 1
               END IF
            ELSE IF  (tempName .EQ. "CRP") THEN
               CRPNUM = NUM_SPECIES
-              sp_temp%special = .TRUE.
+              sp_tail%special = .TRUE.
            ELSE IF (tempName .EQ. "e") THEN
               ELECNUM = NUM_SPECIES
-              sp_temp%special = .TRUE.
+              sp_tail%special = .TRUE.
            ELSE IF (tempName .EQ. "*") THEN
               EXCNUM = NUM_SPECIES
-              sp_temp%special = .TRUE.
+              sp_tail%special = .TRUE.
            END IF specialion
         ELSE
            CONTINUE
@@ -66,21 +81,15 @@ PROGRAM newnet
      ALLOCATE(IONLIST(i_count))
 
 
-     sp_temp => sp_root
+     sp_temp => sp_head
      n = 0
      popions: DO
+        IF ( .NOT. ASSOCIATED(sp_temp%next)) EXIT
         IF ( sp_temp%ion .EQV. .TRUE. ) THEN
            n = n + 1
            IONLIST(n) = sp_temp%id
-           IF ( ASSOCIATED(sp_temp%next) ) THEN
-              sp_temp2 => sp_temp%next
-              sp_temp => sp_temp2
-           ELSE
-              PRINT *, "ERROR! END OF THE LINE FOR SPECIES LIST"
-              CALL EXIT()
-           END IF
         END IF
-        IF ( n .EQ. i_count ) EXIT
+        sp_temp => sp_temp%next
      END DO popions
 
      ! Read the contents of the reactions file and make the reactionCube
@@ -93,22 +102,30 @@ PROGRAM newnet
            ! Rewind one line and re-read
            BACKSPACE (UNIT=2,IOSTAT=ierror2)
            ! Read in variables
-           READ(2,*,IOSTAT=ierror2) &
-                re_temp%r1, &
-                re_temp%r2, &
-                re_temp%p1, &
-                re_temp%p2, &
-                re_temp%p3, &
-                re_temp%arrh_alpha, &
-                re_temp%arrh_beta , &
-                re_temp%arrh_gamma, &
-                re_temp%rtype
+           READ(2,*,IOSTAT=ierror2) r1,r2,p1,p2,p3,arrh_alpha,arrh_beta,arrh_gamma,rtype
+           addreact: IF ( .NOT. ASSOCIATED(re_head)) THEN
+              ALLOCATE(re_head)
+              re_tail => re_head
+              NULLIFY(re_tail%next)
+           ELSE
+              ALLOCATE(re_tail%next)
+              re_tail => re_tail%next
+           END IF addreact
+           re_tail%r1 = r1
+           re_tail%r2 = r2
+           re_tail%p1 = p1
+           re_tail%p2 = p2
+           re_tail%p3 = p3
+           re_tail%arrh_alpha = arrh_alpha
+           re_tail%arrh_beta = arrh_beta
+           re_tail%arrh_gamma = arrh_gamma
+           re_tail%rtype = rtype
            ! Get integer identities of species
-           CALL lookup(re_temp%r1,sp_root,re_temp%nr1)
-           CALL lookup(re_temp%r2,sp_root,re_temp%nr2)
-           CALL lookup(re_temp%p1,sp_root,re_temp%np1)
-           IF ( TRIM(re_temp%p2) .NE. "0" ) CALL lookup(re_temp%p2,sp_root,re_temp%np2)
-           IF ( TRIM(re_temp%p3) .NE. "0" ) CALL lookup(re_temp%p3,sp_root,re_temp%np3)
+           CALL lookup(re_tail%r1,sp_head,re_tail%nr1)
+           CALL lookup(re_tail%r2,sp_head,re_tail%nr2)
+           CALL lookup(re_tail%p1,sp_head,re_tail%np1)
+           IF ( TRIM(re_tail%p2) .NE. "0" ) CALL lookup(re_tail%p2,sp_head,re_tail%np2)
+           IF ( TRIM(re_tail%p3) .NE. "0" ) CALL lookup(re_tail%p3,sp_head,re_tail%np3)
         ELSE
            CONTINUE
         END IF
@@ -122,5 +139,8 @@ PROGRAM newnet
         PRINT *, 'Could not open: reactions_file'
      END IF
   END IF fileopen
-END PROGRAM newnet
 
+  PRINT *, "There are",NUM_SPECIES,"species"
+  PRINT *, "There are",NUM_REACTS,"reactions"
+  PRINT *, "There are",i_count,"ions"
+END PROGRAM newnet

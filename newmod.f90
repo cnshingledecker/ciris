@@ -29,36 +29,6 @@ MODULE newmod
   END TYPE reaction
 
 CONTAINS
-  RECURSIVE SUBROUTINE add_species(root,temp)
-    IMPLICIT NONE
-    TYPE(species), POINTER :: root, temp
-
-    IF ( .NOT. ASSOCIATED(root) ) THEN
-       root => temp
-    ElSE
-       IF ( .NOT. ASSOCIATED(root%next)) THEN
-          root%next => temp
-       ELSE
-          CALL add_species(root%next,temp)
-       END IF
-    END IF
-  END SUBROUTINE add_species
-
-  RECURSIVE SUBROUTINE add_reaction(root,temp)
-    IMPLICIT NONE
-    TYPE(reaction), POINTER :: root, temp
-
-    IF ( .NOT. ASSOCIATED(root) ) THEN
-       root => temp
-    ElSE
-       IF ( .NOT. ASSOCIATED(root%next)) THEN
-          root%next => temp
-       ELSE
-          CALL add_reaction(root%next,temp)
-       END IF
-    END IF
-  END SUBROUTINE add_reaction
-
   RECURSIVE SUBROUTINE lookup(name,node,id)
     !
     ! Purpose:
