@@ -3,16 +3,18 @@ MODULE branchmod
   USE typedefs
   USE functiondefs
 CONTAINS
-  FUNCTION branching(r1,r2,pr)
+  FUNCTION branching(reactant1,reactant2,pr)
     ! On first call, ultimately populate global PRODS array with three values,
     ! chosen based on the reaction selected. If there is more than one pathway,
     ! choose one based on it's relative rate-coefficient, if available, or equal
     ! weight statistical probability if not.
+    USE typedefs
     IMPLICIT NONE
+    INTEGER :: n
     INTEGER :: branching
-    INTEGER :: r1,r2,pr ! Indices of the reaction look-up-table
+    INTEGER :: reactant1,reactant2,pr ! Indices of the reaction look-up-table
     INTEGER :: prods(3)
-    INTEGER :: reaction(5)
+    INTEGER :: reactionid(5)
     REAL    :: rnum
     CHARACTER(80) :: varfmt
     TYPE(reaction), POINTER :: re_temp
@@ -20,8 +22,10 @@ CONTAINS
     DOUBLE PRECISION :: val1, val2
     DOUBLE PRECISION :: prob1, prob2
     DOUBLE PRECISION :: barrier
+    double precision :: rand
+    double precision :: e_d
 
-    reaction = 0
+    reactionid = 0
     varfmt = "(5I10,ES15.4)"
 
     firstcall: IF ( pr .EQ. 1 ) THEN
@@ -44,13 +48,13 @@ CONTAINS
           pathways(n)%rtype = 0
        END DO initpaths
 
-       ! 1. Go through list of reactions and find all between r1 and r2
+       ! 1. Go through list of reactions and find all between reactant1 and r2
        re_temp => RE_HEAD
        n = 0
        getpaths: DO
           IF ( .NOT. ASSOCIATED(re_temp%next)) EXIT
-          IF ( ((re_temp%nr1 .EQ. r1) .AND. (re_temp%nr2 .EQ. r2)) .OR. &
-               ((re_temp%nr1 .EQ. r2) .AND. (re_temp%nr2 .EQ. r1)) ) THEN
+          IF ( ((re_temp%nr1 .EQ. reactant1) .AND. (re_temp%nr2 .EQ. reactant2)) .OR. &
+               ((re_temp%nr1 .EQ. reactant2) .AND. (re_temp%nr2 .EQ. reactant1)) ) THEN
              n = n + 1
              pathways(n)%nr1 = re_temp%nr1
              pathways(n)%nr2 = re_temp%nr2
@@ -119,21 +123,21 @@ CONTAINS
 
           ! 5. Populate PRODS array with result
           IF ( rand .LE. prob1 ) THEN
-             PRODS(1) = pathways(1)%p1
-             PRODS(2) = pathways(1)%p2
-             PRODS(3) = pathways(1)%p3
+             PRODS(1) = pathways(1)%np1
+             PRODS(2) = pathways(1)%np2
+             PRODS(3) = pathways(1)%np3
              barrier  = pathways(1)%arrh_gamma
           ELSE
-             PRODS(1) = pathways(2)%p1
-             PRODS(2) = pathways(2)%p2
-             PRODS(3) = pathways(2)%p3
-             barrier  = pathways(2)
+             PRODS(1) = pathways(2)%np1
+             PRODS(2) = pathways(2)%np2
+             PRODS(3) = pathways(2)%np3
+             barrier  = pathways(2)%arrh_gamma
           END IF
        END IF onepath
 
        ! 6. If there is a barrier to the selected pathway, engage the competition mechanism
        !    to determine if the reaction proceeds or the hopping species diffuses away
-       e_d = E_BULK*EN_LIST(r1)
+       e_d = E_BULK*EN_LIST(reactant1)
        prob1 = e_d/(e_d+barrier)
        prob2 = barrier/(e_d+barrier)
        CALL RANDOM_NUMBER(rand)
@@ -144,21 +148,21 @@ CONTAINS
        END IF
     END IF firstcall
 
-    reaction(1) = r1
-    reaction(2) = r2
-    reaction(3:5) = PRODS
+    reactionid(1) = reactant1
+    reactionid(2) = reactant2
+    reactionid(3:5) = PRODS
     ! If checking reactions, print out reactants and products
     o3check: IF ( (O3_ANALYTICS .EQV. .TRUE.) ) THEN
-       IF ( ANY(reaction .EQ. O3NUM) ) THEN
+       IF ( ANY(reactionid .EQ. O3NUM) ) THEN
           IF ( SUM(PRODS) .GT. 0 ) THEN
              OPEN(FILE="ozone_reactions.wsv", &
                   UNIT=REACTIONS_UNIT_NUM, &
                   STATUS="UNKNOWN", &
                   POSITION="APPEND")
-             IF ( r1 .LE. r2 ) THEN
-                WRITE(REACTIONS_UNIT_NUM,varfmt) r1,r2,PRODS(1),PRODS(2),PRODS(3),FLUENCE
+             IF ( reactant1 .LE. reactant2 ) THEN
+                WRITE(REACTIONS_UNIT_NUM,varfmt) reactant1,reactant2,PRODS(1),PRODS(2),PRODS(3),FLUENCE
              ELSE
-                WRITE(REACTIONS_UNIT_NUM,varfmt) r2,r1,PRODS(1),PRODS(2),PRODS(3),FLUENCE
+                WRITE(REACTIONS_UNIT_NUM,varfmt) reactant2,reactant1,PRODS(1),PRODS(2),PRODS(3),FLUENCE
              END IF
              CLOSE(REACTIONS_UNIT_NUM)
           END IF

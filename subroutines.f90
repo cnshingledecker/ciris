@@ -10,35 +10,33 @@ CONTAINS
   ! *********************************************************
   ! ******* SUBROUTINES *************************************
   ! *********************************************************
-  SUBROUTINE linecount(unitnum, errcode, lines, header_num)
+  RECURSIVE SUBROUTINE lookup(name,node,id)
     !
     ! Purpose:
-    !   This subroutine simply counts the number of lines in a file.
+    !   This is a subroutine that compares a string value to values
+    !  in a list and gives the index of a matching result and an
+    !  error if there is no match.
     !
-    !! LINECOUNT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !! LOOKUP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
-    !*****************
-    ! Input and output
-    !*****************
-    INTEGER            , INTENT(IN)  :: unitnum
-    INTEGER            , INTENT(OUT) :: errcode
-    INTEGER, INTENT(OUT) :: lines
-    INTEGER              :: adv
-    CHARACTER(LEN=100)               :: line
-    INTEGER                          :: header_num
+    INTEGER            :: id
+    CHARACTER(len=10)  :: name
+    TYPE(species) :: node
 
-    adv = 1
-    lines = 0
-    header_num = 0
-    DO
-       READ(unitnum,*,IOSTAT=errcode) line
-       !        PRINT *, line
-       IF ( errcode .NE. 0 ) EXIT
-       IF ( line(1:1) .EQ. '!' ) header_num = header_num + 1
-       lines = lines + adv
-    END DO
-    REWIND(unitnum)
-  END SUBROUTINE linecount
+    IF ( TRIM(name) .EQ. TRIM(node%name) ) THEN
+       id = node%id
+       RETURN
+    ELSE
+       IF ( ASSOCIATED(node%next)) THEN
+          CALL lookup(name,node%next,id)
+       ELSE
+          id = -1
+          PRINT *, "ERROR! No match!"
+          CALL EXIT()
+       END IF
+    END IF
+    RETURN
+  END SUBROUTINE lookup
 
   SUBROUTINE hopping ( i_in, j_in, k_in, i_out, j_out, k_out, prob )
     !
@@ -705,15 +703,15 @@ CONTAINS
        END IF
     ELSE
        ! Bulk species, only bulk diffusion
-!       IF ( (MOD(temp%coord2,2) .EQ. 1) .AND. (MOD(temp%coord3,2) .EQ. 1) ) THEN
-!          DO n=1,5
-!             CALL hopping(temp%coord1,temp%coord2,temp%coord3,ix,iy,iz,n)
-!             IF ( MATRIX(ix,iy,iz)%sp_num .NE. 0 ) el_tmp = el_tmp + 0.1*EN_LIST(MATRIX(ix,iy,iz)%sp_num)
-!          END DO
-!          b_3 = trl_nu*EXP( -1*((EN_LIST(temp%sp_num)*E_BULK + el_tmp)/ kin_temp ) )
-!       ELSE
-          b_3 = trl_nu*EXP( -1*( EN_LIST(temp%sp_num)*E_BULK     / kin_temp ) )
-!       END IF
+       !       IF ( (MOD(temp%coord2,2) .EQ. 1) .AND. (MOD(temp%coord3,2) .EQ. 1) ) THEN
+       !          DO n=1,5
+       !             CALL hopping(temp%coord1,temp%coord2,temp%coord3,ix,iy,iz,n)
+       !             IF ( MATRIX(ix,iy,iz)%sp_num .NE. 0 ) el_tmp = el_tmp + 0.1*EN_LIST(MATRIX(ix,iy,iz)%sp_num)
+       !          END DO
+       !          b_3 = trl_nu*EXP( -1*((EN_LIST(temp%sp_num)*E_BULK + el_tmp)/ kin_temp ) )
+       !       ELSE
+       b_3 = trl_nu*EXP( -1*( EN_LIST(temp%sp_num)*E_BULK     / kin_temp ) )
+       !       END IF
        b = b_3
        ! Only hopping (diffusion) can occur
        temp%act_type = 1
@@ -1627,7 +1625,7 @@ CONTAINS
        IF ( (error .EQ. 1) .AND. (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
           ! If there are no empty sites around i, and i!=j, try j
           error = 0
-         CALL find_empty_site(j,pr_coords,error)
+          CALL find_empty_site(j,pr_coords,error)
           IF ( error .EQ. 1 ) THEN
              ! If there are no empty sites around either i or j, quit...
              PRINT *, "Unable to find a site for the third product!"
@@ -1840,41 +1838,41 @@ CONTAINS
     ! Once the electron has fallen below the energy threshold, make
     ! Call transport until a non-vacant site is found
     DO n=1,6
-      CALL hopping(curr(1),curr(2),curr(3),next(1),next(2),next(3),n)
-      hopCoords(n,:) = next
-      temp => MATRIX(next(1),next(2),next(3))
-      ! Test to make sure that the species isn't some other electron's cation
-      IF ( (temp%sp_num .NE. 0) .AND. &
-           (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
-         vacant = .FALSE.
-         EXIT
-      END IF
+       CALL hopping(curr(1),curr(2),curr(3),next(1),next(2),next(3),n)
+       hopCoords(n,:) = next
+       temp => MATRIX(next(1),next(2),next(3))
+       ! Test to make sure that the species isn't some other electron's cation
+       IF ( (temp%sp_num .NE. 0) .AND. &
+            (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
+          vacant = .FALSE.
+          EXIT
+       END IF
     END DO
 
     ! If no site has been found, expand the search region
     IF ( vacant .EQV. .TRUE. ) THEN
-      DO n=1,6
-        prev = hopCoords(n,:)
-        DO m=1,6
-          CALL hopping(prev(1),prev(2),prev(3),next(1),next(2),next(3),m)
-          temp => MATRIX(next(1),next(2),next(3))
-          ! Test to make sure that the species isn't some other electron's cation
-          IF ( (temp%sp_num .NE. 0) .AND. &
-               (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
-             vacant = .FALSE.
-             EXIT
-          END IF
-        END DO
-        IF ( vacant .EQV. .FALSE. ) EXIT
-      END DO
+       DO n=1,6
+          prev = hopCoords(n,:)
+          DO m=1,6
+             CALL hopping(prev(1),prev(2),prev(3),next(1),next(2),next(3),m)
+             temp => MATRIX(next(1),next(2),next(3))
+             ! Test to make sure that the species isn't some other electron's cation
+             IF ( (temp%sp_num .NE. 0) .AND. &
+                  (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
+                vacant = .FALSE.
+                EXIT
+             END IF
+          END DO
+          IF ( vacant .EQV. .FALSE. ) EXIT
+       END DO
     END IF
 
     ! IF still no occupied site has been found, have electron react with parent
     IF ( vacant .EQV. .TRUE. ) THEN
-      react_with_parent = .TRUE.
-      next = se_box%parent_coords
-      temp => MATRIX(next(1),next(2),next(3))
-      temp%sec_sp_num = ELECNUM
+       react_with_parent = .TRUE.
+       next = se_box%parent_coords
+       temp => MATRIX(next(1),next(2),next(3))
+       temp%sec_sp_num = ELECNUM
     END IF
 
     ! Form anion, if a suitable target was found

@@ -142,19 +142,17 @@ CONTAINS
 
     ! Go through species linked list and build global array, while de-allocating
     ! linked list memory
-    DOUBLE PRECISION , ALLOCATABLE         :: EN_LIST(:)
-    CHARACTER(LEN=10), ALLOCATABLE         :: SP_LIST(:)
     ALLOCATE(EN_LIST(NUM_SPECIES))
     ALLOCATE(SP_LIST(NUM_SPECIES))
-    sp_tail => sp_head
     DO
-       if ( .not. allocated(sp_tail%next)) exit
-       n = sp_tail%id
-       EN_LIST(n) = sp_tail%e_d
-       SP_LIST(n) = n
+       sp_temp => sp_head
+       n = sp_temp%id
+       EN_LIST(n) = sp_temp%e_d
+       SP_LIST(n) = sp_temp%name
+       if ( .not. associated(sp_temp%next)) exit
+       sp_tail => sp_temp%next
        NULLIFY(sp_head)
-       sp_head => sp_temp
-       sp_temp => sp_temp%next
+       sp_head => sp_tail
     end do
   END SUBROUTINE buildnetwork
 END MODULE readinput
