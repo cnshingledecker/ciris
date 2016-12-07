@@ -10,39 +10,6 @@ CONTAINS
   ! *********************************************************
   ! ******* SUBROUTINES *************************************
   ! *********************************************************
-  SUBROUTINE lookup(string, nlines, array, n)
-    !
-    ! Purpose:
-    !   This is a subroutine that compares a string value to values
-    !  in a list and gives the index of a matching result and an
-    !  error if there is no match.
-    !
-    !! LOOKUP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    IMPLICIT NONE
-    !*****************
-    ! Input and output
-    !*****************
-    INTEGER            , INTENT(IN)                    :: nlines
-    INTEGER            , INTENT(OUT)                   :: n
-    CHARACTER(*)       , INTENT(IN)                    :: string
-    CHARACTER(len=10)  , INTENT(IN), DIMENSION(nlines) :: array
-    !****************
-    ! Local variables
-    !****************
-    INTEGER                                :: i
-    CHARACTER(len=10)              , DIMENSION(1)      :: string_arr
-
-    ! Go through the array and compare the supplied string with the
-    ! strings in the array
-    n = 0
-    string_arr = (/ string /)
-    DO i=1,nlines
-       IF ( TRIM(string_arr(1)) .EQ. TRIM(array(i)) )THEN
-          n=i
-       END IF
-    END DO
-  END SUBROUTINE lookup
-
   SUBROUTINE linecount(unitnum, errcode, lines, header_num)
     !
     ! Purpose:
