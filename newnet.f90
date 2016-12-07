@@ -1,92 +1,6 @@
 PROGRAM newnet
+  USE newmod
   IMPLICIT NONE
-
-  RECURSIVE SUBROUTINE add_species(root,temp)
-    IMPLICIT NONE
-    TYPE(species), POINTER :: root, temp
-
-    IF ( .NOT. ASSOCIATED(root) ) THEN
-       root => temp
-    ElSE
-       IF ( .NOT. ASSOCIATED(root%next)) THEN
-          root%next => temp
-       ELSE
-          CALL add_species(root%next,temp)
-       END IF
-    END IF
-  END SUBROUTINE add_species
-
-  RECURSIVE SUBROUTINE add_reaction(root,temp)
-    IMPLICIT NONE
-    TYPE(reaction), POINTER :: root, temp
-
-    IF ( .NOT. ASSOCIATED(root) ) THEN
-       root => temp
-    ElSE
-       IF ( .NOT. ASSOCIATED(root%next)) THEN
-          root%next => temp
-       ELSE
-          CALL add_reaction(root%next,temp)
-       END IF
-    END IF
-  END SUBROUTINE add_reaction
-
-  RECURSIVE FUNCTION lookup(name,node)
-    !
-    ! Purpose:
-    !   This is a subroutine that compares a string value to values
-    !  in a list and gives the index of a matching result and an
-    !  error if there is no match.
-    !
-    !! LOOKUP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    IMPLICIT NONE
-    INTEGER            :: lookup
-    CHARACTER(len=10)  :: name
-    TYPE(species) :: node
-
-    IF ( TRIM(name) .EQ. TRIM(node%name) ) THEN
-       lookup = node%id
-       RETURN
-    ELSE
-       IF ( ASSOCIATED(node%next)) THEN
-          CALL lookup(name,node%next)
-       ELSE
-          lookup = -1
-          PRINT *, "ERROR! No match!"
-          CALL EXIT()
-       END IF
-    END IF
-    RETURN
-  END FUNCTION lookup
-
-
-  TYPE species
-     CHARACTER(len=10) :: name
-     INTEGER :: id
-     DOUBLE PRECISION :: e_d
-     LOGICAL :: ion
-     LOGICAL :: special
-     TYPE(species), POINTER :: next
-  END TYPE species
-
-  TYPE reaction
-     CHARACTER(len=10) :: r1
-     CHARACTER(len=10) :: r2
-     CHARACTER(len=10) :: p1
-     CHARACTER(len=10) :: p2
-     CHARACTER(len=10) :: p3
-     INTEGER :: nr1
-     INTEGER :: nr2
-     INTEGER :: np1
-     INTEGER :: np2
-     INTEGER :: np3
-     DOUBLE PRECISION :: arrh_alpha
-     DOUBLE PRECISION :: arrh_beta
-     DOUBLE PRECISION :: arrh_gamma
-     INTEGER :: rtype
-     TYPE(reaction), POINTER :: next
-  END TYPE reaction
-
   ! Input and output
   TYPE(species) , POINTER          :: sp_root, sp_temp, sp_temp2
   TYPE(reaction), POINTER          :: re_root, re_temp
@@ -96,6 +10,7 @@ PROGRAM newnet
   CHARACTER(LEN=10)                :: tempName
   CHARACTER(LEN=10)                :: line
 
+  INTEGER :: NUM_SPECIES, NUM_REACTS
   INTEGER :: CRPNUM, EXCNUM, ELECNUM, SPECIAL_LIST(3)
   INTEGER, ALLOCATABLE :: IONLIST(:)
 
@@ -121,7 +36,7 @@ PROGRAM newnet
            ! Re-read line and save values to appropriate data-structure elements
            READ(1,*,IOSTAT=ierror1) sp_temp%name, sp_temp%e_d
            sp_temp%ion = .FALSE.
-           sp_temp%species = .FALSE.
+           sp_temp%special = .FALSE.
            sp_temp%id = NUM_SPECIES
            CALL add_species(sp_root,sp_temp)
            tempName = TRIM(sp_temp%name)
@@ -132,7 +47,7 @@ PROGRAM newnet
                  sp_temp%ion = .TRUE.
                  i_count = i_count + 1
               END IF
-           ELSE IF  (tempName = "CRP") THEN
+           ELSE IF  (tempName .EQ. "CRP") THEN
               CRPNUM = NUM_SPECIES
               sp_temp%special = .TRUE.
            ELSE IF (tempName .EQ. "e") THEN
@@ -156,7 +71,7 @@ PROGRAM newnet
      popions: DO
         IF ( sp_temp%ion .EQV. .TRUE. ) THEN
            n = n + 1
-           IONLIST(n) = id
+           IONLIST(n) = sp_temp%id
            IF ( ASSOCIATED(sp_temp%next) ) THEN
               sp_temp2 => sp_temp%next
               sp_temp => sp_temp2
@@ -189,11 +104,11 @@ PROGRAM newnet
                 re_temp%arrh_gamma, &
                 re_temp%rtype
            ! Get integer identities of species
-           re_temp%nr1 =  lookup(re_temp%r1,sp_root)
-           re_temp%nr2 =  lookup(re_temp%r2,sp_root)
-           re_temp%np1 =  lookup(re_temp%p1,sp_root)
-           IF ( TRIM(re_temp%p2) .NE. "0" ) re_temp%np2 = lookup(re_temp%p2,sp_root)
-           IF ( TRIM(re_temp%p3) .NE. "0" ) re_temp%np3 = lookup(re_temp%p3,sp_root)
+           CALL lookup(re_temp%r1,sp_root,re_temp%nr1)
+           CALL lookup(re_temp%r2,sp_root,re_temp%nr2)
+           CALL lookup(re_temp%p1,sp_root,re_temp%np1)
+           IF ( TRIM(re_temp%p2) .NE. "0" ) CALL lookup(re_temp%p2,sp_root,re_temp%np2)
+           IF ( TRIM(re_temp%p3) .NE. "0" ) CALL lookup(re_temp%p3,sp_root,re_temp%np3)
         ELSE
            CONTINUE
         END IF
@@ -202,9 +117,9 @@ PROGRAM newnet
      IF ( ierror1 .NE. 0 .AND. ierror2 .NE. 0 ) THEN
         PRINT *, 'Could not open any of the input files'
      ELSE IF ( ierror1 .NE. 0 .AND. ierror2 .EQ. 0 ) THEN
-        PRINT *, 'Could not open: ', species_file
+        PRINT *, 'Could not open: species_file'
      ELSE
-        PRINT *, 'Could not open: ', reactions_file
+        PRINT *, 'Could not open: reactions_file'
      END IF
   END IF fileopen
 END PROGRAM newnet
