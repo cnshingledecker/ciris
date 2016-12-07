@@ -11,9 +11,11 @@
 O   , CRP , O+  , e  , 0 , 1.0000d+00, +0.0000d+00, 0.0000d+00, 5, Shingledecker&Herbst2017 
 O2  , CRP , O2+ , e  , 0 , 1.0000d+00, +0,0000d+00, 0.0000d+00, 5, Fueki&Magee1963  
 O3  , CRP , O3+ , e  , 0 , 1.0000d+00, +0.0000d+00, 0.0000d+00, 5, Shingledecker&Herbst2017  
-O2  , *   , O2* , 0  , 0 , 1.0000d+00, +0.0000d+00, 0.0000d+00, 8, Fueki&Magee1963 
-O3  , *   , O3* , 0  , 0 , 1.0000d+00, +0.0000d+00, 0.0000d+00, 8, Shingledecker&Herbst2017 
 O   , *   , O*  , 0  , 0 , 1.0000d+00, +0.0000d+00, 0.0000d+00, 8, Shingledecker&Herbst2017 
+O2  , *   , O2* , 0  , 0 , 0.5000d+00, +0.0000d+00, 0.0000d+00, 8, Fueki&Magee1963 
+O2  , *   , O   , O  , 0 , 0.5000d+00, +0.0000d+00, 0.0000d+00, 8, Fueki&Magee1963 
+O3  , *   , O3* , 0  , 0 , 0.5000d+00, +0.0000d+00, 0.0000d+00, 8, Shingledecker&Herbst2017 
+O3  , *   , O2  , O  , 0 , 0.5000d+00, +0.0000d+00, 0.0000d+00, 8, Shingledecker&Herbst2017 
 O3  , e   , O3- , 0  , 0 , 1.0000d+00, +0.0000d+00, 0.0000d+00, 7, Shingledecker&Herbst2017 
 O   , e   , O-  , 0  , 0 , 1.0000d+00, +0.0000d+00, 0.0000d+00, 7, Shingledecker&Herbst2017 
 O2  , e   , O2- , 0  , 0 , 1.0000d+00, +0.0000d+00, 0.0000d+00, 7, Fueki&Magee1963 

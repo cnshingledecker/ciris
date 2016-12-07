@@ -1,7 +1,7 @@
 MODULE branchmod
   USE parameters
-  USE typedefs
   USE functiondefs
+  USE typedefs
 CONTAINS
   FUNCTION branching(r1,r2,pr)
     ! On first call, ultimately populate global PRODS array with three values,

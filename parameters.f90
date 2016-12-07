@@ -6,14 +6,15 @@ MODULE parameters
   !******************************************************************************
   TYPE(node)       , ALLOCATABLE, TARGET :: MATRIX(:,:,:)
   INTEGER                                :: DIMENS(3)
-  DOUBLE PRECISION                       :: TIME
+  INTEGER                                :: PRODS(3)
   DOUBLE PRECISION , ALLOCATABLE         :: EN_LIST(:)
   CHARACTER(LEN=10), ALLOCATABLE         :: SP_LIST(:)
-  INTEGER          , ALLOCATABLE         :: REACT_CUBE(:,:,:)
   INTEGER          , ALLOCATABLE         :: IONLIST(:)
-  INTEGER                                :: NUM_SPECIES
-  INTEGER                                :: NUM_REACTS
-  INTEGER                                :: NUMPROTONS = 0
+  INTEGER                                :: NUM_SPECIES = 0
+  INTEGER                                :: NUM_REACTS  = 0
+  INTEGER                                :: NUMPROTONS  = 0
+  DOUBLE PRECISION                       :: TIME        = 0
+  TYPE(reaction), POINTER                :: RE_HEAD
 
   !******************************************************************************
   ! Input file names

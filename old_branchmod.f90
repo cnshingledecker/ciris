@@ -1,0 +1,88 @@
+MODULE branchmod
+  USE parameters
+CONTAINS
+  FUNCTION branching(r1,r2,pr)
+    IMPLICIT NONE
+    INTEGER :: branching
+    INTEGER :: r1,r2,pr ! Indices of the reaction look-up-table
+    INTEGER :: prods(3)
+    INTEGER :: reaction(5)
+    REAL    :: rnum
+    CHARACTER(80) :: varfmt
+
+    prods = 0
+    reaction = 0
+    varfmt = "(5I10,ES15.4)"
+
+    firstcall: IF ( pr .EQ. 1 ) THEN
+       CALL RANDOM_NUMBER(rnum)
+       prods = REACT_CUBE(r1,r2,:)
+
+       !****************************************************************************
+       !**** BRANCHING RATIOS ******************************************************
+       !****************************************************************************
+       isdis: IF ( (r1 .EQ. EXCNUM) .OR. (r2 .EQ. EXCNUM) ) THEN
+          IF ( (r1 .EQ. O2NUM) .OR. (r2 .EQ. O2NUM) ) THEN
+             IF ( rnum .LE. O2_DISPROB ) THEN
+                prods = (/ ONUM, ONUM, 0 /)
+             ELSE
+                prods = (/ 0, 0, 0 /)
+             END IF
+          ELSE IF ( (r1 .EQ. O3NUM) .OR. (r2 .EQ. O3NUM) ) THEN
+             IF ( rnum .LE. O3_DISPROB) THEN
+                prods = (/ O2NUM, ONUM, 0 /)
+             ELSE
+                prods = (/ 0, 0, 0 /)
+             END IF
+          END IF
+       ELSE
+          branchcond: IF ( r1 .EQ. 2 .AND. r2 .EQ. 3 .OR. r1 .EQ. 3 .AND. r2 .EQ. 2 ) THEN
+             IF ( rnum .LE. O2_DISPROB ) THEN
+                ! O2+ + O2- -> O2* + O2 -> O + O + O2
+                prods = (/ ONUM, ONUM, O2NUM /)
+             ELSE
+                ! O2+ + O2- -> O2 + O2
+                prods = (/ O2NUM, O2NUM, 0 /)
+             END IF
+          ELSE IF ( r1 .EQ. 2 .AND. r2 .EQ. ELECNUM .OR. r1 .EQ. ELECNUM .AND. r2 .EQ. 2 ) THEN
+             IF ( rnum .LE. O2_DISPROB ) THEN
+                ! e + O2+ -> O2* -> O + O
+                prods = (/ ONUM, ONUM, 0 /)
+             ELSE
+                ! e + O2+ -> O2
+                prods = (/ O2NUM, 0, 0 /)
+             END IF
+          END IF branchcond
+
+          ! If none of the conditionals proc, the react cube should get the original values
+          REACT_CUBE(r1,r2,:) = prods
+       END IF isdis
+    END IF firstcall
+
+    reaction(1) = r1
+    reaction(2) = r2
+    reaction(3:5) = prods
+    ! If checking reactions, print out reactants and products
+    o3check: IF ( (O3_ANALYTICS .EQV. .TRUE.) ) THEN
+       IF ( ANY(reaction .EQ. O3NUM) ) THEN
+          IF ( SUM(prods) .GT. 0 ) THEN
+             OPEN(FILE="ozone_reactions.wsv", UNIT=REACTIONS_UNIT_NUM, STATUS="UNKNOWN", POSITION="APPEND")
+             IF ( r1 .LE. r2 ) THEN
+                WRITE(REACTIONS_UNIT_NUM,varfmt) r1,r2,prods(1),prods(2),prods(3),FLUENCE
+             ELSE
+                WRITE(REACTIONS_UNIT_NUM,varfmt) r2,r1,prods(1),prods(2),prods(3),FLUENCE
+             END IF
+             CLOSE(REACTIONS_UNIT_NUM)
+          END IF
+       END IF
+    END IF o3check
+
+    branching = REACT_CUBE(r1,r2,pr)
+
+    dbug: IF ( DEBUG .EQV. .TRUE. ) THEN
+       PRINT *, REACT_CUBE(r1,r2,:)
+       PRINT *, "BRANCHING=",branching
+    END IF dbug
+    RETURN
+  END FUNCTION branching
+END MODULE branchmod

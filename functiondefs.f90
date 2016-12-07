@@ -2,6 +2,16 @@ MODULE functiondefs
   USE parameters
   USE typedefs
 CONTAINS
+  FUNCTION arrhenius(a,b,c)
+    ! This function calculates rate-coefficients based on the 
+    ! Arrhenius formula
+    DOUBLE PRECISION :: arrhenius
+    DOUBLE PRECISION :: a, b, c
+
+    arrhenius = a*((KIN_TEMP/300.0d0)**b)*EXP(c/KIN_TEMP)
+    RETURN
+  END FUNCTION arrhenius
+
   FUNCTION green_mcneal(energy,a,j,nu,omega,z,i)
     !
     !  Purpose:

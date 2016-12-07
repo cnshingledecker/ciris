@@ -8,15 +8,15 @@ FCFLAGS =  -O3 -static-intel
 #FCFLAGS = -O4 -march=native
 #FCFLAGS = -g -pg
 
-OBJECTS = qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o specdata.o gp.o branchmod.o bsimple.o
+OBJECTS = readinput.o subroutines.o functiondefs.o typedefs.o parameters.o main.o specdata.o gp.o branchmod.o bsimple.o
 
 PROGRAM = ciris
 
 
-$(PROGRAM): qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o branchmod.o bsimple.o
+$(PROGRAM): readinput.o subroutines.o functiondefs.o typedefs.o parameters.o main.o branchmod.o bsimple.o
 	$(FC) -o $(PROGRAM) *.o $(FCFLAGS)
 
-main.o: main.f90 subroutines.o parameters.o typedefs.o functiondefs.o gp.o branchmod.o bsimple.o
+main.o: main.f90 subroutines.o parameters.o typedefs.o functiondefs.o gp.o branchmod.o bsimple.o readinput.o
 	$(FC) -c main.f90 $(FCFLAGS)
 
 typedefs.o: typedefs.f90
@@ -25,8 +25,8 @@ typedefs.o: typedefs.f90
 specdata.o: specdata.f90 typedefs.o
 	$(FC) -c specdata.f90 $(FCFLAGS)
 
-qbert.o: qbert.f90 subroutines.o parameters.o
-	$(FC) -c qbert.f90 $(FCFLAGS)
+readinput.o: readinput.f90 subroutines.o parameters.o functiondefs.o
+	$(FC) -c readinput.f90 $(FCFLAGS)
 
 subroutines.o: subroutines.f90 mc_toolbox.o typedefs.o functiondefs.o parameters.o specdata.o branchmod.o bsimple.o
 	$(FC) -c subroutines.f90 $(FCFLAGS)
@@ -49,7 +49,7 @@ functiondefs.o: functiondefs.f90 parameters.o typedefs.o
 gp.o: gp.f90 parameters.o typedefs.o subroutines.f90
 	$(FC) -c gp.f90 $(FCFLAGS)
 
-static: qbert.o subroutines.o functiondefs.o typedefs.o parameters.o main.o
+static: readinput.o subroutines.o functiondefs.o typedefs.o parameters.o main.o
 	$(FC) -o $(PROGRAM) *.o  $(FCFLAGS)
 
 clean:

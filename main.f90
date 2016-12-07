@@ -5,6 +5,7 @@ PROGRAM main
   USE typedefs
   USE functiondefs
   USE gp
+  USE readinput
   IMPLICIT NONE
 
   !******************************************************************************
@@ -106,7 +107,7 @@ PROGRAM main
   !******************************************************************************
   ! Create the Reaction Array
   !******************************************************************************
-  CALL qbert()
+  CALL buildnetwork() 
 
   ! Initialize rate info
   ! Set all counts initially to 0
