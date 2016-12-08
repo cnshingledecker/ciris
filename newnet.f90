@@ -103,6 +103,7 @@ PROGRAM newnet
            BACKSPACE (UNIT=2,IOSTAT=ierror2)
            ! Read in variables
            READ(2,*,IOSTAT=ierror2) r1,r2,p1,p2,p3,arrh_alpha,arrh_beta,arrh_gamma,rtype
+           IF ( num_reacts .eq. 48 ) print *, r1, r2, p1, p2, p3
            addreact: IF ( .NOT. ASSOCIATED(re_head)) THEN
               ALLOCATE(re_head)
               re_tail => re_head

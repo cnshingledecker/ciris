@@ -10,8 +10,8 @@ CONTAINS
     TYPE(species) , POINTER          :: sp_head, sp_tail, sp_temp
     TYPE(reaction), POINTER          :: re_tail
     INTEGER                          :: ierror1, ierror2
-    INTEGER                          :: n
-    INTEGER                          :: i_count
+    INTEGER                          :: n, m
+    INTEGER                          :: i_count, e_count
     INTEGER                          :: rtype
     CHARACTER(LEN=10)                :: tempName,r1,r2,p1,p2,p3
     CHARACTER(LEN=10)                :: line
@@ -25,6 +25,7 @@ CONTAINS
     fileopen: IF ( ierror1 .EQ. 0 .AND. ierror2 .EQ. 0 ) THEN
        ! Initialize local values
        i_count = 0
+       e_count = 0
        line    = '0'
 
        ! Read the contents of the species file and create the SP_LIST and energy_list
@@ -48,6 +49,7 @@ CONTAINS
              sp_tail%name = tempName
              sp_tail%e_d = e_d
              sp_tail%ion = .FALSE.
+             sp_tail%exc = .false.
              sp_tail%special = .FALSE.
              sp_tail%id = NUM_SPECIES
              tempName = TRIM(sp_tail%name)
@@ -58,6 +60,9 @@ CONTAINS
                    sp_tail%ion = .TRUE.
                    i_count = i_count + 1
                 END IF
+             else if ( (tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .EQ. '*') ) then
+                sp_tail%exc = .true.
+                e_count = e_count + 1
              ELSE IF  (tempName .EQ. "CRP") THEN
                 CRPNUM = NUM_SPECIES
                 sp_tail%special = .TRUE.
@@ -74,7 +79,7 @@ CONTAINS
        END DO countspecies
 
        SPECIAL_LIST = (/ CRPNUM, EXCNUM, ELECNUM /)
-       ALLOCATE(IONLIST(i_count))
+       ALLOCATE(IONLIST(i_count),fast_reacts(e_count))
 
 
        sp_temp => sp_head
@@ -84,6 +89,9 @@ CONTAINS
           IF ( sp_temp%ion .EQV. .TRUE. ) THEN
              n = n + 1
              IONLIST(n) = sp_temp%id
+          else if (sp_temp%exc .eqv. .true. ) then
+             m = m + 1
+             fast_reacts(m) = sp_temp%id
           END IF
           sp_temp => sp_temp%next
        END DO popions
@@ -149,7 +157,10 @@ CONTAINS
        n = sp_temp%id
        EN_LIST(n) = sp_temp%e_d
        SP_LIST(n) = sp_temp%name
-       if ( .not. associated(sp_temp%next)) exit
+       if ( .not. associated(sp_temp%next)) then
+          nullify(sp_temp)
+          exit
+       end if
        sp_tail => sp_temp%next
        NULLIFY(sp_head)
        sp_head => sp_tail

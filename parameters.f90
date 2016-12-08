@@ -10,6 +10,7 @@ MODULE parameters
   DOUBLE PRECISION , ALLOCATABLE         :: EN_LIST(:)
   CHARACTER(LEN=10), ALLOCATABLE         :: SP_LIST(:)
   INTEGER          , ALLOCATABLE         :: IONLIST(:)
+  integer          , allocatable         :: fast_reacts(:)
   INTEGER                                :: NUM_SPECIES = 0
   INTEGER                                :: NUM_REACTS  = 0
   INTEGER                                :: NUMPROTONS  = 0
@@ -143,21 +144,18 @@ MODULE parameters
   ! Switches
   !******************************************************************************
   LOGICAL         , PARAMETER :: FIXED_SIZE   = .FALSE.
-  LOGICAL         , PARAMETER :: NO_OUTPUT    = .TRUE.
-  LOGICAL         , PARAMETER :: QUIET        = .TRUE.
+  LOGICAL         , PARAMETER :: NO_OUTPUT    = .FALSE.
+  LOGICAL         , PARAMETER :: QUIET        = .FALSE.
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
   LOGICAL         , PARAMETER :: O3_ANALYTICS = .FALSE.
   LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
   LOGICAL         , PARAMETER :: FIX_FREQ     = .FALSE.
-  LOGICAL         , PARAMETER :: FAST_REACTS  = .TRUE.
 
   !******************************************************************************
   ! Fitting parameters
   !******************************************************************************
-  DOUBLE PRECISION :: O2_DISPROB   = 1.0d0      ! O2 dissociation probability
-  DOUBLE PRECISION :: O3_DISPROB   = 1.0d0      ! O3 dissociation probability
   DOUBLE PRECISION :: AVAL         = 15.0d0     ! Parameter for Gamma distribution
 
 CONTAINS
@@ -179,14 +177,6 @@ CONTAINS
        IF ( err .NE. 0 ) EXIT
        ! Store value
        SELECT CASE (var)
-       CASE ("O")
-          CONTINUE
-       CASE ("O3")
-          CONTINUE
-!       CASE ("O2_DISPROB")
-!          READ(val, *) O2_DISPROB
-!       CASE ("O3_DISPROB")
-!          READ(val, *) O3_DISPROB
        CASE ("AVAL")
           READ(val, *) AVAL
        CASE DEFAULT

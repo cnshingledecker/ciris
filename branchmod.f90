@@ -13,6 +13,7 @@ CONTAINS
     INTEGER :: n
     INTEGER :: branching
     INTEGER :: reactant1,reactant2,pr ! Indices of the reaction look-up-table
+    integer :: tempr1, tempr2
     INTEGER :: prods(3)
     INTEGER :: reactionid(5)
     REAL    :: rnum
@@ -29,6 +30,10 @@ CONTAINS
     varfmt = "(5I10,ES15.4)"
 
     firstcall: IF ( pr .EQ. 1 ) THEN
+       if ( ((reactant1 .eq. 9) .and. (reactant2 .eq. 2)) .or. &
+            ((reactant1 .eq. 2) .and. (reactant2 .eq. 9))) then
+          continue
+       end if
        ! Initialize pathways data structure
        PRODS = 0
        val1    = 0
@@ -52,9 +57,20 @@ CONTAINS
        re_temp => RE_HEAD
        n = 0
        getpaths: DO
-          IF ( .NOT. ASSOCIATED(re_temp%next)) EXIT
-          IF ( ((re_temp%nr1 .EQ. reactant1) .AND. (re_temp%nr2 .EQ. reactant2)) .OR. &
-               ((re_temp%nr1 .EQ. reactant2) .AND. (re_temp%nr2 .EQ. reactant1)) ) THEN
+          tempr1 = re_temp%nr1
+          tempr2 = re_temp%nr2
+          IF ( ((tempr1 .EQ. reactant1) .AND. (tempr2 .EQ. reactant2)) ) then
+             n = n + 1
+             pathways(n)%nr1 = re_temp%nr1
+             pathways(n)%nr2 = re_temp%nr2
+             pathways(n)%np1 = re_temp%np1
+             pathways(n)%np2 = re_temp%np2
+             pathways(n)%np3 = re_temp%np3
+             pathways(n)%arrh_alpha = re_temp%arrh_alpha
+             pathways(n)%arrh_beta = re_temp%arrh_beta
+             pathways(n)%arrh_gamma = re_temp%arrh_gamma
+             pathways(n)%rtype = re_temp%rtype
+          else if ((tempr1 .EQ. reactant2) .AND. (tempr2 .EQ. reactant1)) THEN
              n = n + 1
              pathways(n)%nr1 = re_temp%nr1
              pathways(n)%nr2 = re_temp%nr2
@@ -66,6 +82,7 @@ CONTAINS
              pathways(n)%arrh_gamma = re_temp%arrh_gamma
              pathways(n)%rtype = re_temp%rtype
           END IF
+          IF ( .NOT. ASSOCIATED(re_temp%next)) EXIT
           re_temp => re_temp%next
        END DO getpaths
 
@@ -112,8 +129,8 @@ CONTAINS
              PRINT *, "Case",pathways(1)%rtype,"is not implemented!"
              CALL EXIT()
           CASE(8)
-             PRINT *, "Case",pathways(1)%rtype,"is not implemented!"
-             CALL EXIT()
+             val1 = pathways(1)%arrh_alpha
+             val2 = pathways(2)%arrh_alpha
           END SELECT
 
           ! 4. Call a random number and select pathway based on result
@@ -137,15 +154,17 @@ CONTAINS
 
        ! 6. If there is a barrier to the selected pathway, engage the competition mechanism
        !    to determine if the reaction proceeds or the hopping species diffuses away
-       e_d = E_BULK*EN_LIST(reactant1)
-       prob1 = e_d/(e_d+barrier)
-       prob2 = barrier/(e_d+barrier)
-       CALL RANDOM_NUMBER(rand)
-       IF ( rand .LE. prob1 ) THEN
-          PRODS(1) = 0
-          PRODS(2) = 0
-          PRODS(3) = 0
-       END IF
+       competition: IF ( barrier .GT. 0.0d0) THEN
+          e_d = E_BULK*EN_LIST(reactant1)
+          prob1 = e_d/(e_d+barrier)
+          prob2 = barrier/(e_d+barrier)
+          CALL RANDOM_NUMBER(rand)
+          IF ( rand .LE. prob1 ) THEN
+             PRODS(1) = 0
+             PRODS(2) = 0
+             PRODS(3) = 0
+          END IF
+       END IF competition
     END IF firstcall
 
     reactionid(1) = reactant1

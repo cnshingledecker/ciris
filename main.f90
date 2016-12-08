@@ -184,10 +184,6 @@ PROGRAM main
   !******************************************************************************
   ! Print fitting parameters
   !******************************************************************************
-  PRINT *, "Ed(O)=",EN_LIST(ONUM)
-  PRINT *, "Ed(O3)=",EN_LIST(O3NUM)
-  PRINT *, "Pdis(O2)=",O2_DISPROB
-  PRINT *, "Pdis(O3)=",O3_DISPROB
   PRINT *, "Aval=",AVAL
 
   !******************************************************************************
@@ -265,7 +261,7 @@ PROGRAM main
            success = .FALSE.
 
            ! If species is atomic oxygen, check for nearby reactants
-           IF ( ( temp%sp_num .EQ. ONUM ) .AND. (FAST_REACTS .EQV. .TRUE.) ) THEN
+           if ( any(fast_reacts .eq. temp%sp_num) ) then
               DO n = 1,6
                  CALL hopping(temp%coord1,temp%coord2,temp%coord3,&
                       j(1),j(2),j(3),n)
@@ -279,8 +275,7 @@ PROGRAM main
 
            ! If there is still no co-reactant, look at "phantom" surrounding sites
            IF ( (success .EQV. .FALSE.) .AND. &
-                (FAST_REACTS .EQV. .TRUE.) .AND. &
-                (temp%sp_num .EQ. ONUM) ) THEN
+                (any(fast_reacts .eq. temp%sp_num)) ) then
               phantom: DO n=1,6 ! Go to a phantom position
                 SELECT CASE (n)
                  CASE(1)

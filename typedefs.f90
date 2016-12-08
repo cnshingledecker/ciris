@@ -162,6 +162,7 @@ MODULE typedefs
      INTEGER :: id
      DOUBLE PRECISION :: e_d
      LOGICAL :: ion
+     logical :: exc
      LOGICAL :: special
      TYPE(species), POINTER :: next
   END TYPE species
