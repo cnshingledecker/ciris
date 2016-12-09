@@ -19,6 +19,7 @@ PROGRAM main
   INTEGER             :: count_num      ! Number of abundance file
   INTEGER             :: time_check     ! DEBUGGING VAR
   INTEGER             :: error
+  integer             :: actcase
   DOUBLE PRECISION      :: cr_time        ! Time till next proton collision
   DOUBLE PRECISION      :: rndnum         ! Random number
   DOUBLE PRECISION      :: time_step      ! Time between abundance checks
@@ -49,9 +50,7 @@ PROGRAM main
 
   ! Read in constants and save seed
   CALL SYSTEM("/bin/bash pre.sh")
-  CALL initconstants()
   CALL store_rand()
-  SPECIAL_LIST = (/ CRPNUM, EXCNUM, ELECNUM /)
 
   ! Initialize total_fitness
   total_fitness = 0
@@ -75,13 +74,13 @@ PROGRAM main
        STATUS='REPLACE')
 
   OPEN(UNIT=RATE_UNIT_NUM,&
-       FILE="rates.csv",&
+       FILE="rates.wsv",&
        POSITION='APPEND', &
        STATUS='REPLACE')
 
   IF ( O3_ANALYTICS .EQV. .TRUE. ) THEN
      OPEN(UNIT=REACTIONS_UNIT_NUM,&
-          FILE='ozone_reactions.csv', &
+          FILE='out_reactions.wsv', &
           STATUS='REPLACE',&
           POSITION='APPEND')
      CLOSE(REACTIONS_UNIT_NUM)
@@ -107,7 +106,7 @@ PROGRAM main
   !******************************************************************************
   ! Create the Reaction Array
   !******************************************************************************
-  CALL buildnetwork() 
+  CALL buildnetwork()
 
   ! Initialize rate info
   ! Set all counts initially to 0
@@ -256,11 +255,11 @@ PROGRAM main
         i(3) = temp%coord3
 
         ! If it is a regular species, decide it hopping or desorption
-        SELECT CASE (temp%act_type)
+        hopdesorb: SELECT CASE (temp%act_type)
         CASE(1) ! The species hops
            success = .FALSE.
 
-           ! If species is atomic oxygen, check for nearby reactants
+           ! If species is an excited species, check for nearby reactants
            if ( any(fast_reacts .eq. temp%sp_num) ) then
               DO n = 1,6
                  CALL hopping(temp%coord1,temp%coord2,temp%coord3,&
@@ -277,7 +276,7 @@ PROGRAM main
            IF ( (success .EQV. .FALSE.) .AND. &
                 (any(fast_reacts .eq. temp%sp_num)) ) then
               phantom: DO n=1,6 ! Go to a phantom position
-                SELECT CASE (n)
+                 SELECT CASE (n)
                  CASE(1)
                     IF ( i(2)-1 .GT. 0           .AND. &
                          i(3)-1 .GT. 0           .AND. &
@@ -291,7 +290,7 @@ PROGRAM main
                           END IF
                        END DO
                     END IF
-                  CASE(2)
+                 CASE(2)
                     IF ( i(2)-1 .GT. 0           .AND. &
                          i(3)-1 .GT. 0           .AND. &
                          i(3)+1 .LE. dimens(3) ) THEN
@@ -304,7 +303,7 @@ PROGRAM main
                           END IF
                        END DO
                     END IF
-                  CASE(3)
+                 CASE(3)
                     IF ( i(2)+1 .LE. dimens(2)    .AND. &
                          i(3)-1 .GT. 0            .AND. &
                          i(3)+1 .LE. dimens(3) ) THEN
@@ -317,7 +316,7 @@ PROGRAM main
                           END IF
                        END DO
                     END IF
-                  CASE(4)
+                 CASE(4)
                     IF ( i(2)+1 .LE. dimens(2)    .AND. &
                          i(3)-1 .GT. 0            .AND. &
                          i(3)+1 .LE. dimens(3) ) THEN
@@ -330,7 +329,7 @@ PROGRAM main
                           END IF
                        END DO
                     END IF
-                  CASE(5)
+                 CASE(5)
                     IF ( i(1)+1 .LE. dimens(1) ) THEN
                        DO m=1,6
                           CALL hopping(i(1)+1,i(2),i(3),j(1),j(2),j(3),2)
@@ -341,7 +340,7 @@ PROGRAM main
                           END IF
                        END DO
                     END IF
-                  CASE(6)
+                 CASE(6)
                     IF ( i(1)-1 .GT. 0 ) THEN
                        DO m=1,6
                           CALL hopping(i(1)-1,i(2),i(3),j(1),j(2),j(3),2)
@@ -352,20 +351,38 @@ PROGRAM main
                           END IF
                        END DO
                     END IF
-                  END SELECT
+                 END SELECT
                  IF ( success .EQV. .TRUE. ) EXIT
               END DO phantom
            END IF
 
            ! Call hopping to get new coords
-           IF ( success .EQV. .FALSE. ) THEN
+           IF ( (success .EQV. .FALSE.) .and. (any(fast_reacts .eq. temp%sp_num)) ) THEN
+              j = i
+              temp%sec_sp_num = MNUM
+              nextNode => MATRIX(j(1),j(2),j(3))
+           else if (success .EQV. .FALSE.) then
               CALL hopping(temp%coord1,temp%coord2,temp%coord3,&
                    j(1),j(2),j(3),temp%hop_dir)
            END IF
 
            nextNode => MATRIX(j(1),j(2),j(3))
+
+           actcase = 0
+           samesite: if (ALL(ABS(j-i) .EQ. 0)) then
+              isfast: if ( (any(fast_reacts .eq. temp%sp_num)) .and. (success .eqv. .false.) ) then
+                 actcase = 2
+              else if (nextNode%sp_num .eq. 0 )  then
+                 actcase = 1
+              end if isfast
+           else
+              actcase = 2
+           end if samesite
+
+
            ! If the site is empty, move product there
-           IF ( (nextNode%sp_num .EQ. 0) .OR. (ALL(ABS(j-i) .EQ. 0)) ) THEN
+           movesp: select case (actcase)
+           case(1)
               ! Save sp_num
               tmp_sp_num = temp%sp_num
               CALL delete_node(root,temp,prevNode,nextNode,error)
@@ -378,14 +395,17 @@ PROGRAM main
               CALL wait_calc(temp)
               ! Add back to tree
               CALL add_node(root,temp)
-           ELSE
+           case(2)
               ! If the site isn't empty, call new_reaction
               ! First, initialize k to 1
               ! i => the original location of hopping species
               ! j => the site to which the species is hopping
               k = 1
               CALL new_reaction(i,j,k,root,temp,prevNode,nextNode,error)
-           END IF
+           case default
+              print *, "error! actcase=0"
+              call exit()
+           end select movesp
         CASE(2) ! The species desorbs
            CALL delete_node(root,temp,prevNode,nextNode,error)
            CALL wipe_node(i(1),i(2),i(3))
@@ -401,7 +421,7 @@ PROGRAM main
                  CALL EXIT()
               END IF
            END IF
-        END SELECT
+        END SELECT hopdesorb
      END IF
 
      ! update FLUENCE
@@ -430,7 +450,6 @@ PROGRAM main
         END IF
 
         checktime: IF ( MOD(time_check,TIME_FREQ) .EQ. 0 ) THEN
-           CALL counter()
            CALL fitness(unfit,FLUENCE,total_fitness)
            t1 = t2
            N_OHOP = 0

@@ -60,7 +60,8 @@ CONTAINS
                    sp_tail%ion = .TRUE.
                    i_count = i_count + 1
                 END IF
-             else if ( (tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .EQ. '*') ) then
+             else if ( (tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .EQ. '*') .and. &
+                  (len(trim(tempName)) .gt. 1) ) then
                 sp_tail%exc = .true.
                 e_count = e_count + 1
              ELSE IF  (tempName .EQ. "CRP") THEN
@@ -72,18 +73,22 @@ CONTAINS
              ELSE IF (tempName .EQ. "*") THEN
                 EXCNUM = NUM_SPECIES
                 sp_tail%special = .TRUE.
+             ELSE IF (tempName .EQ. "M") THEN
+                MNUM = NUM_SPECIES
+                sp_tail%special = .true.
              END IF specialion
           ELSE
              CONTINUE
           END IF
        END DO countspecies
 
-       SPECIAL_LIST = (/ CRPNUM, EXCNUM, ELECNUM /)
+       SPECIAL_LIST = (/ CRPNUM, EXCNUM, ELECNUM, mnum /)
        ALLOCATE(IONLIST(i_count),fast_reacts(e_count))
 
 
        sp_temp => sp_head
        n = 0
+       m = 0
        popions: DO
           IF ( .NOT. ASSOCIATED(sp_temp%next)) EXIT
           IF ( sp_temp%ion .EQV. .TRUE. ) THEN
@@ -124,6 +129,8 @@ CONTAINS
              re_tail%arrh_beta = arrh_beta
              re_tail%arrh_gamma = arrh_gamma
              re_tail%rtype = rtype
+             re_tail%count = 0
+             re_tail%id = num_reacts
              ! Get integer identities of species
              CALL lookup(re_tail%r1,sp_head,re_tail%nr1)
              CALL lookup(re_tail%r2,sp_head,re_tail%nr2)

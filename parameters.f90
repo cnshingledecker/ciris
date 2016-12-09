@@ -129,6 +129,7 @@ MODULE parameters
   INTEGER                     :: CRPNUM  = 0 ! Index of primary ion in code
   INTEGER                     :: EXCNUM  = 0 ! Index of excitation in code
   INTEGER                     :: ELECNUM = 0 ! Index of electron in code
+  INTEGER                     :: MNUM    = 0 ! Index of electron in code
   INTEGER                     :: O3NUM   = 7 ! Index of ozone in code
   INTEGER                     :: O2NUM   = 1 ! Index of molecular oxygen in code
   INTEGER                     :: ONUM    = 4 ! Index of atomic oxygen in the code
@@ -137,8 +138,8 @@ MODULE parameters
   !******************************************************************************
   ! Array Variables
   !******************************************************************************
-  INTEGER                     :: SPECIAL_LIST(3) = 0
-  INTEGER                     :: TIME_FREQ       = 1  !1000000
+  INTEGER                     :: SPECIAL_LIST(4) = 0
+  INTEGER                     :: TIME_FREQ       = 1000  !1000000
 
   !******************************************************************************
   ! Switches
@@ -149,43 +150,12 @@ MODULE parameters
   LOGICAL         , PARAMETER :: SECELEC      = .TRUE.
   LOGICAL         , PARAMETER :: DEBUG        = .FALSE.
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
-  LOGICAL         , PARAMETER :: O3_ANALYTICS = .FALSE.
+  LOGICAL         , PARAMETER :: O3_ANALYTICS = .TRUE.
   LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
-  LOGICAL         , PARAMETER :: FIX_FREQ     = .FALSE.
+  LOGICAL         , PARAMETER :: FIX_FREQ     = .TRUE.
 
   !******************************************************************************
   ! Fitting parameters
   !******************************************************************************
-  DOUBLE PRECISION :: AVAL         = 15.0d0     ! Parameter for Gamma distribution
-
-CONTAINS
-  SUBROUTINE initconstants ()
-    INTEGER :: err
-    CHARACTER(LEN=32) :: var
-    CHARACTER(LEN=32) :: val
-
-    ! Open file for reading
-    OPEN(UNIT=200, FILE=PARAMS_FILE, STATUS='OLD', ACTION='READ', IOSTAT=err)
-    IF (err .NE. 0) THEN
-       PRINT *, "ERROR: Failed to open params.dat file for reading"
-       CALL EXIT(-1)
-    END IF
-
-    ! Read in the file
-    DO
-       READ(200,*,IOSTAT=err) var, val
-       IF ( err .NE. 0 ) EXIT
-       ! Store value
-       SELECT CASE (var)
-       CASE ("AVAL")
-          READ(val, *) AVAL
-       CASE DEFAULT
-          PRINT *, "WARNING: Unexpect variable name '", var, "'. Ignoring..."
-       END SELECT
-    END DO
-
-    ! NEXIT seems to be the only variable that depended on one of these...
-    NEXIT = 10*NSUBEX
-    CLOSE(200)
-  END SUBROUTINE initconstants
+  DOUBLE PRECISION :: AVAL         = 21.0d0     ! Parameter for Gamma distribution
 END MODULE parameters

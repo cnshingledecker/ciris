@@ -51,6 +51,7 @@ CONTAINS
           pathways(n)%arrh_beta = 0
           pathways(n)%arrh_gamma = 0
           pathways(n)%rtype = 0
+          pathways(n)%id = 0
        END DO initpaths
 
        ! 1. Go through list of reactions and find all between reactant1 and r2
@@ -59,7 +60,8 @@ CONTAINS
        getpaths: DO
           tempr1 = re_temp%nr1
           tempr2 = re_temp%nr2
-          IF ( ((tempr1 .EQ. reactant1) .AND. (tempr2 .EQ. reactant2)) ) then
+          IF ( ((tempr1 .EQ. reactant1) .AND. (tempr2 .EQ. reactant2)) .or. &
+               ((tempr1 .EQ. reactant2) .AND. (tempr2 .EQ. reactant1))) then
              n = n + 1
              pathways(n)%nr1 = re_temp%nr1
              pathways(n)%nr2 = re_temp%nr2
@@ -70,17 +72,7 @@ CONTAINS
              pathways(n)%arrh_beta = re_temp%arrh_beta
              pathways(n)%arrh_gamma = re_temp%arrh_gamma
              pathways(n)%rtype = re_temp%rtype
-          else if ((tempr1 .EQ. reactant2) .AND. (tempr2 .EQ. reactant1)) THEN
-             n = n + 1
-             pathways(n)%nr1 = re_temp%nr1
-             pathways(n)%nr2 = re_temp%nr2
-             pathways(n)%np1 = re_temp%np1
-             pathways(n)%np2 = re_temp%np2
-             pathways(n)%np3 = re_temp%np3
-             pathways(n)%arrh_alpha = re_temp%arrh_alpha
-             pathways(n)%arrh_beta = re_temp%arrh_beta
-             pathways(n)%arrh_gamma = re_temp%arrh_gamma
-             pathways(n)%rtype = re_temp%rtype
+             pathways(n)%id = re_temp%id
           END IF
           IF ( .NOT. ASSOCIATED(re_temp%next)) EXIT
           re_temp => re_temp%next
@@ -139,16 +131,19 @@ CONTAINS
           CALL RANDOM_NUMBER(rand)
 
           ! 5. Populate PRODS array with result
+          n = 0
           IF ( rand .LE. prob1 ) THEN
              PRODS(1) = pathways(1)%np1
              PRODS(2) = pathways(1)%np2
              PRODS(3) = pathways(1)%np3
              barrier  = pathways(1)%arrh_gamma
+             n = pathways(1)%id
           ELSE
              PRODS(1) = pathways(2)%np1
              PRODS(2) = pathways(2)%np2
              PRODS(3) = pathways(2)%np3
              barrier  = pathways(2)%arrh_gamma
+             n = pathways(2)%id
           END IF
        END IF onepath
 
@@ -163,32 +158,39 @@ CONTAINS
              PRODS(1) = 0
              PRODS(2) = 0
              PRODS(3) = 0
+             n = 0
           END IF
        END IF competition
-    END IF firstcall
 
-    reactionid(1) = reactant1
-    reactionid(2) = reactant2
-    reactionid(3:5) = PRODS
-    ! If checking reactions, print out reactants and products
-    o3check: IF ( (O3_ANALYTICS .EQV. .TRUE.) ) THEN
-       IF ( ANY(reactionid .EQ. O3NUM) ) THEN
-          IF ( SUM(PRODS) .GT. 0 ) THEN
-             OPEN(FILE="ozone_reactions.wsv", &
-                  UNIT=REACTIONS_UNIT_NUM, &
-                  STATUS="UNKNOWN", &
-                  POSITION="APPEND")
-             IF ( reactant1 .LE. reactant2 ) THEN
-                WRITE(REACTIONS_UNIT_NUM,varfmt) reactant1,reactant2,PRODS(1),PRODS(2),PRODS(3),FLUENCE
-             ELSE
-                WRITE(REACTIONS_UNIT_NUM,varfmt) reactant2,reactant1,PRODS(1),PRODS(2),PRODS(3),FLUENCE
-             END IF
-             CLOSE(REACTIONS_UNIT_NUM)
-          END IF
-       END IF
-    END IF o3check
+       if ( n .gt. 0 ) call bumpreaction(n,RE_HEAD)
+    END IF firstcall
 
     branching = PRODS(pr)
     RETURN
   END FUNCTION branching
+
+  RECURSIVE SUBROUTINE bumpreaction(id,node)
+    !
+    ! Purpose:
+    !   This is a subroutine that takes some reaction id number and increments its
+    !  counter for later analytics.
+    !! BUMPREACTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    IMPLICIT NONE
+    INTEGER            :: id
+    type(reaction) :: node
+
+    IF ( id .EQ. node%id ) THEN
+       node%count = node%count + 1
+       RETURN
+    ELSE
+       IF ( ASSOCIATED(node%next)) THEN
+          CALL bumpreaction(id,node%next)
+       ELSE
+          id = -1
+          PRINT *, "ERROR! No match!"
+          CALL EXIT()
+       END IF
+    END IF
+    RETURN
+  END SUBROUTINE bumpreaction
 END MODULE branchmod

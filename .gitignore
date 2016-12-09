@@ -28,6 +28,7 @@ obj
 *.png
 *.ipynb
 *.out
+*.backup
 
 # explicit files
 ciris

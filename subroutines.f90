@@ -38,6 +38,31 @@ CONTAINS
     RETURN
   END SUBROUTINE lookup
 
+  RECURSIVE SUBROUTINE writereactions(node)
+    !
+    ! Purpose:
+    !   This is a subroutine that writes out the number of times each reaction
+    !  has been called so far in the model
+    !! WRITEREACTIONS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    IMPLICIT NONE
+    type(reaction) :: node
+    character(80) :: varfmt
+    varfmt = "(I20,2ES20.4,I20)"
+
+    OPEN(FILE="out_reactions.wsv", &
+         UNIT=REACTIONS_UNIT_NUM, &
+         STATUS="UNKNOWN", &
+         POSITION="APPEND")
+    WRITE(REACTIONS_UNIT_NUM,varfmt) node%count,TIME,FLUENCE, node%id
+    node%count = 0
+    IF ( ASSOCIATED(node%next)) THEN
+       CALL writereactions(node%next)
+    ELSE
+       return
+    END IF
+    RETURN
+  END SUBROUTINE writereactions
+
   SUBROUTINE hopping ( i_in, j_in, k_in, i_out, j_out, k_out, prob )
     !
     ! Purpose:
@@ -703,15 +728,16 @@ CONTAINS
        END IF
     ELSE
        ! Bulk species, only bulk diffusion
-!       IF ( (MOD(temp%coord2,2) .EQ. 1) .AND. (MOD(temp%coord3,2) .EQ. 1) ) THEN
-!          DO n=1,5
-!             CALL hopping(temp%coord1,temp%coord2,temp%coord3,ix,iy,iz,n)
-!             IF ( MATRIX(ix,iy,iz)%sp_num .NE. 0 ) el_tmp = el_tmp + 0.1*EN_LIST(MATRIX(ix,iy,iz)%sp_num)
-!          END DO
-!          b_3 = trl_nu*EXP( -1*((EN_LIST(temp%sp_num)*E_BULK + el_tmp)/ kin_temp ) )
-!       ELSE
+       IF ( (matrix(temp%coord1,temp%coord2,temp%coord3)%normal .eqv. .true.) .and. &
+            (.not. any(fast_reacts .eq. temp%sp_num)) ) THEN
+          DO n=1,5
+             CALL hopping(temp%coord1,temp%coord2,temp%coord3,ix,iy,iz,n)
+             IF ( MATRIX(ix,iy,iz)%sp_num .NE. 0 ) el_tmp = el_tmp + 0.1*EN_LIST(MATRIX(ix,iy,iz)%sp_num)
+          END DO
+          b_3 = trl_nu*EXP( -1*((EN_LIST(temp%sp_num)*E_BULK + el_tmp)/ kin_temp ) )
+       ELSE
           b_3 = trl_nu*EXP( -1*( EN_LIST(temp%sp_num)*E_BULK     / kin_temp ) )
-!       END IF
+       END IF
        b = b_3
        ! Only hopping (diffusion) can occur
        temp%act_type = 1
@@ -791,6 +817,8 @@ CONTAINS
             o_count, & ! 5. Int64
             o3_count          ! 6. Int64
     END IF
+
+    if ( o3_analytics .eqv. .true. ) call writereactions(RE_HEAD)
 
     IF ( QUIET .EQV. .FALSE. ) THEN
        varfmt = "(A6,ES10.4,A9,ES10.4)"
@@ -1490,10 +1518,13 @@ CONTAINS
     temp_node%act_type = 0
     temp_node%hop_dir = 0
     temp_node%leftRight = 0
+    temp_node%normal = .FALSE.
+    temp_node%interstitial = .FALSE.
 
     NULLIFY(temp_node%before,temp_node%after,temp_node%parent)
 
     IF ( (MOD(y,2) .EQ. 1) .AND. (MOD(z,2) .EQ. 1) ) THEN
+       temp_node%normal = .TRUE.
        temp_node%sp_num = 1
        CALL wait_calc(temp_node)
        CALL add_node(root,temp_node)
@@ -1510,6 +1541,8 @@ CONTAINS
              END IF
           END IF
        END IF
+    ELSE IF ( (MOD(y,2) .EQ. 0) .AND. (MOD(z,2) .EQ. 0) ) THEN
+       temp_node%interstitial = .true.
     END IF
   END SUBROUTINE init_node
 
@@ -1584,8 +1617,8 @@ CONTAINS
           ! Re-add node to tree
           CALL add_node(root,temp)
           error = 1
-!          IF ( DEBUG .EQV. .TRUE. ) &
-               PRINT *, "Products = 0:",r1,"+",r2,"=",pr
+          !          IF ( DEBUG .EQV. .TRUE. ) &
+          PRINT *, "Products = 0:",r1,"+",r2,"=",pr
           CALL EXIT()
           RETURN
        END IF

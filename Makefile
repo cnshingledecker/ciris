@@ -37,7 +37,7 @@ parameters.o: parameters.f90 typedefs.o
 bsimple.o: bsimple.f90 parameters.o typedefs.o
 	$(FC) -c bsimple.f90 $(FCFLAGS)
 
-branchmod.o: branchmod.f90 parameters.o
+branchmod.o: branchmod.f90 parameters.o typedefs.o functiondefs.o
 	$(FC) -c branchmod.f90 $(FCFLAGS)
 
 mc_toolbox.o: mc_toolbox.f90

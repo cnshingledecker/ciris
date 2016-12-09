@@ -1,11 +1,9 @@
 MODULE typedefs
 
   TYPE :: wait_info
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      ! Purpose:
      !   This derived data type is designed to contain
      !  the information related to species waiting times
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      DOUBLE PRECISION    :: wait_time !waiting time
      INTEGER             :: i,j,k     !coordinates in matrix
      INTEGER             :: sp_num    !species identifier
@@ -14,21 +12,17 @@ MODULE typedefs
 
 
   TYPE :: rate_info
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      ! Purpose:
      !   This derived data type is designed to contain
      !  the information related to the number of species produced per Δt
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      INTEGER             :: r1 ! Reactant 1
      INTEGER             :: r2 ! Reactant 2
      INTEGER             :: count ! The number times this reaction has occured
   END TYPE rate_info
 
   TYPE :: sigma_box
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      ! Purpose: A structure (or "box") to contain the cross-sections that will be used to
      ! calculate track parameters and energy transfers
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      DOUBLE PRECISION    :: cross_section
      CHARACTER(len=20)   :: description
   END TYPE sigma_box
@@ -114,14 +108,12 @@ MODULE typedefs
   END TYPE epg_ionstate
 
   TYPE :: se_info
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      ! Purpose:
      !  The purpose of this type is to contain the information relevant to a
      ! secondary electron, viz. allowed and forbidden excitation cross-section
      ! info and ionization cross-section info. The energy is also contained in this
      ! type for convenience.
      !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      INTEGER, DIMENSION(3) :: parent_coords ! The coordinates at which the electron formed/site of cation
      TYPE(ionstate), ALLOCATABLE, DIMENSION(:) :: se_ionst !Information regarding the ionization states of the target
      TYPE(alwd_exstate), ALLOCATABLE, DIMENSION(:) :: se_alwd !Information on the allowed transitions of the target
@@ -138,11 +130,11 @@ MODULE typedefs
   END TYPE se_info
 
   TYPE :: node
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      ! Purpose:
      !   This derived data type is designed to contain
      !  the information related to the ice matrix
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     LOGICAL             :: normal
+     LOGICAL             :: interstitial
      DOUBLE PRECISION    :: wait_time !waiting time
      INTEGER             :: coord1     !coordinates in matrix
      INTEGER             :: coord2
@@ -178,6 +170,8 @@ MODULE typedefs
      INTEGER :: np1
      INTEGER :: np2
      INTEGER :: np3
+     integer :: id
+     integer :: count
      DOUBLE PRECISION :: arrh_alpha
      DOUBLE PRECISION :: arrh_beta
      DOUBLE PRECISION :: arrh_gamma
@@ -195,6 +189,7 @@ MODULE typedefs
      DOUBLE PRECISION :: arrh_beta
      DOUBLE PRECISION :: arrh_gamma
      INTEGER :: rtype
+     integer :: id
   END TYPE reaction_info
 
 END MODULE typedefs
