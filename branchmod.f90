@@ -30,11 +30,8 @@ CONTAINS
     varfmt = "(5I10,ES15.4)"
 
     firstcall: IF ( pr .EQ. 1 ) THEN
-       if ( ((reactant1 .eq. 9) .and. (reactant2 .eq. 2)) .or. &
-            ((reactant1 .eq. 2) .and. (reactant2 .eq. 9))) then
-          continue
-       end if
        ! Initialize pathways data structure
+       ISBARRIER = .FALSE.
        PRODS = 0
        val1    = 0
        val2    = 0
@@ -57,7 +54,7 @@ CONTAINS
        ! 1. Go through list of reactions and find all between reactant1 and r2
        re_temp => RE_HEAD
        n = 0
-       getpaths: DO
+       getpaths: DO 
           tempr1 = re_temp%nr1
           tempr2 = re_temp%nr2
           IF ( ((tempr1 .EQ. reactant1) .AND. (tempr2 .EQ. reactant2)) .or. &
@@ -106,20 +103,20 @@ CONTAINS
                   pathways(2)%arrh_beta,&
                   pathways(2)%arrh_gamma)
           CASE(3)
-             PRINT *, "Case",pathways(1)%rtype,"is not implemented!"
-             CALL EXIT()
+             val1 = pathways(1)%arrh_alpha
+             val2 = pathways(2)%arrh_alpha
           CASE(4)
-             PRINT *, "Case",pathways(1)%rtype,"is not implemented!"
-             CALL EXIT()
+             val1 = pathways(1)%arrh_alpha
+             val2 = pathways(2)%arrh_alpha
           CASE(5)
-             PRINT *, "Case",pathways(1)%rtype,"is not implemented!"
-             CALL EXIT()
+             val1 = pathways(1)%arrh_alpha
+             val2 = pathways(2)%arrh_alpha
           CASE(6)
              val1 = pathways(1)%arrh_alpha
              val2 = pathways(2)%arrh_alpha
           CASE(7)
-             PRINT *, "Case",pathways(1)%rtype,"is not implemented!"
-             CALL EXIT()
+             val1 = pathways(1)%arrh_alpha
+             val2 = pathways(2)%arrh_alpha
           CASE(8)
              val1 = pathways(1)%arrh_alpha
              val2 = pathways(2)%arrh_alpha
@@ -137,13 +134,13 @@ CONTAINS
              PRODS(2) = pathways(1)%np2
              PRODS(3) = pathways(1)%np3
              barrier  = pathways(1)%arrh_gamma
-             n = pathways(1)%id
+             n = 1 
           ELSE
              PRODS(1) = pathways(2)%np1
              PRODS(2) = pathways(2)%np2
              PRODS(3) = pathways(2)%np3
              barrier  = pathways(2)%arrh_gamma
-             n = pathways(2)%id
+             n = 2 
           END IF
        END IF onepath
 
@@ -159,10 +156,45 @@ CONTAINS
              PRODS(2) = 0
              PRODS(3) = 0
              n = 0
+             ISBARRIER = .TRUE.
           END IF
        END IF competition
 
-       if ( n .gt. 0 ) call bumpreaction(n,RE_HEAD)
+
+       if ( ((reactant1 .eq. 3) .and. (reactant2 .eq. 2)) .or. &
+            ((reactant1 .eq. 2) .and. (reactant2 .eq. 3))) then
+!          print *, reactant1, reactant2, PRODS
+          continue
+       end if
+
+       if ( ((reactant1 .eq. 4) .and. (reactant2 .eq. EXCNUM)) .or. &
+            ((reactant1 .eq. EXCNUM) .and. (reactant2 .eq. 4))) then
+!          print *, reactant1, reactant2, PRODS
+          continue
+       end if
+
+       if ( ((reactant1 .eq. 4) .and. (reactant2 .eq. ELECNUM)) .or. &
+            ((reactant1 .eq. ELECNUM) .and. (reactant2 .eq. 4))) then
+!          print *, reactant1, reactant2, PRODS
+          continue
+       end if
+
+       if ( ((reactant1 .eq. 7) .and. (reactant2 .eq. EXCNUM)) .or. &
+            ((reactant1 .eq. EXCNUM) .and. (reactant2 .eq. 7))) then
+!          print *, reactant1, reactant2, PRODS
+          continue
+       end if
+
+       if ( ((reactant1 .eq. 7) .and. (reactant2 .eq. ELECNUM)) .or. &
+            ((reactant1 .eq. ELECNUM) .and. (reactant2 .eq. 7))) then
+!          print *, reactant1, reactant2, PRODS
+          continue
+       end if
+
+       ! On first call: bump the count for that particular reaction for later
+       ! time-dependent analysis
+       if ( n .gt. 0 ) call bumpreaction(pathways(n)%id,RE_HEAD)
+
     END IF firstcall
 
     branching = PRODS(pr)

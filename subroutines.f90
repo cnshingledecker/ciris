@@ -47,20 +47,166 @@ CONTAINS
     IMPLICIT NONE
     type(reaction) :: node
     character(80) :: varfmt
-    varfmt = "(I20,2ES20.4,I20)"
+    character(80) :: cr1,cr2,cp1,cp2,cp3,cident
+    integer :: reactants(2)
+    integer :: products(3)
 
-    OPEN(FILE="out_reactions.wsv", &
-         UNIT=REACTIONS_UNIT_NUM, &
-         STATUS="UNKNOWN", &
-         POSITION="APPEND")
-    WRITE(REACTIONS_UNIT_NUM,varfmt) node%count,TIME,FLUENCE, node%id
-    node%count = 0
+    varfmt = "(I20,2ES20.4,I20,A80)"
+
+    if ( node%id .eq. num_reacts-1 ) then
+       print *, node%id
+    end if
+
+    if (node%id .eq. 1 ) then
+       OPEN(FILE="o_prod.wsv", &
+            UNIT=O_PROD_UNIT, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="o2_prod.wsv", &
+            UNIT=O2_PROD_UNIT, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="o3_prod.wsv", &
+            UNIT=O3_PROD_UNIT, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="ostar_prod.wsv", &
+            UNIT=OSTAR_PROD_UNIT, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="o2star_prod.wsv", &
+            UNIT=O2STAR_PROD_UNIT, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="o3star_prod.wsv", &
+            UNIT=O2STAR_PROD_UNIT, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="o_dest.wsv", &
+            UNIT=O_DEST_UNIT, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="o2_dest.wsv", &
+            UNIT=O2_DEST_UNIT, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="o3_dest.wsv", &
+            UNIT=O3_DEST_UNIT, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="ostar_dest.wsv", &
+            UNIT=OSTAR_DEST_UNIT, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="o2star_dest.wsv", &
+            UNIT=O2STAR_DEST_UNIT, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="o3star_dest.wsv", &
+            UNIT=O3STAR_DEST_UNIT, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+    end if
+
+    reactants = 0
+    products = 0
+    reactants(1) = node%nr1
+    reactants(2) = node%nr2
+    products(1) = node%np1
+    products(2) = node%np2
+    products(3) = node%np3
+    cr1 = node%r1
+    cr2 = node%r2
+    cp1 = node%p1
+    cp2 = node%p2
+    cp3 = node%p3
+    cident = '    "'//trim(cr1)//&
+         ' + '//trim(cr2)//&
+         '->'//trim(cp1)//&
+         ' + '//trim(cp2)//&
+         ' + '//trim(cp3)//'"'
+
+    if ( node%count .gt. 0 ) then
+       IF ( node%count .gt. MAXCOUNT ) then
+          maxcount = node%count
+          maxid = node%id
+       end if
+
+
+       if ( any(products .eq. onum)) then
+          WRITE(O_PROD_UNIT,varfmt) node%count, TIME,FLUENCE, node%id, cident
+       end if
+
+       if ( any(products .eq. o2num)) then
+          WRITE(O2_PROD_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
+       end if
+
+       if ( any(products .eq. o3num)) then
+          WRITE(O3_PROD_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
+       end if
+
+       if ( any(products .eq. ostarnum)) then
+          WRITE(OSTAR_PROD_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
+       end if
+
+       if ( any(products .eq. o2starnum)) then
+          WRITE(O2STAR_PROD_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
+       end if
+
+       if ( any(products .eq. o3starnum)) then
+          WRITE(O3STAR_PROD_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
+       end if
+
+       if ( any(reactants .eq. onum)) then
+          WRITE(O_DEST_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
+       end if
+
+       if ( any(reactants .eq. o2num)) then
+          WRITE(O2_DEST_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
+       end if
+
+       if ( any(reactants .eq. o3num)) then
+          WRITE(O3_DEST_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
+       end if
+
+       if ( any(reactants .eq. ostarnum)) then
+          WRITE(OSTAR_DEST_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
+       end if
+
+       if ( any(reactants .eq. o2starnum)) then
+          WRITE(O2STAR_DEST_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
+       end if
+
+       if ( any(reactants .eq. o3starnum)) then
+          WRITE(O3STAR_DEST_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
+       end if
+
+       node%count = 0
+    end if
+
     IF ( ASSOCIATED(node%next)) THEN
        CALL writereactions(node%next)
     ELSE
        return
     END IF
-    RETURN
+
+    if ( node%id .eq. 1 ) then
+       print *, "maxid = ",maxid, "with count",maxcount
+       MAXCOUNT = 0
+       maxid = 0
+       close(O_PROD_UNIT)
+       close(O2_PROD_UNIT)
+       close(O3_PROD_UNIT)
+       close(O_DEST_UNIT)
+       close(O2_DEST_UNIT)
+       close(O3_DEST_UNIT)
+       close(OSTAR_PROD_UNIT)
+       close(O2STAR_PROD_UNIT)
+       close(O3STAR_PROD_UNIT)
+       close(OSTAR_DEST_UNIT)
+       close(O2STAR_DEST_UNIT)
+       close(O3STAR_DEST_UNIT)
+    end if
   END SUBROUTINE writereactions
 
   SUBROUTINE hopping ( i_in, j_in, k_in, i_out, j_out, k_out, prob )
@@ -738,7 +884,11 @@ CONTAINS
        ELSE
           b_3 = trl_nu*EXP( -1*( EN_LIST(temp%sp_num)*E_BULK     / kin_temp ) )
        END IF
-       b = b_3
+       if ( any(fast_reacts .eq. temp%sp_num) ) then
+          b = 1e18
+       else
+          b = b_3
+       end if
        ! Only hopping (diffusion) can occur
        temp%act_type = 1
     END IF
@@ -1618,8 +1768,10 @@ CONTAINS
           CALL add_node(root,temp)
           error = 1
           !          IF ( DEBUG .EQV. .TRUE. ) &
-          PRINT *, "Products = 0:",r1,"+",r2,"=",pr
-          CALL EXIT()
+          IF ( ISBARRIER .EQ. .FALSE.) THEN
+            PRINT *, "Products = 0:",r1,"+",r2,"=",pr
+            CALL EXIT()
+          END IF
           RETURN
        END IF
        k(3) = 2
@@ -1772,6 +1924,8 @@ CONTAINS
        emfp = 1./(RHO*(se_box%se_ineltot+1.0E-17))
        ! Determine the actual distance travelled
        de = -1.*emfp*LOG(1.-erand)
+
+       de = de*STEPFAC
 
        ! Convert to integer value
        estep = INT(de/C_PR)

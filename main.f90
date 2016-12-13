@@ -29,8 +29,8 @@ PROGRAM main
   DOUBLE PRECISION      :: cpu_max_time
   CHARACTER(len=10)   :: chartime
   CHARACTER(len=80)   :: hopping_file   ! File containing hopping data
-  INTEGER, TARGET     :: o3_prod_target,o3_dest_target
-  INTEGER, POINTER    :: o3_prod,o3_dest
+  INTEGER, TARGET     :: o3_produced_target,o3_destroyed_target
+  INTEGER, POINTER    :: o3_produced,o3_destroyed
   LOGICAL             :: not_infty
   LOGICAL             :: cr_arrival
   DOUBLE PRECISION      :: total_fitness   ! Total fitness
@@ -57,8 +57,8 @@ PROGRAM main
 
   ! Initialize analytics and debugging vals
   numprotons = 0
-  o3_prod_target = 0
-  o3_dest_target = 0
+  o3_produced_target = 0
+  o3_destroyed_target = 0
   temp_time  = 0
   time_check = 0
   time_diff  = 0
@@ -73,26 +73,95 @@ PROGRAM main
        POSITION='APPEND', &
        STATUS='REPLACE')
 
-  OPEN(UNIT=RATE_UNIT_NUM,&
-       FILE="rates.wsv",&
-       POSITION='APPEND', &
-       STATUS='REPLACE')
+  if ( calc_rates .eqv. .true. ) then
+     OPEN(UNIT=RATE_UNIT_NUM,&
+          FILE="rates.wsv",&
+          POSITION='APPEND', &
+          STATUS='REPLACE')
+     CLOSE(RATE_UNIT_NUM)
+  end if
 
   IF ( O3_ANALYTICS .EQV. .TRUE. ) THEN
-     OPEN(UNIT=REACTIONS_UNIT_NUM,&
-          FILE='out_reactions.wsv', &
+     OPEN(UNIT=O_PROD_UNIT,&
+          FILE='o_prod.wsv', &
           STATUS='REPLACE',&
           POSITION='APPEND')
-     CLOSE(REACTIONS_UNIT_NUM)
+     CLOSE(O_PROD_UNIT)
+
+     OPEN(UNIT=O2_PROD_UNIT,&
+          FILE='o2_prod.wsv', &
+          STATUS='REPLACE',&
+          POSITION='APPEND')
+     CLOSE(O2_PROD_UNIT)
+
+     OPEN(UNIT=O3_PROD_UNIT,&
+          FILE='o3_prod.wsv', &
+          STATUS='REPLACE',&
+          POSITION='APPEND')
+     CLOSE(O3_PROD_UNIT)
+
+     OPEN(UNIT=O_DEST_UNIT,&
+          FILE='o_dest.wsv', &
+          STATUS='REPLACE',&
+          POSITION='APPEND')
+     CLOSE(O_DEST_UNIT)
+
+     OPEN(UNIT=O2_DEST_UNIT,&
+          FILE='o2_dest.wsv', &
+          STATUS='REPLACE',&
+          POSITION='APPEND')
+     CLOSE(O2_DEST_UNIT)
+
+     OPEN(UNIT=O3_DEST_UNIT,&
+          FILE='o3_dest.wsv', &
+          STATUS='REPLACE',&
+          POSITION='APPEND')
+     CLOSE(O3_DEST_UNIT)
+
+     OPEN(UNIT=OSTAR_PROD_UNIT,&
+          FILE='ostar_prod.wsv', &
+          STATUS='REPLACE',&
+          POSITION='APPEND')
+     CLOSE(OSTAR_PROD_UNIT)
+
+     OPEN(UNIT=O2STAR_PROD_UNIT,&
+          FILE='o2star_prod.wsv', &
+          STATUS='REPLACE',&
+          POSITION='APPEND')
+     CLOSE(O2STAR_PROD_UNIT)
+
+     OPEN(UNIT=O3STAR_PROD_UNIT,&
+          FILE='o3star_prod.wsv', &
+          STATUS='REPLACE',&
+          POSITION='APPEND')
+     CLOSE(O3STAR_PROD_UNIT)
+
+     OPEN(UNIT=OSTAR_DEST_UNIT,&
+          FILE='ostar_dest.wsv', &
+          STATUS='REPLACE',&
+          POSITION='APPEND')
+     CLOSE(OSTAR_DEST_UNIT)
+
+     OPEN(UNIT=O2STAR_DEST_UNIT,&
+          FILE='o2star_dest.wsv', &
+          STATUS='REPLACE',&
+          POSITION='APPEND')
+     CLOSE(O2STAR_DEST_UNIT)
+
+     OPEN(UNIT=O3STAR_DEST_UNIT,&
+          FILE='o3star_dest.wsv', &
+          STATUS='REPLACE',&
+          POSITION='APPEND')
+     CLOSE(O3STAR_DEST_UNIT)
   END IF
 
   ! Nullify pointers
-  NULLIFY ( o3_prod,o3_dest )
+  NULLIFY ( o3_produced,o3_destroyed )
   NULLIFY( root, temp, prevNode, nextNode )
 
   ! Associate analytics variables
-  o3_prod => o3_prod_target
-  o3_dest => o3_dest_target
+  o3_produced => o3_produced_target
+  o3_destroyed => o3_destroyed_target
 
   ! Initialize time step between abundance checks
   time_step = time_total/time_counts
@@ -173,23 +242,36 @@ PROGRAM main
   ! Call random seed
   CALL RANDOM_SEED()
 
-  ! Find species number for cosmic ray
-  CALL RANDOM_NUMBER(rndnum)
-  cr_time = -1*( DLOG(rndnum)/CR_RATE )
-
+  ! Call t=0 cosmic ray
+  DO
+    ! Initialize variables for model analytics
+    o_temp       = O_ABUNDANCE
+    o2_temp      = O2_ABUNDANCE
+    o3_temp      = O3_ABUNDANCE
+    ! Calculate track/damage
+    CALL fallout( root,temp,prevNode,nextNode )
+    IF ( PROTON_ELOSS .GT. 0 ) THEN
+      NUMPROTONS = NUMPROTONS + 1
+      not_infty = .FALSE.
+      DO WHILE ( not_infty .EQV. .FALSE. )
+        !      rndnum  = RAND()
+        CALL RANDOM_NUMBER(rndnum)
+        cr_time = -1*( DLOG(rndnum)/cr_rate )
+        IF ( cr_time + TIME .LT. 9E6 ) not_infty = .TRUE.
+      END DO
+      cr_time = cr_time + TIME
+      EXIT
+    END IF
+  END DO
+  
   ! Get initial abundances
   CALL counter()
-
-  !******************************************************************************
-  ! Print fitting parameters
-  !******************************************************************************
-  PRINT *, "Aval=",AVAL
 
   !******************************************************************************
   ! Begin the simulation
   !******************************************************************************
   loop_count = 0
-  FLUENCE    = time * CR_FLUX
+  FLUENCE    = 0 
   unfit      = .FALSE.
   cr_arrival = .FALSE.
   PRINT *, "Now  beginning loop"
@@ -258,6 +340,7 @@ PROGRAM main
         hopdesorb: SELECT CASE (temp%act_type)
         CASE(1) ! The species hops
            success = .FALSE.
+           actcase = 0
 
            ! If species is an excited species, check for nearby reactants
            if ( any(fast_reacts .eq. temp%sp_num) ) then
@@ -364,18 +447,20 @@ PROGRAM main
            else if (success .EQV. .FALSE.) then
               CALL hopping(temp%coord1,temp%coord2,temp%coord3,&
                    j(1),j(2),j(3),temp%hop_dir)
+              if (ALL(ABS(j-i) .EQ. 0)) actcase = 3
            END IF
 
            nextNode => MATRIX(j(1),j(2),j(3))
 
-           actcase = 0
            samesite: if (ALL(ABS(j-i) .EQ. 0)) then
               isfast: if ( (any(fast_reacts .eq. temp%sp_num)) .and. (success .eqv. .false.) ) then
                  actcase = 2
               else if (nextNode%sp_num .eq. 0 )  then
                  actcase = 1
               end if isfast
-           else
+            else if ( MATRIX(j(1),j(2),j(3))%sp_num .eq. 0 ) then
+              actcase = 1 
+            else
               actcase = 2
            end if samesite
 
@@ -402,8 +487,17 @@ PROGRAM main
               ! j => the site to which the species is hopping
               k = 1
               CALL new_reaction(i,j,k,root,temp,prevNode,nextNode,error)
+           case(3)
+              ! i=j: recalculate wait time and add back to tree
+              CALL delete_node(root,temp,prevNode,nextNode,error)
+              ! Point temp to new location
+              temp => MATRIX(i(1),i(2),i(3))
+              ! Get new hopping time
+              CALL wait_calc(temp)
+              ! Add back to tree
+              CALL add_node(root,temp)
            case default
-              print *, "error! actcase=0"
+              print *, "Error! acttype=0"
               call exit()
            end select movesp
         CASE(2) ! The species desorbs
@@ -439,13 +533,13 @@ PROGRAM main
         IF ( FIX_FREQ .EQV. .FALSE. ) THEN
            ! Set time_freq
            IF ( FLUENCE .GT. 1.0d13 .AND. FLUENCE .LT. 1.0d14 ) THEN
-              TIME_FREQ = 10
-           ELSE IF ( FLUENCE .GT. 1.0d14 .AND. FLUENCE .LT. 1.0d15) THEN
               TIME_FREQ = 100
-           ELSE IF ( FLUENCE .GT. 1.0d15 .AND. FLUENCE .LT. 1.0d16) THEN
+           ELSE IF ( FLUENCE .GT. 1.0d14 .AND. FLUENCE .LT. 1.0d15) THEN
               TIME_FREQ = 1000
-           ELSE IF ( FLUENCE .GT. 1.0d16 ) THEN
+           ELSE IF ( FLUENCE .GT. 1.0d15 .AND. FLUENCE .LT. 1.0d16) THEN
               TIME_FREQ = 10000
+           ELSE IF ( FLUENCE .GT. 1.0d16 ) THEN
+              TIME_FREQ = 100000
            END IF
         END IF
 

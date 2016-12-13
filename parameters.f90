@@ -16,6 +16,8 @@ MODULE parameters
   INTEGER                                :: NUMPROTONS  = 0
   DOUBLE PRECISION                       :: TIME        = 0
   TYPE(reaction), POINTER                :: RE_HEAD
+  integer :: maxcount = 0
+  integer :: maxid = 0
 
   !******************************************************************************
   ! Input file names
@@ -85,7 +87,7 @@ MODULE parameters
   !******************************************************************************
   INTEGER         , PARAMETER :: IONS              = 6      ! Number of anions in species list
   INTEGER         , PARAMETER :: TIME_COUNTS       = 2      ! Times the model will check abundances
-  DOUBLE PRECISION            :: FLUENCE        = 0.d0
+  DOUBLE PRECISION            :: FLUENCE           = 0.d0
   DOUBLE PRECISION, PARAMETER :: TIME_TOTAL        = 1D5    ! Total time in s
   DOUBLE PRECISION, PARAMETER :: ECUTOFF           = 9.0D0  ! Secondary cutoff energy in eV
   DOUBLE PRECISION, PARAMETER :: PCUTOFF           = 5.0D0  ! Primary ion cutoff energy in eV
@@ -94,17 +96,29 @@ MODULE parameters
   DOUBLE PRECISION, PARAMETER :: FITNESS_THRESHOLD = 1E20   ! Terminate if FITNESS > this
   DOUBLE PRECISION, PARAMETER :: ELASTIC_LOSS      = 0.0    ! Percent of Etot lost per electron hop
   DOUBLE PRECISION, PARAMETER :: TRL_NU            = 1.0E12 ! Trial frequency, for the rates, in 1/s
-  DOUBLE PRECISION, PARAMETER :: STEPFAC           = 1.0d0  ! Determines freq. between colls. for protons
+  DOUBLE PRECISION, PARAMETER :: STEPFAC           = 1.0d-1  ! Determines freq. between colls. for protons
 
 
   !******************************************************************************
   ! Output File Unit Numbers
   !******************************************************************************
-  INTEGER         , PARAMETER :: AB_UNIT_NUM        = 1009                        ! Abundance output file
-  INTEGER         , PARAMETER :: RATE_UNIT_NUM      = 1946                        ! Rate output file
-  INTEGER         , PARAMETER :: TRACKPLOT_UNIT_NUM = 2016
-  INTEGER         , PARAMETER :: REACTIONS_UNIT_NUM = 777
-
+  INTEGER         , PARAMETER :: SPECIES_UNIT_NUM   = 1
+  INTEGER         , PARAMETER :: REACTIONS_UNIT_NUM = 2
+  INTEGER         , PARAMETER :: AB_UNIT_NUM        = 3    ! Abundance output file
+  INTEGER         , PARAMETER :: RATE_UNIT_NUM      = 4    ! Rate output file
+  INTEGER         , PARAMETER :: TRACKPLOT_UNIT_NUM = 5    ! Track file
+  INTEGER         , PARAMETER :: O_PROD_UNIT        = 6    ! Atomic O reactions
+  INTEGER         , PARAMETER :: O2_PROD_UNIT       = 7    ! O2 reactions
+  INTEGER         , PARAMETER :: O3_PROD_UNIT       = 8    ! O3 reactions
+  INTEGER         , PARAMETER :: O_DEST_UNIT        = 9    ! Atomic O reactions
+  INTEGER         , PARAMETER :: O2_DEST_UNIT       = 10    ! O2 reactions
+  INTEGER         , PARAMETER :: O3_DEST_UNIT       = 11   ! O3 reactions
+  INTEGER         , PARAMETER :: OSTAR_PROD_UNIT    = 12
+  INTEGER         , PARAMETER :: O2STAR_PROD_UNIT   = 13
+  INTEGER         , PARAMETER :: O3STAR_PROD_UNIT   = 14
+  INTEGER         , PARAMETER :: OSTAR_DEST_UNIT    = 15
+  INTEGER         , PARAMETER :: O2STAR_DEST_UNIT   = 16
+  INTEGER         , PARAMETER :: O3STAR_DEST_UNIT   = 17
   !******************************************************************************
   ! Analytics Parameters
   !******************************************************************************
@@ -133,13 +147,16 @@ MODULE parameters
   INTEGER                     :: O3NUM   = 7 ! Index of ozone in code
   INTEGER                     :: O2NUM   = 1 ! Index of molecular oxygen in code
   INTEGER                     :: ONUM    = 4 ! Index of atomic oxygen in the code
+  INTEGER                     :: OSTARNUM = 11
+  INTEGER                     :: O2STARNUM = 10
+  INTEGER                     :: O3STARNUM = 12
 
 
   !******************************************************************************
   ! Array Variables
   !******************************************************************************
   INTEGER                     :: SPECIAL_LIST(4) = 0
-  INTEGER                     :: TIME_FREQ       = 1000  !1000000
+  INTEGER                     :: TIME_FREQ       = 100000  !1000000
 
   !******************************************************************************
   ! Switches
@@ -153,9 +170,10 @@ MODULE parameters
   LOGICAL         , PARAMETER :: O3_ANALYTICS = .TRUE.
   LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
   LOGICAL         , PARAMETER :: FIX_FREQ     = .TRUE.
+  LOGICAL                     :: ISBARRIER    = .FALSE.
 
   !******************************************************************************
   ! Fitting parameters
   !******************************************************************************
-  DOUBLE PRECISION :: AVAL         = 21.0d0     ! Parameter for Gamma distribution
+  DOUBLE PRECISION :: AVAL         = 200.0d0 !21.0d0     ! Parameter for Gamma distribution
 END MODULE parameters

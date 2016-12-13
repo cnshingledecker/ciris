@@ -19,8 +19,8 @@ CONTAINS
     DOUBLE PRECISION                 :: arrh_alpha,arrh_beta,arrh_gamma
 
     ! Open files
-    OPEN(UNIT=1,FILE=SPECIES_FILE  ,STATUS='OLD',ACTION='READ',IOSTAT=ierror1)
-    OPEN(UNIT=2,FILE=REACTIONS_FILE,STATUS='OLD',ACTION='READ',IOSTAT=ierror2)
+    OPEN(UNIT=SPECIES_UNIT_NUM,FILE=SPECIES_FILE,STATUS='OLD',ACTION='READ',IOSTAT=ierror1)
+    OPEN(UNIT=REACTIONS_UNIT_NUM,FILE=REACTIONS_FILE,STATUS='OLD',ACTION='READ',IOSTAT=ierror2)
 
     fileopen: IF ( ierror1 .EQ. 0 .AND. ierror2 .EQ. 0 ) THEN
        ! Initialize local values
