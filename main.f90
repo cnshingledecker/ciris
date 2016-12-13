@@ -47,11 +47,6 @@ PROGRAM main
   PRINT *, "***STARTING CIRIS***"
   PRINT *, "********************"
 
-
-  ! Read in constants and save seed
-  CALL SYSTEM("/bin/bash pre.sh")
-  CALL store_rand()
-
   ! Initialize total_fitness
   total_fitness = 0
 
@@ -597,6 +592,4 @@ PROGRAM main
   !CLOSE(1011)
   !CLOSE(1013)
   IF ( DEBUG .EQV. .TRUE. ) CLOSE(777)
-
-  CALL SYSTEM("/bin/bash post.sh")
 END PROGRAM main
