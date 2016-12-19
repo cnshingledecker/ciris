@@ -2,20 +2,18 @@
 ! 1 -> unimolecular reaction
 ! 2 -> bimolecular neutral-neutral reaction
 ! 3 -> termolecular neutral-neutral-neutral reaction
-! 4 -> Dissociative recombination
-! 5 -> Ionization by energetic ion
+! 4 -> Electron-cation recombination
+! 5 -> Ionization by energetic particle 
 ! 6 -> Ion-Ion charge recombination
 ! 7 -> Neutral-electron anion formation
-! 8 -> Excitation by an energetic ion
+! 8 -> Excitation by an energetic particle 
 !R1   R2    P1    P2   P3  \alpha      \beta        \gamma    , RTYPE, SOURCE
 O   , CRP , O+  , e  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 5, Shingledecker&Herbst2017
 O2  , CRP , O2+ , e  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 5, Fueki&Magee1963
-!O2  , CRP , O+ , e  , O*, 1.0000E+00, +0.0000E+00, 0.0000E+00, 5, Fueki&Magee1963
 O3  , CRP , O3+ , e  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 5, Shingledecker&Herbst2017
-!O3  , CRP , O2+ , e  , O*, 1.0000E+00, +0.0000E+00, 0.0000E+00, 5, Shingledecker&Herbst2017
 O*  , CRP , O+  , e  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 5, Shingledecker&Herbst2017
 O2* , CRP , O2+ , e  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 5, Fueki&Magee1963
-O2* , CRP , O+ , e  , O*, 1.0000E+00, +0.0000E+00, 0.0000E+00, 5, Shingledecker&Herbst2017
+O2* , CRP , O+ , e   , O*, 1.0000E+00, +0.0000E+00, 0.0000E+00, 5, Shingledecker&Herbst2017
 O3* , CRP , O3+ , e  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 5, Shingledecker&Herbst2017
 O3* , CRP , O2+ , e  , O*, 1.0000E+00, +0.0000E+00, 0.0000E+00, 5, Shingledecker&Herbst2017
 O   , *   , O*  , 0  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 8, Shingledecker&Herbst2017
@@ -42,7 +40,6 @@ O   , O2  , O3  , 0  , 0 , 6.2035E+17, -1.5000E+00, 0.0000E+00, 3, LutherOumTroe
 O   , O2  , O   , O2 , 0 , 6.2035E+17, -1.5000E+00, 0.0000E+00, 3, LutherOumTroe2005 
 O   , O3  , O2  , O2 , 0 , 4.8200E+12, +0.0000E+00, 2.0446E+03, 2, Atkinson_et_al2004 
 O*  , O3  , O2  , O2 , 0 , 1.2000E-10, +0.0000E+00, 0.0000E+00, 2, Brasseuer&Solomon1986
-!O*  , O3  , O3  , O  , 0 , 2.4000E-10, +0.0000E+00, 0.0000E+00, 2, Amimoto1978 
 O*  , O2  , O3  , 0  , 0 , 4.0000E-02, -4.2300E+00, 0.0000E+00, 2, Castellano&Schumacher1969
 O*  , O2  , O   , O2 , 0 , 3.2000E-11, +0.0000E+00, 0.0000E+00, 2, DeMore_et_al1997 
 O*  , O   , O2  , 0  , 0 , 2.5400E-12, +0.0000E+00, 0.0000E+00, 2, Sobral_et_al1993
@@ -55,7 +52,6 @@ O*  , O*  , O2  , 0  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 2, Shingledecker
 O*  , O2* , O3  , 0  , 0 , 1.0000E-11, +0.0000E+00, 0.0000E+00, 2, Shingledecker&Herbst2017
 O*  , O2* , O   , O2 , 0 , 1.0000E-11, +0.0000E+00, 0.0000E+00, 2, Doroshenko_et_al1992 
 O*  , O3* , O2  , O2 , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 2, Shingledecker&Herbst2017
-!O*  , O3* , O   , O3 , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 2, Shingledecker&Herbst2017
 O2* , O2* , O2  , O2 , 0 , 6.9100E-17, +0.0000E+00, 3.6080E+02, 2, Heidner_et_al1981
 O2* , O3* , O2  , O2 , O , 1.0000E+00, +0.0000E+00, 0.0000E+00, 2, Shingledecker&Herbst2017
 O3* , O3* , O3  , O3 , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 2, Shingledecker&Herbst2017
@@ -65,30 +61,24 @@ O3* , O2  , O2  , O2 , O , 1.0000E+00, +0.0000E+00, 0.0000E+00, 2, Shingledecker
 O3* , O3  , O3  , O3 , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 2, Shingledecker&Herbst2017
 O3* , O3  , O2  , O2 , O2, 1.0000E+00, +0.0000E+00, 0.0000E+00, 2, Shingledecker&Herbst2017
 O2+ , O2- , O2* , O2 , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Anderson1968
-!O2+ , O2- , O3  , O  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Anderson1968
 O2+ , O-  , O   , O2*, 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Anderson1968
 O2+ , O-  , O3* , 0  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Anderson1968
 O2- , O+  , O   , O2 , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Anderson1968
 O2- , O+  , O3* , 0  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Anderson1968
 O+  , O-  , O2* , 0  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
 O+  , O-  , O   , O  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
-!O+  , O3- , O2  , O2 , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
 O+  , O3- , O2  , O  , O , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
 O+  , O3- , O3  , O  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
-!O-  , O3+ , O2  , O2 , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
 O-  , O3+ , O2  , O  , O , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
 O-  , O3+ , O3  , O  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
-!O3+ , O3- , O2  , O2 , O2, 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
 O3+ , O3- , O3  , O2 , O , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
 O3+ , O3- , O3  , O3 , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
-!O2- , O3+ , O2  , O2 , O , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
 O2- , O3+ , O3  , O  , O , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
 O2- , O3+ , O3  , O2 , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
-!O2+ , O3- , O2  , O2 , O , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
 O2+ , O3- , O3  , O  , O , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
 O2+ , O3- , O3  , O2 , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 6, Shingledecker&Herbst2017
-O*  , M   , O   , 0  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 9, Shingledecker&Herbst2017
-O2* , M   , O2  , 0  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 9, Shingledecker&Herbst2017
-O2* , M   , O   , O  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 9, Shingledecker&Herbst2017
-O3* , M   , O3  , 0  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 9, Shingledecker&Herbst2017
-O3* , M   , O2  , O  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 9, Shingledecker&Herbst2017
+O*  , M   , O   , 0  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 1, Shingledecker&Herbst2017
+O2* , M   , O2  , 0  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 1, Shingledecker&Herbst2017
+O2* , M   , O   , O  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 1, Shingledecker&Herbst2017
+O3* , M   , O3  , 0  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 1, Shingledecker&Herbst2017
+O3* , M   , O2  , O  , 0 , 1.0000E+00, +0.0000E+00, 0.0000E+00, 1, Shingledecker&Herbst2017
