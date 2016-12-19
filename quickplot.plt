@@ -4,14 +4,15 @@
 #set terminal postscript eps enhanced color font '~/hershey-fonts/hershey-fonts/futural.jhf'
 #set output 'plotabundance.eps'
 #set terminal dumb 
-#set term x11
+set term x11
 set logscale x
-set datafile separator ','
+#set logscale y
+#set datafile separator ' '
 #Plot vs. fluence
 #set term x11 0
-plot 'abundance.csv' using 2:5 with line
+plot 'abundance.wsv' using 1:3 with line, \
+     'abundance.wsv' using 1:5 with line
 #set term x11 1
-#set logscale y
 #plot 'abundance.csv' using 2:6 with line
 pause -1
 #Plot vs. proton count

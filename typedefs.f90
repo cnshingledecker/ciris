@@ -152,6 +152,8 @@ MODULE typedefs
   TYPE :: species
      CHARACTER(len=10) :: name
      INTEGER :: id
+     integer :: atoms
+     integer :: charge
      DOUBLE PRECISION :: e_d
      LOGICAL :: ion
      logical :: exc

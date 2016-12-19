@@ -10,7 +10,7 @@ CONTAINS
   ! *********************************************************
   ! ******* SUBROUTINES *************************************
   ! *********************************************************
-  RECURSIVE SUBROUTINE lookup(name,node,id)
+  RECURSIVE SUBROUTINE lookup(name,node,id,atoms,charge)
     !
     ! Purpose:
     !   This is a subroutine that compares a string value to values
@@ -19,16 +19,18 @@ CONTAINS
     !
     !! LOOKUP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
-    INTEGER            :: id
+    INTEGER            :: id, atoms, charge
     CHARACTER(len=10)  :: name
     TYPE(species) :: node
 
     IF ( TRIM(name) .EQ. TRIM(node%name) ) THEN
        id = node%id
+       atoms = node%atoms
+       charge = node%charge
        RETURN
     ELSE
        IF ( ASSOCIATED(node%next)) THEN
-          CALL lookup(name,node%next,id)
+          CALL lookup(name,node%next,id,atoms,charge)
        ELSE
           id = -1
           PRINT *, "ERROR! No match!"
@@ -925,9 +927,10 @@ CONTAINS
     IMPLICIT NONE
     INTEGER                                                    :: i,j,k
     INTEGER                                                    :: o_count,o2_count,o3_count
+    integer :: ostarcount,o2starcount,o3starcount
+    integer :: numatoms, othercount
     DOUBLE PRECISION                                             :: denom
     DOUBLE PRECISION                                             :: area
-    DOUBLE PRECISION                                             :: fluence
     CHARACTER(len=80)                                          :: varfmt
 
     area   = EDGE*EDGE
@@ -935,10 +938,10 @@ CONTAINS
     o_count = 0
     o2_count = 0
     o3_count = 0
-    ! Method 1 of fluence calculation
-    fluence  = CR_FLUX*TIME ! Note: This is the x-value for the objective function
-    ! Method 2 of fluence calculation (only use 1 at a time )
-    ! fluence = numprotons/area
+    ostarcount = 0
+    o2starcount = 0
+    o3starcount = 0
+    othercount = 0
 
     DO k = 1,DIMENS(3)
        DO j = 1,DIMENS(2)
@@ -949,6 +952,16 @@ CONTAINS
                 o2_count = o2_count + 1
              ELSE IF ( MATRIX(i,j,k)%sp_num .EQ. ONUM ) THEN
                 o_count = o_count + 1
+             ELSE IF ( MATRIX(i,j,k)%sp_num .EQ. ONUM ) THEN
+                o_count = o_count + 1
+             ELSE IF ( MATRIX(i,j,k)%sp_num .EQ. OSTARNUM ) THEN
+                ostarcount = ostarcount + 1
+             ELSE IF ( MATRIX(i,j,k)%sp_num .EQ. O2STARNUM ) THEN
+                o2starcount = o2starcount + 1
+             ELSE IF ( MATRIX(i,j,k)%sp_num .EQ. O3STARNUM ) THEN
+                o3starcount = o3starcount + 1
+             ELSE IF ( matrix(i,j,k)%sp_num .NE. 0 ) THEN 
+               othercount = othercount + 1
              END IF
           END DO
        END DO
@@ -958,14 +971,25 @@ CONTAINS
     O2_ABUNDANCE = o2_count
     O3_ABUNDANCE = o3_count
 
+    numatoms = o_count + (2*o2_count) + (3*o3_count)
+    numatoms = numatoms + ostarcount + (2*o2starcount) + (3*o3starcount)
+    IF ( numatoms .NE. initialatoms ) THEN
+      print *, numatoms,"<",initialatoms
+      call exit()
+    end if
+
     IF ( NO_OUTPUT .EQV. .FALSE. ) THEN
-       varfmt = "(2ES15.4,3I10)"
+       varfmt = "(2ES15.4,7I10)"
        WRITE(AB_UNIT_NUM,varfmt) &
             FLUENCE, & ! 1. Float64
             TIME,    & ! 3. Float64
             o2_count, & ! 4. Int64
             o_count, & ! 5. Int64
-            o3_count          ! 6. Int64
+            o3_count, &          ! 6. Int64
+            ostarcount, &
+            o2starcount, &
+            o3starcount, &
+            numatoms
     END IF
 
     if ( o3_analytics .eqv. .true. ) call writereactions(RE_HEAD)
@@ -976,8 +1000,11 @@ CONTAINS
        varfmt = "(A5,ES10.4,A6,ES10.4)"
        PRINT varfmt, " [O]=",o_count/denom," [O3]=",o3_count/denom
        PRINT *, '***********************************************************************'
-       PRINT *, "O=",O_ABUNDANCE,"O3=",O3_ABUNDANCE
+       PRINT *, "O=",O_ABUNDANCE,"O2=",o2_count,"O3=",O3_ABUNDANCE
+       PRINT *, "O*=",ostarcount,"O2*=",o2starcount,"O3*=",o3starcount
+       print *, "numatoms=",numatoms, "othercount=",othercount
        PRINT *, '***********************************************************************'
+
     END IF
   END SUBROUTINE counter
 
@@ -1674,6 +1701,7 @@ CONTAINS
     NULLIFY(temp_node%before,temp_node%after,temp_node%parent)
 
     IF ( (MOD(y,2) .EQ. 1) .AND. (MOD(z,2) .EQ. 1) ) THEN
+       INITIALATOMS = INITIALATOMS + 2
        temp_node%normal = .TRUE.
        temp_node%sp_num = 1
        CALL wait_calc(temp_node)
@@ -1808,7 +1836,18 @@ CONTAINS
           RETURN
        END IF
        IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Third product=:",pr
-       CALL find_empty_site(i,pr_coords,error)
+       DO
+         CALL find_empty_site(i,pr_coords,error)
+         IF ( .NOT. ALL(ABS(i-pr_coords) .EQ. 0) .AND. &
+              .NOT. ALL(ABS(j-pr_coords) .EQ. 0)) THEN
+            IF ( debug .eqv. .true. ) then
+              print *, "i=",i
+              print *, "j=",j
+              print *, "pr_coords=",pr_coords
+            end if
+            exit
+          end if
+       END DO
        IF ( (error .EQ. 1) .AND. (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
           ! If there are no empty sites around i, and i!=j, try j
           error = 0
@@ -1820,7 +1859,8 @@ CONTAINS
           END IF
        END IF
        ! At this points, when the subroutine quits, i=P1,j=p2,k=P3...
-       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Third product coords are:",pr_coords
+!       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Third product coords are:",pr_coords
+       k = 4
     END SELECT
 
     ! Once the case is selected, point to coords to place
@@ -1853,7 +1893,7 @@ CONTAINS
 
     ! Call subroutine again, and check for next product:
     ! if the next product is zero, return
-    IF ( k(3) .LT. 3 ) THEN
+    IF ( k(3) .LE. 3 ) THEN
        CALL new_reaction(i,j,k,root,temp,prevNode,nextNode,error)
     ELSE
        k = pr_coords

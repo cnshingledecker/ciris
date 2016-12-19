@@ -47,6 +47,11 @@ PROGRAM main
   PRINT *, "***STARTING CIRIS***"
   PRINT *, "********************"
 
+
+  ! Read in constants and save seed
+  CALL SYSTEM("/bin/bash pre.sh")
+  CALL store_rand()
+
   ! Initialize total_fitness
   total_fitness = 0
 
@@ -219,6 +224,7 @@ PROGRAM main
   PRINT *, 'In main, the dimens are:',dimens
   ALLOCATE ( MATRIX( DIMENS(1),DIMENS(2),DIMENS(3) ) )
 
+  initialatoms = 0
   DO zz=1,DIMENS(3)
      DO yy=1,DIMENS(2)
         DO xx=1,DIMENS(1)
@@ -227,7 +233,7 @@ PROGRAM main
         END DO
      END DO
   END DO
-  PRINT *, "Matrix has been fully initialized"
+  PRINT *, "Matrix has been fully initialized with",initialatoms,"initial atoms."
 
   !******************************************************************************
   ! Calculate initial waiting times
@@ -239,26 +245,26 @@ PROGRAM main
 
   ! Call t=0 cosmic ray
   DO
-    ! Initialize variables for model analytics
-    o_temp       = O_ABUNDANCE
-    o2_temp      = O2_ABUNDANCE
-    o3_temp      = O3_ABUNDANCE
-    ! Calculate track/damage
-    CALL fallout( root,temp,prevNode,nextNode )
-    IF ( PROTON_ELOSS .GT. 0 ) THEN
-      NUMPROTONS = NUMPROTONS + 1
-      not_infty = .FALSE.
-      DO WHILE ( not_infty .EQV. .FALSE. )
-        !      rndnum  = RAND()
-        CALL RANDOM_NUMBER(rndnum)
-        cr_time = -1*( DLOG(rndnum)/cr_rate )
-        IF ( cr_time + TIME .LT. 9E6 ) not_infty = .TRUE.
-      END DO
-      cr_time = cr_time + TIME
-      EXIT
-    END IF
+     ! Initialize variables for model analytics
+     o_temp       = O_ABUNDANCE
+     o2_temp      = O2_ABUNDANCE
+     o3_temp      = O3_ABUNDANCE
+     ! Calculate track/damage
+     CALL fallout( root,temp,prevNode,nextNode )
+     IF ( PROTON_ELOSS .GT. 0 ) THEN
+        NUMPROTONS = NUMPROTONS + 1
+        not_infty = .FALSE.
+        DO WHILE ( not_infty .EQV. .FALSE. )
+           !      rndnum  = RAND()
+           CALL RANDOM_NUMBER(rndnum)
+           cr_time = -1*( DLOG(rndnum)/cr_rate )
+           IF ( cr_time + TIME .LT. 9E6 ) not_infty = .TRUE.
+        END DO
+        cr_time = cr_time + TIME
+        EXIT
+     END IF
   END DO
-  
+
   ! Get initial abundances
   CALL counter()
 
@@ -266,7 +272,7 @@ PROGRAM main
   ! Begin the simulation
   !******************************************************************************
   loop_count = 0
-  FLUENCE    = 0 
+  FLUENCE    = 0
   unfit      = .FALSE.
   cr_arrival = .FALSE.
   PRINT *, "Now  beginning loop"
@@ -332,6 +338,9 @@ PROGRAM main
         i(3) = temp%coord3
 
         ! If it is a regular species, decide it hopping or desorption
+        if ( temp%act_type .eq. 2 ) then
+           temp%act_type = 1
+        end if
         hopdesorb: SELECT CASE (temp%act_type)
         CASE(1) ! The species hops
            success = .FALSE.
@@ -436,9 +445,15 @@ PROGRAM main
 
            ! Call hopping to get new coords
            IF ( (success .EQV. .FALSE.) .and. (any(fast_reacts .eq. temp%sp_num)) ) THEN
-              j = i
-              temp%sec_sp_num = MNUM
-              nextNode => MATRIX(j(1),j(2),j(3))
+              IF ( temp%sp_num .EQ. ONUM ) THEN
+                 CALL hopping(temp%coord1,temp%coord2,temp%coord3,&
+                      j(1),j(2),j(3),temp%hop_dir)
+                 if (ALL(ABS(j-i) .EQ. 0)) actcase = 3
+              ELSE
+                 j = i
+                 temp%sec_sp_num = MNUM
+                 nextNode => MATRIX(j(1),j(2),j(3))
+              END IF
            else if (success .EQV. .FALSE.) then
               CALL hopping(temp%coord1,temp%coord2,temp%coord3,&
                    j(1),j(2),j(3),temp%hop_dir)
@@ -448,16 +463,26 @@ PROGRAM main
            nextNode => MATRIX(j(1),j(2),j(3))
 
            samesite: if (ALL(ABS(j-i) .EQ. 0)) then
-              isfast: if ( (any(fast_reacts .eq. temp%sp_num)) .and. (success .eqv. .false.) ) then
+              isfast: if ( (any(fast_reacts .eq. temp%sp_num)) .and. &
+                   (success .eqv. .false.) ) then
                  actcase = 2
               else if (nextNode%sp_num .eq. 0 )  then
                  actcase = 1
               end if isfast
-            else if ( MATRIX(j(1),j(2),j(3))%sp_num .eq. 0 ) then
-              actcase = 1 
-            else
+           else if ( MATRIX(j(1),j(2),j(3))%sp_num .eq. 0 ) then
+              actcase = 1
+           else
               actcase = 2
            end if samesite
+
+           IF ( DEBUG .EQV. .TRUE. ) PRINT *, "r1=",temp%sp_num,"at",i
+           IF ( DEBUG .EQV. .TRUE. ) PRINT *, "r2=",nextNode%sp_num,"at",j
+           IF ( DEBUG .EQV. .TRUE. ) PRINT *, "r*=",temp%sec_sp_num,"at",i
+
+           if ( (temp%sp_num .eq. 12) .and. (nextNode%sp_num .eq. 1)) then
+              continue
+           end if
+
 
 
            ! If the site is empty, move product there
@@ -539,7 +564,7 @@ PROGRAM main
         END IF
 
         checktime: IF ( MOD(time_check,TIME_FREQ) .EQ. 0 ) THEN
-           CALL fitness(unfit,FLUENCE,total_fitness)
+           CALL fitness(unfit,total_fitness)
            t1 = t2
            N_OHOP = 0
            N_O3HOP = 0
@@ -592,4 +617,6 @@ PROGRAM main
   !CLOSE(1011)
   !CLOSE(1013)
   IF ( DEBUG .EQV. .TRUE. ) CLOSE(777)
+
+  CALL SYSTEM("/bin/bash post.sh")
 END PROGRAM main

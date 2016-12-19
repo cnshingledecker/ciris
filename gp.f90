@@ -3,7 +3,7 @@ MODULE gp
   USE typedefs
   USE subroutines
 CONTAINS
-  SUBROUTINE fitness(unfit,FLUENCE,total_fitness)
+  SUBROUTINE fitness(unfit,total_fitness)
     ! Purpose:
     !    This subroutine measures the fitness of the current simulation.
     !  the resulting fitness is added to the total fitness thusfar.
@@ -11,18 +11,16 @@ CONTAINS
     !! FITNESS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IMPLICIT NONE
     LOGICAL                                                    :: unfit
-    DOUBLE PRECISION                                             :: FLUENCE
-    DOUBLE PRECISION   , INTENT(OUT)                             :: total_fitness
+    DOUBLE PRECISION   , INTENT(OUT)                           :: total_fitness
     INTEGER                                                    :: err
     CHARACTER(LEN=80), PARAMETER                               :: FITNESS_FILE = 'fitness_results'
     CHARACTER(LEN=80)                                          :: varfmt
-    DOUBLE PRECISION                                             :: denom
-    DOUBLE PRECISION                                             :: objective
-    DOUBLE PRECISION                                             :: model
-    DOUBLE PRECISION                                             :: fit
-    DOUBLE PRECISION                                             :: part1, part2
+    DOUBLE PRECISION                                           :: denom
+    DOUBLE PRECISION                                           :: objective
+    DOUBLE PRECISION                                           :: model
+    DOUBLE PRECISION                                           :: fit
+    DOUBLE PRECISION                                           :: part1, part2
 
-    CALL counter()
 
     fit       = 0
     denom     = THICK*EDGE*EDGE*1.0E20    ! volume * 1E20
@@ -47,6 +45,8 @@ CONTAINS
        PRINT *, 'Total fitness: ', total_fitness
        PRINT *, '***********************************************************************'
 !    END IF
+
+    CALL counter()
 
     ! if current solution's total_fitness score is too big, save time and end the simulation
     IF (total_fitness > FITNESS_THRESHOLD) THEN

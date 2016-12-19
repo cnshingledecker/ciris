@@ -18,6 +18,7 @@ MODULE parameters
   TYPE(reaction), POINTER                :: RE_HEAD
   integer :: maxcount = 0
   integer :: maxid = 0
+  integer :: initialatoms = 0
 
   !******************************************************************************
   ! Input file names
@@ -91,7 +92,7 @@ MODULE parameters
   DOUBLE PRECISION, PARAMETER :: TIME_TOTAL        = 1D5    ! Total time in s
   DOUBLE PRECISION, PARAMETER :: ECUTOFF           = 9.0D0  ! Secondary cutoff energy in eV
   DOUBLE PRECISION, PARAMETER :: PCUTOFF           = 5.0D0  ! Primary ion cutoff energy in eV
-  DOUBLE PRECISION, PARAMETER :: FLUENCE_TOTAL     = 1.0D16
+  DOUBLE PRECISION, PARAMETER :: FLUENCE_TOTAL     = 1.0D17
   DOUBLE PRECISION, PARAMETER :: SUBEXHITPROB      = 0.5
   DOUBLE PRECISION, PARAMETER :: FITNESS_THRESHOLD = 1E20   ! Terminate if FITNESS > this
   DOUBLE PRECISION, PARAMETER :: ELASTIC_LOSS      = 0.0    ! Percent of Etot lost per electron hop
@@ -175,5 +176,5 @@ MODULE parameters
   !******************************************************************************
   ! Fitting parameters
   !******************************************************************************
-  DOUBLE PRECISION :: AVAL         = 200.0d0 !21.0d0     ! Parameter for Gamma distribution
+  DOUBLE PRECISION :: AVAL         = 100.0d0 !21.0d0     ! Parameter for Gamma distribution
 END MODULE parameters

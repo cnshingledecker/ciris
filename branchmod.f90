@@ -19,8 +19,8 @@ CONTAINS
     REAL    :: rnum
     CHARACTER(80) :: varfmt
     TYPE(reaction), POINTER :: re_temp
-    TYPE(reaction_info) :: pathways(2)
-    DOUBLE PRECISION :: val1, val2
+    TYPE(reaction_info) :: pathways(4)
+    DOUBLE PRECISION :: vals(4)
     DOUBLE PRECISION :: prob1, prob2
     DOUBLE PRECISION :: barrier
     double precision :: rand
@@ -32,13 +32,12 @@ CONTAINS
     firstcall: IF ( pr .EQ. 1 ) THEN
        ! Initialize pathways data structure
        ISBARRIER = .FALSE.
-       PRODS = 0
-       val1    = 0
-       val2    = 0
-       prob1   = 0
-       prob2   = 0
-       barrier = 0
-       initpaths: DO n=1,2
+       PRODS     = 0
+       vals      = 0
+       prob1     = 0
+       prob2     = 0
+       barrier   = 0
+       initpaths: DO n=1,SIZE(pathways,1)
           pathways(n)%nr1 = 0
           pathways(n)%nr2 = 0
           pathways(n)%np1 = 0
@@ -54,7 +53,7 @@ CONTAINS
        ! 1. Go through list of reactions and find all between reactant1 and r2
        re_temp => RE_HEAD
        n = 0
-       getpaths: DO 
+       getpaths: DO
           tempr1 = re_temp%nr1
           tempr2 = re_temp%nr2
           IF ( ((tempr1 .EQ. reactant1) .AND. (tempr2 .EQ. reactant2)) .or. &
@@ -90,58 +89,25 @@ CONTAINS
 
           ! 3. Based on reaction type, calculate rate coeff. and store that in data-structure
           SELECT CASE (pathways(1)%rtype)
-          CASE(1)
-             PRINT *, "Case",pathways(1)%rtype,"is not implemented!"
-             CALL EXIT()
           CASE(2)
-             val1 = arrhenius(&
-                  pathways(1)%arrh_alpha,&
-                  pathways(1)%arrh_beta,&
-                  pathways(1)%arrh_gamma)
-             val2 = arrhenius(&
-                  pathways(2)%arrh_alpha,&
-                  pathways(2)%arrh_beta,&
-                  pathways(2)%arrh_gamma)
-          CASE(3)
-             val1 = pathways(1)%arrh_alpha
-             val2 = pathways(2)%arrh_alpha
-          CASE(4)
-             val1 = pathways(1)%arrh_alpha
-             val2 = pathways(2)%arrh_alpha
-          CASE(5)
-             val1 = pathways(1)%arrh_alpha
-             val2 = pathways(2)%arrh_alpha
-          CASE(6)
-             val1 = pathways(1)%arrh_alpha
-             val2 = pathways(2)%arrh_alpha
-          CASE(7)
-             val1 = pathways(1)%arrh_alpha
-             val2 = pathways(2)%arrh_alpha
-          CASE(8)
-             val1 = pathways(1)%arrh_alpha
-             val2 = pathways(2)%arrh_alpha
+             DO n=1,SIZE(vals,1)
+                vals(n) = arrhenius(&
+                     pathways(n)%arrh_alpha,&
+                     pathways(n)%arrh_beta,&
+                     pathways(n)%arrh_gamma)
+             END DO
+          CASE DEFAULT
+             DO n=1,SIZE(vals,1)
+                vals(n) = pathways(n)%arrh_alpha
+             END DO
           END SELECT
 
-          ! 4. Call a random number and select pathway based on result
-          prob1 = val1/(val1+val2)
-          prob2 = val2/(val1+val2)
-          CALL RANDOM_NUMBER(rand)
+          CALL selectbranch(vals,n)
 
-          ! 5. Populate PRODS array with result
-          n = 0
-          IF ( rand .LE. prob1 ) THEN
-             PRODS(1) = pathways(1)%np1
-             PRODS(2) = pathways(1)%np2
-             PRODS(3) = pathways(1)%np3
-             barrier  = pathways(1)%arrh_gamma
-             n = 1 
-          ELSE
-             PRODS(1) = pathways(2)%np1
-             PRODS(2) = pathways(2)%np2
-             PRODS(3) = pathways(2)%np3
-             barrier  = pathways(2)%arrh_gamma
-             n = 2 
-          END IF
+          PRODS(1) = pathways(n)%np1
+          PRODS(2) = pathways(n)%np2
+          PRODS(3) = pathways(n)%np3
+          barrier  = pathways(n)%arrh_gamma
        END IF onepath
 
        ! 6. If there is a barrier to the selected pathway, engage the competition mechanism
@@ -160,41 +126,12 @@ CONTAINS
           END IF
        END IF competition
 
-
-       if ( ((reactant1 .eq. 3) .and. (reactant2 .eq. 2)) .or. &
-            ((reactant1 .eq. 2) .and. (reactant2 .eq. 3))) then
-!          print *, reactant1, reactant2, PRODS
-          continue
-       end if
-
-       if ( ((reactant1 .eq. 4) .and. (reactant2 .eq. EXCNUM)) .or. &
-            ((reactant1 .eq. EXCNUM) .and. (reactant2 .eq. 4))) then
-!          print *, reactant1, reactant2, PRODS
-          continue
-       end if
-
-       if ( ((reactant1 .eq. 4) .and. (reactant2 .eq. ELECNUM)) .or. &
-            ((reactant1 .eq. ELECNUM) .and. (reactant2 .eq. 4))) then
-!          print *, reactant1, reactant2, PRODS
-          continue
-       end if
-
-       if ( ((reactant1 .eq. 7) .and. (reactant2 .eq. EXCNUM)) .or. &
-            ((reactant1 .eq. EXCNUM) .and. (reactant2 .eq. 7))) then
-!          print *, reactant1, reactant2, PRODS
-          continue
-       end if
-
-       if ( ((reactant1 .eq. 7) .and. (reactant2 .eq. ELECNUM)) .or. &
-            ((reactant1 .eq. ELECNUM) .and. (reactant2 .eq. 7))) then
-!          print *, reactant1, reactant2, PRODS
-          continue
-       end if
-
        ! On first call: bump the count for that particular reaction for later
        ! time-dependent analysis
-       if ( n .gt. 0 ) call bumpreaction(pathways(n)%id,RE_HEAD)
-
+       IF ( n .gt. 0 ) THEN
+          if ( pathways(n)%id .GT. 0 ) call bumpreaction(pathways(n)%id,RE_HEAD)
+       END IF
+       IF ( debug .eqv. .true. ) print *, "In branchmod:",pathways(n)
     END IF firstcall
 
     branching = PRODS(pr)
@@ -218,11 +155,46 @@ CONTAINS
        IF ( ASSOCIATED(node%next)) THEN
           CALL bumpreaction(id,node%next)
        ELSE
-          id = -1
-          PRINT *, "ERROR! No match!"
+          PRINT *, id
+          PRINT *, node%id
+          PRINT *, "ERROR! No match in bumpreaction!"
           CALL EXIT()
        END IF
     END IF
     RETURN
   END SUBROUTINE bumpreaction
+
+  SUBROUTINE selectbranch(kvals,ndex)
+    ! This subroutine randomly selects a branching pathway
+    ! based on the relative magnitude of the rate coefficient
+    IMPLICIT NONE
+    DOUBLE PRECISION, INTENT(IN) :: kvals(4)
+    INTEGER, INTENT(OUT) :: ndex
+    INTEGER :: n
+    DOUBLE PRECISION :: sumval
+    DOUBLE PRECISION :: tempkvals(4)
+    DOUBLE PRECISION :: rand
+
+    tempkvals = kvals
+    sumval = SUM(tempkvals)
+    tempkvals = tempkvals/sumval
+
+    CALL RANDOM_NUMBER(rand)
+
+    DO n=1,SIZE(kvals,1)
+       IF ( n .EQ. 1 ) THEN
+          tempkvals(n) = tempkvals(n)
+       ELSE
+          tempkvals(n) = (tempkvals(n) + tempkvals(n-1))
+       END IF
+       ! Check to see if the  index is the lucky number
+       IF ( rand .LE. tempkvals(n)) THEN
+          EXIT
+       END IF
+    END DO
+
+    ndex = n
+    IF ( DEBUG .EQV. .TRUE. ) PRINT *, "The lucky number is ",ndex
+
+  END SUBROUTINE selectbranch
 END MODULE branchmod
