@@ -47,11 +47,6 @@ PROGRAM main
   PRINT *, "***STARTING CIRIS***"
   PRINT *, "********************"
 
-
-  ! Read in constants and save seed
-  CALL SYSTEM("/bin/bash pre.sh")
-  CALL store_rand()
-
   ! Initialize total_fitness
   total_fitness = 0
 
@@ -82,77 +77,41 @@ PROGRAM main
   end if
 
   IF ( O3_ANALYTICS .EQV. .TRUE. ) THEN
-     OPEN(UNIT=O_PROD_UNIT,&
-          FILE='o_prod.wsv', &
+     OPEN(UNIT=O_LUN,&
+          FILE='o_reactions.wsv', &
           STATUS='REPLACE',&
           POSITION='APPEND')
-     CLOSE(O_PROD_UNIT)
+     CLOSE(O_LUN)
 
-     OPEN(UNIT=O2_PROD_UNIT,&
-          FILE='o2_prod.wsv', &
+     OPEN(UNIT=O2_LUN,&
+          FILE='o2_reactions.wsv', &
           STATUS='REPLACE',&
           POSITION='APPEND')
-     CLOSE(O2_PROD_UNIT)
+     CLOSE(O2_LUN)
 
-     OPEN(UNIT=O3_PROD_UNIT,&
-          FILE='o3_prod.wsv', &
+     OPEN(UNIT=O3_LUN,&
+          FILE='o3_reactions.wsv', &
           STATUS='REPLACE',&
           POSITION='APPEND')
-     CLOSE(O3_PROD_UNIT)
+     CLOSE(O3_LUN)
 
-     OPEN(UNIT=O_DEST_UNIT,&
-          FILE='o_dest.wsv', &
+     OPEN(UNIT=OSTAR_LUN,&
+          FILE='ostar_reactions.wsv', &
           STATUS='REPLACE',&
           POSITION='APPEND')
-     CLOSE(O_DEST_UNIT)
+     CLOSE(OSTAR_LUN)
 
-     OPEN(UNIT=O2_DEST_UNIT,&
-          FILE='o2_dest.wsv', &
+     OPEN(UNIT=O2STAR_LUN,&
+          FILE='o2star_reactions.wsv', &
           STATUS='REPLACE',&
           POSITION='APPEND')
-     CLOSE(O2_DEST_UNIT)
+     CLOSE(O2STAR_LUN)
 
-     OPEN(UNIT=O3_DEST_UNIT,&
-          FILE='o3_dest.wsv', &
+     OPEN(UNIT=O3STAR_LUN,&
+          FILE='o3star_reactions.wsv', &
           STATUS='REPLACE',&
           POSITION='APPEND')
-     CLOSE(O3_DEST_UNIT)
-
-     OPEN(UNIT=OSTAR_PROD_UNIT,&
-          FILE='ostar_prod.wsv', &
-          STATUS='REPLACE',&
-          POSITION='APPEND')
-     CLOSE(OSTAR_PROD_UNIT)
-
-     OPEN(UNIT=O2STAR_PROD_UNIT,&
-          FILE='o2star_prod.wsv', &
-          STATUS='REPLACE',&
-          POSITION='APPEND')
-     CLOSE(O2STAR_PROD_UNIT)
-
-     OPEN(UNIT=O3STAR_PROD_UNIT,&
-          FILE='o3star_prod.wsv', &
-          STATUS='REPLACE',&
-          POSITION='APPEND')
-     CLOSE(O3STAR_PROD_UNIT)
-
-     OPEN(UNIT=OSTAR_DEST_UNIT,&
-          FILE='ostar_dest.wsv', &
-          STATUS='REPLACE',&
-          POSITION='APPEND')
-     CLOSE(OSTAR_DEST_UNIT)
-
-     OPEN(UNIT=O2STAR_DEST_UNIT,&
-          FILE='o2star_dest.wsv', &
-          STATUS='REPLACE',&
-          POSITION='APPEND')
-     CLOSE(O2STAR_DEST_UNIT)
-
-     OPEN(UNIT=O3STAR_DEST_UNIT,&
-          FILE='o3star_dest.wsv', &
-          STATUS='REPLACE',&
-          POSITION='APPEND')
-     CLOSE(O3STAR_DEST_UNIT)
+     CLOSE(O3STAR_LUN)
   END IF
 
   ! Nullify pointers

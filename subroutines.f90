@@ -49,142 +49,99 @@ CONTAINS
     IMPLICIT NONE
     type(reaction) :: node
     character(80) :: varfmt
-    character(80) :: cr1,cr2,cp1,cp2,cp3,cident
-    integer :: reactants(2)
-    integer :: products(3)
+    character(80) :: cr1,cr2,cp1,cp2,cp3,cident(NUM_REACTS)
+    integer :: rresults(NUM_REACTS,6,3)
+    integer :: yield,tempsum
+    character(30) :: nature(NUM_REACTS)
+    integer :: n,m,p
+    integer :: tempcount
 
-    varfmt = "(I20,2ES20.4,I20,A80)"
+    varfmt = "(I20,2ES20.4,A30,A15)"
 
     if ( node%id .eq. num_reacts-1 ) then
        print *, node%id
     end if
 
     if (node%id .eq. 1 ) then
-       OPEN(FILE="o_prod.wsv", &
-            UNIT=O_PROD_UNIT, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="o2_prod.wsv", &
-            UNIT=O2_PROD_UNIT, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="o3_prod.wsv", &
-            UNIT=O3_PROD_UNIT, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="ostar_prod.wsv", &
-            UNIT=OSTAR_PROD_UNIT, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="o2star_prod.wsv", &
-            UNIT=O2STAR_PROD_UNIT, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="o3star_prod.wsv", &
-            UNIT=O2STAR_PROD_UNIT, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="o_dest.wsv", &
-            UNIT=O_DEST_UNIT, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="o2_dest.wsv", &
-            UNIT=O2_DEST_UNIT, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="o3_dest.wsv", &
-            UNIT=O3_DEST_UNIT, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="ostar_dest.wsv", &
-            UNIT=OSTAR_DEST_UNIT, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="o2star_dest.wsv", &
-            UNIT=O2STAR_DEST_UNIT, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="o3star_dest.wsv", &
-            UNIT=O3STAR_DEST_UNIT, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
+       rresults = 0
+       nature = "Neutral"
+       cident = " "
     end if
 
-    reactants = 0
-    products = 0
-    reactants(1) = node%nr1
-    reactants(2) = node%nr2
-    products(1) = node%np1
-    products(2) = node%np2
-    products(3) = node%np3
     cr1 = node%r1
     cr2 = node%r2
     cp1 = node%p1
     cp2 = node%p2
     cp3 = node%p3
-    cident = '    "'//trim(cr1)//&
+    cident(node%id) = '    "'//trim(cr1)//&
          ' + '//trim(cr2)//&
          '->'//trim(cp1)//&
          ' + '//trim(cp2)//&
          ' + '//trim(cp3)//'"'
 
-    if ( node%count .gt. 0 ) then
-       IF ( node%count .gt. MAXCOUNT ) then
-          maxcount = node%count
-          maxid = node%id
-       end if
-
-
-       if ( any(products .eq. onum)) then
-          WRITE(O_PROD_UNIT,varfmt) node%count, TIME,FLUENCE, node%id, cident
-       end if
-
-       if ( any(products .eq. o2num)) then
-          WRITE(O2_PROD_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
-       end if
-
-       if ( any(products .eq. o3num)) then
-          WRITE(O3_PROD_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
-       end if
-
-       if ( any(products .eq. ostarnum)) then
-          WRITE(OSTAR_PROD_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
-       end if
-
-       if ( any(products .eq. o2starnum)) then
-          WRITE(O2STAR_PROD_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
-       end if
-
-       if ( any(products .eq. o3starnum)) then
-          WRITE(O3STAR_PROD_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
-       end if
-
-       if ( any(reactants .eq. onum)) then
-          WRITE(O_DEST_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
-       end if
-
-       if ( any(reactants .eq. o2num)) then
-          WRITE(O2_DEST_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
-       end if
-
-       if ( any(reactants .eq. o3num)) then
-          WRITE(O3_DEST_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
-       end if
-
-       if ( any(reactants .eq. ostarnum)) then
-          WRITE(OSTAR_DEST_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
-       end if
-
-       if ( any(reactants .eq. o2starnum)) then
-          WRITE(O2STAR_DEST_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
-       end if
-
-       if ( any(reactants .eq. o3starnum)) then
-          WRITE(O3STAR_DEST_UNIT,varfmt) node%count, TIME, FLUENCE, node%id, cident
-       end if
-
-       node%count = 0
+    ! Determine O yield
+    call analyzereaction(node,onum,yield,nature(node%id))
+    if ( yield > 0 ) then
+       rresults(node%id,1,1) = yield*node%count
+    else if ( yield == 0 ) then
+       rresults(node%id,1,2) = yield*node%count
+    else if ( yield < 0 ) then
+       rresults(node%id,1,3) = yield*node%count
     end if
+
+
+    ! Determine O2 yield
+    call analyzereaction(node,o2num,yield,nature(node%id))
+    if ( yield > 0 ) then
+       rresults(node%id,2,1) = yield*node%count
+    else if ( yield == 0 ) then
+       rresults(node%id,2,2) = yield*node%count
+    else if ( yield < 0 ) then
+       rresults(node%id,2,3) = yield*node%count
+    end if
+
+
+    ! Determine O3 yield
+    call analyzereaction(node,o3num,yield,nature(node%id))
+    if ( yield > 0 ) then
+       rresults(node%id,3,1) = yield*node%count
+    else if ( yield == 0 ) then
+       rresults(node%id,3,2) = yield*node%count
+    else if ( yield < 0 ) then
+       rresults(node%id,3,3) = yield*node%count
+    end if
+
+    ! Determine O* yield
+    call analyzereaction(node,ostarnum,yield,nature(node%id))
+    if ( yield > 0 ) then
+       rresults(node%id,4,1) = yield*node%count
+    else if ( yield == 0 ) then
+       rresults(node%id,4,2) = yield*node%count
+    else if ( yield < 0 ) then
+       rresults(node%id,4,3) = yield*node%count
+    end if
+
+    ! Determine O2* yield
+    call analyzereaction(node,o2starnum,yield,nature(node%id))
+    if ( yield > 0 ) then
+       rresults(node%id,5,1) = yield*node%count
+    else if ( yield == 0 ) then
+       rresults(node%id,5,2) = yield*node%count
+    else if ( yield < 0 ) then
+       rresults(node%id,5,3) = yield*node%count
+    end if
+
+    ! Determine O3* yield
+    call analyzereaction(node,o3starnum,yield,nature(node%id))
+    if ( yield > 0 ) then
+       rresults(node%id,6,1) = yield*node%count
+    else if ( yield == 0 ) then
+       rresults(node%id,6,2) = yield*node%count
+    else if ( yield < 0 ) then
+       rresults(node%id,6,3) = yield*node%count
+    end if
+
+    node%count = 0
 
     IF ( ASSOCIATED(node%next)) THEN
        CALL writereactions(node%next)
@@ -193,21 +150,81 @@ CONTAINS
     END IF
 
     if ( node%id .eq. 1 ) then
-       print *, "maxid = ",maxid, "with count",maxcount
-       MAXCOUNT = 0
-       maxid = 0
-       close(O_PROD_UNIT)
-       close(O2_PROD_UNIT)
-       close(O3_PROD_UNIT)
-       close(O_DEST_UNIT)
-       close(O2_DEST_UNIT)
-       close(O3_DEST_UNIT)
-       close(OSTAR_PROD_UNIT)
-       close(O2STAR_PROD_UNIT)
-       close(O3STAR_PROD_UNIT)
-       close(OSTAR_DEST_UNIT)
-       close(O2STAR_DEST_UNIT)
-       close(O3STAR_DEST_UNIT)
+       ! Calculate the relative contribution of each reaction
+       do n = 1,size(rresults,2)
+          rresults(:,n,1) = rresults(:,n,1)/sum(rresults(:,n,1))
+          rresults(:,n,2) = rresults(:,n,2)/sum(rresults(:,n,2))
+          rresults(:,n,3) = rresults(:,n,3)/sum(rresults(:,n,3))
+       end do
+
+       OPEN(FILE="o_reactions.wsv", &
+            UNIT=O_LUN, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="o2_reactions.wsv", &
+            UNIT=O2_LUN, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="o3_reactions.wsv", &
+            UNIT=O3_LUN, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="ostar_reactions.wsv", &
+            UNIT=OSTAR_LUN, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="o2star_reactions.wsv", &
+            UNIT=O2STAR_LUN, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       OPEN(FILE="o3star_reactions.wsv", &
+            UNIT=O2STAR_LUN, &
+            STATUS="UNKNOWN", &
+            POSITION="APPEND")
+       do n=1,NUM_REACTS
+          do m=1,size(rresults,2)
+             tempcount = 0
+             do p=1,3
+                ! Get the count, which should be the only nonzero element in the
+                ! third dimension of the array
+                if ( rresults(n,m,1) /= 0 ) then
+                   tempcount = rresults(n,m,1)
+                else if ( rresults(n,m,2) /= 0  ) then
+                   tempcount = rresults(n,m,2)
+                else if ( rresults(n,m,3) /= 0 ) then
+                   tempcount = rresults(n,m,3)
+                else
+                   print *, "Error in writereactions: all yields > 0"
+                   call exit()
+                end if
+             end do
+
+             ! Write the results to the appropriate file
+             select case (m)
+             case(1)
+                write(O_LUN,varfmt) tempcount,time,fluence,cident(n),nature(n)
+             case(2)
+                write(O2_LUN,varfmt) tempcount,time,fluence,cident(n),nature(n)
+             case(3)
+                write(O3_LUN,varfmt) tempcount,time,fluence,cident(n),nature(n)
+             case(4)
+                write(OSTAR_LUN,varfmt) tempcount,time,fluence,cident(n),nature(n)
+             case(5)
+                write(O2STAR_LUN,varfmt) tempcount,time,fluence,cident(n),nature(n)
+             case(6)
+                write(O3STAR_LUN,varfmt) tempcount,time,fluence,cident(n),nature(n)
+             case default
+             end select
+
+          end do
+       end do
+
+       close(O_LUN)
+       close(O2_LUN)
+       close(O3_LUN)
+       close(OSTAR_LUN)
+       close(O2STAR_LUN)
+       close(O3STAR_LUN)
     end if
   END SUBROUTINE writereactions
 
@@ -960,7 +977,7 @@ CONTAINS
                 o2starcount = o2starcount + 1
              ELSE IF ( MATRIX(i,j,k)%sp_num .EQ. O3STARNUM ) THEN
                 o3starcount = o3starcount + 1
-             ELSE IF ( matrix(i,j,k)%sp_num .NE. 0 ) THEN 
+             ELSE IF ( matrix(i,j,k)%sp_num .NE. 0 ) THEN
                othercount = othercount + 1
              END IF
           END DO
@@ -1796,7 +1813,7 @@ CONTAINS
           CALL add_node(root,temp)
           error = 1
           !          IF ( DEBUG .EQV. .TRUE. ) &
-          IF ( ISBARRIER .EQ. .FALSE.) THEN
+          IF ( ISBARRIER .EQV. .FALSE.) THEN
             PRINT *, "Products = 0:",r1,"+",r2,"=",pr
             CALL EXIT()
           END IF
@@ -2062,7 +2079,7 @@ CONTAINS
     prevNode => MATRIX(se_box%parent_coords(1),se_box%parent_coords(2),se_box%parent_coords(3))
     nhops = 0
     react_with_parent = .FALSE.
-    hopCoords = 0 
+    hopCoords = 0
     curr = next
     ! Once the electron has fallen below the energy threshold, make
     ! Call transport until a non-vacant site is found
@@ -2147,4 +2164,41 @@ CONTAINS
        CALL EXIT()
     END IF
   END SUBROUTINE new_electron
+
+  SUBROUTINE analyzereaction(reactnode,speciesnum,yield,nature)
+    IMPLICIT NONE
+    TYPE (reaction) :: reactnode
+    integer, intent(in) :: speciesnum
+    integer, intent(out) :: yield
+    character(30), intent(out) :: nature
+    INTEGER :: tempreacts(2), tempprods(3)
+    integer :: n, temp1, temp2
+
+    temp1         = 0
+    temp2         = 0
+    yield         = 0
+    tempreacts(1) = reactnode%nr1
+    tempreacts(2) = reactnode%nr2
+    tempprods(1)  = reactnode%np1
+    tempprods(2)  = reactnode%np2
+    tempprods(3)  = reactnode%np3
+    nature        = "Neutral"
+
+    ! Check for net yield
+    do n=1,2
+       if (tempreacts(n) == speciesnum) temp1 = temp1 + 1
+    end do
+
+    do n=1,3
+       if (tempprods(n) == speciesnum) temp2 = temp2 + 1
+    end do
+
+    yield = temp2 - temp1
+
+    if ( yield > 0 ) then
+       nature = "Production"
+    else if ( yield < 0 ) then
+       nature = "Destruction"
+    end if
+  END SUBROUTINE analyzereaction
 END MODULE subroutines

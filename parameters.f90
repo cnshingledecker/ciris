@@ -16,8 +16,6 @@ MODULE parameters
   INTEGER                                :: NUMPROTONS  = 0
   DOUBLE PRECISION                       :: TIME        = 0
   TYPE(reaction), POINTER                :: RE_HEAD
-  integer :: maxcount = 0
-  integer :: maxid = 0
   integer :: initialatoms = 0
 
   !******************************************************************************
@@ -108,18 +106,12 @@ MODULE parameters
   INTEGER         , PARAMETER :: AB_UNIT_NUM        = 3    ! Abundance output file
   INTEGER         , PARAMETER :: RATE_UNIT_NUM      = 4    ! Rate output file
   INTEGER         , PARAMETER :: TRACKPLOT_UNIT_NUM = 5    ! Track file
-  INTEGER         , PARAMETER :: O_PROD_UNIT        = 6    ! Atomic O reactions
-  INTEGER         , PARAMETER :: O2_PROD_UNIT       = 7    ! O2 reactions
-  INTEGER         , PARAMETER :: O3_PROD_UNIT       = 8    ! O3 reactions
-  INTEGER         , PARAMETER :: O_DEST_UNIT        = 9    ! Atomic O reactions
-  INTEGER         , PARAMETER :: O2_DEST_UNIT       = 10    ! O2 reactions
-  INTEGER         , PARAMETER :: O3_DEST_UNIT       = 11   ! O3 reactions
-  INTEGER         , PARAMETER :: OSTAR_PROD_UNIT    = 12
-  INTEGER         , PARAMETER :: O2STAR_PROD_UNIT   = 13
-  INTEGER         , PARAMETER :: O3STAR_PROD_UNIT   = 14
-  INTEGER         , PARAMETER :: OSTAR_DEST_UNIT    = 15
-  INTEGER         , PARAMETER :: O2STAR_DEST_UNIT   = 16
-  INTEGER         , PARAMETER :: O3STAR_DEST_UNIT   = 17
+  INTEGER         , PARAMETER :: O_LUN              = 6    ! Atomic O reactions
+  INTEGER         , PARAMETER :: O2_LUN             = 7    ! O2 reactions
+  INTEGER         , PARAMETER :: O3_LUN             = 8    ! O3 reactions
+  INTEGER         , PARAMETER :: OSTAR_LUN          = 9
+  INTEGER         , PARAMETER :: O2STAR_LUN         = 10
+  INTEGER         , PARAMETER :: O3STAR_LUN         = 11
   !******************************************************************************
   ! Analytics Parameters
   !******************************************************************************
