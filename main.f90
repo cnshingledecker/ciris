@@ -14,6 +14,7 @@ PROGRAM main
   INTEGER             :: tmp_sp_num
   INTEGER             :: loop_count
   INTEGER             :: n, m
+  integer             :: ix, iy, iz
   INTEGER             :: xx,yy,zz
   INTEGER             :: i(3),j(3),k(3)
   INTEGER             :: count_num      ! Number of abundance file
@@ -41,6 +42,7 @@ PROGRAM main
   DOUBLE PRECISION      :: j2, j3
   DOUBLE PRECISION      :: k12,k13
   DOUBLE PRECISION      :: geminacy
+  double precision      :: b_3, el_tmp
   TYPE(node), POINTER :: root,temp,prevNode,nextNode
 
   PRINT *, "********************"
@@ -63,17 +65,17 @@ PROGRAM main
   ! Open files
   hopping_file = "hopping_data.txt"
 
-  OPEN(UNIT=AB_UNIT_NUM,&
+  OPEN(UNIT=AB_LUN,&
        FILE="abundance.wsv",&
        POSITION='APPEND', &
        STATUS='REPLACE')
 
   if ( calc_rates .eqv. .true. ) then
-     OPEN(UNIT=RATE_UNIT_NUM,&
+     OPEN(UNIT=RATE_LUN,&
           FILE="rates.wsv",&
           POSITION='APPEND', &
           STATUS='REPLACE')
-     CLOSE(RATE_UNIT_NUM)
+     CLOSE(RATE_LUN)
   end if
 
   IF ( O3_ANALYTICS .EQV. .TRUE. ) THEN
@@ -305,7 +307,9 @@ PROGRAM main
            success = .FALSE.
            actcase = 0
 
+           !*************************************************************************
            ! If species is an excited species, check for nearby reactants
+           !*************************************************************************
            if ( any(fast_reacts .eq. temp%sp_num) ) then
               DO n = 1,6
                  CALL hopping(temp%coord1,temp%coord2,temp%coord3,&
@@ -318,7 +322,9 @@ PROGRAM main
               END DO
            END IF
 
+           !*************************************************************************
            ! If there is still no co-reactant, look at "phantom" surrounding sites
+           !*************************************************************************
            IF ( (success .EQV. .FALSE.) .AND. &
                 (any(fast_reacts .eq. temp%sp_num)) ) then
               phantom: DO n=1,6 ! Go to a phantom position
@@ -402,37 +408,44 @@ PROGRAM main
               END DO phantom
            END IF
 
+           !*************************************************************************
+           ! success = true => fast-react found a co-reactant
            ! Call hopping to get new coords
-           IF ( (success .EQV. .FALSE.) .and. (any(fast_reacts .eq. temp%sp_num)) ) THEN
-              IF ( temp%sp_num .EQ. ONUM ) THEN
+           !*************************************************************************
+           i(1) = temp%coord1
+           i(2) = temp%coord2
+           i(3) = temp%coord3
+           IF (success .EQV. .FALSE.) THEN
+              if ( (temp%sp_num .EQ. ONUM) .OR. &
+                   (.NOT. ANY(fast_reacts .EQ. temp%sp_num)) )then
                  CALL hopping(temp%coord1,temp%coord2,temp%coord3,&
                       j(1),j(2),j(3),temp%hop_dir)
-                 if (ALL(ABS(j-i) .EQ. 0)) actcase = 3
-              ELSE
-                 j = i
+                 if ( .NOT. ALL(ABS(i-j) .EQ. 0) )  then
+                    if ( MATRIX(j(1),j(2),j(3))%sp_num .EQ. 0 ) then
+                       actcase = 1 ! Hop to new coords
+                    else
+                       actcase = 2 ! Make react
+                    end if
+                 else
+                    actcase = 3 ! Re-add to wait-list
+                 end if
+              else
+                 ! If species is excited state, have it decay by one of the available
+                 ! pathways via a pseudoreaction with M
                  temp%sec_sp_num = MNUM
-                 nextNode => MATRIX(j(1),j(2),j(3))
-              END IF
-           else if (success .EQV. .FALSE.) then
-              CALL hopping(temp%coord1,temp%coord2,temp%coord3,&
-                   j(1),j(2),j(3),temp%hop_dir)
-              if (ALL(ABS(j-i) .EQ. 0)) actcase = 3
+                 actcase = 2 ! Make react with species at new site
+                 j = i
+              end if
+           ELSE
+              ! Check if the new coords are the same as the old
+              if (ALL(ABS(j-i) .EQ. 0)) then
+                 actcase = 3 ! Re-add to wait-list
+              else
+                 actcase = 2 ! Make react with species at new site
+              end if
            END IF
 
            nextNode => MATRIX(j(1),j(2),j(3))
-
-           samesite: if (ALL(ABS(j-i) .EQ. 0)) then
-              isfast: if ( (any(fast_reacts .eq. temp%sp_num)) .and. &
-                   (success .eqv. .false.) ) then
-                 actcase = 2
-              else if (nextNode%sp_num .eq. 0 )  then
-                 actcase = 1
-              end if isfast
-           else if ( MATRIX(j(1),j(2),j(3))%sp_num .eq. 0 ) then
-              actcase = 1
-           else
-              actcase = 2
-           end if samesite
 
            IF ( DEBUG .EQV. .TRUE. ) PRINT *, "r1=",temp%sp_num,"at",i
            IF ( DEBUG .EQV. .TRUE. ) PRINT *, "r2=",nextNode%sp_num,"at",j
@@ -442,11 +455,10 @@ PROGRAM main
               continue
            end if
 
-
-
-           ! If the site is empty, move product there
            movesp: select case (actcase)
            case(1)
+              ! If the site is empty, move product there
+
               ! Save sp_num
               tmp_sp_num = temp%sp_num
               CALL delete_node(root,temp,prevNode,nextNode,error)
@@ -456,7 +468,29 @@ PROGRAM main
               ! Update species number
               temp%sp_num = tmp_sp_num
               ! Get new hopping time
-              CALL wait_calc(temp)
+              if ( temp%sp_num .eq. onum ) then
+                 ix = 0
+                 iy = 0
+                 iz = 0
+                 b_3 = 0
+                 el_tmp = 0
+                 IF (matrix(temp%coord1,temp%coord2,temp%coord3)%normal .eqv. .true.) THEN
+                    DO n=1,5
+                       CALL hopping(temp%coord1,temp%coord2,temp%coord3,ix,iy,iz,n)
+                       IF ( MATRIX(ix,iy,iz)%sp_num .NE. 0 ) &
+                            el_tmp = el_tmp + 0.1*EN_LIST(MATRIX(ix,iy,iz)%sp_num)
+                    END DO
+                    b_3 = trl_nu*EXP( -1*((EN_LIST(temp%sp_num)*E_BULK + el_tmp)/ kin_temp ) )
+                 ELSE
+                    b_3 = trl_nu*EXP( -1*( EN_LIST(temp%sp_num)*E_BULK     / kin_temp ) )
+                 END IF
+                 ! Calculate waiting time
+                 CALL RANDOM_NUMBER(rndnum)
+                 temp%wait_time = (-1*LOG(rndnum) / b_3) + TIME
+                 temp%act_type = 1
+              else
+                 CALL wait_calc(temp)
+              end if
               ! Add back to tree
               CALL add_node(root,temp)
            case(2)
@@ -472,7 +506,29 @@ PROGRAM main
               ! Point temp to new location
               temp => MATRIX(i(1),i(2),i(3))
               ! Get new hopping time
-              CALL wait_calc(temp)
+              if ( temp%sp_num .eq. onum ) then
+                 ix = 0
+                 iy = 0
+                 iz = 0
+                 b_3 = 0
+                 el_tmp = 0
+                 IF (matrix(temp%coord1,temp%coord2,temp%coord3)%normal .eqv. .true.) THEN
+                    DO n=1,5
+                       CALL hopping(temp%coord1,temp%coord2,temp%coord3,ix,iy,iz,n)
+                       IF ( MATRIX(ix,iy,iz)%sp_num .NE. 0 ) &
+                            el_tmp = el_tmp + 0.1*EN_LIST(MATRIX(ix,iy,iz)%sp_num)
+                    END DO
+                    b_3 = trl_nu*EXP( -1*((EN_LIST(temp%sp_num)*E_BULK + el_tmp)/ kin_temp ) )
+                 ELSE
+                    b_3 = trl_nu*EXP( -1*( EN_LIST(temp%sp_num)*E_BULK     / kin_temp ) )
+                 END IF
+                 ! Calculate waiting time
+                 CALL RANDOM_NUMBER(rndnum)
+                 temp%wait_time = (-1*LOG(rndnum) / b_3) + TIME
+                 temp%act_type = 1
+              else
+                 CALL wait_calc(temp)
+              end if
               ! Add back to tree
               CALL add_node(root,temp)
            case default
@@ -509,18 +565,18 @@ PROGRAM main
         time_diff = t2-t1
         cr_arrival = .FALSE.
 
-        IF ( FIX_FREQ .EQV. .FALSE. ) THEN
-           ! Set time_freq
-           IF ( FLUENCE .GT. 1.0d13 .AND. FLUENCE .LT. 1.0d14 ) THEN
-              TIME_FREQ = 100
-           ELSE IF ( FLUENCE .GT. 1.0d14 .AND. FLUENCE .LT. 1.0d15) THEN
-              TIME_FREQ = 1000
-           ELSE IF ( FLUENCE .GT. 1.0d15 .AND. FLUENCE .LT. 1.0d16) THEN
-              TIME_FREQ = 10000
-           ELSE IF ( FLUENCE .GT. 1.0d16 ) THEN
-              TIME_FREQ = 100000
-           END IF
-        END IF
+        !        IF ( FIX_FREQ .EQV. .FALSE. ) THEN
+        ! Set time_freq
+        !           IF ( FLUENCE .GT. 1.0d13 .AND. FLUENCE .LT. 1.0d14 ) THEN
+        !              TIME_FREQ = 100
+        !           ELSE IF ( FLUENCE .GT. 1.0d14 .AND. FLUENCE .LT. 1.0d15) THEN
+        !              TIME_FREQ = 1000
+        !           ELSE IF ( FLUENCE .GT. 1.0d15 .AND. FLUENCE .LT. 1.0d16) THEN
+        !              TIME_FREQ = 10000
+        !           ELSE IF ( FLUENCE .GT. 1.0d16 ) THEN
+        !              TIME_FREQ = 100000
+        !           END IF
+        !        END IF
 
         checktime: IF ( MOD(time_check,TIME_FREQ) .EQ. 0 ) THEN
            CALL fitness(unfit,total_fitness)
@@ -560,7 +616,7 @@ PROGRAM main
            j3 = ABS(FLOAT(RATEINFO(2)%count + RATEINFO(4)%count + RATEINFO(6)%count)/&
                 (DELTA_TIME*FLOAT(O2_ABUNDANCE)))
            IF ( ISNAN(j3) ) j3 = 0
-           IF ( NO_OUTPUT .EQV. .FALSE.) WRITE(RATE_UNIT_NUM,*) geminacy,',',j2,',',j3,',',k12,',',k13
+           IF ( NO_OUTPUT .EQV. .FALSE.) WRITE(RATE_LUN,*) geminacy,',',j2,',',j3,',',k12,',',k13
            RATEINFO%count = 0
         END IF ratecalc
 
@@ -572,7 +628,7 @@ PROGRAM main
   PRINT *, "************"
 
   CALL counter()
-  CLOSE(AB_UNIT_NUM)
+  CLOSE(AB_LUN)
   !CLOSE(1011)
   !CLOSE(1013)
   IF ( DEBUG .EQV. .TRUE. ) CLOSE(777)

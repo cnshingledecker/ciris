@@ -65,22 +65,20 @@ MODULE typedefs
      DOUBLE PRECISION  :: cj_alwd !determined from the oscillator strength
      DOUBLE PRECISION  :: alpha_alwd !fitting parameter
      DOUBLE PRECISION  :: beta_alwd !fitting parameter
-     DOUBLE PRECISION  :: j_alwd
-     DOUBLE PRECISION  :: nu_alwd
   END TYPE alwd_exstate
 
-  ! TYPE :: fbdn_exstate
-  !   !
-  !   ! Purpose: This type stores parameters for use with the Green and Dutta 1967
-  !   ! formula for calculating the cross-section for forbidden excitation
-  !   ! transitions.
-  !   CHARACTER(len=20) :: termsym_fbdn !term symbol for the state in LaTeX format
-  !   DOUBLE PRECISION  :: wj_fbdn !excitation energy in eV
-  !   DOUBLE PRECISION  :: fj_fbdn !oscillator strength
-  !   DOUBLE PRECISION  :: omega_fbdn !fitting parameter
-  !   DOUBLE PRECISION  :: alpha_fbdn !fitting parameter
-  !   DOUBLE PRECISION  :: beta_fbdn !fitting parameter
-  ! END TYPE fbdn_exstate
+  TYPE :: fbdn_exstate
+     !
+     ! Purpose: This type stores parameters for use with the Green and Dutta 1967
+     ! formula for calculating the cross-section for forbidden excitation
+     ! transitions.
+     CHARACTER(len=20) :: termsym_fbdn !term symbol for the state in LaTeX format
+     DOUBLE PRECISION  :: wj_fbdn !excitation energy in eV
+     DOUBLE PRECISION  :: fj_fbdn !oscillator strength
+     DOUBLE PRECISION  :: omega_fbdn !fitting parameter
+     DOUBLE PRECISION  :: alpha_fbdn !fitting parameter
+     DOUBLE PRECISION  :: beta_fbdn !fitting parameter
+  END TYPE fbdn_exstate
 
   TYPE :: epg_exstate
      !
@@ -114,19 +112,33 @@ MODULE typedefs
      ! info and ionization cross-section info. The energy is also contained in this
      ! type for convenience.
      !
-     INTEGER, DIMENSION(3) :: parent_coords ! The coordinates at which the electron formed/site of cation
-     TYPE(ionstate), ALLOCATABLE, DIMENSION(:) :: se_ionst !Information regarding the ionization states of the target
-     TYPE(alwd_exstate), ALLOCATABLE, DIMENSION(:) :: se_alwd !Information on the allowed transitions of the target
-     ! TYPE(fbdn_exstate), ALLOCATABLE, DIMENSION(:) :: se_fbdn !Information on the forbidden transitions of the target
      DOUBLE PRECISION   :: se_energy !The secondary electron energy
      DOUBLE PRECISION   :: se_iontot !Total SE ionization cross-section
      DOUBLE PRECISION   :: se_extot !Total SE excitation cross-section
      DOUBLE PRECISION   :: se_ineltot !Total SE inelastic cross-section
      DOUBLE PRECISION   :: se_alwd_extot !Total allowed excitation cross-section
-     ! DOUBLE PRECISION   :: se_fbdn_extot !Total forbidden excitation cross_section
+     DOUBLE PRECISION   :: se_fbdn_extot !Total forbidden excitation cross_section
+     DOUBLE PRECISION   :: se_o_iontot !Total SE ionization cross-section
+     DOUBLE PRECISION   :: se_o_extot !Total SE excitation cross-section
+     DOUBLE PRECISION   :: se_o_ineltot !Total SE inelastic cross-section
+     DOUBLE PRECISION   :: se_o_alwd_extot !Total allowed excitation cross-section
+     DOUBLE PRECISION   :: se_o_fbdn_extot !Total forbidden excitation cross_section
+     DOUBLE PRECISION   :: se_o3_extot ! Total excitation cross-section for ozone
+     DOUBLE PRECISION   :: se_o3_iontot ! Total ionization cross-section for ozone
+     INTEGER, DIMENSION(3) :: parent_coords ! The coordinates at which the electron formed/site of cation
+     TYPE(ionstate), ALLOCATABLE, DIMENSION(:) :: se_ionst !Information regarding the ionization states of the target
+     TYPE(alwd_exstate), ALLOCATABLE, DIMENSION(:) :: se_alwd !Information on the allowed transitions of the target
+     TYPE(fbdn_exstate), ALLOCATABLE, DIMENSION(:) :: se_fbdn !Information on the forbidden transitions of the target
+     TYPE(ionstate), ALLOCATABLE, DIMENSION(:) :: se_o_ionst !Information regarding the ionization states of the target
+     TYPE(alwd_exstate), ALLOCATABLE, DIMENSION(:) :: se_o_alwd !Information on the allowed transitions of the target
+     TYPE(fbdn_exstate), ALLOCATABLE, DIMENSION(:) :: se_o_fbdn !Information on the forbidden transitions of the target
      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_ionsigs !Ionization cross-sections
      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_alwdsigs !Allowed excitation cross-sections
-     ! DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_fbdnsigs !Forbidden exc. cross-sections
+     DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_fbdnsigs !Forbidden exc. cross-sections
+     DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_o_ionsigs !Ionization cross-sections
+     DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_o_alwdsigs !Allowed excitation cross-sections
+     DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: se_o_fbdnsigs !Forbidden exc. cross-sections
+
   END TYPE se_info
 
   TYPE :: node

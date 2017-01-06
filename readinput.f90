@@ -22,8 +22,8 @@ CONTAINS
     DOUBLE PRECISION                 :: arrh_alpha,arrh_beta,arrh_gamma
 
     ! Open files
-    OPEN(UNIT=SPECIES_UNIT_NUM,FILE=SPECIES_FILE,STATUS='OLD',ACTION='READ',IOSTAT=ierror1)
-    OPEN(UNIT=REACTIONS_UNIT_NUM,FILE=REACTIONS_FILE,STATUS='OLD',ACTION='READ',IOSTAT=ierror2)
+    OPEN(UNIT=SPECIES_LUN,FILE=SPECIES_FILE,STATUS='OLD',ACTION='READ',IOSTAT=ierror1)
+    OPEN(UNIT=REACTIONS_LUN,FILE=REACTIONS_FILE,STATUS='OLD',ACTION='READ',IOSTAT=ierror2)
 
     fileopen: IF ( ierror1 .EQ. 0 .AND. ierror2 .EQ. 0 ) THEN
       ! Initialize local values
@@ -33,13 +33,13 @@ CONTAINS
 
       ! Read the contents of the species file and create the SP_LIST and energy_list
       countspecies: DO
-        READ (1,*,IOSTAT=ierror1) line
+        READ (SPECIES_LUN,*,IOSTAT=ierror1) line
         IF ( ierror1 .NE. 0 ) EXIT
         IF ( line(1:1) .NE. "!" ) THEN
         NUM_SPECIES = NUM_SPECIES + 1
-        BACKSPACE(UNIT=1,IOSTAT=ierror1)
+        BACKSPACE(UNIT=SPECIES_LUN,IOSTAT=ierror1)
         ! Re-read line and save values to appropriate data-structure elements
-        READ(1,*,IOSTAT=ierror1) tempName,e_d,atoms,charge
+        READ(SPECIES_LUN,*,IOSTAT=ierror1) tempName,e_d,atoms,charge
         addspecies: IF ( .NOT. ASSOCIATED(sp_head)) THEN
           ALLOCATE(sp_head)
           sp_tail => sp_head
@@ -114,15 +114,15 @@ reactantcharge = 0
 productatoms = 0
 productcharge = 0
 countreactions: DO
-  READ(2,*,IOSTAT=ierror2) line
+  READ(REACTIONS_LUN,*,IOSTAT=ierror2) line
   ! Exit upon reaching the end of the file
   IF ( ierror2 .NE. 0 ) EXIT
   IF ( line(1:1) .NE. "!" ) THEN
   NUM_REACTS = NUM_REACTS + 1
   ! Rewind one line and re-read
-  BACKSPACE (UNIT=2,IOSTAT=ierror2)
+  BACKSPACE (UNIT=REACTIONS_LUN,IOSTAT=ierror2)
   ! Read in variables
-  READ(2,*,IOSTAT=ierror2) r1,r2,p1,p2,p3,arrh_alpha,arrh_beta,arrh_gamma,rtype
+  READ(REACTIONS_LUN,*,IOSTAT=ierror2) r1,r2,p1,p2,p3,arrh_alpha,arrh_beta,arrh_gamma,rtype
   addreact: IF ( .NOT. ASSOCIATED(RE_HEAD)) THEN
     ALLOCATE(RE_HEAD)
     re_tail => RE_HEAD

@@ -72,9 +72,12 @@ MODULE parameters
   DOUBLE PRECISION, PARAMETER :: ZP          = 1.D0             ! Proton number
   DOUBLE PRECISION, PARAMETER :: ZO1         = 8.D0             ! Atomic oxygen proton number
   DOUBLE PRECISION, PARAMETER :: ZO2         = 16.D0            ! Molecular oxygen proton number
+  DOUBLE PRECISION, PARAMETER :: ZO3         = 24.D0            ! Molecular oxygen proton number
   DOUBLE PRECISION, PARAMETER :: ENERG       = 100*1E3          ! Ion energy in eV
   DOUBLE PRECISION, PARAMETER :: MP          = 1                ! Ion mass in amu
+  DOUBLE PRECISION, PARAMETER :: MO3         = 24               ! Target mass in amu
   DOUBLE PRECISION, PARAMETER :: MO2         = 16               ! Target mass in amu
+  DOUBLE PRECISION, PARAMETER :: MO1         = 8               ! Target mass in amu
   DOUBLE PRECISION, PARAMETER :: A0          = 0.529177         ! Bohr radius in Angstroms
   DOUBLE PRECISION, PARAMETER :: ECHARG2     = 14.39            ! Fundamental charge**2 in eV*Angstroms
   DOUBLE PRECISION, PARAMETER :: Q0          = 6.513E-14        ! (eV*cm)**2
@@ -95,23 +98,23 @@ MODULE parameters
   DOUBLE PRECISION, PARAMETER :: FITNESS_THRESHOLD = 1E20   ! Terminate if FITNESS > this
   DOUBLE PRECISION, PARAMETER :: ELASTIC_LOSS      = 0.0    ! Percent of Etot lost per electron hop
   DOUBLE PRECISION, PARAMETER :: TRL_NU            = 1.0E12 ! Trial frequency, for the rates, in 1/s
-  DOUBLE PRECISION, PARAMETER :: STEPFAC           = 1.0d-1  ! Determines freq. between colls. for protons
+  DOUBLE PRECISION, PARAMETER :: STEPFAC           = 1.0d0  ! Determines freq. between colls. for protons
 
 
   !******************************************************************************
   ! Output File Unit Numbers
   !******************************************************************************
-  INTEGER         , PARAMETER :: SPECIES_UNIT_NUM   = 1
-  INTEGER         , PARAMETER :: REACTIONS_UNIT_NUM = 2
-  INTEGER         , PARAMETER :: AB_UNIT_NUM        = 3    ! Abundance output file
-  INTEGER         , PARAMETER :: RATE_UNIT_NUM      = 4    ! Rate output file
-  INTEGER         , PARAMETER :: TRACKPLOT_UNIT_NUM = 5    ! Track file
-  INTEGER         , PARAMETER :: O_LUN              = 6    ! Atomic O reactions
-  INTEGER         , PARAMETER :: O2_LUN             = 7    ! O2 reactions
-  INTEGER         , PARAMETER :: O3_LUN             = 8    ! O3 reactions
-  INTEGER         , PARAMETER :: OSTAR_LUN          = 9
-  INTEGER         , PARAMETER :: O2STAR_LUN         = 10
-  INTEGER         , PARAMETER :: O3STAR_LUN         = 11
+  INTEGER         , PARAMETER :: SPECIES_LUN   = 1001
+  INTEGER         , PARAMETER :: REACTIONS_LUN = 1002
+  INTEGER         , PARAMETER :: AB_LUN        = 1003 ! Abundance output file
+  INTEGER         , PARAMETER :: RATE_LUN      = 1004 ! Rate output file
+  INTEGER         , PARAMETER :: TRACKPLOT_LUN = 1005 ! Track file
+  INTEGER         , PARAMETER :: O_LUN              = 1006 ! Atomic O reactions
+  INTEGER         , PARAMETER :: O2_LUN             = 1007 ! O2 reactions
+  INTEGER         , PARAMETER :: O3_LUN             = 1008 ! O3 reactions
+  INTEGER         , PARAMETER :: OSTAR_LUN          = 1009
+  INTEGER         , PARAMETER :: O2STAR_LUN         = 1010
+  INTEGER         , PARAMETER :: O3STAR_LUN         = 1011
   !******************************************************************************
   ! Analytics Parameters
   !******************************************************************************
@@ -168,5 +171,5 @@ MODULE parameters
   !******************************************************************************
   ! Fitting parameters
   !******************************************************************************
-  DOUBLE PRECISION :: AVAL         = 100.0d0 !21.0d0     ! Parameter for Gamma distribution
+  DOUBLE PRECISION :: AVAL         = 33.0d0 !21.0d0     ! Parameter for Gamma distribution
 END MODULE parameters
