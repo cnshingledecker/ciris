@@ -26,203 +26,205 @@ CONTAINS
     OPEN(UNIT=REACTIONS_LUN,FILE=REACTIONS_FILE,STATUS='OLD',ACTION='READ',IOSTAT=ierror2)
 
     fileopen: IF ( ierror1 .EQ. 0 .AND. ierror2 .EQ. 0 ) THEN
-      ! Initialize local values
-      i_count = 0
-      e_count = 0
-      line    = '0'
+       ! Initialize local values
+       i_count = 0
+       e_count = 0
+       line    = '0'
 
-      ! Read the contents of the species file and create the SP_LIST and energy_list
-      countspecies: DO
-        READ (SPECIES_LUN,*,IOSTAT=ierror1) line
-        IF ( ierror1 .NE. 0 ) EXIT
-        IF ( line(1:1) .NE. "!" ) THEN
-        NUM_SPECIES = NUM_SPECIES + 1
-        BACKSPACE(UNIT=SPECIES_LUN,IOSTAT=ierror1)
-        ! Re-read line and save values to appropriate data-structure elements
-        READ(SPECIES_LUN,*,IOSTAT=ierror1) tempName,e_d,atoms,charge
-        addspecies: IF ( .NOT. ASSOCIATED(sp_head)) THEN
-          ALLOCATE(sp_head)
-          sp_tail => sp_head
-          NULLIFY(sp_tail%next)
-        ELSE
-          ALLOCATE(sp_tail%next)
-          sp_tail => sp_tail%next
-          NULLIFY(sp_tail%next)
-        END IF addspecies
-        sp_tail%name = tempName
-        sp_tail%e_d = e_d
-        sp_tail%atoms = atoms
-        sp_tail%charge = charge
-        sp_tail%ion = .FALSE.
-        sp_tail%exc = .false.
-        sp_tail%special = .FALSE.
-        sp_tail%id = NUM_SPECIES
-        tempName = TRIM(sp_tail%name)
-        ! Tally up the total number of anions, cations, and special species
-        specialion: IF ( (tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .EQ. '-') &
-          .OR. (tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .EQ. '+')) THEN
-        IF ( tempName(1:1) .NE. '*') THEN
-          sp_tail%ion = .TRUE.
-          i_count = i_count + 1
-        END IF
-      else if ( (tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .EQ. '*') .and. &
-        (len(trim(tempName)) .gt. 1) ) then
-      sp_tail%exc = .true.
-      e_count = e_count + 1
-    ELSE IF  (tempName .EQ. "CRP") THEN
-      CRPNUM = NUM_SPECIES
-      sp_tail%special = .TRUE.
-    ELSE IF (tempName .EQ. "e") THEN
-      ELECNUM = NUM_SPECIES
-      sp_tail%special = .TRUE.
-    ELSE IF (tempName .EQ. "*") THEN
-      EXCNUM = NUM_SPECIES
-      sp_tail%special = .TRUE.
-    ELSE IF (tempName .EQ. "M") THEN
-      MNUM = NUM_SPECIES
-      sp_tail%special = .true.
-    END IF specialion
-  ELSE
-    CONTINUE
-  END IF
-END DO countspecies
+       ! Read the contents of the species file and create the SP_LIST and energy_list
+       countspecies: DO
+          READ (SPECIES_LUN,*,IOSTAT=ierror1) line
+          IF ( ierror1 .NE. 0 ) EXIT
+          IF ( line(1:1) .NE. "!" ) THEN
+             NUM_SPECIES = NUM_SPECIES + 1
+             BACKSPACE(UNIT=SPECIES_LUN,IOSTAT=ierror1)
+             ! Re-read line and save values to appropriate data-structure elements
+             READ(SPECIES_LUN,*,IOSTAT=ierror1) tempName,e_d,atoms,charge
+             addspecies: IF ( .NOT. ASSOCIATED(sp_head)) THEN
+                ALLOCATE(sp_head)
+                sp_tail => sp_head
+                NULLIFY(sp_tail%next)
+             ELSE
+                ALLOCATE(sp_tail%next)
+                sp_tail => sp_tail%next
+                NULLIFY(sp_tail%next)
+             END IF addspecies
+             sp_tail%name = tempName
+             sp_tail%e_d = e_d
+             sp_tail%atoms = atoms
+             sp_tail%charge = charge
+             sp_tail%ion = .FALSE.
+             sp_tail%exc = .false.
+             sp_tail%special = .FALSE.
+             sp_tail%id = NUM_SPECIES
+             tempName = TRIM(sp_tail%name)
+             ! Tally up the total number of anions, cations, and special species
+             specialion: IF ( (tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .EQ. '-') &
+                  .OR. (tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .EQ. '+')) THEN
+                IF ( tempName(1:1) .NE. '*') THEN
+                   sp_tail%ion = .TRUE.
+                   i_count = i_count + 1
+                END IF
+             else if ( (tempName(LEN(TRIM(tempName)):LEN(TRIM(tempName))) .EQ. '*') .and. &
+                  (len(trim(tempName)) .gt. 1) ) then
+                sp_tail%exc = .true.
+                e_count = e_count + 1
+             ELSE IF  (tempName .EQ. "CRP") THEN
+                CRPNUM = NUM_SPECIES
+                sp_tail%special = .TRUE.
+             ELSE IF (tempName .EQ. "e") THEN
+                ELECNUM = NUM_SPECIES
+                sp_tail%special = .TRUE.
+             ELSE IF (tempName .EQ. "*") THEN
+                EXCNUM = NUM_SPECIES
+                sp_tail%special = .TRUE.
+             ELSE IF (tempName .EQ. "M") THEN
+                MNUM = NUM_SPECIES
+                sp_tail%special = .true.
+             END IF specialion
+          ELSE
+             CONTINUE
+          END IF
+       END DO countspecies
 
-SPECIAL_LIST = (/ CRPNUM, EXCNUM, ELECNUM, mnum /)
-ALLOCATE(IONLIST(i_count),fast_reacts(e_count+1))
+       SPECIAL_LIST = (/ CRPNUM, EXCNUM, ELECNUM, mnum /)
+       ALLOCATE(IONLIST(i_count),fast_reacts(e_count+1))
 
 
-sp_temp => sp_head
-n = 0
-m = 0
-popions: DO
-  IF ( .NOT. ASSOCIATED(sp_temp%next)) EXIT
-  IF ( sp_temp%ion .EQV. .TRUE. ) THEN
-    n = n + 1
-    IONLIST(n) = sp_temp%id
-  else if (sp_temp%exc .eqv. .true. ) then
-    m = m + 1
-    fast_reacts(m) = sp_temp%id
-  END IF
-  sp_temp => sp_temp%next
-END DO popions
+       sp_temp => sp_head
+       n = 0
+       m = 0
+       popions: DO
+          IF ( .NOT. ASSOCIATED(sp_temp%next)) EXIT
+          IF ( sp_temp%ion .EQV. .TRUE. ) THEN
+             n = n + 1
+             IONLIST(n) = sp_temp%id
+          else if (sp_temp%exc .eqv. .true. ) then
+             m = m + 1
+             fast_reacts(m) = sp_temp%id
+          END IF
+          sp_temp => sp_temp%next
+       END DO popions
 
-fast_reacts(e_count+1) = onum
+       fast_reacts(e_count+1) = onum
 
-! Read the contents of the reactions file and make the reactionCube
-reactantatoms = 0
-reactantcharge = 0
-productatoms = 0
-productcharge = 0
-countreactions: DO
-  READ(REACTIONS_LUN,*,IOSTAT=ierror2) line
-  ! Exit upon reaching the end of the file
-  IF ( ierror2 .NE. 0 ) EXIT
-  IF ( line(1:1) .NE. "!" ) THEN
-  NUM_REACTS = NUM_REACTS + 1
-  ! Rewind one line and re-read
-  BACKSPACE (UNIT=REACTIONS_LUN,IOSTAT=ierror2)
-  ! Read in variables
-  READ(REACTIONS_LUN,*,IOSTAT=ierror2) r1,r2,p1,p2,p3,arrh_alpha,arrh_beta,arrh_gamma,rtype
-  addreact: IF ( .NOT. ASSOCIATED(RE_HEAD)) THEN
-    ALLOCATE(RE_HEAD)
-    re_tail => RE_HEAD
-    NULLIFY(re_tail%next)
-  ELSE
-    ALLOCATE(re_tail%next)
-    re_tail => re_tail%next
-  END IF addreact
-  re_tail%r1 = r1
-  re_tail%r2 = r2
-  re_tail%p1 = p1
-  re_tail%p2 = p2
-  re_tail%p3 = p3
-  re_tail%arrh_alpha = arrh_alpha
-  re_tail%arrh_beta = arrh_beta
-  re_tail%arrh_gamma = arrh_gamma
-  re_tail%rtype = rtype
-  re_tail%count = 0
-  re_tail%id = num_reacts
-  ! Get integer identities of species
-  CALL lookup(&
-    re_tail%r1,&
-    sp_head,&
-    re_tail%nr1,&
-    reactantatoms(1),&
-    reactantcharge(1))
-  CALL lookup(&
-    re_tail%r2,&
-    sp_head,&
-    re_tail%nr2,&
-    reactantatoms(2),&
-    reactantcharge(2))
-  CALL lookup(&
-    re_tail%p1,&
-    sp_head,&
-    re_tail%np1,&
-    productatoms(1),&
-    productcharge(1))
-  IF ( TRIM(re_tail%p2) .NE. "0" ) CALL lookup(&
-    re_tail%p2,&
-    sp_head,&
-    re_tail%np2,&
-    productatoms(2),&
-    productcharge(2))
-  IF ( TRIM(re_tail%p3) .NE. "0" ) CALL lookup(&
-    re_tail%p3,&
-    sp_head,&
-    re_tail%np3,&
-    productatoms(3),&
-    productcharge(3))
+       ! Read the contents of the reactions file and make the reactionCube
+       reactantatoms = 0
+       reactantcharge = 0
+       productatoms = 0
+       productcharge = 0
+       countreactions: DO
+          READ(REACTIONS_LUN,*,IOSTAT=ierror2) line
+          ! Exit upon reaching the end of the file
+          IF ( ierror2 .NE. 0 ) EXIT
+          IF ( line(1:1) .NE. "!" ) THEN
+             NUM_REACTS = NUM_REACTS + 1
+             ! Rewind one line and re-read
+             BACKSPACE (UNIT=REACTIONS_LUN,IOSTAT=ierror2)
+             ! Read in variables
+             READ(REACTIONS_LUN,*,IOSTAT=ierror2) r1,r2,p1,p2,p3,arrh_alpha,arrh_beta,arrh_gamma,rtype
+             addreact: IF ( .NOT. ASSOCIATED(RE_HEAD)) THEN
+                ALLOCATE(RE_HEAD)
+                re_tail => RE_HEAD
+                NULLIFY(re_tail%next)
+             ELSE
+                ALLOCATE(re_tail%next)
+                re_tail => re_tail%next
+             END IF addreact
+             re_tail%r1 = r1
+             re_tail%r2 = r2
+             re_tail%p1 = p1
+             re_tail%p2 = p2
+             re_tail%p3 = p3
+             re_tail%arrh_alpha = arrh_alpha
+             re_tail%arrh_beta = arrh_beta
+             re_tail%arrh_gamma = arrh_gamma
+             re_tail%rtype = rtype
+             re_tail%count = 0
+             re_tail%id = num_reacts
+             ! Get integer identities of species
+             CALL lookup(&
+                  re_tail%r1,&
+                  sp_head,&
+                  re_tail%nr1,&
+                  reactantatoms(1),&
+                  reactantcharge(1))
+             CALL lookup(&
+                  re_tail%r2,&
+                  sp_head,&
+                  re_tail%nr2,&
+                  reactantatoms(2),&
+                  reactantcharge(2))
+             CALL lookup(&
+                  re_tail%p1,&
+                  sp_head,&
+                  re_tail%np1,&
+                  productatoms(1),&
+                  productcharge(1))
+             IF ( TRIM(re_tail%p2) .NE. "0" ) CALL lookup(&
+                  re_tail%p2,&
+                  sp_head,&
+                  re_tail%np2,&
+                  productatoms(2),&
+                  productcharge(2))
+             IF ( TRIM(re_tail%p3) .NE. "0" ) CALL lookup(&
+                  re_tail%p3,&
+                  sp_head,&
+                  re_tail%np3,&
+                  productatoms(3),&
+                  productcharge(3))
 
-  IF ( sum(reactantatoms) .ne. sum(productatoms) ) then
-    print *, "for reaction:",re_tail%id,"atoms not equal"
-    call exit()
-  end if
+             IF ( sum(reactantatoms) .ne. sum(productatoms) ) then
+                print *, "for reaction:",re_tail%id,"atoms not equal"
+                call exit()
+             end if
 
-  if ( sum(reactantcharge) .ne. sum(productcharge) ) then
-    print *, "for reaction:",re_tail%id,"charge not equal"
-    call exit()
-  end if
+             if ( sum(reactantcharge) .ne. sum(productcharge) ) then
+                print *, "for reaction:",re_tail%id,"charge not equal"
+                call exit()
+             end if
 
-  reactantatoms = 0
-  reactantcharge = 0
-  productatoms = 0
-  productcharge = 0
+             reactantatoms = 0
+             reactantcharge = 0
+             productatoms = 0
+             productcharge = 0
 
-ELSE
-  CONTINUE
-END IF
+          ELSE
+             CONTINUE
+          END IF
        END DO countreactions
-     ELSE fileopen
+    ELSE fileopen
        IF ( ierror1 .NE. 0 .AND. ierror2 .NE. 0 ) THEN
-         PRINT *, 'Could not open any of the input files'
+          PRINT *, 'Could not open any of the input files'
        ELSE IF ( ierror1 .NE. 0 .AND. ierror2 .EQ. 0 ) THEN
-         PRINT *, 'Could not open: species_file'
+          PRINT *, 'Could not open: species_file'
        ELSE
-         PRINT *, 'Could not open: reactions_file'
+          PRINT *, 'Could not open: reactions_file'
        END IF
-     END IF fileopen
+    END IF fileopen
 
-     PRINT *, "There are",NUM_SPECIES,"species"
-     PRINT *, "There are",NUM_REACTS,"reactions"
-     PRINT *, "There are",i_count,"ions"
+    PRINT *, "There are",NUM_SPECIES,"species"
+    PRINT *, "There are",NUM_REACTS,"reactions"
+    PRINT *, "There are",i_count,"ions"
 
-     ! Go through species linked list and build global array, while de-allocating
-     ! linked list memory
-     ALLOCATE(EN_LIST(NUM_SPECIES))
-     ALLOCATE(SP_LIST(NUM_SPECIES))
-     DO
+    ! Go through species linked list and build global array, while de-allocating
+    ! linked list memory
+    ALLOCATE(EN_LIST(NUM_SPECIES))
+    ALLOCATE(SP_LIST(NUM_SPECIES))
+    ALLOCATE(SP_PROD_DEST(NUM_SPECIES,2))
+    SP_PROD_DEST = 0
+    DO
        sp_temp => sp_head
        n = sp_temp%id
        EN_LIST(n) = sp_temp%e_d
        SP_LIST(n) = sp_temp%name
        if ( .not. associated(sp_temp%next)) then
-         nullify(sp_temp)
-         exit
+          nullify(sp_temp)
+          exit
        end if
        sp_tail => sp_temp%next
        NULLIFY(sp_head)
        sp_head => sp_tail
-     end do
-   END SUBROUTINE buildnetwork
- END MODULE readinput
+    end do
+  END SUBROUTINE buildnetwork
+END MODULE readinput

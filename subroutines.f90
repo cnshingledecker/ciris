@@ -49,23 +49,19 @@ CONTAINS
     IMPLICIT NONE
     type(reaction) :: node
     character(80) :: varfmt
-    character(80) :: cr1,cr2,cp1,cp2,cp3,cident(NUM_REACTS)
-    integer :: rresults(NUM_REACTS,6,3)
-    integer :: yield,tempsum
-    character(30) :: nature(NUM_REACTS)
-    integer :: n,m,p
-    integer :: tempcount
+    character(80) :: cr1,cr2,cp1,cp2,cp3,cident
+    integer :: yield
+    real    :: tempsum
+    character(30) :: nature
+    character(30) :: basefile
+    character(2) :: intnum
+    integer :: n
 
-    varfmt = "(I20,2ES20.4,A30,A15)"
+    varfmt = "(3ES20.4,A35,A12)"
+    basefile = "_reactions.wsv"
 
     if ( node%id .eq. num_reacts-1 ) then
        print *, node%id
-    end if
-
-    if (node%id .eq. 1 ) then
-       rresults = 0
-       nature = "Neutral"
-       cident = " "
     end if
 
     cr1 = node%r1
@@ -73,170 +69,45 @@ CONTAINS
     cp1 = node%p1
     cp2 = node%p2
     cp3 = node%p3
-    cident(node%id) = '    "'//trim(cr1)//&
+    cident = '    "'//trim(cr1)//&
          ' + '//trim(cr2)//&
          '->'//trim(cp1)//&
          ' + '//trim(cp2)//&
          ' + '//trim(cp3)//'"'
 
-    ! Determine O yield
-    call analyzereaction(node,onum,yield,nature(node%id))
-    if ( yield > 0 ) then
-       rresults(node%id,1,1) = yield*node%count
-    else if ( yield == 0 ) then
-       rresults(node%id,1,2) = yield*node%count
-    else if ( yield < 0 ) then
-       rresults(node%id,1,3) = yield*node%count
-    end if
-
-
-    ! Determine O2 yield
-    call analyzereaction(node,o2num,yield,nature(node%id))
-    if ( yield > 0 ) then
-       rresults(node%id,2,1) = yield*node%count
-    else if ( yield == 0 ) then
-       rresults(node%id,2,2) = yield*node%count
-    else if ( yield < 0 ) then
-       rresults(node%id,2,3) = yield*node%count
-    end if
-
-
-    ! Determine O3 yield
-    call analyzereaction(node,o3num,yield,nature(node%id))
-    if ( yield > 0 ) then
-       rresults(node%id,3,1) = yield*node%count
-    else if ( yield == 0 ) then
-       rresults(node%id,3,2) = yield*node%count
-    else if ( yield < 0 ) then
-       rresults(node%id,3,3) = yield*node%count
-    end if
-
-    ! Determine O* yield
-    call analyzereaction(node,ostarnum,yield,nature(node%id))
-    if ( yield > 0 ) then
-       rresults(node%id,4,1) = yield*node%count
-    else if ( yield == 0 ) then
-       rresults(node%id,4,2) = yield*node%count
-    else if ( yield < 0 ) then
-       rresults(node%id,4,3) = yield*node%count
-    end if
-
-    ! Determine O2* yield
-    call analyzereaction(node,o2starnum,yield,nature(node%id))
-    if ( yield > 0 ) then
-       rresults(node%id,5,1) = yield*node%count
-    else if ( yield == 0 ) then
-       rresults(node%id,5,2) = yield*node%count
-    else if ( yield < 0 ) then
-       rresults(node%id,5,3) = yield*node%count
-    end if
-
-    ! Determine O3* yield
-    call analyzereaction(node,o3starnum,yield,nature(node%id))
-    if ( yield > 0 ) then
-       rresults(node%id,6,1) = yield*node%count
-    else if ( yield == 0 ) then
-       rresults(node%id,6,2) = yield*node%count
-    else if ( yield < 0 ) then
-       rresults(node%id,6,3) = yield*node%count
-    end if
+    DO n=1,NUM_SPECIES
+       write(intnum,'(I2)') n
+!       print *, "Opening file=",TRIM(intnum)//basefile
+       OPEN(file=intnum//basefile,unit=n+1000,position='APPEND',status='OLD')
+       call analyzereaction(node,n,yield,nature)
+       tempsum = abs(yield)*node%count
+       if ( yield > 0 ) then
+          if ( SP_PROD_DEST(n,1) .NE. 0 ) then
+             tempsum = tempsum/REAL(SP_PROD_DEST(n,1))
+          else
+             tempsum = 0
+          end if
+       else if ( yield < 0 ) then
+          if ( SP_PROD_DEST(n,2) .NE. 0 ) then
+             tempsum = tempsum/REAL(SP_PROD_DEST(n,2))
+          else
+             tempsum = 0
+          end if
+       else
+          continue
+       end if
+       write(n+1000,varfmt) tempsum, time, fluence, cident, nature
+       close(n+1000)
+    END DO
 
     node%count = 0
 
     IF ( ASSOCIATED(node%next)) THEN
        CALL writereactions(node%next)
     ELSE
-       return
+       SP_PROD_DEST = 0
+       RETURN
     END IF
-
-    if ( node%id .eq. 1 ) then
-       ! Calculate the relative contribution of each reaction
-       do n = 1,size(rresults,2)
-          if ( sum(rresults(:,n,1)) > 0 ) then
-             rresults(:,n,1) = rresults(:,n,1)/sum(rresults(:,n,1))
-          end if
-
-          if ( sum(rresults(:,n,2)) > 0 ) then
-             rresults(:,n,2) = rresults(:,n,2)/sum(rresults(:,n,2))
-          end if
-
-          if ( sum(rresults(:,n,3)) > 0 ) then
-             rresults(:,n,3) = rresults(:,n,3)/sum(rresults(:,n,3))
-          end if
-       end do
-
-       OPEN(FILE="o_reactions.wsv", &
-            UNIT=O_LUN, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="o2_reactions.wsv", &
-            UNIT=O2_LUN, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="o3_reactions.wsv", &
-            UNIT=O3_LUN, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="ostar_reactions.wsv", &
-            UNIT=OSTAR_LUN, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="o2star_reactions.wsv", &
-            UNIT=O2STAR_LUN, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       OPEN(FILE="o3star_reactions.wsv", &
-            UNIT=O2STAR_LUN, &
-            STATUS="UNKNOWN", &
-            POSITION="APPEND")
-       do n=1,NUM_REACTS
-          do m=1,size(rresults,2)
-             tempcount = 0
-             do p=1,3
-                ! Get the count, which should be the only nonzero element in the
-                ! third dimension of the array
-                if ( rresults(n,m,1) /= 0 ) then
-                   tempcount = rresults(n,m,1)
-                else if ( rresults(n,m,2) /= 0  ) then
-                   tempcount = rresults(n,m,2)
-                else if ( rresults(n,m,3) /= 0 ) then
-                   tempcount = rresults(n,m,3)
-                else if ( (rresults(n,m,1) + rresults(n,m,2) + rresults(n,m,3)) == 0 ) then
-!                   print *, "Sum = 0 in write reactions"
-                   continue
-                else
-                   print *, "Error in writereactions: all yields > 0"
-                   call exit()
-                end if
-             end do
-
-             ! Write the results to the appropriate file
-             select case (m)
-             case(1)
-                write(O_LUN,varfmt) tempcount,time,fluence,cident(n),nature(n)
-             case(2)
-                write(O2_LUN,varfmt) tempcount,time,fluence,cident(n),nature(n)
-             case(3)
-                write(O3_LUN,varfmt) tempcount,time,fluence,cident(n),nature(n)
-             case(4)
-                write(OSTAR_LUN,varfmt) tempcount,time,fluence,cident(n),nature(n)
-             case(5)
-                write(O2STAR_LUN,varfmt) tempcount,time,fluence,cident(n),nature(n)
-             case(6)
-                write(O3STAR_LUN,varfmt) tempcount,time,fluence,cident(n),nature(n)
-             case default
-             end select
-
-          end do
-       end do
-
-       close(O_LUN)
-       close(O2_LUN)
-       close(O3_LUN)
-       close(OSTAR_LUN)
-       close(O2STAR_LUN)
-       close(O3STAR_LUN)
-    end if
   END SUBROUTINE writereactions
 
   SUBROUTINE hopping ( i_in, j_in, k_in, i_out, j_out, k_out, prob )
@@ -946,8 +817,8 @@ CONTAINS
        ELSE
           b_3 = trl_nu*EXP( -1*( EN_LIST(temp%sp_num)*E_BULK     / kin_temp ) )
        END IF
-       if ( any(fast_reacts .eq. temp%sp_num) ) then
-          b = 1e18
+       if ( (any(fast_reacts .eq. temp%sp_num)) .and. (temp%sp_num .ne. onum) ) then
+          b = TRL_NU 
        else
           b = b_3
        end if
@@ -1021,7 +892,7 @@ CONTAINS
              ELSE IF ( MATRIX(i,j,k)%sp_num .EQ. O3STARNUM ) THEN
                 o3starcount = o3starcount + 1
              ELSE IF ( matrix(i,j,k)%sp_num .NE. 0 ) THEN
-               othercount = othercount + 1
+                othercount = othercount + 1
              END IF
           END DO
        END DO
@@ -1034,8 +905,8 @@ CONTAINS
     numatoms = o_count + (2*o2_count) + (3*o3_count)
     numatoms = numatoms + ostarcount + (2*o2starcount) + (3*o3starcount)
     IF ( numatoms .NE. initialatoms ) THEN
-      print *, numatoms,"<",initialatoms
-      call exit()
+       print *, numatoms,"<",initialatoms
+       call exit()
     end if
 
     IF ( NO_OUTPUT .EQV. .FALSE. ) THEN
@@ -1223,7 +1094,7 @@ CONTAINS
     DOUBLE PRECISION                        :: sn_e
     DOUBLE PRECISION                        :: sn_eps
 
-    !!!! For O3 !!!!
+!!!! For O3 !!!!
     !(1) Calculate elastic cross-section
     !i. calculate screening length
     scr_len = au(ZP,ZO3)
@@ -1240,28 +1111,28 @@ CONTAINS
     o3_psigmas(1)%description   = 'Elastic'
 
     !(2) Calculate ionization cross-section
- ASSOCIATE( a => o3_p_ion(1)%a_epgion, &
-            j => o3_p_ion(1)%j_epgion, &
-            v => o3_p_ion(1)%nu_epgion, &
-            o => o3_p_ion(1)%omega_epgion, &
-            i => o3_p_ion(1)%i_epgion )
-         o3_psigij(1) = green_mcneal(energy,a,j,v,o,ZO3,i)
-       END ASSOCIATE
+    ASSOCIATE( a => o3_p_ion(1)%a_epgion, &
+         j => o3_p_ion(1)%j_epgion, &
+         v => o3_p_ion(1)%nu_epgion, &
+         o => o3_p_ion(1)%omega_epgion, &
+         i => o3_p_ion(1)%i_epgion )
+      o3_psigij(1) = green_mcneal(energy,a,j,v,o,ZO3,i)
+    END ASSOCIATE
     o3_psigmas(2)%cross_section = SUM(o3_psigij)
     o3_psigmas(2)%description = 'Ionization'
 
     !(3) Calculate excitation cross-section
- ASSOCIATE( a => o3_p_ex(1)%a_epgex, &
-            j => o3_p_ex(1)%j_epgex, &
-            v => o3_p_ex(1)%nu_epgex, &
-            o => o3_p_ex(1)%omega_epgex )
-         o3_psigexj(1) = green_mcneal(energy,a,j,v,o,ZO3,0D0)
-       END ASSOCIATE
+    ASSOCIATE( a => o3_p_ex(1)%a_epgex, &
+         j => o3_p_ex(1)%j_epgex, &
+         v => o3_p_ex(1)%nu_epgex, &
+         o => o3_p_ex(1)%omega_epgex )
+      o3_psigexj(1) = green_mcneal(energy,a,j,v,o,ZO3,0D0)
+    END ASSOCIATE
     o3_psigmas(3)%cross_section = SUM(o3_psigexj)
     o3_psigmas(3)%description    = 'Excitation'
 
 
-    !!!! For O2 !!!!
+!!!! For O2 !!!!
     !(1) Calculate elastic cross-section
     !i. calculate screening length
     scr_len = au(ZP,ZO2)
@@ -1302,7 +1173,7 @@ CONTAINS
     psigmas(3)%cross_section = SUM(psigexj)
     psigmas(3)%description    = 'Excitation'
 
-    !!!! For O !!!!
+!!!! For O !!!!
     !(1) Calculate elastic cross-section
     !i. calculate screening length
     scr_len = au(ZP,ZO1)
@@ -1471,7 +1342,7 @@ CONTAINS
             o => se_box%se_fbdn(n)%omega_fbdn, &
             a => se_box%se_fbdn(n)%alpha_fbdn, &
             b => se_box%se_fbdn(n)%beta_fbdn    )
-!         se_box%se_fbdnsigs(n) = greendutta(e,f,w,o,a,b)
+         !         se_box%se_fbdnsigs(n) = greendutta(e,f,w,o,a,b)
          se_box%se_fbdnsigs(n) = pjgsigma(e,f,w,o,a,b)
        END ASSOCIATE
     END DO
@@ -1559,7 +1430,7 @@ CONTAINS
             o => se_box%se_o_fbdn(n)%omega_fbdn, &
             a => se_box%se_o_fbdn(n)%alpha_fbdn, &
             b => se_box%se_o_fbdn(n)%beta_fbdn    )
-!         se_box%se_o_fbdnsigs(n) = greendutta(e,f,w,o,a,b)
+         !         se_box%se_o_fbdnsigs(n) = greendutta(e,f,w,o,a,b)
          se_box%se_o_fbdnsigs(n) = pjgsigma(e,f,w,o,a,b)
        END ASSOCIATE
     END DO
@@ -1949,641 +1820,649 @@ CONTAINS
     END IF
   END SUBROUTINE e_ex_select
 
-SUBROUTINE elastic_event(energy,e_loss,labtheta)
-  !
-  ! Purpose:
-  !   This subroutine is to determine the specific amount of energy lost by an
-  !  ion in an elastic collisional event.
-  !
-  !! ELASTIC_EVENT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- IMPLICIT NONE
+  SUBROUTINE elastic_event(energy,e_loss,labtheta)
+    !
+    ! Purpose:
+    !   This subroutine is to determine the specific amount of energy lost by an
+    !  ion in an elastic collisional event.
+    !
+    !! ELASTIC_EVENT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    IMPLICIT NONE
 
- ! Data dictionary: Define calling parameters
- DOUBLE PRECISION             , POINTER :: energy !ion energy in eV
- DOUBLE PRECISION, INTENT(OUT)          :: e_loss !energy lost in the collision
- DOUBLE PRECISION, INTENT(OUT)          :: labtheta !lab scattering angle
+    ! Data dictionary: Define calling parameters
+    DOUBLE PRECISION             , POINTER :: energy !ion energy in eV
+    DOUBLE PRECISION, INTENT(OUT)          :: e_loss !energy lost in the collision
+    DOUBLE PRECISION, INTENT(OUT)          :: labtheta !lab scattering angle
 
- ! Data dictionary: Define local variables
- DOUBLE PRECISION                       :: afac !screening length
- DOUBLE PRECISION                       :: gamfac !mass factor
- DOUBLE PRECISION                       :: e_lss !Lindhard-Scharff-Sigmund red. energy
- DOUBLE PRECISION                       :: bfac !reduced impact parameter
- DOUBLE PRECISION                       :: c2,s2 !cos2(cmtheta/2) and sin2(cmtheta/2)
- DOUBLE PRECISION                       :: cmtheta !center-of-mass theta
- DOUBLE PRECISION                       :: rn !random number
+    ! Data dictionary: Define local variables
+    DOUBLE PRECISION                       :: afac !screening length
+    DOUBLE PRECISION                       :: gamfac !mass factor
+    DOUBLE PRECISION                       :: e_lss !Lindhard-Scharff-Sigmund red. energy
+    DOUBLE PRECISION                       :: bfac !reduced impact parameter
+    DOUBLE PRECISION                       :: c2,s2 !cos2(cmtheta/2) and sin2(cmtheta/2)
+    DOUBLE PRECISION                       :: cmtheta !center-of-mass theta
+    DOUBLE PRECISION                       :: rn !random number
 
- afac = au(ZP,ZO2)
- gamfac = mass_fac(MP,MO2)
- e_lss = eps(energy,ZP,ZO2,MP,MO2,afac)
- CALL RANDOM_NUMBER(rn)
- bfac = b_magic(rn,afac,RHO2)
- CALL magic(e_lss,bfac,c2,s2,cmtheta)
- e_loss = t_coll(energy,gamfac,s2)
- labtheta = lab_theta(cmtheta,MP,MO2)
- RETURN
-END SUBROUTINE elastic_event
-
-SUBROUTINE se_info_init(se_box)
-  !
-  ! Purpose:
-  !   This subroutine is to set up the se_info struct, which should only have
-  !  an energy assigned at the time of calling.
-  !
-  !! SE_INFO_INIT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- TYPE(se_info) :: se_box
-
- !(1) Initialize scalar values
- ! For O2
- se_box%se_iontot     = 0
- se_box%se_extot      = 0
- se_box%se_ineltot    = 0
- se_box%se_alwd_extot = 0
- se_box%se_fbdn_extot = 0
- ! For O
- se_box%se_o_iontot     = 0
- se_box%se_o_extot      = 0
- se_box%se_o_ineltot    = 0
- se_box%se_o_alwd_extot = 0
- se_box%se_o_fbdn_extot = 0
-
-
- !(2) Initialize vector values
- ! For O2
- IF ( ALLOCATED(se_box%se_ionst) .EQV. .FALSE. ) THEN
-    !Initialize the ionization arrays
-    ALLOCATE(se_box%se_ionst(SIZE(o2_e_ion)))
-    se_box%se_ionst = o2_e_ion
-    ALLOCATE(se_box%se_ionsigs(SIZE(se_box%se_ionst)))
-    se_box%se_ionsigs = 0
-
-    !Initialize allowed excitation arrays
-    ALLOCATE(se_box%se_alwd(SIZE(o2_e_ex_alwd)))
-    se_box%se_alwd = o2_e_ex_alwd
-    ALLOCATE(se_box%se_alwdsigs(SIZE(o2_e_ex_alwd)))
-    se_box%se_alwdsigs = 0
-
-    !Initialize forbidden excitation arrays
-    ALLOCATE(se_box%se_fbdn(SIZE(o2_e_ex_fbdn)))
-    se_box%se_fbdn = o2_e_ex_fbdn
-    ALLOCATE(se_box%se_fbdnsigs(SIZE(o2_e_ex_fbdn)))
-    se_box%se_fbdnsigs = 0
- END IF
-
- ! For O
- IF ( ALLOCATED(se_box%se_o_ionst) .EQV. .FALSE. ) THEN
-    !Initialize the ionization arrays
-    ALLOCATE(se_box%se_o_ionst(SIZE(o_e_ion)))
-    se_box%se_o_ionst = o_e_ion
-    ALLOCATE(se_box%se_o_ionsigs(SIZE(se_box%se_o_ionst)))
-    se_box%se_o_ionsigs = 0
-
-    !Initialize allowed excitation arrays
-    ALLOCATE(se_box%se_o_alwd(SIZE(o_e_ex_alwd)))
-    se_box%se_o_alwd = o_e_ex_alwd
-    ALLOCATE(se_box%se_o_alwdsigs(SIZE(o_e_ex_alwd)))
-    se_box%se_o_alwdsigs = 0
-
-    !Initialize forbidden excitation arrays
-    ALLOCATE(se_box%se_o_fbdn(SIZE(o_e_ex_fbdn)))
-    se_box%se_o_fbdn = o_e_ex_fbdn
-    ALLOCATE(se_box%se_o_fbdnsigs(SIZE(o_e_ex_fbdn)))
-    se_box%se_o_fbdnsigs = 0
- END IF
-
-END SUBROUTINE se_info_init
-
-SUBROUTINE se_info_garbage(se_box)
-  !
-  ! Purpose:
-  !   This subroutine is to garbage collect the memory used in the se_info struct
-  !
-  !! SE_INFO_GARBAGE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- TYPE(se_info) :: se_box
-
- IF ( ALLOCATED(se_box%se_ionst) .EQV. .TRUE. ) THEN
-    DEALLOCATE(se_box%se_ionst)
-    DEALLOCATE(se_box%se_ionsigs)
-    DEALLOCATE(se_box%se_alwd)
-    DEALLOCATE(se_box%se_alwdsigs)
-    DEALLOCATE(se_box%se_fbdn)
-    DEALLOCATE(se_box%se_fbdnsigs)
+    afac = au(ZP,ZO2)
+    gamfac = mass_fac(MP,MO2)
+    e_lss = eps(energy,ZP,ZO2,MP,MO2,afac)
+    CALL RANDOM_NUMBER(rn)
+    bfac = b_magic(rn,afac,RHO2)
+    CALL magic(e_lss,bfac,c2,s2,cmtheta)
+    e_loss = t_coll(energy,gamfac,s2)
+    labtheta = lab_theta(cmtheta,MP,MO2)
     RETURN
- ELSE
-    RETURN
- END IF
-END SUBROUTINE se_info_garbage
+  END SUBROUTINE elastic_event
 
-SUBROUTINE init_node(root,temp_node,x,y,z)
-  !
-  ! Purpose
-  !   This is a subroutine that compares a string value to values
-  !  in a list and gives the index of a matching result and an
-  !  error if there is no match.
-  !
-  !! INIT_NODE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- IMPLICIT NONE
- TYPE(node), POINTER :: root, temp_node
- INTEGER :: x,y,z
+  SUBROUTINE se_info_init(se_box)
+    !
+    ! Purpose:
+    !   This subroutine is to set up the se_info struct, which should only have
+    !  an energy assigned at the time of calling.
+    !
+    !! SE_INFO_INIT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    TYPE(se_info) :: se_box
 
- temp_node%wait_time = 0.0
- temp_node%coord1 = x
- temp_node%coord2 = y
- temp_node%coord3 = z
- temp_node%sec_sp_num = 0
- temp_node%act_type = 0
- temp_node%hop_dir = 0
- temp_node%leftRight = 0
- temp_node%normal = .FALSE.
- temp_node%interstitial = .FALSE.
+    !(1) Initialize scalar values
+    ! For O2
+    se_box%se_iontot     = 0
+    se_box%se_extot      = 0
+    se_box%se_ineltot    = 0
+    se_box%se_alwd_extot = 0
+    se_box%se_fbdn_extot = 0
+    ! For O
+    se_box%se_o_iontot     = 0
+    se_box%se_o_extot      = 0
+    se_box%se_o_ineltot    = 0
+    se_box%se_o_alwd_extot = 0
+    se_box%se_o_fbdn_extot = 0
 
- NULLIFY(temp_node%before,temp_node%after,temp_node%parent)
 
- IF ( (MOD(y,2) .EQ. 1) .AND. (MOD(z,2) .EQ. 1) ) THEN
-    INITIALATOMS = INITIALATOMS + 2
-    temp_node%normal = .TRUE.
-    temp_node%sp_num = 1
-    CALL wait_calc(temp_node)
-    CALL add_node(root,temp_node)
-    ! Test for parent association
-    IF ( DEBUG .EQV. .TRUE. ) THEN
-       IF ( (root%coord1 .EQ. temp_node%coord1) .AND. &
-            (root%coord2 .EQ. temp_node%coord2) .AND. &
-            (root%coord3 .EQ. temp_node%coord3) ) THEN
-          CONTINUE
-       ELSE
-          IF ( .NOT. ASSOCIATED(temp_node%parent)) THEN
-             PRINT *, "temp_node parent not associated!"
+    !(2) Initialize vector values
+    ! For O2
+    IF ( ALLOCATED(se_box%se_ionst) .EQV. .FALSE. ) THEN
+       !Initialize the ionization arrays
+       ALLOCATE(se_box%se_ionst(SIZE(o2_e_ion)))
+       se_box%se_ionst = o2_e_ion
+       ALLOCATE(se_box%se_ionsigs(SIZE(se_box%se_ionst)))
+       se_box%se_ionsigs = 0
+
+       !Initialize allowed excitation arrays
+       ALLOCATE(se_box%se_alwd(SIZE(o2_e_ex_alwd)))
+       se_box%se_alwd = o2_e_ex_alwd
+       ALLOCATE(se_box%se_alwdsigs(SIZE(o2_e_ex_alwd)))
+       se_box%se_alwdsigs = 0
+
+       !Initialize forbidden excitation arrays
+       ALLOCATE(se_box%se_fbdn(SIZE(o2_e_ex_fbdn)))
+       se_box%se_fbdn = o2_e_ex_fbdn
+       ALLOCATE(se_box%se_fbdnsigs(SIZE(o2_e_ex_fbdn)))
+       se_box%se_fbdnsigs = 0
+    END IF
+
+    ! For O
+    IF ( ALLOCATED(se_box%se_o_ionst) .EQV. .FALSE. ) THEN
+       !Initialize the ionization arrays
+       ALLOCATE(se_box%se_o_ionst(SIZE(o_e_ion)))
+       se_box%se_o_ionst = o_e_ion
+       ALLOCATE(se_box%se_o_ionsigs(SIZE(se_box%se_o_ionst)))
+       se_box%se_o_ionsigs = 0
+
+       !Initialize allowed excitation arrays
+       ALLOCATE(se_box%se_o_alwd(SIZE(o_e_ex_alwd)))
+       se_box%se_o_alwd = o_e_ex_alwd
+       ALLOCATE(se_box%se_o_alwdsigs(SIZE(o_e_ex_alwd)))
+       se_box%se_o_alwdsigs = 0
+
+       !Initialize forbidden excitation arrays
+       ALLOCATE(se_box%se_o_fbdn(SIZE(o_e_ex_fbdn)))
+       se_box%se_o_fbdn = o_e_ex_fbdn
+       ALLOCATE(se_box%se_o_fbdnsigs(SIZE(o_e_ex_fbdn)))
+       se_box%se_o_fbdnsigs = 0
+    END IF
+
+  END SUBROUTINE se_info_init
+
+  SUBROUTINE se_info_garbage(se_box)
+    !
+    ! Purpose:
+    !   This subroutine is to garbage collect the memory used in the se_info struct
+    !
+    !! SE_INFO_GARBAGE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    TYPE(se_info) :: se_box
+
+    IF ( ALLOCATED(se_box%se_ionst) .EQV. .TRUE. ) THEN
+       DEALLOCATE(se_box%se_ionst)
+       DEALLOCATE(se_box%se_ionsigs)
+       DEALLOCATE(se_box%se_alwd)
+       DEALLOCATE(se_box%se_alwdsigs)
+       DEALLOCATE(se_box%se_fbdn)
+       DEALLOCATE(se_box%se_fbdnsigs)
+       RETURN
+    ELSE
+       RETURN
+    END IF
+  END SUBROUTINE se_info_garbage
+
+  SUBROUTINE init_node(root,temp_node,x,y,z)
+    !
+    ! Purpose
+    !   This is a subroutine that compares a string value to values
+    !  in a list and gives the index of a matching result and an
+    !  error if there is no match.
+    !
+    !! INIT_NODE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    IMPLICIT NONE
+    TYPE(node), POINTER :: root, temp_node
+    INTEGER :: x,y,z
+
+    temp_node%wait_time = 0.0
+    temp_node%coord1 = x
+    temp_node%coord2 = y
+    temp_node%coord3 = z
+    temp_node%sec_sp_num = 0
+    temp_node%act_type = 0
+    temp_node%hop_dir = 0
+    temp_node%leftRight = 0
+    temp_node%normal = .FALSE.
+    temp_node%interstitial = .FALSE.
+
+    NULLIFY(temp_node%before,temp_node%after,temp_node%parent)
+
+    IF ( (MOD(y,2) .EQ. 1) .AND. (MOD(z,2) .EQ. 1) ) THEN
+       INITIALATOMS = INITIALATOMS + 2
+       temp_node%normal = .TRUE.
+       temp_node%sp_num = 1
+       CALL wait_calc(temp_node)
+       CALL add_node(root,temp_node)
+       ! Test for parent association
+       IF ( DEBUG .EQV. .TRUE. ) THEN
+          IF ( (root%coord1 .EQ. temp_node%coord1) .AND. &
+               (root%coord2 .EQ. temp_node%coord2) .AND. &
+               (root%coord3 .EQ. temp_node%coord3) ) THEN
+             CONTINUE
+          ELSE
+             IF ( .NOT. ASSOCIATED(temp_node%parent)) THEN
+                PRINT *, "temp_node parent not associated!"
+                CALL EXIT()
+             END IF
+          END IF
+       END IF
+    ELSE IF ( (MOD(y,2) .EQ. 0) .AND. (MOD(z,2) .EQ. 0) ) THEN
+       temp_node%interstitial = .true.
+    END IF
+  END SUBROUTINE init_node
+
+  SUBROUTINE wipe_node(x,y,z)
+    !
+    ! Purpose
+    !   This is a subroutine that wipes a lattice site of species specific
+    !  information, while leaving species independent information intact
+    !
+    !! WIPE_NODE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    IMPLICIT NONE
+    TYPE(node), POINTER :: temp
+    INTEGER :: x,y,z
+
+    temp => MATRIX(x,y,z)
+    temp%wait_time = 0.0
+    temp%sec_sp_num = 0
+    temp%sp_num = 0
+    temp%act_type = 0
+    temp%hop_dir = 0
+    temp%leftRight = -1
+    IF ( ASSOCIATED(temp%parent) ) NULLIFY(temp%parent)
+    IF ( ASSOCIATED(temp%before) ) NULLIFY(temp%before)
+    IF ( ASSOCIATED(temp%after)  ) NULLIFY(temp%after)
+  END SUBROUTINE wipe_node
+
+  RECURSIVE SUBROUTINE new_reaction(i,j,k,root,temp,prevNode,nextNode,error)
+    !
+    ! Purpose
+    !   This is a subroutine that handles reactions between two species and yields
+    !  up to three products.
+    !
+    ! INPUT:
+    !  i -> the coords of reactant 1 in matrix
+    !  j -> the coords of reactant 2 in matrix (can be same as i in some cases)
+    !  k -> the coords of the product to be placed in react cube
+    !
+    !  OUTPUT:
+    !   i -> the coords of product 2 in matrix
+    !   j -> the coords of product 1 in matrix
+    !   k -> the coords of product 3 in matrix
+    !
+    !  NOTE:
+    !   When this subroutine gets first called, k should be 1
+    !
+    !! NEW_REACTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    IMPLICIT NONE
+    INTEGER, INTENT(INOUT)          :: i(3),j(3),k(3)
+    INTEGER                         :: pr_coords(3)
+    INTEGER                         :: r1, r2, pr
+    INTEGER                         :: error
+    TYPE(node)            , POINTER :: root, temp, prevNode, nextNode
+
+    error = 0
+    SELECT CASE (k(3))
+    CASE(1)
+       r1 = MATRIX(i(1),i(2),i(3))%sp_num
+       r2 = MERGE(MATRIX(i(1),i(2),i(3))%sec_sp_num,&
+            MATRIX(j(1),j(2),j(3))%sp_num,&
+            ALL(ABS(i-j) .EQ. 0))
+       k(1) = r1
+       k(2) = r2
+       pr = branching(k(1),k(2),k(3))
+       pr_coords = j
+       IF ( pr .EQ. 0 ) THEN
+          ! If there can be no reaction, delete species from tree
+          temp => MATRIX(i(1),i(2),i(3))
+          ! Delete node but DO NOT wipe it
+          CALL delete_node(root,temp,prevNode,nextNode,error)
+          ! Calculate new waiting time
+          CALL wait_calc(temp)
+          ! Re-add node to tree
+          CALL add_node(root,temp)
+          error = 1
+          !          IF ( DEBUG .EQV. .TRUE. ) &
+          IF ( ISBARRIER .EQV. .FALSE.) THEN
+             CONTINUE
+             !            PRINT *, "Products = 0:",r1,"+",r2,"=",pr
+             !            CALL EXIT()
+          END IF
+          RETURN
+       END IF
+       k(3) = 2
+    CASE(2)
+       pr = branching(k(1),k(2),k(3))
+       ! If product is 0, then re-add hopping species to list
+       ! DO NOT do this if i=j, i.e. an excitation with 1 product
+       ! has occured
+       IF ( (pr .EQ. 0) .AND. (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
+          ! If there is only one product, clear the site of R1
+          ! which now becomes a lattice vacancy
+          temp => MATRIX(i(1),i(2),i(3))
+          CALL delete_node(root,temp,prevNode,nextNode,error)
+          CALL wipe_node(i(1),i(2),i(3))
+          error = 0
+          RETURN
+       ELSE IF (pr .EQ. 0 ) THEN
+          error = 0
+          RETURN
+       END IF
+       ! if i=j, then non-special P2 overwrites P1
+       IF ( (ALL(ABS(i-j) .EQ. 0)) .AND. (.NOT. ANY(SPECIAL_LIST .EQ. pr)) ) THEN
+          ! Test to see if k(2) is EXCNUM, if so, and pr!=0, get new site
+          CALL find_empty_site(j,i,error) ! save out-coords to i, NOT j
+       END IF
+       ! For all other cases (the second product can be at site i
+       ! even when i=j
+       pr_coords = i ! For species
+       k(3) = 3
+    CASE(3)
+       pr = branching(k(1),k(2),k(3))
+       IF ( pr .EQ. 0 ) THEN
+          error = 0
+          RETURN
+       END IF
+       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Third product=:",pr
+       DO
+          CALL find_empty_site(i,pr_coords,error)
+          IF ( .NOT. ALL(ABS(i-pr_coords) .EQ. 0) .AND. &
+               .NOT. ALL(ABS(j-pr_coords) .EQ. 0)) THEN
+             IF ( debug .eqv. .true. ) then
+                print *, "i=",i
+                print *, "j=",j
+                print *, "pr_coords=",pr_coords
+             end if
+             exit
+          end if
+       END DO
+       IF ( (error .EQ. 1) .AND. (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
+          ! If there are no empty sites around i, and i!=j, try j
+          error = 0
+          CALL find_empty_site(j,pr_coords,error)
+          IF ( error .EQ. 1 ) THEN
+             ! If there are no empty sites around either i or j, quit...
+             PRINT *, "Unable to find a site for the third product!"
              CALL EXIT()
           END IF
        END IF
-    END IF
- ELSE IF ( (MOD(y,2) .EQ. 0) .AND. (MOD(z,2) .EQ. 0) ) THEN
-    temp_node%interstitial = .true.
- END IF
-END SUBROUTINE init_node
-
-SUBROUTINE wipe_node(x,y,z)
-  !
-  ! Purpose
-  !   This is a subroutine that wipes a lattice site of species specific
-  !  information, while leaving species independent information intact
-  !
-  !! WIPE_NODE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- IMPLICIT NONE
- TYPE(node), POINTER :: temp
- INTEGER :: x,y,z
-
- temp => MATRIX(x,y,z)
- temp%wait_time = 0.0
- temp%sec_sp_num = 0
- temp%sp_num = 0
- temp%act_type = 0
- temp%hop_dir = 0
- temp%leftRight = -1
- IF ( ASSOCIATED(temp%parent) ) NULLIFY(temp%parent)
- IF ( ASSOCIATED(temp%before) ) NULLIFY(temp%before)
- IF ( ASSOCIATED(temp%after)  ) NULLIFY(temp%after)
-END SUBROUTINE wipe_node
-
-RECURSIVE SUBROUTINE new_reaction(i,j,k,root,temp,prevNode,nextNode,error)
-  !
-  ! Purpose
-  !   This is a subroutine that handles reactions between two species and yields
-  !  up to three products.
-  !
-  ! INPUT:
-  !  i -> the coords of reactant 1 in matrix
-  !  j -> the coords of reactant 2 in matrix (can be same as i in some cases)
-  !  k -> the coords of the product to be placed in react cube
-  !
-  !  OUTPUT:
-  !   i -> the coords of product 2 in matrix
-  !   j -> the coords of product 1 in matrix
-  !   k -> the coords of product 3 in matrix
-  !
-  !  NOTE:
-  !   When this subroutine gets first called, k should be 1
-  !
-  !! NEW_REACTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- IMPLICIT NONE
- INTEGER, INTENT(INOUT)          :: i(3),j(3),k(3)
- INTEGER                         :: pr_coords(3)
- INTEGER                         :: r1, r2, pr
- INTEGER                         :: error
- TYPE(node)            , POINTER :: root, temp, prevNode, nextNode
-
- error = 0
- SELECT CASE (k(3))
- CASE(1)
-    r1 = MATRIX(i(1),i(2),i(3))%sp_num
-    r2 = MERGE(MATRIX(i(1),i(2),i(3))%sec_sp_num,&
-         MATRIX(j(1),j(2),j(3))%sp_num,&
-         ALL(ABS(i-j) .EQ. 0))
-    k(1) = r1
-    k(2) = r2
-    pr = branching(k(1),k(2),k(3))
-    pr_coords = j
-    IF ( pr .EQ. 0 ) THEN
-       ! If there can be no reaction, delete species from tree
-       temp => MATRIX(i(1),i(2),i(3))
-       ! Delete node but DO NOT wipe it
-       CALL delete_node(root,temp,prevNode,nextNode,error)
-       ! Calculate new waiting time
-       CALL wait_calc(temp)
-       ! Re-add node to tree
-       CALL add_node(root,temp)
-       error = 1
-       !          IF ( DEBUG .EQV. .TRUE. ) &
-       IF ( ISBARRIER .EQV. .FALSE.) THEN
-          CONTINUE
-          !            PRINT *, "Products = 0:",r1,"+",r2,"=",pr
-          !            CALL EXIT()
-       END IF
-       RETURN
-    END IF
-    k(3) = 2
- CASE(2)
-    pr = branching(k(1),k(2),k(3))
-    ! If product is 0, then re-add hopping species to list
-    ! DO NOT do this if i=j, i.e. an excitation with 1 product
-    ! has occured
-    IF ( (pr .EQ. 0) .AND. (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
-       ! If there is only one product, clear the site of R1
-       ! which now becomes a lattice vacancy
-       temp => MATRIX(i(1),i(2),i(3))
-       CALL delete_node(root,temp,prevNode,nextNode,error)
-       CALL wipe_node(i(1),i(2),i(3))
-       error = 0
-       RETURN
-    ELSE IF (pr .EQ. 0 ) THEN
-       error = 0
-       RETURN
-    END IF
-    ! if i=j, then non-special P2 overwrites P1
-    IF ( (ALL(ABS(i-j) .EQ. 0)) .AND. (.NOT. ANY(SPECIAL_LIST .EQ. pr)) ) THEN
-       ! Test to see if k(2) is EXCNUM, if so, and pr!=0, get new site
-       CALL find_empty_site(j,i,error) ! save out-coords to i, NOT j
-    END IF
-    ! For all other cases (the second product can be at site i
-    ! even when i=j
-    pr_coords = i ! For species
-    k(3) = 3
- CASE(3)
-    pr = branching(k(1),k(2),k(3))
-    IF ( pr .EQ. 0 ) THEN
-       error = 0
-       RETURN
-    END IF
-    IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Third product=:",pr
-    DO
-       CALL find_empty_site(i,pr_coords,error)
-       IF ( .NOT. ALL(ABS(i-pr_coords) .EQ. 0) .AND. &
-            .NOT. ALL(ABS(j-pr_coords) .EQ. 0)) THEN
-          IF ( debug .eqv. .true. ) then
-             print *, "i=",i
-             print *, "j=",j
-             print *, "pr_coords=",pr_coords
-          end if
-          exit
-       end if
-    END DO
-    IF ( (error .EQ. 1) .AND. (.NOT. ALL(ABS(i-j) .EQ. 0)) ) THEN
-       ! If there are no empty sites around i, and i!=j, try j
-       error = 0
-       CALL find_empty_site(j,pr_coords,error)
-       IF ( error .EQ. 1 ) THEN
-          ! If there are no empty sites around either i or j, quit...
-          PRINT *, "Unable to find a site for the third product!"
-          CALL EXIT()
-       END IF
-    END IF
-    ! At this points, when the subroutine quits, i=P1,j=p2,k=P3...
-    !       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Third product coords are:",pr_coords
-    k = 4
- END SELECT
-
- ! Once the case is selected, point to coords to place
- ! product
- temp => MATRIX(pr_coords(1),pr_coords(2),pr_coords(3))
- ! Place product
- IF ( pr .EQ. ELECNUM ) THEN
-    ! Ensure that the electron is placed on the same site
-    ! as the cation
-    IF ( DEBUG .EQV. .TRUE. ) THEN
-       IF ( .NOT. ALL(ABS(i-j) .EQ. 0) ) THEN
-          PRINT *, "Electron not placed on same site as cation!"
-          CALL EXIT()
-       END IF
-    END IF
-    ! The rest of the node should have a species on it already
-    ! just add the electron as the secondary node species
-    temp%sec_sp_num = pr
- ELSE
-    ! Delete whatever is there, if the site isn't empty
-    IF ( temp%sp_num .NE. 0) THEN
-       CALL delete_node(root,temp,prevNode,nextNode,error)
-       CALL wipe_node(pr_coords(1),pr_coords(2),pr_coords(3))
-       temp => MATRIX(pr_coords(1),pr_coords(2),pr_coords(3))
-    END IF
-    temp%sp_num = pr
-    CALL wait_calc(temp)
-    CALL add_node(root,temp)
- END IF
-
- ! Call subroutine again, and check for next product:
- ! if the next product is zero, return
- IF ( k(3) .LE. 3 ) THEN
-    CALL new_reaction(i,j,k,root,temp,prevNode,nextNode,error)
- ELSE
-    k = pr_coords
-    RETURN
- END IF
-END SUBROUTINE new_reaction
-
-RECURSIVE SUBROUTINE new_electron(se_box,root,temp,prevNode,nextNode)
-  ! Takes as input a "se-box" struct containing the initial electron energy
-  ! and the coordinates at which it formed and does the following:
-  !   1) Calculates cross-sections
-  !   2) Hops the electron from inelastic collision at which the following can occur
-  !      i) Electron impact ionization -> form a new electron and call self
-  !     ii) Electron impact excitation -> chance of dissociating molecule
-  !   3) When the electron falls below ECUTOFF, it reacts to form a negative ion
-  !      which then reacts dissociatively with it's parent cation
-  !
-  ! NEW_ELECTRON !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- IMPLICIT NONE
- TYPE(se_info) :: new_se_box
- TYPE(se_info) :: se_box
- INTEGER :: n,m
- INTEGER :: curr(3),next(3),prev(3),prcoords(3)
- INTEGER :: estep
- INTEGER :: eswitch
- INTEGER :: error
- INTEGER :: cation, anion
- INTEGER :: nhops
- INTEGER :: hopCoords(6,3)
- REAL               :: erand
- DOUBLE PRECISION :: emfp
- DOUBLE PRECISION :: new_e_energy
- DOUBLE PRECISION :: ee_loss
- DOUBLE PRECISION :: de
- DOUBLE PRECISION :: e_ion, e_exc
- TYPE(node), POINTER :: root,temp,prevNode,nextNode
- LOGICAL :: vacant
- LOGICAL :: react_with_parent
-
- ! Initialize energy losses
- e_ion = 0.0
- e_exc = 0.0
- ee_loss = 0
-
- ! Initialize coordinates
- prev = 0
- curr = se_box%parent_coords
- next = curr
- estep = 0
-
- ! Initialize switches
- eswitch = 0
-
- ! Initialize real variables
- emfp = 0
- erand = 0
- de = 0
- prevNode => MATRIX(se_box%parent_coords(1),se_box%parent_coords(2),se_box%parent_coords(3))
-
- ! Calculate track until the electron's energy is depleted
- DO WHILE ( se_box%se_energy .GE. ECUTOFF )
-    ! Calculate cross-sections for transport calculations
-    CALL esigma_suite(se_box)
-    ! The electron's mean-free-path is a function of the total cross sections.
-    ! Note: here, we have explicitly calculated the inelastic cross section and
-    ! have approximated the elastic cross section to be 1.0E-17 cm^2
-    CALL RANDOM_NUMBER(erand)
-    emfp = 1./(RHO*(se_box%se_ineltot+1.0E-17))
-    ! Determine the actual distance travelled
-    de = -1.*emfp*LOG(1.-erand)
-
-    de = de*STEPFAC
-
-    ! Convert to integer value
-    estep = INT(de/C_PR)
-
-    ! If the estep = 0, force it to 1
-    IF ( estep .EQ. 0 ) estep = 1
-
-    ! Hop estep number of times until the next inelastic collision
-    DO n = 1,estep
-       prev = curr
-       curr = next
-       CALL transport(prev,curr,next)
-       ! Calculate approximate elastic energy loss
-       ee_loss = se_box%se_energy*ELASTIC_LOSS
-       se_box%se_energy = se_box%se_energy - ee_loss
-       IF ( TRACKPLOT .EQV. .TRUE. ) THEN
-          count_count = count_count + 1
-          WRITE(TRACKPLOT_LUN,*) curr(1),',',curr(2),',',curr(3),', electron, movement'
-       END IF
-    END DO
-
-    ! Determine the nature of the inelastic event
-    CALL RANDOM_NUMBER(erand)
-    IF ( (erand .GT. 0) .AND. (erand .LE. se_box%se_iontot/se_box%se_ineltot) ) THEN
-       eswitch = 1
-    ELSE
-       eswitch = 0
-    END IF
-
-    ! Based on collision type, perform action
-    SELECT CASE (eswitch)
-    CASE(1)
-       ! Electron impact ionization
-       temp => MATRIX(next(1),next(2),next(3))
-       IF ((temp%sp_num .NE. 0) .AND. (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
-          ! Calculate energy loss
-          CALL e_ion_select(se_box,e_ion,new_e_energy,error,temp%sp_num)
-          ! Call random number
-          CALL RANDOM_NUMBER(erand)
-          ! Calculate new electron energy based on \DeltaE
-          !             new_e_energy = erand*(se_box%se_energy - e_ion)
-          ! Energy lost is sum of ionization energy + new electron energy
-          ee_loss = e_ion + new_e_energy
-          ! Ionize the species and call new_electron again
-          ! Place CRP pseudo reactant at site to indicate ionization
-          temp%sec_sp_num = CRPNUM
-          ! Initialize 3rd set of coordinates to 1
-          prcoords = 1
-          CALL new_reaction(next,next,prcoords,root,temp,prevNode,nextNode,error)
-          temp => MATRIX(next(1),next(2),next(3))
-          ! Now this site should have a cation and an electron as the secondary species
-          ! at the same site
-          IF ( DEBUG .EQV. .TRUE. ) THEN
-             IF ( temp%sec_sp_num .NE. ELECNUM ) THEN
-                PRINT *, temp%sec_sp_num, &
-                     temp%sp_num
-             END IF
-          END IF
-          ! 1) Populate the se_box with initial energy and parent coords
-          new_se_box%se_energy = new_e_energy
-          new_se_box%parent_coords = next
-          ! 2) Call se_info_init to initialize the arrays in the se_box
-          CALL se_info_init(new_se_box)
-          ! 3) Call new_electron and send it on its merry way
-          CALL new_electron(new_se_box,root,temp,prevNode,nextNode)
-          ! 4) When it has lost energy and reacted back with its parent cation (above)
-          !    we can free-up the arrays in the se_box
-          CALL se_info_garbage(new_se_box)
-          !    the species at the site above should now be neutral
-          IF ( DEBUG .EQV. .TRUE. ) THEN
-             PRINT *, "At the end of the EII cycle, the site now has:",&
-                  MATRIX(next(1),next(2),next(3))%sp_num
-          END IF
-       END IF
-    CASE(0)
-       ! Electron impact excitation
-       temp => MATRIX(next(1),next(2),next(3))
-       IF ((temp%sp_num .NE. 0) .AND. (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
-          ! Place special excitation reactant at site
-          temp%sec_sp_num = EXCNUM
-          ! Initialize product coords to 1
-          prcoords = 1
-          CALL new_reaction(next,next,prcoords,root,temp,prevNode,nextNode,error)
-       END IF
-       CALL e_ex_select(se_box,e_exc,error,temp%sp_num)
-       ! Energy lost is transition energy
-       ee_loss = e_exc
+       ! At this points, when the subroutine quits, i=P1,j=p2,k=P3...
+       !       IF ( DEBUG .EQV. .TRUE. ) PRINT *, "Third product coords are:",pr_coords
+       k = 4
     END SELECT
-    ! Deduct energy lost by electron
-    se_box%se_energy = se_box%se_energy - ee_loss
- END DO
 
- vacant = .TRUE.
- prevNode => MATRIX(se_box%parent_coords(1),se_box%parent_coords(2),se_box%parent_coords(3))
- nhops = 0
- react_with_parent = .FALSE.
- hopCoords = 0
- curr = next
- ! Once the electron has fallen below the energy threshold, make
- ! Call transport until a non-vacant site is found
- DO n=1,6
-    CALL hopping(curr(1),curr(2),curr(3),next(1),next(2),next(3),n)
-    hopCoords(n,:) = next
-    temp => MATRIX(next(1),next(2),next(3))
-    ! Test to make sure that the species isn't some other electron's cation
-    IF ( (temp%sp_num .NE. 0) .AND. &
-         (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
-       vacant = .FALSE.
-       EXIT
+    ! Once the case is selected, point to coords to place
+    ! product
+    temp => MATRIX(pr_coords(1),pr_coords(2),pr_coords(3))
+    ! Place product
+    IF ( pr .EQ. ELECNUM ) THEN
+       ! Ensure that the electron is placed on the same site
+       ! as the cation
+       IF ( DEBUG .EQV. .TRUE. ) THEN
+          IF ( .NOT. ALL(ABS(i-j) .EQ. 0) ) THEN
+             PRINT *, "Electron not placed on same site as cation!"
+             CALL EXIT()
+          END IF
+       END IF
+       ! The rest of the node should have a species on it already
+       ! just add the electron as the secondary node species
+       temp%sec_sp_num = pr
+    ELSE
+       ! Delete whatever is there, if the site isn't empty
+       IF ( temp%sp_num .NE. 0) THEN
+          CALL delete_node(root,temp,prevNode,nextNode,error)
+          CALL wipe_node(pr_coords(1),pr_coords(2),pr_coords(3))
+          temp => MATRIX(pr_coords(1),pr_coords(2),pr_coords(3))
+       END IF
+       temp%sp_num = pr
+       CALL wait_calc(temp)
+       CALL add_node(root,temp)
     END IF
- END DO
 
- ! If no site has been found, expand the search region
- IF ( vacant .EQV. .TRUE. ) THEN
-    DO n=1,6
-       prev = hopCoords(n,:)
-       DO m=1,6
-          CALL hopping(prev(1),prev(2),prev(3),next(1),next(2),next(3),m)
-          temp => MATRIX(next(1),next(2),next(3))
-          ! Test to make sure that the species isn't some other electron's cation
-          IF ( (temp%sp_num .NE. 0) .AND. &
-               (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
-             vacant = .FALSE.
-             EXIT
+    ! Call subroutine again, and check for next product:
+    ! if the next product is zero, return
+    IF ( k(3) .LE. 3 ) THEN
+       CALL new_reaction(i,j,k,root,temp,prevNode,nextNode,error)
+    ELSE
+       k = pr_coords
+       RETURN
+    END IF
+  END SUBROUTINE new_reaction
+
+  RECURSIVE SUBROUTINE new_electron(se_box,root,temp,prevNode,nextNode)
+    ! Takes as input a "se-box" struct containing the initial electron energy
+    ! and the coordinates at which it formed and does the following:
+    !   1) Calculates cross-sections
+    !   2) Hops the electron from inelastic collision at which the following can occur
+    !      i) Electron impact ionization -> form a new electron and call self
+    !     ii) Electron impact excitation -> chance of dissociating molecule
+    !   3) When the electron falls below ECUTOFF, it reacts to form a negative ion
+    !      which then reacts dissociatively with it's parent cation
+    !
+    ! NEW_ELECTRON !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    IMPLICIT NONE
+    TYPE(se_info) :: new_se_box
+    TYPE(se_info) :: se_box
+    INTEGER :: n,m
+    INTEGER :: curr(3),next(3),prev(3),prcoords(3)
+    INTEGER :: estep
+    INTEGER :: eswitch
+    INTEGER :: error
+    INTEGER :: cation, anion
+    INTEGER :: nhops
+    INTEGER :: hopCoords(6,3)
+    REAL               :: erand
+    DOUBLE PRECISION :: emfp
+    DOUBLE PRECISION :: new_e_energy
+    DOUBLE PRECISION :: ee_loss
+    DOUBLE PRECISION :: de
+    DOUBLE PRECISION :: e_ion, e_exc
+    TYPE(node), POINTER :: root,temp,prevNode,nextNode
+    LOGICAL :: vacant
+    LOGICAL :: react_with_parent
+
+    ! Initialize energy losses
+    e_ion = 0.0
+    e_exc = 0.0
+    ee_loss = 0
+
+    ! Initialize coordinates
+    prev = 0
+    curr = se_box%parent_coords
+    next = curr
+    estep = 0
+
+    ! Initialize switches
+    eswitch = 0
+
+    ! Initialize real variables
+    emfp = 0
+    erand = 0
+    de = 0
+    prevNode => MATRIX(se_box%parent_coords(1),se_box%parent_coords(2),se_box%parent_coords(3))
+
+    ! Calculate track until the electron's energy is depleted
+    DO WHILE ( se_box%se_energy .GE. ECUTOFF )
+       ! Calculate cross-sections for transport calculations
+       CALL esigma_suite(se_box)
+       ! The electron's mean-free-path is a function of the total cross sections.
+       ! Note: here, we have explicitly calculated the inelastic cross section and
+       ! have approximated the elastic cross section to be 1.0E-17 cm^2
+       CALL RANDOM_NUMBER(erand)
+       emfp = 1./(RHO*(se_box%se_ineltot+1.0E-16))
+       ! Determine the actual distance travelled
+       de = -1.*emfp*LOG(1.-erand)
+
+       ! Convert to integer value
+       estep = INT(de/C_PR)
+
+       ! If the estep = 0, force it to 1
+       IF ( estep .EQ. 0 ) estep = 1
+
+       ! Hop estep number of times until the next inelastic collision
+       DO n = 1,estep
+          prev = curr
+          curr = next
+          CALL transport(prev,curr,next)
+          ! Calculate approximate elastic energy loss
+          IF ( TRACKPLOT .EQV. .TRUE. ) THEN
+             count_count = count_count + 1
+             WRITE(TRACKPLOT_LUN,*) curr(1),',',curr(2),',',curr(3),', electron, movement'
           END IF
        END DO
-       IF ( vacant .EQV. .FALSE. ) EXIT
+
+       ! Determine the nature of the inelastic event
+       CALL RANDOM_NUMBER(erand)
+       IF ( (erand .GT. 0) .AND. (erand .LE. se_box%se_iontot/se_box%se_ineltot) ) THEN
+          eswitch = 1
+       ELSE
+          eswitch = 0
+       END IF
+
+       ee_loss = 0
+
+       ! Based on collision type, perform action
+       SELECT CASE (eswitch)
+       CASE(1)
+          ! Electron impact ionization
+          temp => MATRIX(next(1),next(2),next(3))
+          IF ((temp%sp_num .NE. 0) .AND. (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
+             ! Calculate energy loss
+             CALL e_ion_select(se_box,e_ion,new_e_energy,error,temp%sp_num)
+             IF ( e_ion .GT. se_box%se_energy ) THEN
+               CONTINUE
+             ELSE
+             ! Call random number
+             CALL RANDOM_NUMBER(erand)
+             ! Calculate new electron energy based on \DeltaE
+!             new_e_energy = erand*(se_box%se_energy - e_ion)
+             ! Energy lost is sum of ionization energy + new electron energy
+             ee_loss = e_ion + new_e_energy
+             ! Ionize the species and call new_electron again
+             ! Place CRP pseudo reactant at site to indicate ionization
+             temp%sec_sp_num = CRPNUM
+             ! Initialize 3rd set of coordinates to 1
+             prcoords = 1
+             CALL new_reaction(next,next,prcoords,root,temp,prevNode,nextNode,error)
+             temp => MATRIX(next(1),next(2),next(3))
+             ! Now this site should have a cation and an electron as the secondary species
+             ! at the same site
+             IF ( DEBUG .EQV. .TRUE. ) THEN
+                IF ( temp%sec_sp_num .NE. ELECNUM ) THEN
+                   PRINT *, temp%sec_sp_num, &
+                        temp%sp_num
+                END IF
+             END IF
+             ! 1) Populate the se_box with initial energy and parent coords
+             new_se_box%se_energy = new_e_energy
+             new_se_box%parent_coords = next
+             ! 2) Call se_info_init to initialize the arrays in the se_box
+             CALL se_info_init(new_se_box)
+             ! 3) Call new_electron and send it on its merry way
+             CALL new_electron(new_se_box,root,temp,prevNode,nextNode)
+             ! 4) When it has lost energy and reacted back with its parent cation (above)
+             !    we can free-up the arrays in the se_box
+             CALL se_info_garbage(new_se_box)
+             !    the species at the site above should now be neutral
+             IF ( DEBUG .EQV. .TRUE. ) THEN
+                PRINT *, "At the end of the EII cycle, the site now has:",&
+                     MATRIX(next(1),next(2),next(3))%sp_num
+             END IF
+           END IF
+          END IF
+       CASE(0)
+          ! Electron impact excitation
+          temp => MATRIX(next(1),next(2),next(3))
+          CALL e_ex_select(se_box,e_exc,error,temp%sp_num)
+          IF ( e_exc .GT. se_box%se_energy ) THEN 
+            CONTINUE
+          ELSE
+          IF ((temp%sp_num .NE. 0) .AND. (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
+             ! Place special excitation reactant at site
+             temp%sec_sp_num = EXCNUM
+             ! Initialize product coords to 1
+             prcoords = 1
+             CALL new_reaction(next,next,prcoords,root,temp,prevNode,nextNode,error)
+          END IF
+          ! Energy lost is transition energy
+          ee_loss = e_exc
+        END IF
+       END SELECT
+       ! Deduct energy lost by electron
+       se_box%se_energy = se_box%se_energy - ee_loss
     END DO
- END IF
 
- ! IF still no occupied site has been found, have electron react with parent
- IF ( vacant .EQV. .TRUE. ) THEN
-    react_with_parent = .TRUE.
-    next = se_box%parent_coords
-    temp => MATRIX(next(1),next(2),next(3))
-    temp%sec_sp_num = ELECNUM
- END IF
-
- ! Form anion, if a suitable target was found
- IF ( react_with_parent .EQV. .FALSE. ) THEN
-    ! Electron reacts to form an anion with a surrounding species
-    ! i=next,j=next,form negative anion
-    prcoords = 1 ! Initialize k(3)=1 for the recursive subroutine
-    ! Place electron at same site to form anion
-    temp%sec_sp_num = ELECNUM
+    vacant = .TRUE.
+    prevNode => MATRIX(se_box%parent_coords(1),se_box%parent_coords(2),se_box%parent_coords(3))
+    nhops = 0
+    react_with_parent = .FALSE.
+    hopCoords = 0
     curr = next
-    CALL new_reaction(next,next,prcoords,root,temp,prevNode,nextNode,error)
-    next = curr
-    temp => MATRIX(next(1),next(2),next(3))
-    anion = temp%sp_num
-    IF ( (error .EQ. 1) .OR. (.NOT. ANY(IONLIST .EQ. anion)) ) THEN
-       PRINT *, "Electron couldn't form anion!"
-       PRINT *, temp%sp_num
-       PRINT *, temp%sec_sp_num
-       PRINT *, next
+    ! Once the electron has fallen below the energy threshold, make
+    ! Call transport until a non-vacant site is found
+    DO n=1,6
+       CALL hopping(curr(1),curr(2),curr(3),next(1),next(2),next(3),n)
+       hopCoords(n,:) = next
+       temp => MATRIX(next(1),next(2),next(3))
+       ! Test to make sure that the species isn't some other electron's cation
+       IF ( (temp%sp_num .NE. 0) .AND. &
+            (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
+          vacant = .FALSE.
+          EXIT
+       END IF
+    END DO
+
+    ! If no site has been found, expand the search region
+    IF ( vacant .EQV. .TRUE. ) THEN
+       DO n=1,6
+          prev = hopCoords(n,:)
+          DO m=1,6
+             CALL hopping(prev(1),prev(2),prev(3),next(1),next(2),next(3),m)
+             temp => MATRIX(next(1),next(2),next(3))
+             ! Test to make sure that the species isn't some other electron's cation
+             IF ( (temp%sp_num .NE. 0) .AND. &
+                  (.NOT. ANY(IONLIST .EQ. temp%sp_num))) THEN
+                vacant = .FALSE.
+                EXIT
+             END IF
+          END DO
+          IF ( vacant .EQV. .FALSE. ) EXIT
+       END DO
+    END IF
+
+    ! IF still no occupied site has been found, have electron react with parent
+    IF ( vacant .EQV. .TRUE. ) THEN
+       react_with_parent = .TRUE.
        next = se_box%parent_coords
        temp => MATRIX(next(1),next(2),next(3))
        temp%sec_sp_num = ELECNUM
     END IF
- END IF
 
- ! Make newly formed anion react with parent cation at %parent_coords
- ! i=next,j=parent_coords
- prcoords = 1
- prevNode => MATRIX(se_box%parent_coords(1),se_box%parent_coords(2),se_box%parent_coords(3))
- cation = prevNode%sp_num
- IF ( .NOT. ANY(IONLIST .EQ. cation)) THEN
-    PRINT *, "Parent coords not a cation!!"
-    CALL EXIT()
- END IF
+    ! Form anion, if a suitable target was found
+    IF ( react_with_parent .EQV. .FALSE. ) THEN
+       ! Electron reacts to form an anion with a surrounding species
+       ! i=next,j=next,form negative anion
+       prcoords = 1 ! Initialize k(3)=1 for the recursive subroutine
+       ! Place electron at same site to form anion
+       temp%sec_sp_num = ELECNUM
+       curr = next
+       CALL new_reaction(next,next,prcoords,root,temp,prevNode,nextNode,error)
+       next = curr
+       temp => MATRIX(next(1),next(2),next(3))
+       anion = temp%sp_num
+       IF ( (error .EQ. 1) .OR. (.NOT. ANY(IONLIST .EQ. anion)) ) THEN
+          PRINT *, "Electron couldn't form anion!"
+          PRINT *, temp%sp_num
+          PRINT *, temp%sec_sp_num
+          PRINT *, next
+          next = se_box%parent_coords
+          temp => MATRIX(next(1),next(2),next(3))
+          temp%sec_sp_num = ELECNUM
+       END IF
+    END IF
 
- CALL new_reaction(next,se_box%parent_coords,prcoords,root,temp,nextNode,prevNode,error)
+    ! Make newly formed anion react with parent cation at %parent_coords
+    ! i=next,j=parent_coords
+    prcoords = 1
+    prevNode => MATRIX(se_box%parent_coords(1),se_box%parent_coords(2),se_box%parent_coords(3))
+    cation = prevNode%sp_num
+    IF ( .NOT. ANY(IONLIST .EQ. cation)) THEN
+       PRINT *, "Parent coords not a cation!!"
+       CALL EXIT()
+    END IF
 
- IF ( error .EQ. 1) THEN
-    PRINT *, "Ions couldn't recombine!"
-    temp => MATRIX(next(1),next(2),next(3))
-    PRINT *, temp%sp_num
-    PRINT *, temp%sec_sp_num
-    PRINT *, "ELECNUM is:",ELECNUM," and EXCNUM is:",EXCNUM
-    PRINT *, next
-    PRINT *, se_box%parent_coords
-    CALL EXIT()
- END IF
-END SUBROUTINE new_electron
+    CALL new_reaction(next,se_box%parent_coords,prcoords,root,temp,nextNode,prevNode,error)
 
-SUBROUTINE analyzereaction(reactnode,speciesnum,yield,nature)
- IMPLICIT NONE
- TYPE (reaction) :: reactnode
- integer, intent(in) :: speciesnum
- integer, intent(out) :: yield
- character(30), intent(out) :: nature
- INTEGER :: tempreacts(2), tempprods(3)
- integer :: n, temp1, temp2
+    IF ( error .EQ. 1) THEN
+       PRINT *, "Ions couldn't recombine!"
+       temp => MATRIX(next(1),next(2),next(3))
+       PRINT *, temp%sp_num
+       PRINT *, temp%sec_sp_num
+       PRINT *, "ELECNUM is:",ELECNUM," and EXCNUM is:",EXCNUM
+       PRINT *, next
+       PRINT *, se_box%parent_coords
+       CALL EXIT()
+    END IF
+  END SUBROUTINE new_electron
 
- temp1         = 0
- temp2         = 0
- yield         = 0
- tempreacts(1) = reactnode%nr1
- tempreacts(2) = reactnode%nr2
- tempprods(1)  = reactnode%np1
- tempprods(2)  = reactnode%np2
- tempprods(3)  = reactnode%np3
- nature        = "Neutral"
+  SUBROUTINE analyzereaction(reactnode,speciesnum,yield,nature)
+    IMPLICIT NONE
+    TYPE (reaction) :: reactnode
+    integer, intent(in) :: speciesnum
+    integer, intent(out) :: yield
+    character(30), intent(out) :: nature
+    INTEGER :: tempreacts(2), tempprods(3)
+    integer :: n, temp1, temp2
 
- ! Check for net yield
- do n=1,2
-    if (tempreacts(n) == speciesnum) temp1 = temp1 + 1
- end do
+    temp1         = 0
+    temp2         = 0
+    yield         = 0
+    tempreacts(1) = reactnode%nr1
+    tempreacts(2) = reactnode%nr2
+    tempprods(1)  = reactnode%np1
+    tempprods(2)  = reactnode%np2
+    tempprods(3)  = reactnode%np3
+    nature        = "Neutral"
 
- do n=1,3
-    if (tempprods(n) == speciesnum) temp2 = temp2 + 1
- end do
+    ! Check for net yield
+    do n=1,2
+       if (tempreacts(n) == speciesnum) temp1 = temp1 + 1
+    end do
 
- yield = temp2 - temp1
+    do n=1,3
+       if (tempprods(n) == speciesnum) temp2 = temp2 + 1
+    end do
 
- if ( yield > 0 ) then
-    nature = "Production"
- else if ( yield < 0 ) then
-    nature = "Destruction"
- end if
-END SUBROUTINE analyzereaction
+    yield = temp2 - temp1
+
+    if ( yield > 0 ) then
+       nature = "Production"
+    else if ( yield < 0 ) then
+       nature = "Destruction"
+    else
+       nature = "Neutral"
+    end if
+  END SUBROUTINE analyzereaction
 END MODULE subroutines

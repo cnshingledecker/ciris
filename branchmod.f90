@@ -19,7 +19,7 @@ CONTAINS
     REAL    :: rnum
     CHARACTER(80) :: varfmt
     TYPE(reaction), POINTER :: re_temp
-    TYPE(reaction_info) :: pathways(4)
+    TYPE(reaction_info) :: pathways(5)
     DOUBLE PRECISION :: vals(4)
     DOUBLE PRECISION :: prob1, prob2
     DOUBLE PRECISION :: barrier
@@ -53,6 +53,8 @@ CONTAINS
        ! 1. Go through list of reactions and find all between reactant1 and r2
        re_temp => RE_HEAD
        n = 0
+       SP_PROD_DEST(reactant1,2) = SP_PROD_DEST(reactant1,2) + 1
+       SP_PROD_DEST(reactant2,2) = SP_PROD_DEST(reactant2,2) + 1
        getpaths: DO
           tempr1 = re_temp%nr1
           tempr2 = re_temp%nr2
@@ -135,6 +137,7 @@ CONTAINS
     END IF firstcall
 
     branching = PRODS(pr)
+    SP_PROD_DEST(branching,1) = SP_PROD_DEST(branching,1) + 1
     RETURN
   END FUNCTION branching
 

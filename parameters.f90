@@ -10,6 +10,7 @@ MODULE parameters
   DOUBLE PRECISION , ALLOCATABLE         :: EN_LIST(:)
   CHARACTER(LEN=10), ALLOCATABLE         :: SP_LIST(:)
   INTEGER          , ALLOCATABLE         :: IONLIST(:)
+  INTEGER          , ALLOCATABLE         :: SP_PROD_DEST(:,:)
   integer          , allocatable         :: fast_reacts(:)
   INTEGER                                :: NUM_SPECIES = 0
   INTEGER                                :: NUM_REACTS  = 0
@@ -91,9 +92,9 @@ MODULE parameters
   INTEGER         , PARAMETER :: TIME_COUNTS       = 2      ! Times the model will check abundances
   DOUBLE PRECISION            :: FLUENCE           = 0.d0
   DOUBLE PRECISION, PARAMETER :: TIME_TOTAL        = 1D5    ! Total time in s
-  DOUBLE PRECISION, PARAMETER :: ECUTOFF           = 9.0D0  ! Secondary cutoff energy in eV
-  DOUBLE PRECISION, PARAMETER :: PCUTOFF           = 5.0D0  ! Primary ion cutoff energy in eV
-  DOUBLE PRECISION, PARAMETER :: FLUENCE_TOTAL     = 1.0D17
+  DOUBLE PRECISION, PARAMETER :: ECUTOFF           = 0.98D0  ! Secondary cutoff energy in eV
+  DOUBLE PRECISION, PARAMETER :: PCUTOFF           = 4.0D0  ! Primary ion cutoff energy in eV
+  DOUBLE PRECISION, PARAMETER :: FLUENCE_TOTAL     = 5.0D17
   DOUBLE PRECISION, PARAMETER :: SUBEXHITPROB      = 0.5
   DOUBLE PRECISION, PARAMETER :: FITNESS_THRESHOLD = 1E20   ! Terminate if FITNESS > this
   DOUBLE PRECISION, PARAMETER :: ELASTIC_LOSS      = 0.0    ! Percent of Etot lost per electron hop
@@ -104,17 +105,11 @@ MODULE parameters
   !******************************************************************************
   ! Output File Unit Numbers
   !******************************************************************************
-  INTEGER         , PARAMETER :: SPECIES_LUN   = 1001
-  INTEGER         , PARAMETER :: REACTIONS_LUN = 1002
-  INTEGER         , PARAMETER :: AB_LUN        = 1003 ! Abundance output file
-  INTEGER         , PARAMETER :: RATE_LUN      = 1004 ! Rate output file
-  INTEGER         , PARAMETER :: TRACKPLOT_LUN = 1005 ! Track file
-  INTEGER         , PARAMETER :: O_LUN              = 1006 ! Atomic O reactions
-  INTEGER         , PARAMETER :: O2_LUN             = 1007 ! O2 reactions
-  INTEGER         , PARAMETER :: O3_LUN             = 1008 ! O3 reactions
-  INTEGER         , PARAMETER :: OSTAR_LUN          = 1009
-  INTEGER         , PARAMETER :: O2STAR_LUN         = 1010
-  INTEGER         , PARAMETER :: O3STAR_LUN         = 1011
+  INTEGER         , PARAMETER :: SPECIES_LUN   = 1
+  INTEGER         , PARAMETER :: REACTIONS_LUN = 2
+  INTEGER         , PARAMETER :: AB_LUN        = 3 ! Abundance output file
+  INTEGER         , PARAMETER :: RATE_LUN      = 4 ! Rate output file
+  INTEGER         , PARAMETER :: TRACKPLOT_LUN = 5 ! Track file
   !******************************************************************************
   ! Analytics Parameters
   !******************************************************************************
@@ -152,7 +147,7 @@ MODULE parameters
   ! Array Variables
   !******************************************************************************
   INTEGER                     :: SPECIAL_LIST(4) = 0
-  INTEGER                     :: TIME_FREQ       = 100000  !1000000
+  INTEGER                     :: TIME_FREQ       = 1 !1000000
 
   !******************************************************************************
   ! Switches
@@ -165,7 +160,7 @@ MODULE parameters
   LOGICAL         , PARAMETER :: TRACKPLOT    = .FALSE.
   LOGICAL         , PARAMETER :: O3_ANALYTICS = .TRUE.
   LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
-  LOGICAL         , PARAMETER :: FIX_FREQ     = .TRUE.
+  LOGICAL         , PARAMETER :: FIX_FREQ     = .FALSE.
   LOGICAL                     :: ISBARRIER    = .FALSE.
 
   !******************************************************************************

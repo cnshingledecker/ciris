@@ -44,6 +44,8 @@ PROGRAM main
   DOUBLE PRECISION      :: geminacy
   double precision      :: b_3, el_tmp
   TYPE(node), POINTER :: root,temp,prevNode,nextNode
+  character(30) :: basefile
+  character(2) :: intnum
 
   PRINT *, "********************"
   PRINT *, "***STARTING CIRIS***"
@@ -64,6 +66,9 @@ PROGRAM main
 
   ! Open files
   hopping_file = "hopping_data.txt"
+  basefile = "_reactions.wsv"
+
+
 
   OPEN(UNIT=AB_LUN,&
        FILE="abundance.wsv",&
@@ -77,44 +82,6 @@ PROGRAM main
           STATUS='REPLACE')
      CLOSE(RATE_LUN)
   end if
-
-  IF ( O3_ANALYTICS .EQV. .TRUE. ) THEN
-     OPEN(UNIT=O_LUN,&
-          FILE='o_reactions.wsv', &
-          STATUS='REPLACE',&
-          POSITION='APPEND')
-     CLOSE(O_LUN)
-
-     OPEN(UNIT=O2_LUN,&
-          FILE='o2_reactions.wsv', &
-          STATUS='REPLACE',&
-          POSITION='APPEND')
-     CLOSE(O2_LUN)
-
-     OPEN(UNIT=O3_LUN,&
-          FILE='o3_reactions.wsv', &
-          STATUS='REPLACE',&
-          POSITION='APPEND')
-     CLOSE(O3_LUN)
-
-     OPEN(UNIT=OSTAR_LUN,&
-          FILE='ostar_reactions.wsv', &
-          STATUS='REPLACE',&
-          POSITION='APPEND')
-     CLOSE(OSTAR_LUN)
-
-     OPEN(UNIT=O2STAR_LUN,&
-          FILE='o2star_reactions.wsv', &
-          STATUS='REPLACE',&
-          POSITION='APPEND')
-     CLOSE(O2STAR_LUN)
-
-     OPEN(UNIT=O3STAR_LUN,&
-          FILE='o3star_reactions.wsv', &
-          STATUS='REPLACE',&
-          POSITION='APPEND')
-     CLOSE(O3STAR_LUN)
-  END IF
 
   ! Nullify pointers
   NULLIFY ( o3_produced,o3_destroyed )
@@ -137,6 +104,20 @@ PROGRAM main
   ! Create the Reaction Array
   !******************************************************************************
   CALL buildnetwork()
+
+
+  !******************************************************************************
+  ! Replace old species output files
+  !******************************************************************************
+  IF ( O3_ANALYTICS .EQV. .TRUE. ) THEN
+     DO n=1,NUM_SPECIES
+        write(intnum,'(I2)') n
+        print *, "Opening file=",TRIM(intnum)//basefile
+        OPEN(file=intnum//basefile,unit=n+1000,position='APPEND',status='REPLACE')
+        close(n+1000)
+     END DO
+  END IF
+
 
   ! Initialize rate info
   ! Set all counts initially to 0
@@ -267,7 +248,6 @@ PROGRAM main
         ! Call cosmic ray if new time is greater than next cr arrival
         !************************************************************************
         time_check = time_check + 1
-        cr_arrival = .TRUE.
         TIME = cr_time
         ! Calculate time to next cosmic-ray event
         not_infty = .FALSE.
@@ -286,7 +266,10 @@ PROGRAM main
 
         ! Calculate track/damage
         CALL fallout( root,temp,prevNode,nextNode )
-        IF ( PROTON_ELOSS .GT. 0 ) NUMPROTONS = NUMPROTONS + 1
+        IF ( PROTON_ELOSS .GT. 0 ) THEN
+           NUMPROTONS = NUMPROTONS + 1
+           cr_arrival = .TRUE.
+        END IF
      ELSE
         !*************************************************************************
         ! Call cosmic ray if new time is greater than next cr arrival
@@ -565,61 +548,26 @@ PROGRAM main
         time_diff = t2-t1
         cr_arrival = .FALSE.
 
-        !        IF ( FIX_FREQ .EQV. .FALSE. ) THEN
-        ! Set time_freq
-        !           IF ( FLUENCE .GT. 1.0d13 .AND. FLUENCE .LT. 1.0d14 ) THEN
-        !              TIME_FREQ = 100
-        !           ELSE IF ( FLUENCE .GT. 1.0d14 .AND. FLUENCE .LT. 1.0d15) THEN
-        !              TIME_FREQ = 1000
-        !           ELSE IF ( FLUENCE .GT. 1.0d15 .AND. FLUENCE .LT. 1.0d16) THEN
-        !              TIME_FREQ = 10000
-        !           ELSE IF ( FLUENCE .GT. 1.0d16 ) THEN
-        !              TIME_FREQ = 100000
-        !           END IF
-        !        END IF
+        IF ( FIX_FREQ .EQV. .FALSE. ) THEN
+           ! Set time_freq
+           IF ( FLUENCE .GT. 1.0d13 .AND. FLUENCE .LT. 1.0d14 ) THEN
+              TIME_FREQ = 10
+           ELSE IF ( FLUENCE .GT. 1.0d14 .AND. FLUENCE .LT. 1.0d15) THEN
+              TIME_FREQ = 100
+           ELSE IF ( FLUENCE .GT. 1.0d15 .AND. FLUENCE .LT. 1.0d16) THEN
+              TIME_FREQ = 1000
+           ELSE IF ( FLUENCE .GT. 1.0d16 ) THEN
+              TIME_FREQ = 10000
+           END IF
+        END IF
 
         checktime: IF ( MOD(time_check,TIME_FREQ) .EQ. 0 ) THEN
            CALL fitness(unfit,total_fitness)
+           PRINT *, "PROTON_ELOSS=",PROTON_ELOSS
            t1 = t2
            N_OHOP = 0
            N_O3HOP = 0
         END IF checktime
-
-        ratecalc: IF ( CALC_RATES .EQV. .TRUE. ) THEN
-           ! Perform reaction analytics
-           IF ( (FLOAT(O_ABUNDANCE-o_temp) .GT. 0) .AND. (PROTON_ELOSS .GT. 0.0) ) THEN
-              geminacy = FLOAT(O_ABUNDANCE-o_temp)/PROTON_ELOSS
-           ELSE
-              geminacy = 0.d0
-           END IF
-           DELTA_TIME = time - temp_time
-           ! Calculate rate-coefficient for the following reactions:
-           ! (1) O + O2 -> O3
-           ! This value should have units of cm^6 s^-1
-           k12 = (FLOAT(RATEINFO(7)%count)/VOLUME)/DELTA_TIME
-           k12 = k12/((FLOAT(O_ABUNDANCE)/VOLUME)*((FLOAT(O2_ABUNDANCE)/VOLUME)**2))
-           IF ( ISNAN(k12) .OR. (k12 .GT. 1e30)) k12 = 0
-           ! (2) O + O3 -> O2 + O2
-           ! This value should be in units of cm^3 s^-1
-           k13 = (FLOAT(RATEINFO(8)%count)/VOLUME)/DELTA_TIME
-           k13 = k13/((FLOAT(O_ABUNDANCE)/VOLUME)*((FLOAT(O3_ABUNDANCE)/VOLUME)))
-           IF ( ISNAN(k13) .OR. (k13 .GT. 1e30)) k13 = 0
-           ! (3) X + O2 -> O + O
-           ! This value is in units of s^-1
-           !      j2 = ABS(FLOAT(O2_ABUNDANCE-o2_temp)/(DELTA_TIME*FLOAT(O2_ABUNDANCE)))
-           j2 = ABS(FLOAT(RATEINFO(1)%count + RATEINFO(3)%count + RATEINFO(5)%count)/&
-                (DELTA_TIME*FLOAT(O2_ABUNDANCE)))
-           IF ( ISNAN(j2) ) j2 = 0
-           ! (4) X + O3 -> O2 + O
-           ! This value is in units of s^-1
-           !      j3 = ABS(FLOAT(O3_ABUNDANCE-o3_temp)/(DELTA_TIME*FLOAT(O3_ABUNDANCE)))
-           j3 = ABS(FLOAT(RATEINFO(2)%count + RATEINFO(4)%count + RATEINFO(6)%count)/&
-                (DELTA_TIME*FLOAT(O2_ABUNDANCE)))
-           IF ( ISNAN(j3) ) j3 = 0
-           IF ( NO_OUTPUT .EQV. .FALSE.) WRITE(RATE_LUN,*) geminacy,',',j2,',',j3,',',k12,',',k13
-           RATEINFO%count = 0
-        END IF ratecalc
-
      END IF crarrive
   END DO
 

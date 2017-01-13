@@ -146,6 +146,9 @@ PROGRAM sigma_test
        final_esig = final_esigs(j)
        WRITE(2,*) se_box%se_energy,',',final_esig,se_coll(j), ", O3"
     END DO
+    WRITE(2,*) se_box%se_energy,',',1.00E-16, "Elastic   , O2"
+    WRITE(2,*) se_box%se_energy,',',1.00E-16, "Elastic   , O"
+    WRITE(2,*) se_box%se_energy,',',1.00E-16, "Elastic   , O3"
     temp_energy = temp_energy + temp_energy*0.1
   END DO
 
