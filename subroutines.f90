@@ -280,6 +280,7 @@ CONTAINS
     count_count = 0
     BI_CALLS = 0
     PROTON_ELOSS = 0
+    PROTON_COLL = 0
 
     ! Calculate the initial cross-sections based on the initial ion energy
     ! For O2
@@ -415,6 +416,7 @@ CONTAINS
                nature = "Elastic"
             END IF
           END ASSOCIATE
+          PROTON_COLL = PROTON_COLL + 1
           ione = ione - e_loss
           CALL psigma_suite(ione,&
                psigmas,psigij,psigexj,&

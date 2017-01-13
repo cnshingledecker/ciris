@@ -110,6 +110,7 @@ MODULE parameters
   INTEGER         , PARAMETER :: AB_LUN        = 3 ! Abundance output file
   INTEGER         , PARAMETER :: RATE_LUN      = 4 ! Rate output file
   INTEGER         , PARAMETER :: TRACKPLOT_LUN = 5 ! Track file
+  INTEGER         , PARAMETER :: TRACK_AN_LUN  = 7777
   !******************************************************************************
   ! Analytics Parameters
   !******************************************************************************
@@ -124,6 +125,7 @@ MODULE parameters
   INTEGER                     :: O3_ABUNDANCE = 0
   INTEGER                     :: N_OHOP       = 0
   INTEGER                     :: N_O3HOP      = 0
+  INTEGER                     :: PROTON_COLL  = 0
   DOUBLE PRECISION            :: DELTA_TIME   = 0.d0
   DOUBLE PRECISION            :: PROTON_ELOSS = 0.d0
   TYPE(rate_info)             :: RATEINFO(8)
@@ -162,6 +164,7 @@ MODULE parameters
   LOGICAL         , PARAMETER :: CALC_RATES   = .FALSE.
   LOGICAL         , PARAMETER :: FIX_FREQ     = .FALSE.
   LOGICAL                     :: ISBARRIER    = .FALSE.
+  LOGICAL         , PARAMETER :: TRACK_ANALYTICS = .TRUE.
 
   !******************************************************************************
   ! Fitting parameters

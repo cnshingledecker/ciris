@@ -75,6 +75,7 @@ PROGRAM main
        POSITION='APPEND', &
        STATUS='REPLACE')
 
+
   if ( calc_rates .eqv. .true. ) then
      OPEN(UNIT=RATE_LUN,&
           FILE="rates.wsv",&
@@ -82,6 +83,14 @@ PROGRAM main
           STATUS='REPLACE')
      CLOSE(RATE_LUN)
   end if
+
+  if ( track_analytics .eqv. .true. ) then
+     OPEN(UNIT=TRACK_AN_LUN,&
+          FILE="track_analytics.wsv",&
+          POSITION='APPEND', &
+          STATUS='REPLACE')
+  end if
+
 
   ! Nullify pointers
   NULLIFY ( o3_produced,o3_destroyed )
@@ -269,6 +278,7 @@ PROGRAM main
         IF ( PROTON_ELOSS .GT. 0 ) THEN
            NUMPROTONS = NUMPROTONS + 1
            cr_arrival = .TRUE.
+           WRITE(TRACK_AN_LUN,*) PROTON_ELOSS,PROTON_COLL
         END IF
      ELSE
         !*************************************************************************
