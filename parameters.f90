@@ -92,7 +92,7 @@ MODULE parameters
   INTEGER         , PARAMETER :: TIME_COUNTS       = 2      ! Times the model will check abundances
   DOUBLE PRECISION            :: FLUENCE           = 0.d0
   DOUBLE PRECISION, PARAMETER :: TIME_TOTAL        = 1D5    ! Total time in s
-  DOUBLE PRECISION, PARAMETER :: ECUTOFF           = 0.98D0  ! Secondary cutoff energy in eV
+  DOUBLE PRECISION, PARAMETER :: ECUTOFF           = 0.98D0 ! Secondary cutoff energy in eV
   DOUBLE PRECISION, PARAMETER :: PCUTOFF           = 4.0D0  ! Primary ion cutoff energy in eV
   DOUBLE PRECISION, PARAMETER :: FLUENCE_TOTAL     = 5.0D17
   DOUBLE PRECISION, PARAMETER :: SUBEXHITPROB      = 0.5
@@ -128,6 +128,7 @@ MODULE parameters
   INTEGER                     :: PROTON_COLL  = 0
   DOUBLE PRECISION            :: DELTA_TIME   = 0.d0
   DOUBLE PRECISION            :: PROTON_ELOSS = 0.d0
+  DOUBLE PRECISION            :: TOTAL_PROTON_ELOSS = 0.d0
   TYPE(rate_info)             :: RATEINFO(8)
 
   !******************************************************************************
@@ -165,6 +166,7 @@ MODULE parameters
   LOGICAL         , PARAMETER :: FIX_FREQ     = .FALSE.
   LOGICAL                     :: ISBARRIER    = .FALSE.
   LOGICAL         , PARAMETER :: TRACK_ANALYTICS = .TRUE.
+  LOGICAL         , PARAMETER :: FIXED_STEP   = .FALSE.
 
   !******************************************************************************
   ! Fitting parameters

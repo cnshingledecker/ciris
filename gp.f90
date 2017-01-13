@@ -23,7 +23,7 @@ CONTAINS
 
 
     fit       = 0
-    denom     = THICK*EDGE*EDGE*1.0E20    ! volume * 1E20
+    denom     = 2*THICK*EDGE*EDGE*1.0E20    ! volume * 1E20
 
     ! hard-ncoded expected value (objective) function
     objective = (4*(FLUENCE**0.8))/(1E13**0.8+FLUENCE**0.8) 

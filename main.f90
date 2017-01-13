@@ -276,9 +276,10 @@ PROGRAM main
         ! Calculate track/damage
         CALL fallout( root,temp,prevNode,nextNode )
         IF ( PROTON_ELOSS .GT. 0 ) THEN
+           TOTAL_PROTON_ELOSS = TOTAL_PROTON_ELOSS + PROTON_ELOSS
            NUMPROTONS = NUMPROTONS + 1
            cr_arrival = .TRUE.
-           WRITE(TRACK_AN_LUN,*) PROTON_ELOSS,PROTON_COLL
+           WRITE(TRACK_AN_LUN,*) PROTON_ELOSS,PROTON_COLL,COUNT_COUNT
         END IF
      ELSE
         !*************************************************************************

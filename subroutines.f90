@@ -362,7 +362,7 @@ CONTAINS
     num_exs     = 0
     num_els     = 0
 
-    main_loop: DO WHILE ((dist_trav .LE. THICK) .AND. (ione .GE. 5.0 ))
+    main_loop: DO WHILE ((z+step .LE. DIMENS(1)) .AND. (ione .GE. 5.0 ))
        IF ( DEBUG .EQV. .TRUE. ) PRINT *, 'Now entering loop: z=',z,&
             ' and DIMENS(1)=',DIMENS(1), &
             ' and step=',step
@@ -407,6 +407,7 @@ CONTAINS
                   CALL p_ex_select(psigexj,e_exc,thinghit)
                   e_loss = e_exc
                   nature = "Excitation"
+                  PROTON_ELOSS = PROTON_ELOSS + e_loss
                END IF
             ELSE
                ! Elastic Collision will occur
@@ -502,12 +503,15 @@ CONTAINS
 
        ! Determine the travel distance
        dz = -mfp*LOG(1-p)
-       dz = (dz*STEPFAC)
 
        ! Determine whether or not the site is occupied by dividing the
        ! Delta z by the height of the crystal cube, i.e. \Delta ml =
        ! \Delta z(m) * (1ml/c(m))
-       step = INT((dz/(THICK/REAL(DIMENS(1)))))
+       IF ( fixed_step .EQV. .TRUE. ) THEN
+         step = STEPFAC
+       ELSE
+         step = INT((dz/(THICK/REAL(DIMENS(1)))))
+       END IF
 
        ! Make sure the next site is different than the previous one
        IF ( z+step .EQ. z ) THEN
@@ -936,6 +940,8 @@ CONTAINS
        PRINT *, "O=",O_ABUNDANCE,"O2=",o2_count,"O3=",O3_ABUNDANCE
        PRINT *, "O*=",ostarcount,"O2*=",o2starcount,"O3*=",o3starcount
        print *, "numatoms=",numatoms, "othercount=",othercount
+       PRINT *, '***********************************************************************'
+       PRINT *, "Geminacy=",O3_ABUNDANCE/(TOTAL_PROTON_ELOSS/100.0)
        PRINT *, '***********************************************************************'
 
     END IF
