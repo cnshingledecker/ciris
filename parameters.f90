@@ -99,7 +99,7 @@ MODULE parameters
   DOUBLE PRECISION, PARAMETER :: FITNESS_THRESHOLD = 1E20   ! Terminate if FITNESS > this
   DOUBLE PRECISION, PARAMETER :: ELASTIC_LOSS      = 0.0    ! Percent of Etot lost per electron hop
   DOUBLE PRECISION, PARAMETER :: TRL_NU            = 1.0E12 ! Trial frequency, for the rates, in 1/s
-  DOUBLE PRECISION, PARAMETER :: STEPFAC           = 1.0d0  ! Determines freq. between colls. for protons
+  INTEGER         , PARAMETER :: STEPFAC           = 1  ! Determines freq. between colls. for protons
 
 
   !******************************************************************************

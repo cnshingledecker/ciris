@@ -916,10 +916,11 @@ CONTAINS
     end if
 
     IF ( NO_OUTPUT .EQV. .FALSE. ) THEN
-       varfmt = "(2ES15.4,7I10)"
+       varfmt = "(3ES15.4,7I10)"
        WRITE(AB_LUN,varfmt) &
             FLUENCE, & ! 1. Float64
             TIME,    & ! 3. Float64
+            REAL(O3_ABUNDANCE)/(TOTAL_PROTON_ELOSS/100.0), &
             o2_count, & ! 4. Int64
             o_count, & ! 5. Int64
             o3_count, &          ! 6. Int64
