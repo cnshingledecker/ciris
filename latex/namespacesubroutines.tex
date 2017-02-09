@@ -1,0 +1,627 @@
+\hypertarget{namespacesubroutines}{
+\section{subroutines Module Reference}
+\label{namespacesubroutines}\index{subroutines@{subroutines}}
+}
+\subsection*{Functions/Subroutines}
+\begin{DoxyCompactItemize}
+\item 
+subroutine \hyperlink{namespacesubroutines_a27505ee5071c93bb5f1e570995a1ac42}{lookup} (name, \hyperlink{typetypedefs_1_1node}{node}, id, atoms, charge)
+\item 
+subroutine \hyperlink{namespacesubroutines_a0ce9ee9331d3c0bba11e3e00fbd7e07b}{writereactions} (\hyperlink{typetypedefs_1_1node}{node})
+\item 
+subroutine \hyperlink{namespacesubroutines_ad97e0b9db9cfe6329f9f8fdb886077e7}{hopping} (i\_\-in, j\_\-in, k\_\-in, i\_\-out, j\_\-out, k\_\-out, prob)
+\item 
+subroutine \hyperlink{namespacesubroutines_a7a31d5c9fbda24651c932b0466618567}{fallout} (root, temp, prevNode, nextNode)
+\item 
+subroutine \hyperlink{namespacesubroutines_af4c69699bd3e0e4aa05607a7e94044dc}{find\_\-empty\_\-site} (in\_\-coords, out\_\-coords, null)
+\item 
+subroutine \hyperlink{namespacesubroutines_ac847bd99eab89bdc881d885b2808624d}{wait\_\-calc} (temp)
+\item 
+subroutine \hyperlink{namespacesubroutines_af250b65cb2805243dd52e4e3535f4c5a}{counter} ()
+\item 
+subroutine \hyperlink{namespacesubroutines_a0a51843cbd2415487f29e4314e1de97a}{transport} (prev, curr, next)
+\item 
+subroutine \hyperlink{namespacesubroutines_a37b9d3b519b164f5ef3835bf4e1e4f8c}{psigma\_\-suite} (energy, psigmas, psigij, psigexj, o\_\-psigmas, o\_\-psigij, o\_\-psigexj, o3\_\-psigmas, o3\_\-psigij, o3\_\-psigexj)
+\item 
+subroutine \hyperlink{namespacesubroutines_a27620c6392f4cd49238c295cbe60e179}{esigma\_\-suite} (se\_\-box)
+\item 
+subroutine \hyperlink{namespacesubroutines_a3185cd857374fa3b0a19f2a56e6474df}{p\_\-ion\_\-select} (psigij, e\_\-ion, e\_\-se, thinghit)
+\item 
+subroutine \hyperlink{namespacesubroutines_acad706394e0b01bbd1e5345585dace59}{p\_\-ex\_\-select} (psigexj, e\_\-exc, thinghit)
+\item 
+subroutine \hyperlink{namespacesubroutines_acad777e3f27acb4f7e0f7b35035ae54a}{e\_\-ion\_\-select} (se\_\-box, e\_\-ion, e\_\-se, null, thinghit)
+\item 
+subroutine \hyperlink{namespacesubroutines_a0f09eb60b63730612ddd7801066ce49b}{e\_\-ex\_\-select} (se\_\-box, e\_\-exc, null, thinghit)
+\item 
+subroutine \hyperlink{namespacesubroutines_a10f3c575d44eedaf9b0a95ed9a64e3ab}{elastic\_\-event} (energy, e\_\-loss, labtheta)
+\item 
+subroutine \hyperlink{namespacesubroutines_aece587c9d144811189bd1ccf8a59f189}{se\_\-info\_\-init} (se\_\-box)
+\item 
+subroutine \hyperlink{namespacesubroutines_a1d1775ee81394d8c078c760678a530e2}{se\_\-info\_\-garbage} (se\_\-box)
+\item 
+subroutine \hyperlink{namespacesubroutines_a4d9b1fbbdcfc2b420201a7ca71c4e782}{init\_\-node} (root, temp\_\-node, x, y, z)
+\item 
+subroutine \hyperlink{namespacesubroutines_a7580fc0416f20d44b3cfa79ebc20a839}{wipe\_\-node} (x, y, z)
+\item 
+subroutine \hyperlink{namespacesubroutines_a5f9a688681311ebc691561ec51015d0f}{new\_\-reaction} (i, j, k, root, temp, prevNode, nextNode, error)
+\item 
+subroutine \hyperlink{namespacesubroutines_ae942148085820c335aea6798ad4e7e7e}{new\_\-electron} (se\_\-box, root, temp, prevNode, nextNode)
+\item 
+subroutine \hyperlink{namespacesubroutines_aae3cb4fad8f95b0869777449a6bc496f}{analyzereaction} (reactnode, speciesnum, yield, nature)
+\item 
+subroutine \hyperlink{namespacesubroutines_abbce0f7ec92c43ac91db25f512531642}{trackwrite} (coords, energy, e\_\-branch, electron)
+\end{DoxyCompactItemize}
+
+
+\subsection{Function/Subroutine Documentation}
+\hypertarget{namespacesubroutines_aae3cb4fad8f95b0869777449a6bc496f}{
+\index{subroutines@{subroutines}!analyzereaction@{analyzereaction}}
+\index{analyzereaction@{analyzereaction}!subroutines@{subroutines}}
+\subsubsection[{analyzereaction}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::analyzereaction (TYPE (reaction) {\em reactnode}, \/  integer,intent(in) {\em speciesnum}, \/  integer,intent(out) {\em yield}, \/  character(30),intent(out) {\em nature})}}
+\label{namespacesubroutines_aae3cb4fad8f95b0869777449a6bc496f}
+
+
+Definition at line 2461 of file subroutines.f90.
+
+Referenced by writereactions().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=372pt]{namespacesubroutines_aae3cb4fad8f95b0869777449a6bc496f_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_af250b65cb2805243dd52e4e3535f4c5a}{
+\index{subroutines@{subroutines}!counter@{counter}}
+\index{counter@{counter}!subroutines@{subroutines}}
+\subsubsection[{counter}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::counter ()}}
+\label{namespacesubroutines_af250b65cb2805243dd52e4e3535f4c5a}
+
+
+Definition at line 854 of file subroutines.f90.
+
+References parameters::AB\_\-LUN, parameters::CUIRCT, parameters::DIMENS, parameters::EDGE, parameters::FLUENCE, parameters::GEMINACY\_\-LUN, parameters::GVALUE, parameters::initialatoms, parameters::MATRIX, parameters::NO\_\-OUTPUT, parameters::O2\_\-ABUNDANCE, parameters::O2NUM, parameters::O2STARNUM, parameters::O3\_\-ABUNDANCE, parameters::O3NUM, parameters::O3STARNUM, parameters::O\_\-ABUNDANCE, parameters::ONUM, parameters::OSTARNUM, parameters::QUIET, parameters::RE\_\-HEAD, parameters::SP\_\-PROD\_\-DEST, parameters::THICK, parameters::TIME, parameters::TOTAL\_\-PROTON\_\-ELOSS, and writereactions().
+
+Referenced by gp::fitness(), and main().
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=279pt]{namespacesubroutines_af250b65cb2805243dd52e4e3535f4c5a_cgraph}
+\end{center}
+\end{figure}
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=176pt]{namespacesubroutines_af250b65cb2805243dd52e4e3535f4c5a_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_a0f09eb60b63730612ddd7801066ce49b}{
+\index{subroutines@{subroutines}!e\_\-ex\_\-select@{e\_\-ex\_\-select}}
+\index{e\_\-ex\_\-select@{e\_\-ex\_\-select}!subroutines@{subroutines}}
+\subsubsection[{e\_\-ex\_\-select}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::e\_\-ex\_\-select (TYPE(se\_\-info) {\em se\_\-box}, \/  DOUBLE PRECISION,intent(out) {\em e\_\-exc}, \/  INTEGER,intent(out) {\em null}, \/  INTEGER,intent(in) {\em thinghit})}}
+\label{namespacesubroutines_a0f09eb60b63730612ddd7801066ce49b}
+
+
+Definition at line 1722 of file subroutines.f90.
+
+References specdata::o3\_\-p\_\-ex, parameters::O3NUM, parameters::O3STARNUM, parameters::ONUM, and parameters::OSTARNUM.
+
+Referenced by new\_\-electron().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=303pt]{namespacesubroutines_a0f09eb60b63730612ddd7801066ce49b_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_acad777e3f27acb4f7e0f7b35035ae54a}{
+\index{subroutines@{subroutines}!e\_\-ion\_\-select@{e\_\-ion\_\-select}}
+\index{e\_\-ion\_\-select@{e\_\-ion\_\-select}!subroutines@{subroutines}}
+\subsubsection[{e\_\-ion\_\-select}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::e\_\-ion\_\-select (TYPE(se\_\-info) {\em se\_\-box}, \/  DOUBLE PRECISION,intent(out) {\em e\_\-ion}, \/  DOUBLE PRECISION,intent(out) {\em e\_\-se}, \/  INTEGER,intent(out) {\em null}, \/  INTEGER,intent(in) {\em thinghit})}}
+\label{namespacesubroutines_acad777e3f27acb4f7e0f7b35035ae54a}
+
+
+Definition at line 1601 of file subroutines.f90.
+
+References specdata::o3\_\-p\_\-ion, parameters::O3NUM, parameters::O3STARNUM, parameters::ONUM, and parameters::OSTARNUM.
+
+Referenced by new\_\-electron().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=303pt]{namespacesubroutines_acad777e3f27acb4f7e0f7b35035ae54a_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_a10f3c575d44eedaf9b0a95ed9a64e3ab}{
+\index{subroutines@{subroutines}!elastic\_\-event@{elastic\_\-event}}
+\index{elastic\_\-event@{elastic\_\-event}!subroutines@{subroutines}}
+\subsubsection[{elastic\_\-event}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::elastic\_\-event (DOUBLE PRECISION,pointer {\em energy}, \/  DOUBLE PRECISION,intent(out) {\em e\_\-loss}, \/  DOUBLE PRECISION,intent(out) {\em labtheta})}}
+\label{namespacesubroutines_a10f3c575d44eedaf9b0a95ed9a64e3ab}
+
+
+Definition at line 1853 of file subroutines.f90.
+
+References functiondefs::au(), functiondefs::b\_\-magic(), functiondefs::eps(), functiondefs::lab\_\-theta(), functiondefs::magic(), functiondefs::mass\_\-fac(), parameters::MO2, parameters::MP, parameters::RHO2, functiondefs::t\_\-coll(), parameters::ZO2, and parameters::ZP.
+
+Referenced by fallout().
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=184pt]{namespacesubroutines_a10f3c575d44eedaf9b0a95ed9a64e3ab_cgraph}
+\end{center}
+\end{figure}
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=212pt]{namespacesubroutines_a10f3c575d44eedaf9b0a95ed9a64e3ab_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_a27620c6392f4cd49238c295cbe60e179}{
+\index{subroutines@{subroutines}!esigma\_\-suite@{esigma\_\-suite}}
+\index{esigma\_\-suite@{esigma\_\-suite}!subroutines@{subroutines}}
+\subsubsection[{esigma\_\-suite}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::esigma\_\-suite (TYPE(se\_\-info) {\em se\_\-box})}}
+\label{namespacesubroutines_a27620c6392f4cd49238c295cbe60e179}
+
+
+Definition at line 1248 of file subroutines.f90.
+
+References functiondefs::a\_\-gs(), functiondefs::gamma\_\-gs(), functiondefs::green\_\-mcneal(), functiondefs::green\_\-sawada(), specdata::o2\_\-e\_\-ex\_\-alwd, specdata::o2\_\-e\_\-ex\_\-fbdn, specdata::o3\_\-p\_\-ex, specdata::o3\_\-p\_\-ion, specdata::o\_\-e\_\-ex\_\-alwd, specdata::o\_\-e\_\-ex\_\-fbdn, functiondefs::pjgsigma(), functiondefs::t\_\-0\_\-gs(), functiondefs::t\_\-max\_\-gs(), and parameters::ZO3.
+
+Referenced by new\_\-electron(), and sigma\_\-test().
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=195pt]{namespacesubroutines_a27620c6392f4cd49238c295cbe60e179_cgraph}
+\end{center}
+\end{figure}
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=305pt]{namespacesubroutines_a27620c6392f4cd49238c295cbe60e179_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_a7a31d5c9fbda24651c932b0466618567}{
+\index{subroutines@{subroutines}!fallout@{fallout}}
+\index{fallout@{fallout}!subroutines@{subroutines}}
+\subsubsection[{fallout}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::fallout (TYPE(node),pointer {\em root}, \/  TYPE(node),pointer {\em temp}, \/  TYPE(node),pointer {\em prevNode}, \/  TYPE(node),pointer {\em nextNode})}}
+\label{namespacesubroutines_a7a31d5c9fbda24651c932b0466618567}
+
+
+Definition at line 217 of file subroutines.f90.
+
+References parameters::BI\_\-CALLS, parameters::CRPNUM, parameters::DEBUG, parameters::DIMENS, parameters::EINIT, elastic\_\-event(), parameters::ELECNUM, parameters::EXCNUM, parameters::IONLIST, parameters::MATRIX, new\_\-electron(), new\_\-reaction(), specdata::o2\_\-p\_\-ex, specdata::o2\_\-p\_\-ion, specdata::o3\_\-p\_\-ex, specdata::o3\_\-p\_\-ion, specdata::o\_\-p\_\-ex, specdata::o\_\-p\_\-ion, p\_\-ex\_\-select(), p\_\-ion\_\-select(), parameters::PMODEL, parameters::PROTON\_\-COLL, parameters::PROTON\_\-ELOSS, psigma\_\-suite(), se\_\-info\_\-garbage(), se\_\-info\_\-init(), parameters::SECELEC, parameters::STEPFAC, parameters::THICK, parameters::TRACKMAX, parameters::TRACKMIN, parameters::TRACKPLOT, parameters::TRACKPLOT\_\-LUN, and trackwrite().
+
+Referenced by main().
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=420pt]{namespacesubroutines_a7a31d5c9fbda24651c932b0466618567_cgraph}
+\end{center}
+\end{figure}
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=118pt]{namespacesubroutines_a7a31d5c9fbda24651c932b0466618567_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_af4c69699bd3e0e4aa05607a7e94044dc}{
+\index{subroutines@{subroutines}!find\_\-empty\_\-site@{find\_\-empty\_\-site}}
+\index{find\_\-empty\_\-site@{find\_\-empty\_\-site}!subroutines@{subroutines}}
+\subsubsection[{find\_\-empty\_\-site}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::find\_\-empty\_\-site (INTEGER,dimension(3),intent(in) {\em in\_\-coords}, \/  INTEGER,dimension(3),intent(out) {\em out\_\-coords}, \/  INTEGER {\em null})}}
+\label{namespacesubroutines_af4c69699bd3e0e4aa05607a7e94044dc}
+
+
+Definition at line 547 of file subroutines.f90.
+
+References parameters::DEBUG, parameters::DIMENS, parameters::FIND\_\-EMPTY\_\-COUNT, parameters::FINDMAX, hopping(), parameters::MATRIX, and transport().
+
+Referenced by new\_\-reaction().
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=266pt]{namespacesubroutines_af4c69699bd3e0e4aa05607a7e94044dc_cgraph}
+\end{center}
+\end{figure}
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=406pt]{namespacesubroutines_af4c69699bd3e0e4aa05607a7e94044dc_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_ad97e0b9db9cfe6329f9f8fdb886077e7}{
+\index{subroutines@{subroutines}!hopping@{hopping}}
+\index{hopping@{hopping}!subroutines@{subroutines}}
+\subsubsection[{hopping}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::hopping (INTEGER,intent(in) {\em i\_\-in}, \/  INTEGER,intent(in) {\em j\_\-in}, \/  INTEGER,intent(in) {\em k\_\-in}, \/  INTEGER,intent(out) {\em i\_\-out}, \/  INTEGER,intent(out) {\em j\_\-out}, \/  INTEGER,intent(out) {\em k\_\-out}, \/  INTEGER,intent(in) {\em prob})}}
+\label{namespacesubroutines_ad97e0b9db9cfe6329f9f8fdb886077e7}
+
+
+Definition at line 113 of file subroutines.f90.
+
+References parameters::DIMENS.
+
+Referenced by find\_\-empty\_\-site(), main(), new\_\-electron(), transport(), and wait\_\-calc().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=420pt]{namespacesubroutines_ad97e0b9db9cfe6329f9f8fdb886077e7_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_a4d9b1fbbdcfc2b420201a7ca71c4e782}{
+\index{subroutines@{subroutines}!init\_\-node@{init\_\-node}}
+\index{init\_\-node@{init\_\-node}!subroutines@{subroutines}}
+\subsubsection[{init\_\-node}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::init\_\-node (TYPE(node),pointer {\em root}, \/  TYPE(node),pointer {\em temp\_\-node}, \/  INTEGER {\em x}, \/  INTEGER {\em y}, \/  INTEGER {\em z})}}
+\label{namespacesubroutines_a4d9b1fbbdcfc2b420201a7ca71c4e782}
+
+
+Definition at line 1977 of file subroutines.f90.
+
+References bsimple::add\_\-node(), parameters::DEBUG, and wait\_\-calc().
+
+Referenced by main().
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=248pt]{namespacesubroutines_a4d9b1fbbdcfc2b420201a7ca71c4e782_cgraph}
+\end{center}
+\end{figure}
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=125pt]{namespacesubroutines_a4d9b1fbbdcfc2b420201a7ca71c4e782_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_a27505ee5071c93bb5f1e570995a1ac42}{
+\index{subroutines@{subroutines}!lookup@{lookup}}
+\index{lookup@{lookup}!subroutines@{subroutines}}
+\subsubsection[{lookup}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::lookup (CHARACTER(len=10) {\em name}, \/  TYPE(species) {\em node}, \/  INTEGER {\em id}, \/  INTEGER {\em atoms}, \/  INTEGER {\em charge})}}
+\label{namespacesubroutines_a27505ee5071c93bb5f1e570995a1ac42}
+
+
+Definition at line 13 of file subroutines.f90.
+
+Referenced by readinput::buildnetwork(), and qbert().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=204pt]{namespacesubroutines_a27505ee5071c93bb5f1e570995a1ac42_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_ae942148085820c335aea6798ad4e7e7e}{
+\index{subroutines@{subroutines}!new\_\-electron@{new\_\-electron}}
+\index{new\_\-electron@{new\_\-electron}!subroutines@{subroutines}}
+\subsubsection[{new\_\-electron}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::new\_\-electron (TYPE(se\_\-info) {\em se\_\-box}, \/  TYPE(node),pointer {\em root}, \/  TYPE(node),pointer {\em temp}, \/  TYPE(node),pointer {\em prevNode}, \/  TYPE(node),pointer {\em nextNode})}}
+\label{namespacesubroutines_ae942148085820c335aea6798ad4e7e7e}
+
+
+Definition at line 2204 of file subroutines.f90.
+
+References parameters::C\_\-PR, parameters::CRPNUM, parameters::DEBUG, e\_\-ex\_\-select(), e\_\-ion\_\-select(), parameters::ECUTOFF, parameters::ELECNUM, esigma\_\-suite(), parameters::EXCNUM, hopping(), parameters::IONLIST, parameters::MATRIX, new\_\-reaction(), parameters::RHO, se\_\-info\_\-garbage(), se\_\-info\_\-init(), parameters::TRACKPLOT, trackwrite(), and transport().
+
+Referenced by fallout().
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=420pt]{namespacesubroutines_ae942148085820c335aea6798ad4e7e7e_cgraph}
+\end{center}
+\end{figure}
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=212pt]{namespacesubroutines_ae942148085820c335aea6798ad4e7e7e_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_a5f9a688681311ebc691561ec51015d0f}{
+\index{subroutines@{subroutines}!new\_\-reaction@{new\_\-reaction}}
+\index{new\_\-reaction@{new\_\-reaction}!subroutines@{subroutines}}
+\subsubsection[{new\_\-reaction}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::new\_\-reaction (INTEGER,dimension(3),intent(inout) {\em i}, \/  INTEGER,dimension(3),intent(inout) {\em j}, \/  INTEGER,dimension(3),intent(inout) {\em k}, \/  TYPE(node),pointer {\em root}, \/  TYPE(node),pointer {\em temp}, \/  TYPE(node),pointer {\em prevNode}, \/  TYPE(node),pointer {\em nextNode}, \/  INTEGER {\em error})}}
+\label{namespacesubroutines_a5f9a688681311ebc691561ec51015d0f}
+
+
+Definition at line 2049 of file subroutines.f90.
+
+References bsimple::add\_\-node(), branchmod::branching(), parameters::DEBUG, bsimple::delete\_\-node(), parameters::ELECNUM, find\_\-empty\_\-site(), parameters::ISBARRIER, parameters::MATRIX, parameters::SPECIAL\_\-LIST, wait\_\-calc(), and wipe\_\-node().
+
+Referenced by fallout(), main(), and new\_\-electron().
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=360pt]{namespacesubroutines_a5f9a688681311ebc691561ec51015d0f_cgraph}
+\end{center}
+\end{figure}
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=306pt]{namespacesubroutines_a5f9a688681311ebc691561ec51015d0f_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_acad706394e0b01bbd1e5345585dace59}{
+\index{subroutines@{subroutines}!p\_\-ex\_\-select@{p\_\-ex\_\-select}}
+\index{p\_\-ex\_\-select@{p\_\-ex\_\-select}!subroutines@{subroutines}}
+\subsubsection[{p\_\-ex\_\-select}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::p\_\-ex\_\-select (DOUBLE PRECISION,dimension(:),pointer {\em psigexj}, \/  DOUBLE PRECISION,intent(out) {\em e\_\-exc}, \/  INTEGER,intent(in) {\em thinghit})}}
+\label{namespacesubroutines_acad706394e0b01bbd1e5345585dace59}
+
+
+Definition at line 1544 of file subroutines.f90.
+
+References specdata::o2\_\-p\_\-ex, specdata::o3\_\-p\_\-ex, parameters::O3NUM, parameters::O3STARNUM, specdata::o\_\-p\_\-ex, parameters::ONUM, and parameters::OSTARNUM.
+
+Referenced by fallout().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=208pt]{namespacesubroutines_acad706394e0b01bbd1e5345585dace59_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_a3185cd857374fa3b0a19f2a56e6474df}{
+\index{subroutines@{subroutines}!p\_\-ion\_\-select@{p\_\-ion\_\-select}}
+\index{p\_\-ion\_\-select@{p\_\-ion\_\-select}!subroutines@{subroutines}}
+\subsubsection[{p\_\-ion\_\-select}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::p\_\-ion\_\-select (DOUBLE PRECISION,dimension(:),pointer {\em psigij}, \/  DOUBLE PRECISION,intent(out) {\em e\_\-ion}, \/  DOUBLE PRECISION,intent(out) {\em e\_\-se}, \/  INTEGER,intent(in) {\em thinghit})}}
+\label{namespacesubroutines_a3185cd857374fa3b0a19f2a56e6474df}
+
+
+Definition at line 1479 of file subroutines.f90.
+
+References parameters::AVAL, specdata::o2\_\-p\_\-ion, specdata::o3\_\-p\_\-ion, parameters::O3NUM, parameters::O3STARNUM, specdata::o\_\-p\_\-ion, parameters::ONUM, parameters::OSTARNUM, and mc\_\-toolbox::rgamma().
+
+Referenced by fallout().
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=175pt]{namespacesubroutines_a3185cd857374fa3b0a19f2a56e6474df_cgraph}
+\end{center}
+\end{figure}
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=209pt]{namespacesubroutines_a3185cd857374fa3b0a19f2a56e6474df_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_a37b9d3b519b164f5ef3835bf4e1e4f8c}{
+\index{subroutines@{subroutines}!psigma\_\-suite@{psigma\_\-suite}}
+\index{psigma\_\-suite@{psigma\_\-suite}!subroutines@{subroutines}}
+\subsubsection[{psigma\_\-suite}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::psigma\_\-suite (DOUBLE PRECISION,pointer {\em energy}, \/  TYPE(SIGMA\_\-BOX),dimension(:),pointer {\em psigmas}, \/  DOUBLE PRECISION,dimension(:),pointer {\em psigij}, \/  DOUBLE PRECISION,dimension(:),pointer {\em psigexj}, \/  TYPE(SIGMA\_\-BOX),dimension(:),pointer {\em o\_\-psigmas}, \/  DOUBLE PRECISION,dimension(:),pointer {\em o\_\-psigij}, \/  DOUBLE PRECISION,dimension(:),pointer {\em o\_\-psigexj}, \/  TYPE(SIGMA\_\-BOX),dimension(:),pointer {\em o3\_\-psigmas}, \/  DOUBLE PRECISION,dimension(:),pointer {\em o3\_\-psigij}, \/  DOUBLE PRECISION,dimension(:),pointer {\em o3\_\-psigexj})}}
+\label{namespacesubroutines_a37b9d3b519b164f5ef3835bf4e1e4f8c}
+
+
+Definition at line 1089 of file subroutines.f90.
+
+References functiondefs::au(), functiondefs::eps(), functiondefs::green\_\-mcneal(), functiondefs::mass\_\-fac(), parameters::MO1, parameters::MO2, parameters::MO3, parameters::MP, specdata::o2\_\-p\_\-ex, specdata::o2\_\-p\_\-ion, specdata::o3\_\-p\_\-ex, specdata::o3\_\-p\_\-ion, specdata::o\_\-p\_\-ex, specdata::o\_\-p\_\-ion, functiondefs::pelsig(), functiondefs::sne(), functiondefs::sneps(), parameters::ZO1, parameters::ZO2, parameters::ZO3, and parameters::ZP.
+
+Referenced by fallout(), and sigma\_\-test().
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=194pt]{namespacesubroutines_a37b9d3b519b164f5ef3835bf4e1e4f8c_cgraph}
+\end{center}
+\end{figure}
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=211pt]{namespacesubroutines_a37b9d3b519b164f5ef3835bf4e1e4f8c_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_a1d1775ee81394d8c078c760678a530e2}{
+\index{subroutines@{subroutines}!se\_\-info\_\-garbage@{se\_\-info\_\-garbage}}
+\index{se\_\-info\_\-garbage@{se\_\-info\_\-garbage}!subroutines@{subroutines}}
+\subsubsection[{se\_\-info\_\-garbage}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::se\_\-info\_\-garbage (TYPE(se\_\-info) {\em se\_\-box})}}
+\label{namespacesubroutines_a1d1775ee81394d8c078c760678a530e2}
+
+
+Definition at line 1956 of file subroutines.f90.
+
+Referenced by fallout(), and new\_\-electron().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=312pt]{namespacesubroutines_a1d1775ee81394d8c078c760678a530e2_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_aece587c9d144811189bd1ccf8a59f189}{
+\index{subroutines@{subroutines}!se\_\-info\_\-init@{se\_\-info\_\-init}}
+\index{se\_\-info\_\-init@{se\_\-info\_\-init}!subroutines@{subroutines}}
+\subsubsection[{se\_\-info\_\-init}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::se\_\-info\_\-init (TYPE(se\_\-info) {\em se\_\-box})}}
+\label{namespacesubroutines_aece587c9d144811189bd1ccf8a59f189}
+
+
+Definition at line 1887 of file subroutines.f90.
+
+References specdata::o2\_\-e\_\-ex\_\-alwd, specdata::o2\_\-e\_\-ex\_\-fbdn, specdata::o2\_\-e\_\-ion, specdata::o\_\-e\_\-ex\_\-alwd, specdata::o\_\-e\_\-ex\_\-fbdn, and specdata::o\_\-e\_\-ion.
+
+Referenced by fallout(), new\_\-electron(), and sigma\_\-test().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=300pt]{namespacesubroutines_aece587c9d144811189bd1ccf8a59f189_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_abbce0f7ec92c43ac91db25f512531642}{
+\index{subroutines@{subroutines}!trackwrite@{trackwrite}}
+\index{trackwrite@{trackwrite}!subroutines@{subroutines}}
+\subsubsection[{trackwrite}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::trackwrite (INTEGER,dimension(:),intent(in) {\em coords}, \/  DOUBLE PRECISION,intent(in) {\em energy}, \/  INTEGER,intent(in) {\em e\_\-branch}, \/  LOGICAL,intent(in) {\em electron})}}
+\label{namespacesubroutines_abbce0f7ec92c43ac91db25f512531642}
+
+
+Definition at line 2500 of file subroutines.f90.
+
+References parameters::PMODEL, and parameters::TRACKPLOT\_\-LUN.
+
+Referenced by fallout(), and new\_\-electron().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=298pt]{namespacesubroutines_abbce0f7ec92c43ac91db25f512531642_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_a0a51843cbd2415487f29e4314e1de97a}{
+\index{subroutines@{subroutines}!transport@{transport}}
+\index{transport@{transport}!subroutines@{subroutines}}
+\subsubsection[{transport}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::transport (INTEGER,dimension(3),intent(in) {\em prev}, \/  INTEGER,dimension(3),intent(in) {\em curr}, \/  INTEGER,dimension(3),intent(out) {\em next})}}
+\label{namespacesubroutines_a0a51843cbd2415487f29e4314e1de97a}
+
+
+Definition at line 972 of file subroutines.f90.
+
+References parameters::DIMENS, and hopping().
+
+Referenced by find\_\-empty\_\-site(), and new\_\-electron().
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=166pt]{namespacesubroutines_a0a51843cbd2415487f29e4314e1de97a_cgraph}
+\end{center}
+\end{figure}
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=420pt]{namespacesubroutines_a0a51843cbd2415487f29e4314e1de97a_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_ac847bd99eab89bdc881d885b2808624d}{
+\index{subroutines@{subroutines}!wait\_\-calc@{wait\_\-calc}}
+\index{wait\_\-calc@{wait\_\-calc}!subroutines@{subroutines}}
+\subsubsection[{wait\_\-calc}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::wait\_\-calc (TYPE(node),pointer {\em temp})}}
+\label{namespacesubroutines_ac847bd99eab89bdc881d885b2808624d}
+
+
+Definition at line 754 of file subroutines.f90.
+
+References parameters::DEBUG, parameters::E\_\-BULK, parameters::E\_\-SURF, parameters::EN\_\-LIST, parameters::fast\_\-reacts, hopping(), parameters::MATRIX, parameters::TIME, and parameters::TRL\_\-NU.
+
+Referenced by init\_\-node(), main(), and new\_\-reaction().
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=166pt]{namespacesubroutines_ac847bd99eab89bdc881d885b2808624d_cgraph}
+\end{center}
+\end{figure}
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=389pt]{namespacesubroutines_ac847bd99eab89bdc881d885b2808624d_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_a7580fc0416f20d44b3cfa79ebc20a839}{
+\index{subroutines@{subroutines}!wipe\_\-node@{wipe\_\-node}}
+\index{wipe\_\-node@{wipe\_\-node}!subroutines@{subroutines}}
+\subsubsection[{wipe\_\-node}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::wipe\_\-node (INTEGER {\em x}, \/  INTEGER {\em y}, \/  INTEGER {\em z})}}
+\label{namespacesubroutines_a7580fc0416f20d44b3cfa79ebc20a839}
+
+
+Definition at line 2026 of file subroutines.f90.
+
+References parameters::MATRIX.
+
+Referenced by main(), and new\_\-reaction().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=392pt]{namespacesubroutines_a7580fc0416f20d44b3cfa79ebc20a839_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacesubroutines_a0ce9ee9331d3c0bba11e3e00fbd7e07b}{
+\index{subroutines@{subroutines}!writereactions@{writereactions}}
+\index{writereactions@{writereactions}!subroutines@{subroutines}}
+\subsubsection[{writereactions}]{\setlength{\rightskip}{0pt plus 5cm}subroutine subroutines::writereactions (type(reaction) {\em node})}}
+\label{namespacesubroutines_a0ce9ee9331d3c0bba11e3e00fbd7e07b}
+
+
+Definition at line 43 of file subroutines.f90.
+
+References analyzereaction(), parameters::NUM\_\-SPECIES, and parameters::SP\_\-PROD\_\-DEST.
+
+Referenced by counter().
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=200pt]{namespacesubroutines_a0ce9ee9331d3c0bba11e3e00fbd7e07b_cgraph}
+\end{center}
+\end{figure}
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=272pt]{namespacesubroutines_a0ce9ee9331d3c0bba11e3e00fbd7e07b_icgraph}
+\end{center}
+\end{figure}

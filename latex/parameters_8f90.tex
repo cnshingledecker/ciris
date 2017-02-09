@@ -1,0 +1,254 @@
+\hypertarget{parameters_8f90}{
+\section{parameters.f90 File Reference}
+\label{parameters_8f90}\index{parameters.f90@{parameters.f90}}
+}
+\subsection*{Modules}
+\begin{DoxyCompactItemize}
+\item 
+module \hyperlink{namespaceparameters}{parameters}
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+TYPE(node), allocatable, target \hyperlink{namespaceparameters_a1d2ec6532bce135a8fc18f3542969a8d}{parameters::MATRIX}
+\item 
+INTEGER \hyperlink{namespaceparameters_a8eba14af35a7a362f50093f1acc28a78}{parameters::DIMENS}
+\item 
+INTEGER \hyperlink{namespaceparameters_a00c44079184906f8aff60ad7cea2fe4d}{parameters::PRODS}
+\item 
+DOUBLE PRECISION, allocatable \hyperlink{namespaceparameters_a41b06e1dd582bb56419bf991f2c633e3}{parameters::EN\_\-LIST}
+\item 
+CHARACTER(LEN=10), allocatable \hyperlink{namespaceparameters_a38878c1dc241cdcfc52f1804563f7b00}{parameters::SP\_\-LIST}
+\item 
+INTEGER, allocatable \hyperlink{namespaceparameters_a660ab08d014ed8f467dc504ed8585591}{parameters::IONLIST}
+\item 
+INTEGER, allocatable \hyperlink{namespaceparameters_a649c343c05b95e3f84d06401b3a3f6e1}{parameters::SP\_\-PROD\_\-DEST}
+\item 
+integer, dimension(:), allocatable \hyperlink{namespaceparameters_a8706bba63c5517e5b5e5b2cf0487db4b}{parameters::fast\_\-reacts}
+\item 
+INTEGER \hyperlink{namespaceparameters_aed3ebeff9daeb47edfa593ae2b72d4db}{parameters::NUM\_\-SPECIES} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a1462d3a8d5ef4ee00ffc9c0beac695b2}{parameters::NUM\_\-REACTS} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_abf21c9c60fbc062ca9e84d2746c7388a}{parameters::NUMPROTONS} = 0
+\item 
+DOUBLE PRECISION \hyperlink{namespaceparameters_acf1d338d691bf2082aeabaec6ac27263}{parameters::TIME} = 0
+\item 
+TYPE(reaction), pointer \hyperlink{namespaceparameters_aff68a046aeb1fa2a7610db8cd55922d8}{parameters::RE\_\-HEAD}
+\item 
+integer \hyperlink{namespaceparameters_a2a130bb0e6ad790a2a783d19749cc8ce}{parameters::initialatoms} = 0
+\item 
+REAL \hyperlink{namespaceparameters_a3c39b69e0083dc018e4546bd5a02b301}{parameters::GVALUE} = 0
+\item 
+REAL \hyperlink{namespaceparameters_a2855e0778fdd644c62b1a6943a4c363a}{parameters::CUIRCT} = 0
+\item 
+REAL \hyperlink{namespaceparameters_a170cb61fd1eef5175a5eaf95d0d85ab5}{parameters::CUPREL} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a38fbcf3f41331f232ff4c604194bc76f}{parameters::PMODEL} = 0
+\item 
+CHARACTER(LEN=80), parameter \hyperlink{namespaceparameters_af23a39fc248303c9a69e3e05c0fb3b41}{parameters::SPECIES\_\-FILE}
+\item 
+CHARACTER(LEN=80), parameter \hyperlink{namespaceparameters_a40ef599fa2e91d0f27cbd322f1270da8}{parameters::REACTIONS\_\-FILE}
+\item 
+CHARACTER(LEN=80), parameter \hyperlink{namespaceparameters_adf79c33c6ebf2e4f00fa0fdaf34d1ba1}{parameters::PARAMS\_\-FILE}
+\item 
+CHARACTER(LEN=80), parameter \hyperlink{namespaceparameters_a045269697aa491915bf603f55e12b63a}{parameters::GEMINACY\_\-FILE}
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a5f4fb781d85daf37e0a18e15e4dcc9c8}{parameters::EINIT} = 100D3
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a1f6362692e1384b097b58b185096b416}{parameters::CDIM} = 3.414e-\/8
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a3a667857cb5e332f397b7ff0e96dbb85}{parameters::BDIM} = 6.668e-\/8
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_ad2ed15127be0caca99788b8acc6e605b}{parameters::ADIM} = 9.225e-\/8
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_aaa3c163a9f90b6d0c5a314ca449da18b}{parameters::BETACRYS} = 85.05
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a998d2db873404e0cfe943d50d3877262}{parameters::C\_\-PR} = CDIM$\ast$COS(90-\/BETACRYS)
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_ad8323286536365bb131984aa57af99df}{parameters::RHO} = 1.313E22
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a79fa48b917f68e1a12577e33fd8c991c}{parameters::RHO2} = 0.01313
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a2fbeb743f79ed8a1c34482eb24ce3e87}{parameters::FIX1} = 150
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a11cddb5a155baade8a969acb80c17292}{parameters::FIX2} = 150
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_adedf5e0e6373ffbf611e8767d9cf0e80}{parameters::FIX3} = 150
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_aacbd355b27d7e7459076fdf3f77fab20}{parameters::THICK} = 1.0e-\/5
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a45377074e21edf9bd71351430490cd5e}{parameters::EDGE} = 3.5e-\/6
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a8a887d07bb62f10ae5578c2a7181a578}{parameters::VOLUME} = THICK$\ast$EDGE$\ast$EDGE
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a144dd87a3ad4a40138cad0b8d26ee282}{parameters::KIN\_\-TEMP} = 5.0D0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_aee8d50a231f8beed7edc0ff5ba2437f4}{parameters::AREA} = EDGE$\ast$EDGE
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_ad9a62be82a2fb56fe291f73d3279d4b4}{parameters::CR\_\-FLUX} = 1.0D11
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_ac433c7adc61bc138dfc7567a570833ed}{parameters::CR\_\-RATE} = CR\_\-FLUX$\ast$AREA
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a20c80b2e34c240feef7ac6887646115d}{parameters::NELEM} = 3.0$\ast$RHO$\ast$(THICK$\ast$EDGE$\ast$EDGE)
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_adc91f63a6d2c197941c445a5d64800a3}{parameters::TER} = THICK/EDGE
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a3f72bf9fb376fde5e0eaf3da242d4f06}{parameters::NEDGE} = FLOOR((NELEM/TER)$\ast$$\ast$(1./3.))
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_adf37b75c4792b28d45484737d230ead3}{parameters::NTHICK} = FLOOR(NEDGE$\ast$TER)
+\item 
+REAL, parameter \hyperlink{namespaceparameters_a10dd39ec5aeb14b9a104618dc6ef5450}{parameters::E\_\-SURF} = 0.5
+\item 
+REAL, parameter \hyperlink{namespaceparameters_a485a71bfcc9a08ed577efe9a5df5735b}{parameters::E\_\-BULK} = 0.7
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a8b8f35affe261eb9ad1a1612ca3572a7}{parameters::SHORT\_\-TIME} = 100.0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_af5f3e31c772340991fe768468c6a0dad}{parameters::ZP} = 1.D0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a1c9d90c36ce0be5595ed197469b6e609}{parameters::ZO1} = 8.D0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a885e127ecd6c6a8469ca5ed6aba4badf}{parameters::ZO2} = 16.D0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_ac4b8f44af44db753a988dc78c534c94d}{parameters::ZO3} = 24.D0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a3a8aa693f08c619d7a21b16784fc6cfe}{parameters::ENERG} = 100$\ast$1E3
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a55c34135e7a3b750b692c7fe5c44d996}{parameters::MP} = 1
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a9fe3ba34735e9bd271a5dfa94242d60f}{parameters::MO3} = 24
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a8f3ca9bcf2af3dccca1f89e678dd9149}{parameters::MO2} = 16
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a6d254c62ce30ae2227377164deadbabe}{parameters::MO1} = 8
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a04ab380d92467d452e23f88704ceb37a}{parameters::A0} = 0.529177
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a3012689c3933acd7a66b7268835760a1}{parameters::ECHARG2} = 14.39
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a14f18e4e92507c1eb5090ad46ff56fd1}{parameters::Q0} = 6.513E-\/14
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_afe0432626bebaa2d97468b2d263e28e7}{parameters::PI} = 4.D0$\ast$DATAN(1.D0)
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a1e704da9f69bebf69c8a5d07e3703622}{parameters::EBASE} = EXP(1.D0)
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a6f164e68568bd1b2cfd14c1584c3aa4a}{parameters::IONS} = 6
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a8095a8c543baf08f84d7e538f64f425b}{parameters::TIME\_\-COUNTS} = 2
+\item 
+DOUBLE PRECISION \hyperlink{namespaceparameters_aad8147e5f72a1603322285137f380e90}{parameters::FLUENCE} = 0.d0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a540e956fa8885214bfcc86f895dc5649}{parameters::TIME\_\-TOTAL} = 1D5
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a9536b89e2089876959d4d367fbd7fd89}{parameters::ECUTOFF} = 0.98D0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_abb73420de652567f8698014e0df31f53}{parameters::PCUTOFF} = 4.0D0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_ac25828691892f40b7a0028332d62de30}{parameters::FLUENCE\_\-TOTAL} = 5.0D17
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a29056f19e30fd6e33712abbfdcff3f1b}{parameters::SUBEXHITPROB} = 0.5
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_af6f041d5b1d3325bec07e87ac32f3a2e}{parameters::FITNESS\_\-THRESHOLD} = 1E20
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_aa477d24fa30c94e4765d70da20e987e7}{parameters::ELASTIC\_\-LOSS} = 0.0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_ae757acf24cb9ac4ea176759b5ada37c7}{parameters::TRL\_\-NU} = 1.0E12
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a2ec73288039fb063a8606dd185f2d6ff}{parameters::STEPFAC} = 1
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a209bdf781f449ab7ff2231fa1b9fa73a}{parameters::SPECIES\_\-LUN} = 1
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a86efd37aa4980c19320f2996464f0a82}{parameters::REACTIONS\_\-LUN} = 2
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a6b5a8618cdb0c5ecfd24827177f53d22}{parameters::AB\_\-LUN} = 3
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a70e866c6b47264dcb7895af939679a3c}{parameters::RATE\_\-LUN} = 4
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a0818b4c220711dedc53641b60887957a}{parameters::TRACKPLOT\_\-LUN} = 5
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a4146bd3a7b3738c3b8f262e51969231b}{parameters::TRACK\_\-AN\_\-LUN} = 7777
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_aee37c9403c4b1f81a4b8331509b6a21d}{parameters::GEMINACY\_\-LUN} = 8888
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a3274d98430ff0a8089ad7f2b21e16d17}{parameters::TRACKMIN} = 5000
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a8ec43c843ac10d7b08208da5c534f70a}{parameters::TRACKMAX} = 1000000
+\item 
+INTEGER \hyperlink{namespaceparameters_a6d79ed13a3233e19e1602e4410b72e7c}{parameters::COUNT\_\-COUNT} = 0.0
+\item 
+INTEGER \hyperlink{namespaceparameters_aca6da9a32c037c09b143a1a14e6ee3a7}{parameters::FIND\_\-EMPTY\_\-COUNT} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a8bb87362a7d863fb6078dee2db1dd2a7}{parameters::FINDMAX} = 1000
+\item 
+INTEGER \hyperlink{namespaceparameters_ab6952d11a1ce81d0d85183b89011553a}{parameters::BI\_\-CALLS} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a94daa6cedb27148cbfae307910b4acf0}{parameters::O\_\-ABUNDANCE} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_aa660e855c3fab9dbfe8096b783003413}{parameters::O2\_\-ABUNDANCE} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a9d6097883f1419481b04c256065f6d24}{parameters::O3\_\-ABUNDANCE} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a8301da447de4717dd79fa37a925bc787}{parameters::N\_\-OHOP} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_aa23f74ffe716d5e4093a0f9e951ff501}{parameters::N\_\-O3HOP} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a94b6e62dc83358943908a8418bd3e5ae}{parameters::PROTON\_\-COLL} = 0
+\item 
+DOUBLE PRECISION \hyperlink{namespaceparameters_a4555e2bb5c9af40a5e98df4f354ac27f}{parameters::DELTA\_\-TIME} = 0.d0
+\item 
+DOUBLE PRECISION \hyperlink{namespaceparameters_a6cb40f66cca5617aa8331c5487829f10}{parameters::PROTON\_\-ELOSS} = 0.d0
+\item 
+DOUBLE PRECISION \hyperlink{namespaceparameters_a575bcb79f78ecdcf97d1d21a582128ae}{parameters::TOTAL\_\-PROTON\_\-ELOSS} = 0.d0
+\item 
+TYPE(rate\_\-info) \hyperlink{namespaceparameters_a5725b82ace5b33e1c3394c0622eca5b3}{parameters::RATEINFO}
+\item 
+INTEGER \hyperlink{namespaceparameters_a27421c52f58f3c001c10f65e12931269}{parameters::CRPNUM} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_aed6a003faa9e073d8fb8b860e98c7bfd}{parameters::EXCNUM} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_aff13458f35487137bc22ea99de38e60a}{parameters::ELECNUM} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a8834adf2777bfd145f2ba3e2ca2d5f46}{parameters::MNUM} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a5d2edd19cb37ff34b422b6a5fdcf4358}{parameters::O3NUM} = 7
+\item 
+INTEGER \hyperlink{namespaceparameters_aaa919dd1f480e5e72fff4b51292e7c94}{parameters::O2NUM} = 1
+\item 
+INTEGER \hyperlink{namespaceparameters_a726526c727d771bb10d9af8e2d3240f5}{parameters::ONUM} = 4
+\item 
+INTEGER \hyperlink{namespaceparameters_a7f259c2e69027b208f7e09e6d672574d}{parameters::OSTARNUM} = 11
+\item 
+INTEGER \hyperlink{namespaceparameters_afd3b212b264c188754486b14476cd875}{parameters::O2STARNUM} = 10
+\item 
+INTEGER \hyperlink{namespaceparameters_a882e51984a7c32da2dc6a56dc6afca79}{parameters::O3STARNUM} = 12
+\item 
+INTEGER \hyperlink{namespaceparameters_a9a296e15d2f09049ceb473a5f0fb9e5f}{parameters::SPECIAL\_\-LIST} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a7a6326e37101f07bd6de0fbdd090126b}{parameters::TIME\_\-FREQ} = 1
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_ac3097bdb7852a956a41ef762305769f4}{parameters::FIXED\_\-SIZE} = .FALSE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_ae0e5e8861d2de5239c52be62c3baebcb}{parameters::NO\_\-OUTPUT} = .FALSE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_a76f6259a6055e7668847d95bb689fbb9}{parameters::QUIET} = .FALSE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_ae0f23566499e10756f5a93adb6160899}{parameters::SECELEC} = .TRUE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_a555f6d9a3fe1c11f68f18ddeb2111ffa}{parameters::DEBUG} = .FALSE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_a687b46ca494c1998df909a6461e3b535}{parameters::TRACKPLOT} = .FALSE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_aba22684f89f881fe4dc9d78bd30d6f5b}{parameters::O3\_\-ANALYTICS} = .TRUE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_abf0f37eb423e843da77558c657a43220}{parameters::CALC\_\-RATES} = .FALSE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_a557f350ba21ed1a34656e6cce03635fb}{parameters::FIX\_\-FREQ} = .FALSE.
+\item 
+LOGICAL \hyperlink{namespaceparameters_a3353739a07b03f983c7528bce590be69}{parameters::ISBARRIER} = .FALSE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_ad4575bbb41153e584b501a6238bd4b6c}{parameters::TRACK\_\-ANALYTICS} = .TRUE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_a1a34e9253cb6baa25fe90345e4a0ceb2}{parameters::FIXED\_\-STEP} = .FALSE.
+\item 
+DOUBLE PRECISION \hyperlink{namespaceparameters_ae2d7b8b9e8df09f194ff75d43b02afbb}{parameters::AVAL} = 33.0d0
+\end{DoxyCompactItemize}

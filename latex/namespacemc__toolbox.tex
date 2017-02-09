@@ -1,0 +1,97 @@
+\hypertarget{namespacemc__toolbox}{
+\section{mc\_\-toolbox Module Reference}
+\label{namespacemc__toolbox}\index{mc\_\-toolbox@{mc\_\-toolbox}}
+}
+\subsection*{Functions/Subroutines}
+\begin{DoxyCompactItemize}
+\item 
+REAL(KIND=8) \hyperlink{namespacemc__toolbox_acedafdf57f1c1cd3610359fe837a708d}{rgamma} (a)
+\item 
+real(kind=8) \hyperlink{namespacemc__toolbox_ab8fa538b6e1b30d65864f793e75425ea}{r8\_\-normal\_\-01} ()
+\item 
+real(kind=8) \hyperlink{namespacemc__toolbox_a405cb2a6c8bceb2f89fc0da987cd399a}{r8\_\-uniform\_\-01} (seedy)
+\item 
+real(kind=8) \hyperlink{namespacemc__toolbox_aab33e2e1a35352d1550e81fb86fb1cc9}{r8\_\-normal\_\-ab} (a, b)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+INTEGER(KIND=4), parameter \hyperlink{namespacemc__toolbox_a2b3c4edff260f415453579697b0a5282}{GSEED} = 12345
+\item 
+REAL(KIND=8), parameter \hyperlink{namespacemc__toolbox_a9e72a666484c36244e37a8083e792dd8}{MEANVAL} = 0.00
+\item 
+REAL(KIND=8), parameter \hyperlink{namespacemc__toolbox_a5655149a57d9d21f98b7515536fe1a1b}{SDEV} = 2.00
+\end{DoxyCompactItemize}
+
+
+\subsection{Function/Subroutine Documentation}
+\hypertarget{namespacemc__toolbox_ab8fa538b6e1b30d65864f793e75425ea}{
+\index{mc\_\-toolbox@{mc\_\-toolbox}!r8\_\-normal\_\-01@{r8\_\-normal\_\-01}}
+\index{r8\_\-normal\_\-01@{r8\_\-normal\_\-01}!mc_toolbox@{mc\_\-toolbox}}
+\subsubsection[{r8\_\-normal\_\-01}]{\setlength{\rightskip}{0pt plus 5cm}real ( kind = 8 ) mc\_\-toolbox::r8\_\-normal\_\-01 ()}}
+\label{namespacemc__toolbox_ab8fa538b6e1b30d65864f793e75425ea}
+
+
+Definition at line 48 of file mc\_\-toolbox.f90.\hypertarget{namespacemc__toolbox_aab33e2e1a35352d1550e81fb86fb1cc9}{
+\index{mc\_\-toolbox@{mc\_\-toolbox}!r8\_\-normal\_\-ab@{r8\_\-normal\_\-ab}}
+\index{r8\_\-normal\_\-ab@{r8\_\-normal\_\-ab}!mc_toolbox@{mc\_\-toolbox}}
+\subsubsection[{r8\_\-normal\_\-ab}]{\setlength{\rightskip}{0pt plus 5cm}real ( kind = 8 ) mc\_\-toolbox::r8\_\-normal\_\-ab (real ( kind = 8 ) {\em a}, \/  real ( kind = 8 ) {\em b})}}
+\label{namespacemc__toolbox_aab33e2e1a35352d1550e81fb86fb1cc9}
+
+
+Definition at line 200 of file mc\_\-toolbox.f90.\hypertarget{namespacemc__toolbox_a405cb2a6c8bceb2f89fc0da987cd399a}{
+\index{mc\_\-toolbox@{mc\_\-toolbox}!r8\_\-uniform\_\-01@{r8\_\-uniform\_\-01}}
+\index{r8\_\-uniform\_\-01@{r8\_\-uniform\_\-01}!mc_toolbox@{mc\_\-toolbox}}
+\subsubsection[{r8\_\-uniform\_\-01}]{\setlength{\rightskip}{0pt plus 5cm}real ( kind = 8 ) mc\_\-toolbox::r8\_\-uniform\_\-01 (integer ( kind = 4 ) {\em seedy})}}
+\label{namespacemc__toolbox_a405cb2a6c8bceb2f89fc0da987cd399a}
+
+
+Definition at line 99 of file mc\_\-toolbox.f90.\hypertarget{namespacemc__toolbox_acedafdf57f1c1cd3610359fe837a708d}{
+\index{mc\_\-toolbox@{mc\_\-toolbox}!rgamma@{rgamma}}
+\index{rgamma@{rgamma}!mc_toolbox@{mc\_\-toolbox}}
+\subsubsection[{rgamma}]{\setlength{\rightskip}{0pt plus 5cm}REAL(KIND=8) mc\_\-toolbox::rgamma (REAL(KIND=8),intent(in) {\em a})}}
+\label{namespacemc__toolbox_acedafdf57f1c1cd3610359fe837a708d}
+
+
+Definition at line 9 of file mc\_\-toolbox.f90.
+
+References MEANVAL, and SDEV.
+
+Referenced by subroutines::p\_\-ion\_\-select().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=289pt]{namespacemc__toolbox_acedafdf57f1c1cd3610359fe837a708d_icgraph}
+\end{center}
+\end{figure}
+
+
+\subsection{Variable Documentation}
+\hypertarget{namespacemc__toolbox_a2b3c4edff260f415453579697b0a5282}{
+\index{mc\_\-toolbox@{mc\_\-toolbox}!GSEED@{GSEED}}
+\index{GSEED@{GSEED}!mc_toolbox@{mc\_\-toolbox}}
+\subsubsection[{GSEED}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER(KIND=4),parameter {\bf mc\_\-toolbox::GSEED} = 12345}}
+\label{namespacemc__toolbox_a2b3c4edff260f415453579697b0a5282}
+
+
+Definition at line 4 of file mc\_\-toolbox.f90.\hypertarget{namespacemc__toolbox_a9e72a666484c36244e37a8083e792dd8}{
+\index{mc\_\-toolbox@{mc\_\-toolbox}!MEANVAL@{MEANVAL}}
+\index{MEANVAL@{MEANVAL}!mc_toolbox@{mc\_\-toolbox}}
+\subsubsection[{MEANVAL}]{\setlength{\rightskip}{0pt plus 5cm}REAL(KIND=8),parameter {\bf mc\_\-toolbox::MEANVAL} = 0.00}}
+\label{namespacemc__toolbox_a9e72a666484c36244e37a8083e792dd8}
+
+
+Definition at line 5 of file mc\_\-toolbox.f90.
+
+Referenced by rgamma().\hypertarget{namespacemc__toolbox_a5655149a57d9d21f98b7515536fe1a1b}{
+\index{mc\_\-toolbox@{mc\_\-toolbox}!SDEV@{SDEV}}
+\index{SDEV@{SDEV}!mc_toolbox@{mc\_\-toolbox}}
+\subsubsection[{SDEV}]{\setlength{\rightskip}{0pt plus 5cm}REAL(KIND=8),parameter {\bf mc\_\-toolbox::SDEV} = 2.00}}
+\label{namespacemc__toolbox_a5655149a57d9d21f98b7515536fe1a1b}
+
+
+Definition at line 6 of file mc\_\-toolbox.f90.
+
+Referenced by rgamma().

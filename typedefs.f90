@@ -112,6 +112,7 @@ MODULE typedefs
      ! info and ionization cross-section info. The energy is also contained in this
      ! type for convenience.
      !
+     INTEGER            :: generation !The generation of secondary electron
      DOUBLE PRECISION   :: se_energy !The secondary electron energy
      DOUBLE PRECISION   :: se_iontot !Total SE ionization cross-section
      DOUBLE PRECISION   :: se_extot !Total SE excitation cross-section

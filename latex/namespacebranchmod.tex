@@ -1,0 +1,53 @@
+\hypertarget{namespacebranchmod}{
+\section{branchmod Module Reference}
+\label{namespacebranchmod}\index{branchmod@{branchmod}}
+}
+\subsection*{Functions/Subroutines}
+\begin{DoxyCompactItemize}
+\item 
+INTEGER \hyperlink{namespacebranchmod_afe047e9cf349dd7beea43ce0113ab24b}{branching} (reactant1, reactant2, pr)
+\item 
+subroutine \hyperlink{namespacebranchmod_a37435a321ae1297821d708a3891bdf0d}{bumpreaction} (id, \hyperlink{typetypedefs_1_1node}{node})
+\item 
+subroutine \hyperlink{namespacebranchmod_a4c2d31e67892bffa2413995834db274a}{selectbranch} (kvals, ndex)
+\end{DoxyCompactItemize}
+
+
+\subsection{Function/Subroutine Documentation}
+\hypertarget{namespacebranchmod_afe047e9cf349dd7beea43ce0113ab24b}{
+\index{branchmod@{branchmod}!branching@{branching}}
+\index{branching@{branching}!branchmod@{branchmod}}
+\subsubsection[{branching}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER branchmod::branching (INTEGER {\em reactant1}, \/  INTEGER {\em reactant2}, \/  INTEGER {\em pr})}}
+\label{namespacebranchmod_afe047e9cf349dd7beea43ce0113ab24b}
+
+
+Definition at line 4 of file old\_\-branchmod.f90.
+
+References parameters::DEBUG, parameters::ELECNUM, parameters::EXCNUM, parameters::FLUENCE, parameters::O2NUM, parameters::O3\_\-ANALYTICS, parameters::O3NUM, and parameters::ONUM.
+
+Referenced by subroutines::new\_\-reaction().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=388pt]{namespacebranchmod_afe047e9cf349dd7beea43ce0113ab24b_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacebranchmod_a37435a321ae1297821d708a3891bdf0d}{
+\index{branchmod@{branchmod}!bumpreaction@{bumpreaction}}
+\index{bumpreaction@{bumpreaction}!branchmod@{branchmod}}
+\subsubsection[{bumpreaction}]{\setlength{\rightskip}{0pt plus 5cm}subroutine branchmod::bumpreaction (INTEGER {\em id}, \/  type({\bf reaction}) {\em node})}}
+\label{namespacebranchmod_a37435a321ae1297821d708a3891bdf0d}
+
+
+Definition at line 168 of file branchmod.f90.\hypertarget{namespacebranchmod_a4c2d31e67892bffa2413995834db274a}{
+\index{branchmod@{branchmod}!selectbranch@{selectbranch}}
+\index{selectbranch@{selectbranch}!branchmod@{branchmod}}
+\subsubsection[{selectbranch}]{\setlength{\rightskip}{0pt plus 5cm}subroutine branchmod::selectbranch (DOUBLE PRECISION,dimension(4),intent(in) {\em kvals}, \/  INTEGER,intent(out) {\em ndex})}}
+\label{namespacebranchmod_a4c2d31e67892bffa2413995834db274a}
+
+
+Definition at line 194 of file branchmod.f90.
+
+References parameters::DEBUG.

@@ -1,0 +1,387 @@
+\hypertarget{namespacefunctiondefs}{
+\section{functiondefs Module Reference}
+\label{namespacefunctiondefs}\index{functiondefs@{functiondefs}}
+}
+\subsection*{Functions/Subroutines}
+\begin{DoxyCompactItemize}
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_ae9b1c95ccb465d122918ab89da45aed7}{arrhenius} (a, b, c)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_ad75756612cb12ba4983414cdc520f6a1}{green\_\-mcneal} (energy, a, j, nu, omega, z, i)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_a9cd4ed9f980bd43386e7de1e3e35c79c}{a\_\-gs} (energy, k, k\_\-b, j, j\_\-b, j\_\-c)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_adae12a3980d4e2bd5fe6277c91988474}{gamma\_\-gs} (energy, gamma\_\-s, gamma\_\-b)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_a5e1c4c25a7352f149e1f18854c37930f}{t\_\-0\_\-gs} (energy, t\_\-a, t\_\-b, t\_\-s)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_a7beb6f6af6e15afda97da88dde407655}{t\_\-max\_\-gs} (energy, i)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_a64cc5970914d70f20e127be3722f11bb}{green\_\-sawada} (a, gamma\_\-fac, t\_\-max, t\_\-0)
+\item 
+REAL \hyperlink{namespacefunctiondefs_abb5f2d51b3f8b637e0d17ad8c21db948}{ne\_\-mg} (gamma\_\-fac, t\_\-max, t\_\-0)
+\item 
+subroutine \hyperlink{namespacefunctiondefs_a93c18b11591055e1e1275c6dc7b2ab26}{magic} (eps, b, c2, s2, theta)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_a34160b04b7880953967f273645a835c5}{b\_\-magic} (rn, a, rho)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_abf4df469161d4f4092a1a538a20ebf1d}{au} (z1, z2)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_ac20c2b09d0408eb23b226af7f8f7361a}{eps} (en, z1, z2, m1, m2, au)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_aa92057c8da0a7ce374166fed435ea54f}{mass\_\-fac} (m1, m2)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_a529a6bcbb0305c32f0275aa85d4303e8}{t\_\-coll} (e, mf, s2)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_abeba54805575687a8d1db47decf4790e}{lab\_\-theta} (cmtheta, m1, m2)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_a80d99fe52a1cb5856694596955d8aeb9}{sneps} (eps)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_a78455979576075ad68feb125604462bc}{sne} (sneps, z1, z2, m1, m2)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_ae52b03b9e83dd8f46fd7532fb105850b}{pelsig} (energy, sne, mf)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_a7a31d88fad502937338eafac9a574fec}{greendutta} (energy, w, f, o, a, b)
+\item 
+DOUBLE PRECISION \hyperlink{namespacefunctiondefs_a5486e5e48a1c871c2ec9d5bc03406ea5}{pjgsigma} (energy, f, w, c, a, b)
+\end{DoxyCompactItemize}
+
+
+\subsection{Function/Subroutine Documentation}
+\hypertarget{namespacefunctiondefs_a9cd4ed9f980bd43386e7de1e3e35c79c}{
+\index{functiondefs@{functiondefs}!a\_\-gs@{a\_\-gs}}
+\index{a\_\-gs@{a\_\-gs}!functiondefs@{functiondefs}}
+\subsubsection[{a\_\-gs}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::a\_\-gs (DOUBLE PRECISION,intent(in) {\em energy}, \/  DOUBLE PRECISION,intent(in) {\em k}, \/  DOUBLE PRECISION,intent(in) {\em k\_\-b}, \/  DOUBLE PRECISION,intent(in) {\em j}, \/  DOUBLE PRECISION,intent(in) {\em j\_\-b}, \/  DOUBLE PRECISION,intent(in) {\em j\_\-c})}}
+\label{namespacefunctiondefs_a9cd4ed9f980bd43386e7de1e3e35c79c}
+
+
+Definition at line 55 of file functiondefs.f90.
+
+Referenced by subroutines::esigma\_\-suite().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=378pt]{namespacefunctiondefs_a9cd4ed9f980bd43386e7de1e3e35c79c_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_ae9b1c95ccb465d122918ab89da45aed7}{
+\index{functiondefs@{functiondefs}!arrhenius@{arrhenius}}
+\index{arrhenius@{arrhenius}!functiondefs@{functiondefs}}
+\subsubsection[{arrhenius}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::arrhenius (DOUBLE PRECISION {\em a}, \/  DOUBLE PRECISION {\em b}, \/  DOUBLE PRECISION {\em c})}}
+\label{namespacefunctiondefs_ae9b1c95ccb465d122918ab89da45aed7}
+
+
+Definition at line 5 of file functiondefs.f90.
+
+References parameters::KIN\_\-TEMP.\hypertarget{namespacefunctiondefs_abf4df469161d4f4092a1a538a20ebf1d}{
+\index{functiondefs@{functiondefs}!au@{au}}
+\index{au@{au}!functiondefs@{functiondefs}}
+\subsubsection[{au}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::au (DOUBLE PRECISION,intent(in) {\em z1}, \/  DOUBLE PRECISION,intent(in) {\em z2})}}
+\label{namespacefunctiondefs_abf4df469161d4f4092a1a538a20ebf1d}
+
+
+Definition at line 355 of file functiondefs.f90.
+
+References parameters::A0.
+
+Referenced by subroutines::elastic\_\-event(), and subroutines::psigma\_\-suite().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=280pt]{namespacefunctiondefs_abf4df469161d4f4092a1a538a20ebf1d_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_a34160b04b7880953967f273645a835c5}{
+\index{functiondefs@{functiondefs}!b\_\-magic@{b\_\-magic}}
+\index{b\_\-magic@{b\_\-magic}!functiondefs@{functiondefs}}
+\subsubsection[{b\_\-magic}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::b\_\-magic (DOUBLE PRECISION,intent(in) {\em rn}, \/  DOUBLE PRECISION,intent(in) {\em a}, \/  DOUBLE PRECISION,intent(in) {\em rho})}}
+\label{namespacefunctiondefs_a34160b04b7880953967f273645a835c5}
+
+
+Definition at line 326 of file functiondefs.f90.
+
+Referenced by subroutines::elastic\_\-event().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=294pt]{namespacefunctiondefs_a34160b04b7880953967f273645a835c5_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_ac20c2b09d0408eb23b226af7f8f7361a}{
+\index{functiondefs@{functiondefs}!eps@{eps}}
+\index{eps@{eps}!functiondefs@{functiondefs}}
+\subsubsection[{eps}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::eps (DOUBLE PRECISION,pointer {\em en}, \/  DOUBLE PRECISION,intent(in) {\em z1}, \/  DOUBLE PRECISION,intent(in) {\em z2}, \/  DOUBLE PRECISION,intent(in) {\em m1}, \/  DOUBLE PRECISION,intent(in) {\em m2}, \/  DOUBLE PRECISION,intent(in) {\em au})}}
+\label{namespacefunctiondefs_ac20c2b09d0408eb23b226af7f8f7361a}
+
+
+Definition at line 376 of file functiondefs.f90.
+
+References parameters::ECHARG2.
+
+Referenced by subroutines::elastic\_\-event(), and subroutines::psigma\_\-suite().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=283pt]{namespacefunctiondefs_ac20c2b09d0408eb23b226af7f8f7361a_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_adae12a3980d4e2bd5fe6277c91988474}{
+\index{functiondefs@{functiondefs}!gamma\_\-gs@{gamma\_\-gs}}
+\index{gamma\_\-gs@{gamma\_\-gs}!functiondefs@{functiondefs}}
+\subsubsection[{gamma\_\-gs}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::gamma\_\-gs (DOUBLE PRECISION,intent(in) {\em energy}, \/  DOUBLE PRECISION,intent(in) {\em gamma\_\-s}, \/  DOUBLE PRECISION,intent(in) {\em gamma\_\-b})}}
+\label{namespacefunctiondefs_adae12a3980d4e2bd5fe6277c91988474}
+
+
+Definition at line 89 of file functiondefs.f90.
+
+Referenced by subroutines::esigma\_\-suite().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=394pt]{namespacefunctiondefs_adae12a3980d4e2bd5fe6277c91988474_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_ad75756612cb12ba4983414cdc520f6a1}{
+\index{functiondefs@{functiondefs}!green\_\-mcneal@{green\_\-mcneal}}
+\index{green\_\-mcneal@{green\_\-mcneal}!functiondefs@{functiondefs}}
+\subsubsection[{green\_\-mcneal}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::green\_\-mcneal (DOUBLE PRECISION,intent(in) {\em energy}, \/  DOUBLE PRECISION,intent(in) {\em a}, \/  DOUBLE PRECISION,intent(in) {\em j}, \/  DOUBLE PRECISION,intent(in) {\em nu}, \/  DOUBLE PRECISION,intent(in) {\em omega}, \/  DOUBLE PRECISION,intent(in) {\em z}, \/  DOUBLE PRECISION,intent(in) {\em i})}}
+\label{namespacefunctiondefs_ad75756612cb12ba4983414cdc520f6a1}
+
+
+Definition at line 15 of file functiondefs.f90.
+
+Referenced by subroutines::esigma\_\-suite(), and subroutines::psigma\_\-suite().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=402pt]{namespacefunctiondefs_ad75756612cb12ba4983414cdc520f6a1_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_a64cc5970914d70f20e127be3722f11bb}{
+\index{functiondefs@{functiondefs}!green\_\-sawada@{green\_\-sawada}}
+\index{green\_\-sawada@{green\_\-sawada}!functiondefs@{functiondefs}}
+\subsubsection[{green\_\-sawada}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::green\_\-sawada (DOUBLE PRECISION,intent(in) {\em a}, \/  DOUBLE PRECISION,intent(in) {\em gamma\_\-fac}, \/  DOUBLE PRECISION,intent(in) {\em t\_\-max}, \/  DOUBLE PRECISION,intent(in) {\em t\_\-0})}}
+\label{namespacefunctiondefs_a64cc5970914d70f20e127be3722f11bb}
+
+
+Definition at line 171 of file functiondefs.f90.
+
+Referenced by subroutines::esigma\_\-suite().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=403pt]{namespacefunctiondefs_a64cc5970914d70f20e127be3722f11bb_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_a7a31d88fad502937338eafac9a574fec}{
+\index{functiondefs@{functiondefs}!greendutta@{greendutta}}
+\index{greendutta@{greendutta}!functiondefs@{functiondefs}}
+\subsubsection[{greendutta}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::greendutta (DOUBLE PRECISION,intent(in) {\em energy}, \/  DOUBLE PRECISION,intent(in) {\em w}, \/  DOUBLE PRECISION,intent(in) {\em f}, \/  DOUBLE PRECISION,intent(in) {\em o}, \/  DOUBLE PRECISION,intent(in) {\em a}, \/  DOUBLE PRECISION,intent(in) {\em b})}}
+\label{namespacefunctiondefs_a7a31d88fad502937338eafac9a574fec}
+
+
+Definition at line 587 of file functiondefs.f90.
+
+References parameters::Q0.\hypertarget{namespacefunctiondefs_abeba54805575687a8d1db47decf4790e}{
+\index{functiondefs@{functiondefs}!lab\_\-theta@{lab\_\-theta}}
+\index{lab\_\-theta@{lab\_\-theta}!functiondefs@{functiondefs}}
+\subsubsection[{lab\_\-theta}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::lab\_\-theta (DOUBLE PRECISION,intent(in) {\em cmtheta}, \/  DOUBLE PRECISION,intent(in) {\em m1}, \/  DOUBLE PRECISION,intent(in) {\em m2})}}
+\label{namespacefunctiondefs_abeba54805575687a8d1db47decf4790e}
+
+
+Definition at line 458 of file functiondefs.f90.
+
+Referenced by subroutines::elastic\_\-event().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=298pt]{namespacefunctiondefs_abeba54805575687a8d1db47decf4790e_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_a93c18b11591055e1e1275c6dc7b2ab26}{
+\index{functiondefs@{functiondefs}!magic@{magic}}
+\index{magic@{magic}!functiondefs@{functiondefs}}
+\subsubsection[{magic}]{\setlength{\rightskip}{0pt plus 5cm}subroutine functiondefs::magic (DOUBLE PRECISION,intent(in) {\em eps}, \/  DOUBLE PRECISION,intent(in) {\em b}, \/  DOUBLE PRECISION,intent(out) {\em c2}, \/  DOUBLE PRECISION,intent(out) {\em s2}, \/  DOUBLE PRECISION,intent(out) {\em theta})}}
+\label{namespacefunctiondefs_a93c18b11591055e1e1275c6dc7b2ab26}
+
+
+Definition at line 240 of file functiondefs.f90.
+
+Referenced by subroutines::elastic\_\-event().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=289pt]{namespacefunctiondefs_a93c18b11591055e1e1275c6dc7b2ab26_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_aa92057c8da0a7ce374166fed435ea54f}{
+\index{functiondefs@{functiondefs}!mass\_\-fac@{mass\_\-fac}}
+\index{mass\_\-fac@{mass\_\-fac}!functiondefs@{functiondefs}}
+\subsubsection[{mass\_\-fac}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::mass\_\-fac (DOUBLE PRECISION,intent(in) {\em m1}, \/  DOUBLE PRECISION,intent(in) {\em m2})}}
+\label{namespacefunctiondefs_aa92057c8da0a7ce374166fed435ea54f}
+
+
+Definition at line 409 of file functiondefs.f90.
+
+Referenced by subroutines::elastic\_\-event(), and subroutines::psigma\_\-suite().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=297pt]{namespacefunctiondefs_aa92057c8da0a7ce374166fed435ea54f_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_abb5f2d51b3f8b637e0d17ad8c21db948}{
+\index{functiondefs@{functiondefs}!ne\_\-mg@{ne\_\-mg}}
+\index{ne\_\-mg@{ne\_\-mg}!functiondefs@{functiondefs}}
+\subsubsection[{ne\_\-mg}]{\setlength{\rightskip}{0pt plus 5cm}REAL functiondefs::ne\_\-mg (REAL,intent(in) {\em gamma\_\-fac}, \/  REAL,intent(in) {\em t\_\-max}, \/  REAL,intent(in) {\em t\_\-0})}}
+\label{namespacefunctiondefs_abb5f2d51b3f8b637e0d17ad8c21db948}
+
+
+Definition at line 209 of file functiondefs.f90.\hypertarget{namespacefunctiondefs_ae52b03b9e83dd8f46fd7532fb105850b}{
+\index{functiondefs@{functiondefs}!pelsig@{pelsig}}
+\index{pelsig@{pelsig}!functiondefs@{functiondefs}}
+\subsubsection[{pelsig}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::pelsig (DOUBLE PRECISION,intent(in) {\em energy}, \/  DOUBLE PRECISION,intent(in) {\em sne}, \/  DOUBLE PRECISION,intent(in) {\em mf})}}
+\label{namespacefunctiondefs_ae52b03b9e83dd8f46fd7532fb105850b}
+
+
+Definition at line 562 of file functiondefs.f90.
+
+Referenced by subroutines::psigma\_\-suite().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=287pt]{namespacefunctiondefs_ae52b03b9e83dd8f46fd7532fb105850b_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_a5486e5e48a1c871c2ec9d5bc03406ea5}{
+\index{functiondefs@{functiondefs}!pjgsigma@{pjgsigma}}
+\index{pjgsigma@{pjgsigma}!functiondefs@{functiondefs}}
+\subsubsection[{pjgsigma}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::pjgsigma (DOUBLE PRECISION,intent(in) {\em energy}, \/  DOUBLE PRECISION,intent(in) {\em f}, \/  DOUBLE PRECISION,intent(in) {\em w}, \/  DOUBLE PRECISION,intent(in) {\em c}, \/  DOUBLE PRECISION,intent(in) {\em a}, \/  DOUBLE PRECISION,intent(in) {\em b})}}
+\label{namespacefunctiondefs_a5486e5e48a1c871c2ec9d5bc03406ea5}
+
+
+Definition at line 630 of file functiondefs.f90.
+
+References parameters::EBASE, and parameters::Q0.
+
+Referenced by subroutines::esigma\_\-suite().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=389pt]{namespacefunctiondefs_a5486e5e48a1c871c2ec9d5bc03406ea5_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_a78455979576075ad68feb125604462bc}{
+\index{functiondefs@{functiondefs}!sne@{sne}}
+\index{sne@{sne}!functiondefs@{functiondefs}}
+\subsubsection[{sne}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::sne (DOUBLE PRECISION,intent(in) {\em sneps}, \/  DOUBLE PRECISION,intent(in) {\em z1}, \/  DOUBLE PRECISION,intent(in) {\em z2}, \/  DOUBLE PRECISION,intent(in) {\em m1}, \/  DOUBLE PRECISION,intent(in) {\em m2})}}
+\label{namespacefunctiondefs_a78455979576075ad68feb125604462bc}
+
+
+Definition at line 526 of file functiondefs.f90.
+
+Referenced by subroutines::psigma\_\-suite().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=282pt]{namespacefunctiondefs_a78455979576075ad68feb125604462bc_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_a80d99fe52a1cb5856694596955d8aeb9}{
+\index{functiondefs@{functiondefs}!sneps@{sneps}}
+\index{sneps@{sneps}!functiondefs@{functiondefs}}
+\subsubsection[{sneps}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::sneps (DOUBLE PRECISION,intent(in) {\em eps})}}
+\label{namespacefunctiondefs_a80d99fe52a1cb5856694596955d8aeb9}
+
+
+Definition at line 487 of file functiondefs.f90.
+
+Referenced by subroutines::psigma\_\-suite().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=287pt]{namespacefunctiondefs_a80d99fe52a1cb5856694596955d8aeb9_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_a5e1c4c25a7352f149e1f18854c37930f}{
+\index{functiondefs@{functiondefs}!t\_\-0\_\-gs@{t\_\-0\_\-gs}}
+\index{t\_\-0\_\-gs@{t\_\-0\_\-gs}!functiondefs@{functiondefs}}
+\subsubsection[{t\_\-0\_\-gs}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::t\_\-0\_\-gs (DOUBLE PRECISION,intent(in) {\em energy}, \/  DOUBLE PRECISION,intent(in) {\em t\_\-a}, \/  DOUBLE PRECISION,intent(in) {\em t\_\-b}, \/  DOUBLE PRECISION,intent(in) {\em t\_\-s})}}
+\label{namespacefunctiondefs_a5e1c4c25a7352f149e1f18854c37930f}
+
+
+Definition at line 120 of file functiondefs.f90.
+
+Referenced by subroutines::esigma\_\-suite().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=383pt]{namespacefunctiondefs_a5e1c4c25a7352f149e1f18854c37930f_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_a529a6bcbb0305c32f0275aa85d4303e8}{
+\index{functiondefs@{functiondefs}!t\_\-coll@{t\_\-coll}}
+\index{t\_\-coll@{t\_\-coll}!functiondefs@{functiondefs}}
+\subsubsection[{t\_\-coll}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::t\_\-coll (DOUBLE PRECISION,pointer {\em e}, \/  DOUBLE PRECISION,intent(in) {\em mf}, \/  DOUBLE PRECISION,intent(in) {\em s2})}}
+\label{namespacefunctiondefs_a529a6bcbb0305c32f0275aa85d4303e8}
+
+
+Definition at line 431 of file functiondefs.f90.
+
+Referenced by subroutines::elastic\_\-event().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=287pt]{namespacefunctiondefs_a529a6bcbb0305c32f0275aa85d4303e8_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacefunctiondefs_a7beb6f6af6e15afda97da88dde407655}{
+\index{functiondefs@{functiondefs}!t\_\-max\_\-gs@{t\_\-max\_\-gs}}
+\index{t\_\-max\_\-gs@{t\_\-max\_\-gs}!functiondefs@{functiondefs}}
+\subsubsection[{t\_\-max\_\-gs}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION functiondefs::t\_\-max\_\-gs (DOUBLE PRECISION,intent(in) {\em energy}, \/  DOUBLE PRECISION,intent(in) {\em i})}}
+\label{namespacefunctiondefs_a7beb6f6af6e15afda97da88dde407655}
+
+
+Definition at line 149 of file functiondefs.f90.
+
+Referenced by subroutines::esigma\_\-suite().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=391pt]{namespacefunctiondefs_a7beb6f6af6e15afda97da88dde407655_icgraph}
+\end{center}
+\end{figure}

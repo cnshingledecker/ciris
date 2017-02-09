@@ -1,0 +1,1292 @@
+\hypertarget{namespaceparameters}{
+\section{parameters Module Reference}
+\label{namespaceparameters}\index{parameters@{parameters}}
+}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+TYPE(\hyperlink{typetypedefs_1_1node}{node}), allocatable, target \hyperlink{namespaceparameters_a1d2ec6532bce135a8fc18f3542969a8d}{MATRIX}
+\item 
+INTEGER \hyperlink{namespaceparameters_a8eba14af35a7a362f50093f1acc28a78}{DIMENS}
+\item 
+INTEGER \hyperlink{namespaceparameters_a00c44079184906f8aff60ad7cea2fe4d}{PRODS}
+\item 
+DOUBLE PRECISION, allocatable \hyperlink{namespaceparameters_a41b06e1dd582bb56419bf991f2c633e3}{EN\_\-LIST}
+\item 
+CHARACTER(LEN=10), allocatable \hyperlink{namespaceparameters_a38878c1dc241cdcfc52f1804563f7b00}{SP\_\-LIST}
+\item 
+INTEGER, allocatable \hyperlink{namespaceparameters_a660ab08d014ed8f467dc504ed8585591}{IONLIST}
+\item 
+INTEGER, allocatable \hyperlink{namespaceparameters_a649c343c05b95e3f84d06401b3a3f6e1}{SP\_\-PROD\_\-DEST}
+\item 
+integer, dimension(:), allocatable \hyperlink{namespaceparameters_a8706bba63c5517e5b5e5b2cf0487db4b}{fast\_\-reacts}
+\item 
+INTEGER \hyperlink{namespaceparameters_aed3ebeff9daeb47edfa593ae2b72d4db}{NUM\_\-SPECIES} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a1462d3a8d5ef4ee00ffc9c0beac695b2}{NUM\_\-REACTS} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_abf21c9c60fbc062ca9e84d2746c7388a}{NUMPROTONS} = 0
+\item 
+DOUBLE PRECISION \hyperlink{namespaceparameters_acf1d338d691bf2082aeabaec6ac27263}{TIME} = 0
+\item 
+TYPE(\hyperlink{typetypedefs_1_1reaction}{reaction}), pointer \hyperlink{namespaceparameters_aff68a046aeb1fa2a7610db8cd55922d8}{RE\_\-HEAD}
+\item 
+integer \hyperlink{namespaceparameters_a2a130bb0e6ad790a2a783d19749cc8ce}{initialatoms} = 0
+\item 
+REAL \hyperlink{namespaceparameters_a3c39b69e0083dc018e4546bd5a02b301}{GVALUE} = 0
+\item 
+REAL \hyperlink{namespaceparameters_a2855e0778fdd644c62b1a6943a4c363a}{CUIRCT} = 0
+\item 
+REAL \hyperlink{namespaceparameters_a170cb61fd1eef5175a5eaf95d0d85ab5}{CUPREL} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a38fbcf3f41331f232ff4c604194bc76f}{PMODEL} = 0
+\item 
+CHARACTER(LEN=80), parameter \hyperlink{namespaceparameters_af23a39fc248303c9a69e3e05c0fb3b41}{SPECIES\_\-FILE}
+\item 
+CHARACTER(LEN=80), parameter \hyperlink{namespaceparameters_a40ef599fa2e91d0f27cbd322f1270da8}{REACTIONS\_\-FILE}
+\item 
+CHARACTER(LEN=80), parameter \hyperlink{namespaceparameters_adf79c33c6ebf2e4f00fa0fdaf34d1ba1}{PARAMS\_\-FILE}
+\item 
+CHARACTER(LEN=80), parameter \hyperlink{namespaceparameters_a045269697aa491915bf603f55e12b63a}{GEMINACY\_\-FILE}
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a5f4fb781d85daf37e0a18e15e4dcc9c8}{EINIT} = 100D3
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a1f6362692e1384b097b58b185096b416}{CDIM} = 3.414e-\/8
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a3a667857cb5e332f397b7ff0e96dbb85}{BDIM} = 6.668e-\/8
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_ad2ed15127be0caca99788b8acc6e605b}{ADIM} = 9.225e-\/8
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_aaa3c163a9f90b6d0c5a314ca449da18b}{BETACRYS} = 85.05
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a998d2db873404e0cfe943d50d3877262}{C\_\-PR} = \hyperlink{namespaceparameters_a1f6362692e1384b097b58b185096b416}{CDIM}$\ast$COS(90-\/\hyperlink{namespaceparameters_aaa3c163a9f90b6d0c5a314ca449da18b}{BETACRYS})
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_ad8323286536365bb131984aa57af99df}{RHO} = 1.313E22
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a79fa48b917f68e1a12577e33fd8c991c}{RHO2} = 0.01313
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a2fbeb743f79ed8a1c34482eb24ce3e87}{FIX1} = 150
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a11cddb5a155baade8a969acb80c17292}{FIX2} = 150
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_adedf5e0e6373ffbf611e8767d9cf0e80}{FIX3} = 150
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_aacbd355b27d7e7459076fdf3f77fab20}{THICK} = 1.0e-\/5
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a45377074e21edf9bd71351430490cd5e}{EDGE} = 3.5e-\/6
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a8a887d07bb62f10ae5578c2a7181a578}{VOLUME} = \hyperlink{namespaceparameters_aacbd355b27d7e7459076fdf3f77fab20}{THICK}$\ast$\hyperlink{namespaceparameters_a45377074e21edf9bd71351430490cd5e}{EDGE}$\ast$\hyperlink{namespaceparameters_a45377074e21edf9bd71351430490cd5e}{EDGE}
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a144dd87a3ad4a40138cad0b8d26ee282}{KIN\_\-TEMP} = 5.0D0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_aee8d50a231f8beed7edc0ff5ba2437f4}{AREA} = \hyperlink{namespaceparameters_a45377074e21edf9bd71351430490cd5e}{EDGE}$\ast$\hyperlink{namespaceparameters_a45377074e21edf9bd71351430490cd5e}{EDGE}
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_ad9a62be82a2fb56fe291f73d3279d4b4}{CR\_\-FLUX} = 1.0D11
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_ac433c7adc61bc138dfc7567a570833ed}{CR\_\-RATE} = \hyperlink{namespaceparameters_ad9a62be82a2fb56fe291f73d3279d4b4}{CR\_\-FLUX}$\ast$\hyperlink{namespaceparameters_aee8d50a231f8beed7edc0ff5ba2437f4}{AREA}
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a20c80b2e34c240feef7ac6887646115d}{NELEM} = 3.0$\ast$\hyperlink{namespaceparameters_ad8323286536365bb131984aa57af99df}{RHO}$\ast$(\hyperlink{namespaceparameters_aacbd355b27d7e7459076fdf3f77fab20}{THICK}$\ast$\hyperlink{namespaceparameters_a45377074e21edf9bd71351430490cd5e}{EDGE}$\ast$\hyperlink{namespaceparameters_a45377074e21edf9bd71351430490cd5e}{EDGE})
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_adc91f63a6d2c197941c445a5d64800a3}{TER} = \hyperlink{namespaceparameters_aacbd355b27d7e7459076fdf3f77fab20}{THICK}/\hyperlink{namespaceparameters_a45377074e21edf9bd71351430490cd5e}{EDGE}
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a3f72bf9fb376fde5e0eaf3da242d4f06}{NEDGE} = FLOOR((\hyperlink{namespaceparameters_a20c80b2e34c240feef7ac6887646115d}{NELEM}/\hyperlink{namespaceparameters_adc91f63a6d2c197941c445a5d64800a3}{TER})$\ast$$\ast$(1./3.))
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_adf37b75c4792b28d45484737d230ead3}{NTHICK} = FLOOR(\hyperlink{namespaceparameters_a3f72bf9fb376fde5e0eaf3da242d4f06}{NEDGE}$\ast$\hyperlink{namespaceparameters_adc91f63a6d2c197941c445a5d64800a3}{TER})
+\item 
+REAL, parameter \hyperlink{namespaceparameters_a10dd39ec5aeb14b9a104618dc6ef5450}{E\_\-SURF} = 0.5
+\item 
+REAL, parameter \hyperlink{namespaceparameters_a485a71bfcc9a08ed577efe9a5df5735b}{E\_\-BULK} = 0.7
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a8b8f35affe261eb9ad1a1612ca3572a7}{SHORT\_\-TIME} = 100.0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_af5f3e31c772340991fe768468c6a0dad}{ZP} = 1.D0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a1c9d90c36ce0be5595ed197469b6e609}{ZO1} = 8.D0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a885e127ecd6c6a8469ca5ed6aba4badf}{ZO2} = 16.D0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_ac4b8f44af44db753a988dc78c534c94d}{ZO3} = 24.D0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a3a8aa693f08c619d7a21b16784fc6cfe}{ENERG} = 100$\ast$1E3
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a55c34135e7a3b750b692c7fe5c44d996}{MP} = 1
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a9fe3ba34735e9bd271a5dfa94242d60f}{MO3} = 24
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a8f3ca9bcf2af3dccca1f89e678dd9149}{MO2} = 16
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a6d254c62ce30ae2227377164deadbabe}{MO1} = 8
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a04ab380d92467d452e23f88704ceb37a}{A0} = 0.529177
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a3012689c3933acd7a66b7268835760a1}{ECHARG2} = 14.39
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a14f18e4e92507c1eb5090ad46ff56fd1}{Q0} = 6.513E-\/14
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_afe0432626bebaa2d97468b2d263e28e7}{PI} = 4.D0$\ast$DATAN(1.D0)
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a1e704da9f69bebf69c8a5d07e3703622}{EBASE} = EXP(1.D0)
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a6f164e68568bd1b2cfd14c1584c3aa4a}{IONS} = 6
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a8095a8c543baf08f84d7e538f64f425b}{TIME\_\-COUNTS} = 2
+\item 
+DOUBLE PRECISION \hyperlink{namespaceparameters_aad8147e5f72a1603322285137f380e90}{FLUENCE} = 0.d0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a540e956fa8885214bfcc86f895dc5649}{TIME\_\-TOTAL} = 1D5
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a9536b89e2089876959d4d367fbd7fd89}{ECUTOFF} = 0.98D0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_abb73420de652567f8698014e0df31f53}{PCUTOFF} = 4.0D0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_ac25828691892f40b7a0028332d62de30}{FLUENCE\_\-TOTAL} = 5.0D17
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_a29056f19e30fd6e33712abbfdcff3f1b}{SUBEXHITPROB} = 0.5
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_af6f041d5b1d3325bec07e87ac32f3a2e}{FITNESS\_\-THRESHOLD} = 1E20
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_aa477d24fa30c94e4765d70da20e987e7}{ELASTIC\_\-LOSS} = 0.0
+\item 
+DOUBLE PRECISION, parameter \hyperlink{namespaceparameters_ae757acf24cb9ac4ea176759b5ada37c7}{TRL\_\-NU} = 1.0E12
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a2ec73288039fb063a8606dd185f2d6ff}{STEPFAC} = 1
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a209bdf781f449ab7ff2231fa1b9fa73a}{SPECIES\_\-LUN} = 1
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a86efd37aa4980c19320f2996464f0a82}{REACTIONS\_\-LUN} = 2
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a6b5a8618cdb0c5ecfd24827177f53d22}{AB\_\-LUN} = 3
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a70e866c6b47264dcb7895af939679a3c}{RATE\_\-LUN} = 4
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a0818b4c220711dedc53641b60887957a}{TRACKPLOT\_\-LUN} = 5
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a4146bd3a7b3738c3b8f262e51969231b}{TRACK\_\-AN\_\-LUN} = 7777
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_aee37c9403c4b1f81a4b8331509b6a21d}{GEMINACY\_\-LUN} = 8888
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a3274d98430ff0a8089ad7f2b21e16d17}{TRACKMIN} = 5000
+\item 
+INTEGER, parameter \hyperlink{namespaceparameters_a8ec43c843ac10d7b08208da5c534f70a}{TRACKMAX} = 1000000
+\item 
+INTEGER \hyperlink{namespaceparameters_a6d79ed13a3233e19e1602e4410b72e7c}{COUNT\_\-COUNT} = 0.0
+\item 
+INTEGER \hyperlink{namespaceparameters_aca6da9a32c037c09b143a1a14e6ee3a7}{FIND\_\-EMPTY\_\-COUNT} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a8bb87362a7d863fb6078dee2db1dd2a7}{FINDMAX} = 1000
+\item 
+INTEGER \hyperlink{namespaceparameters_ab6952d11a1ce81d0d85183b89011553a}{BI\_\-CALLS} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a94daa6cedb27148cbfae307910b4acf0}{O\_\-ABUNDANCE} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_aa660e855c3fab9dbfe8096b783003413}{O2\_\-ABUNDANCE} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a9d6097883f1419481b04c256065f6d24}{O3\_\-ABUNDANCE} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a8301da447de4717dd79fa37a925bc787}{N\_\-OHOP} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_aa23f74ffe716d5e4093a0f9e951ff501}{N\_\-O3HOP} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a94b6e62dc83358943908a8418bd3e5ae}{PROTON\_\-COLL} = 0
+\item 
+DOUBLE PRECISION \hyperlink{namespaceparameters_a4555e2bb5c9af40a5e98df4f354ac27f}{DELTA\_\-TIME} = 0.d0
+\item 
+DOUBLE PRECISION \hyperlink{namespaceparameters_a6cb40f66cca5617aa8331c5487829f10}{PROTON\_\-ELOSS} = 0.d0
+\item 
+DOUBLE PRECISION \hyperlink{namespaceparameters_a575bcb79f78ecdcf97d1d21a582128ae}{TOTAL\_\-PROTON\_\-ELOSS} = 0.d0
+\item 
+TYPE(\hyperlink{typetypedefs_1_1rate__info}{rate\_\-info}) \hyperlink{namespaceparameters_a5725b82ace5b33e1c3394c0622eca5b3}{RATEINFO}
+\item 
+INTEGER \hyperlink{namespaceparameters_a27421c52f58f3c001c10f65e12931269}{CRPNUM} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_aed6a003faa9e073d8fb8b860e98c7bfd}{EXCNUM} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_aff13458f35487137bc22ea99de38e60a}{ELECNUM} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a8834adf2777bfd145f2ba3e2ca2d5f46}{MNUM} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a5d2edd19cb37ff34b422b6a5fdcf4358}{O3NUM} = 7
+\item 
+INTEGER \hyperlink{namespaceparameters_aaa919dd1f480e5e72fff4b51292e7c94}{O2NUM} = 1
+\item 
+INTEGER \hyperlink{namespaceparameters_a726526c727d771bb10d9af8e2d3240f5}{ONUM} = 4
+\item 
+INTEGER \hyperlink{namespaceparameters_a7f259c2e69027b208f7e09e6d672574d}{OSTARNUM} = 11
+\item 
+INTEGER \hyperlink{namespaceparameters_afd3b212b264c188754486b14476cd875}{O2STARNUM} = 10
+\item 
+INTEGER \hyperlink{namespaceparameters_a882e51984a7c32da2dc6a56dc6afca79}{O3STARNUM} = 12
+\item 
+INTEGER \hyperlink{namespaceparameters_a9a296e15d2f09049ceb473a5f0fb9e5f}{SPECIAL\_\-LIST} = 0
+\item 
+INTEGER \hyperlink{namespaceparameters_a7a6326e37101f07bd6de0fbdd090126b}{TIME\_\-FREQ} = 1
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_ac3097bdb7852a956a41ef762305769f4}{FIXED\_\-SIZE} = .FALSE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_ae0e5e8861d2de5239c52be62c3baebcb}{NO\_\-OUTPUT} = .FALSE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_a76f6259a6055e7668847d95bb689fbb9}{QUIET} = .FALSE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_ae0f23566499e10756f5a93adb6160899}{SECELEC} = .TRUE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_a555f6d9a3fe1c11f68f18ddeb2111ffa}{DEBUG} = .FALSE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_a687b46ca494c1998df909a6461e3b535}{TRACKPLOT} = .FALSE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_aba22684f89f881fe4dc9d78bd30d6f5b}{O3\_\-ANALYTICS} = .TRUE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_abf0f37eb423e843da77558c657a43220}{CALC\_\-RATES} = .FALSE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_a557f350ba21ed1a34656e6cce03635fb}{FIX\_\-FREQ} = .FALSE.
+\item 
+LOGICAL \hyperlink{namespaceparameters_a3353739a07b03f983c7528bce590be69}{ISBARRIER} = .FALSE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_ad4575bbb41153e584b501a6238bd4b6c}{TRACK\_\-ANALYTICS} = .TRUE.
+\item 
+LOGICAL, parameter \hyperlink{namespaceparameters_a1a34e9253cb6baa25fe90345e4a0ceb2}{FIXED\_\-STEP} = .FALSE.
+\item 
+DOUBLE PRECISION \hyperlink{namespaceparameters_ae2d7b8b9e8df09f194ff75d43b02afbb}{AVAL} = 33.0d0
+\end{DoxyCompactItemize}
+
+
+\subsection{Variable Documentation}
+\hypertarget{namespaceparameters_a04ab380d92467d452e23f88704ceb37a}{
+\index{parameters@{parameters}!A0@{A0}}
+\index{A0@{A0}!parameters@{parameters}}
+\subsubsection[{A0}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::A0} = 0.529177}}
+\label{namespaceparameters_a04ab380d92467d452e23f88704ceb37a}
+
+
+Definition at line 87 of file parameters.f90.
+
+Referenced by functiondefs::au().\hypertarget{namespaceparameters_a6b5a8618cdb0c5ecfd24827177f53d22}{
+\index{parameters@{parameters}!AB\_\-LUN@{AB\_\-LUN}}
+\index{AB\_\-LUN@{AB\_\-LUN}!parameters@{parameters}}
+\subsubsection[{AB\_\-LUN}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::AB\_\-LUN} = 3}}
+\label{namespaceparameters_a6b5a8618cdb0c5ecfd24827177f53d22}
+
+
+Definition at line 115 of file parameters.f90.
+
+Referenced by subroutines::counter(), and main().\hypertarget{namespaceparameters_ad2ed15127be0caca99788b8acc6e605b}{
+\index{parameters@{parameters}!ADIM@{ADIM}}
+\index{ADIM@{ADIM}!parameters@{parameters}}
+\subsubsection[{ADIM}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::ADIM} = 9.225e-\/8}}
+\label{namespaceparameters_ad2ed15127be0caca99788b8acc6e605b}
+
+
+Definition at line 44 of file parameters.f90.\hypertarget{namespaceparameters_aee8d50a231f8beed7edc0ff5ba2437f4}{
+\index{parameters@{parameters}!AREA@{AREA}}
+\index{AREA@{AREA}!parameters@{parameters}}
+\subsubsection[{AREA}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::AREA} = {\bf EDGE}$\ast${\bf EDGE}}}
+\label{namespaceparameters_aee8d50a231f8beed7edc0ff5ba2437f4}
+
+
+Definition at line 60 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_ae2d7b8b9e8df09f194ff75d43b02afbb}{
+\index{parameters@{parameters}!AVAL@{AVAL}}
+\index{AVAL@{AVAL}!parameters@{parameters}}
+\subsubsection[{AVAL}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION {\bf parameters::AVAL} = 33.0d0}}
+\label{namespaceparameters_ae2d7b8b9e8df09f194ff75d43b02afbb}
+
+
+Definition at line 180 of file parameters.f90.
+
+Referenced by subroutines::p\_\-ion\_\-select().\hypertarget{namespaceparameters_a3a667857cb5e332f397b7ff0e96dbb85}{
+\index{parameters@{parameters}!BDIM@{BDIM}}
+\index{BDIM@{BDIM}!parameters@{parameters}}
+\subsubsection[{BDIM}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::BDIM} = 6.668e-\/8}}
+\label{namespaceparameters_a3a667857cb5e332f397b7ff0e96dbb85}
+
+
+Definition at line 43 of file parameters.f90.\hypertarget{namespaceparameters_aaa3c163a9f90b6d0c5a314ca449da18b}{
+\index{parameters@{parameters}!BETACRYS@{BETACRYS}}
+\index{BETACRYS@{BETACRYS}!parameters@{parameters}}
+\subsubsection[{BETACRYS}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::BETACRYS} = 85.05}}
+\label{namespaceparameters_aaa3c163a9f90b6d0c5a314ca449da18b}
+
+
+Definition at line 45 of file parameters.f90.\hypertarget{namespaceparameters_ab6952d11a1ce81d0d85183b89011553a}{
+\index{parameters@{parameters}!BI\_\-CALLS@{BI\_\-CALLS}}
+\index{BI\_\-CALLS@{BI\_\-CALLS}!parameters@{parameters}}
+\subsubsection[{BI\_\-CALLS}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::BI\_\-CALLS} = 0}}
+\label{namespaceparameters_ab6952d11a1ce81d0d85183b89011553a}
+
+
+Definition at line 128 of file parameters.f90.
+
+Referenced by subroutines::fallout().\hypertarget{namespaceparameters_a998d2db873404e0cfe943d50d3877262}{
+\index{parameters@{parameters}!C\_\-PR@{C\_\-PR}}
+\index{C\_\-PR@{C\_\-PR}!parameters@{parameters}}
+\subsubsection[{C\_\-PR}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::C\_\-PR} = {\bf CDIM}$\ast$COS(90-\/{\bf BETACRYS})}}
+\label{namespaceparameters_a998d2db873404e0cfe943d50d3877262}
+
+
+Definition at line 46 of file parameters.f90.
+
+Referenced by subroutines::new\_\-electron().\hypertarget{namespaceparameters_abf0f37eb423e843da77558c657a43220}{
+\index{parameters@{parameters}!CALC\_\-RATES@{CALC\_\-RATES}}
+\index{CALC\_\-RATES@{CALC\_\-RATES}!parameters@{parameters}}
+\subsubsection[{CALC\_\-RATES}]{\setlength{\rightskip}{0pt plus 5cm}LOGICAL,parameter {\bf parameters::CALC\_\-RATES} = .FALSE.}}
+\label{namespaceparameters_abf0f37eb423e843da77558c657a43220}
+
+
+Definition at line 171 of file parameters.f90.\hypertarget{namespaceparameters_a1f6362692e1384b097b58b185096b416}{
+\index{parameters@{parameters}!CDIM@{CDIM}}
+\index{CDIM@{CDIM}!parameters@{parameters}}
+\subsubsection[{CDIM}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::CDIM} = 3.414e-\/8}}
+\label{namespaceparameters_a1f6362692e1384b097b58b185096b416}
+
+
+Definition at line 42 of file parameters.f90.\hypertarget{namespaceparameters_a6d79ed13a3233e19e1602e4410b72e7c}{
+\index{parameters@{parameters}!COUNT\_\-COUNT@{COUNT\_\-COUNT}}
+\index{COUNT\_\-COUNT@{COUNT\_\-COUNT}!parameters@{parameters}}
+\subsubsection[{COUNT\_\-COUNT}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::COUNT\_\-COUNT} = 0.0}}
+\label{namespaceparameters_a6d79ed13a3233e19e1602e4410b72e7c}
+
+
+Definition at line 125 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_ad9a62be82a2fb56fe291f73d3279d4b4}{
+\index{parameters@{parameters}!CR\_\-FLUX@{CR\_\-FLUX}}
+\index{CR\_\-FLUX@{CR\_\-FLUX}!parameters@{parameters}}
+\subsubsection[{CR\_\-FLUX}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::CR\_\-FLUX} = 1.0D11}}
+\label{namespaceparameters_ad9a62be82a2fb56fe291f73d3279d4b4}
+
+
+Definition at line 61 of file parameters.f90.\hypertarget{namespaceparameters_ac433c7adc61bc138dfc7567a570833ed}{
+\index{parameters@{parameters}!CR\_\-RATE@{CR\_\-RATE}}
+\index{CR\_\-RATE@{CR\_\-RATE}!parameters@{parameters}}
+\subsubsection[{CR\_\-RATE}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::CR\_\-RATE} = {\bf CR\_\-FLUX}$\ast${\bf AREA}}}
+\label{namespaceparameters_ac433c7adc61bc138dfc7567a570833ed}
+
+
+Definition at line 62 of file parameters.f90.\hypertarget{namespaceparameters_a27421c52f58f3c001c10f65e12931269}{
+\index{parameters@{parameters}!CRPNUM@{CRPNUM}}
+\index{CRPNUM@{CRPNUM}!parameters@{parameters}}
+\subsubsection[{CRPNUM}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::CRPNUM} = 0}}
+\label{namespaceparameters_a27421c52f58f3c001c10f65e12931269}
+
+
+Definition at line 143 of file parameters.f90.
+
+Referenced by readinput::buildnetwork(), subroutines::fallout(), main(), subroutines::new\_\-electron(), and qbert().\hypertarget{namespaceparameters_a2855e0778fdd644c62b1a6943a4c363a}{
+\index{parameters@{parameters}!CUIRCT@{CUIRCT}}
+\index{CUIRCT@{CUIRCT}!parameters@{parameters}}
+\subsubsection[{CUIRCT}]{\setlength{\rightskip}{0pt plus 5cm}REAL {\bf parameters::CUIRCT} = 0}}
+\label{namespaceparameters_a2855e0778fdd644c62b1a6943a4c363a}
+
+
+Definition at line 22 of file parameters.f90.
+
+Referenced by subroutines::counter().\hypertarget{namespaceparameters_a170cb61fd1eef5175a5eaf95d0d85ab5}{
+\index{parameters@{parameters}!CUPREL@{CUPREL}}
+\index{CUPREL@{CUPREL}!parameters@{parameters}}
+\subsubsection[{CUPREL}]{\setlength{\rightskip}{0pt plus 5cm}REAL {\bf parameters::CUPREL} = 0}}
+\label{namespaceparameters_a170cb61fd1eef5175a5eaf95d0d85ab5}
+
+
+Definition at line 23 of file parameters.f90.\hypertarget{namespaceparameters_a555f6d9a3fe1c11f68f18ddeb2111ffa}{
+\index{parameters@{parameters}!DEBUG@{DEBUG}}
+\index{DEBUG@{DEBUG}!parameters@{parameters}}
+\subsubsection[{DEBUG}]{\setlength{\rightskip}{0pt plus 5cm}LOGICAL,parameter {\bf parameters::DEBUG} = .FALSE.}}
+\label{namespaceparameters_a555f6d9a3fe1c11f68f18ddeb2111ffa}
+
+
+Definition at line 168 of file parameters.f90.
+
+Referenced by branchmod::branching(), bsimple::delete\_\-node(), subroutines::fallout(), subroutines::find\_\-empty\_\-site(), subroutines::init\_\-node(), main(), subroutines::new\_\-electron(), subroutines::new\_\-reaction(), branchmod::selectbranch(), and subroutines::wait\_\-calc().\hypertarget{namespaceparameters_a4555e2bb5c9af40a5e98df4f354ac27f}{
+\index{parameters@{parameters}!DELTA\_\-TIME@{DELTA\_\-TIME}}
+\index{DELTA\_\-TIME@{DELTA\_\-TIME}!parameters@{parameters}}
+\subsubsection[{DELTA\_\-TIME}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION {\bf parameters::DELTA\_\-TIME} = 0.d0}}
+\label{namespaceparameters_a4555e2bb5c9af40a5e98df4f354ac27f}
+
+
+Definition at line 135 of file parameters.f90.\hypertarget{namespaceparameters_a8eba14af35a7a362f50093f1acc28a78}{
+\index{parameters@{parameters}!DIMENS@{DIMENS}}
+\index{DIMENS@{DIMENS}!parameters@{parameters}}
+\subsubsection[{DIMENS}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::DIMENS}}}
+\label{namespaceparameters_a8eba14af35a7a362f50093f1acc28a78}
+
+
+Definition at line 8 of file parameters.f90.
+
+Referenced by subroutines::counter(), subroutines::fallout(), subroutines::find\_\-empty\_\-site(), subroutines::hopping(), main(), and subroutines::transport().\hypertarget{namespaceparameters_a485a71bfcc9a08ed577efe9a5df5735b}{
+\index{parameters@{parameters}!E\_\-BULK@{E\_\-BULK}}
+\index{E\_\-BULK@{E\_\-BULK}!parameters@{parameters}}
+\subsubsection[{E\_\-BULK}]{\setlength{\rightskip}{0pt plus 5cm}REAL,parameter {\bf parameters::E\_\-BULK} = 0.7}}
+\label{namespaceparameters_a485a71bfcc9a08ed577efe9a5df5735b}
+
+
+Definition at line 72 of file parameters.f90.
+
+Referenced by main(), and subroutines::wait\_\-calc().\hypertarget{namespaceparameters_a10dd39ec5aeb14b9a104618dc6ef5450}{
+\index{parameters@{parameters}!E\_\-SURF@{E\_\-SURF}}
+\index{E\_\-SURF@{E\_\-SURF}!parameters@{parameters}}
+\subsubsection[{E\_\-SURF}]{\setlength{\rightskip}{0pt plus 5cm}REAL,parameter {\bf parameters::E\_\-SURF} = 0.5}}
+\label{namespaceparameters_a10dd39ec5aeb14b9a104618dc6ef5450}
+
+
+Definition at line 71 of file parameters.f90.
+
+Referenced by subroutines::wait\_\-calc().\hypertarget{namespaceparameters_a1e704da9f69bebf69c8a5d07e3703622}{
+\index{parameters@{parameters}!EBASE@{EBASE}}
+\index{EBASE@{EBASE}!parameters@{parameters}}
+\subsubsection[{EBASE}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::EBASE} = EXP(1.D0)}}
+\label{namespaceparameters_a1e704da9f69bebf69c8a5d07e3703622}
+
+
+Definition at line 91 of file parameters.f90.
+
+Referenced by functiondefs::pjgsigma().\hypertarget{namespaceparameters_a3012689c3933acd7a66b7268835760a1}{
+\index{parameters@{parameters}!ECHARG2@{ECHARG2}}
+\index{ECHARG2@{ECHARG2}!parameters@{parameters}}
+\subsubsection[{ECHARG2}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::ECHARG2} = 14.39}}
+\label{namespaceparameters_a3012689c3933acd7a66b7268835760a1}
+
+
+Definition at line 88 of file parameters.f90.
+
+Referenced by functiondefs::eps().\hypertarget{namespaceparameters_a9536b89e2089876959d4d367fbd7fd89}{
+\index{parameters@{parameters}!ECUTOFF@{ECUTOFF}}
+\index{ECUTOFF@{ECUTOFF}!parameters@{parameters}}
+\subsubsection[{ECUTOFF}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::ECUTOFF} = 0.98D0}}
+\label{namespaceparameters_a9536b89e2089876959d4d367fbd7fd89}
+
+
+Definition at line 100 of file parameters.f90.
+
+Referenced by subroutines::new\_\-electron().\hypertarget{namespaceparameters_a45377074e21edf9bd71351430490cd5e}{
+\index{parameters@{parameters}!EDGE@{EDGE}}
+\index{EDGE@{EDGE}!parameters@{parameters}}
+\subsubsection[{EDGE}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::EDGE} = 3.5e-\/6}}
+\label{namespaceparameters_a45377074e21edf9bd71351430490cd5e}
+
+
+Definition at line 57 of file parameters.f90.
+
+Referenced by subroutines::counter(), and gp::fitness().\hypertarget{namespaceparameters_a5f4fb781d85daf37e0a18e15e4dcc9c8}{
+\index{parameters@{parameters}!EINIT@{EINIT}}
+\index{EINIT@{EINIT}!parameters@{parameters}}
+\subsubsection[{EINIT}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::EINIT} = 100D3}}
+\label{namespaceparameters_a5f4fb781d85daf37e0a18e15e4dcc9c8}
+
+
+Definition at line 37 of file parameters.f90.
+
+Referenced by subroutines::fallout(), and sigma\_\-test().\hypertarget{namespaceparameters_aa477d24fa30c94e4765d70da20e987e7}{
+\index{parameters@{parameters}!ELASTIC\_\-LOSS@{ELASTIC\_\-LOSS}}
+\index{ELASTIC\_\-LOSS@{ELASTIC\_\-LOSS}!parameters@{parameters}}
+\subsubsection[{ELASTIC\_\-LOSS}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::ELASTIC\_\-LOSS} = 0.0}}
+\label{namespaceparameters_aa477d24fa30c94e4765d70da20e987e7}
+
+
+Definition at line 105 of file parameters.f90.\hypertarget{namespaceparameters_aff13458f35487137bc22ea99de38e60a}{
+\index{parameters@{parameters}!ELECNUM@{ELECNUM}}
+\index{ELECNUM@{ELECNUM}!parameters@{parameters}}
+\subsubsection[{ELECNUM}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::ELECNUM} = 0}}
+\label{namespaceparameters_aff13458f35487137bc22ea99de38e60a}
+
+
+Definition at line 145 of file parameters.f90.
+
+Referenced by branchmod::branching(), readinput::buildnetwork(), subroutines::fallout(), main(), subroutines::new\_\-electron(), subroutines::new\_\-reaction(), and qbert().\hypertarget{namespaceparameters_a41b06e1dd582bb56419bf991f2c633e3}{
+\index{parameters@{parameters}!EN\_\-LIST@{EN\_\-LIST}}
+\index{EN\_\-LIST@{EN\_\-LIST}!parameters@{parameters}}
+\subsubsection[{EN\_\-LIST}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,allocatable {\bf parameters::EN\_\-LIST}}}
+\label{namespaceparameters_a41b06e1dd582bb56419bf991f2c633e3}
+
+
+Definition at line 10 of file parameters.f90.
+
+Referenced by readinput::buildnetwork(), main(), qbert(), and subroutines::wait\_\-calc().\hypertarget{namespaceparameters_a3a8aa693f08c619d7a21b16784fc6cfe}{
+\index{parameters@{parameters}!ENERG@{ENERG}}
+\index{ENERG@{ENERG}!parameters@{parameters}}
+\subsubsection[{ENERG}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::ENERG} = 100$\ast$1E3}}
+\label{namespaceparameters_a3a8aa693f08c619d7a21b16784fc6cfe}
+
+
+Definition at line 82 of file parameters.f90.\hypertarget{namespaceparameters_aed6a003faa9e073d8fb8b860e98c7bfd}{
+\index{parameters@{parameters}!EXCNUM@{EXCNUM}}
+\index{EXCNUM@{EXCNUM}!parameters@{parameters}}
+\subsubsection[{EXCNUM}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::EXCNUM} = 0}}
+\label{namespaceparameters_aed6a003faa9e073d8fb8b860e98c7bfd}
+
+
+Definition at line 144 of file parameters.f90.
+
+Referenced by branchmod::branching(), readinput::buildnetwork(), subroutines::fallout(), main(), subroutines::new\_\-electron(), and qbert().\hypertarget{namespaceparameters_a8706bba63c5517e5b5e5b2cf0487db4b}{
+\index{parameters@{parameters}!fast\_\-reacts@{fast\_\-reacts}}
+\index{fast\_\-reacts@{fast\_\-reacts}!parameters@{parameters}}
+\subsubsection[{fast\_\-reacts}]{\setlength{\rightskip}{0pt plus 5cm}integer,dimension(:),allocatable {\bf parameters::fast\_\-reacts}}}
+\label{namespaceparameters_a8706bba63c5517e5b5e5b2cf0487db4b}
+
+
+Definition at line 14 of file parameters.f90.
+
+Referenced by readinput::buildnetwork(), main(), and subroutines::wait\_\-calc().\hypertarget{namespaceparameters_aca6da9a32c037c09b143a1a14e6ee3a7}{
+\index{parameters@{parameters}!FIND\_\-EMPTY\_\-COUNT@{FIND\_\-EMPTY\_\-COUNT}}
+\index{FIND\_\-EMPTY\_\-COUNT@{FIND\_\-EMPTY\_\-COUNT}!parameters@{parameters}}
+\subsubsection[{FIND\_\-EMPTY\_\-COUNT}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::FIND\_\-EMPTY\_\-COUNT} = 0}}
+\label{namespaceparameters_aca6da9a32c037c09b143a1a14e6ee3a7}
+
+
+Definition at line 126 of file parameters.f90.
+
+Referenced by subroutines::find\_\-empty\_\-site().\hypertarget{namespaceparameters_a8bb87362a7d863fb6078dee2db1dd2a7}{
+\index{parameters@{parameters}!FINDMAX@{FINDMAX}}
+\index{FINDMAX@{FINDMAX}!parameters@{parameters}}
+\subsubsection[{FINDMAX}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::FINDMAX} = 1000}}
+\label{namespaceparameters_a8bb87362a7d863fb6078dee2db1dd2a7}
+
+
+Definition at line 127 of file parameters.f90.
+
+Referenced by subroutines::find\_\-empty\_\-site().\hypertarget{namespaceparameters_af6f041d5b1d3325bec07e87ac32f3a2e}{
+\index{parameters@{parameters}!FITNESS\_\-THRESHOLD@{FITNESS\_\-THRESHOLD}}
+\index{FITNESS\_\-THRESHOLD@{FITNESS\_\-THRESHOLD}!parameters@{parameters}}
+\subsubsection[{FITNESS\_\-THRESHOLD}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::FITNESS\_\-THRESHOLD} = 1E20}}
+\label{namespaceparameters_af6f041d5b1d3325bec07e87ac32f3a2e}
+
+
+Definition at line 104 of file parameters.f90.
+
+Referenced by gp::fitness().\hypertarget{namespaceparameters_a2fbeb743f79ed8a1c34482eb24ce3e87}{
+\index{parameters@{parameters}!FIX1@{FIX1}}
+\index{FIX1@{FIX1}!parameters@{parameters}}
+\subsubsection[{FIX1}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::FIX1} = 150}}
+\label{namespaceparameters_a2fbeb743f79ed8a1c34482eb24ce3e87}
+
+
+Definition at line 53 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_a11cddb5a155baade8a969acb80c17292}{
+\index{parameters@{parameters}!FIX2@{FIX2}}
+\index{FIX2@{FIX2}!parameters@{parameters}}
+\subsubsection[{FIX2}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::FIX2} = 150}}
+\label{namespaceparameters_a11cddb5a155baade8a969acb80c17292}
+
+
+Definition at line 54 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_adedf5e0e6373ffbf611e8767d9cf0e80}{
+\index{parameters@{parameters}!FIX3@{FIX3}}
+\index{FIX3@{FIX3}!parameters@{parameters}}
+\subsubsection[{FIX3}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::FIX3} = 150}}
+\label{namespaceparameters_adedf5e0e6373ffbf611e8767d9cf0e80}
+
+
+Definition at line 55 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_a557f350ba21ed1a34656e6cce03635fb}{
+\index{parameters@{parameters}!FIX\_\-FREQ@{FIX\_\-FREQ}}
+\index{FIX\_\-FREQ@{FIX\_\-FREQ}!parameters@{parameters}}
+\subsubsection[{FIX\_\-FREQ}]{\setlength{\rightskip}{0pt plus 5cm}LOGICAL,parameter {\bf parameters::FIX\_\-FREQ} = .FALSE.}}
+\label{namespaceparameters_a557f350ba21ed1a34656e6cce03635fb}
+
+
+Definition at line 172 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_ac3097bdb7852a956a41ef762305769f4}{
+\index{parameters@{parameters}!FIXED\_\-SIZE@{FIXED\_\-SIZE}}
+\index{FIXED\_\-SIZE@{FIXED\_\-SIZE}!parameters@{parameters}}
+\subsubsection[{FIXED\_\-SIZE}]{\setlength{\rightskip}{0pt plus 5cm}LOGICAL,parameter {\bf parameters::FIXED\_\-SIZE} = .FALSE.}}
+\label{namespaceparameters_ac3097bdb7852a956a41ef762305769f4}
+
+
+Definition at line 164 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_a1a34e9253cb6baa25fe90345e4a0ceb2}{
+\index{parameters@{parameters}!FIXED\_\-STEP@{FIXED\_\-STEP}}
+\index{FIXED\_\-STEP@{FIXED\_\-STEP}!parameters@{parameters}}
+\subsubsection[{FIXED\_\-STEP}]{\setlength{\rightskip}{0pt plus 5cm}LOGICAL,parameter {\bf parameters::FIXED\_\-STEP} = .FALSE.}}
+\label{namespaceparameters_a1a34e9253cb6baa25fe90345e4a0ceb2}
+
+
+Definition at line 175 of file parameters.f90.\hypertarget{namespaceparameters_aad8147e5f72a1603322285137f380e90}{
+\index{parameters@{parameters}!FLUENCE@{FLUENCE}}
+\index{FLUENCE@{FLUENCE}!parameters@{parameters}}
+\subsubsection[{FLUENCE}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION {\bf parameters::FLUENCE} = 0.d0}}
+\label{namespaceparameters_aad8147e5f72a1603322285137f380e90}
+
+
+Definition at line 98 of file parameters.f90.
+
+Referenced by branchmod::branching(), subroutines::counter(), gp::fitness(), and main().\hypertarget{namespaceparameters_ac25828691892f40b7a0028332d62de30}{
+\index{parameters@{parameters}!FLUENCE\_\-TOTAL@{FLUENCE\_\-TOTAL}}
+\index{FLUENCE\_\-TOTAL@{FLUENCE\_\-TOTAL}!parameters@{parameters}}
+\subsubsection[{FLUENCE\_\-TOTAL}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::FLUENCE\_\-TOTAL} = 5.0D17}}
+\label{namespaceparameters_ac25828691892f40b7a0028332d62de30}
+
+
+Definition at line 102 of file parameters.f90.
+
+Referenced by gp::fitness(), and main().\hypertarget{namespaceparameters_a045269697aa491915bf603f55e12b63a}{
+\index{parameters@{parameters}!GEMINACY\_\-FILE@{GEMINACY\_\-FILE}}
+\index{GEMINACY\_\-FILE@{GEMINACY\_\-FILE}!parameters@{parameters}}
+\subsubsection[{GEMINACY\_\-FILE}]{\setlength{\rightskip}{0pt plus 5cm}CHARACTER(LEN=80),parameter {\bf parameters::GEMINACY\_\-FILE}}}
+\label{namespaceparameters_a045269697aa491915bf603f55e12b63a}
+
+
+Definition at line 32 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_aee37c9403c4b1f81a4b8331509b6a21d}{
+\index{parameters@{parameters}!GEMINACY\_\-LUN@{GEMINACY\_\-LUN}}
+\index{GEMINACY\_\-LUN@{GEMINACY\_\-LUN}!parameters@{parameters}}
+\subsubsection[{GEMINACY\_\-LUN}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::GEMINACY\_\-LUN} = 8888}}
+\label{namespaceparameters_aee37c9403c4b1f81a4b8331509b6a21d}
+
+
+Definition at line 119 of file parameters.f90.
+
+Referenced by subroutines::counter(), and main().\hypertarget{namespaceparameters_a3c39b69e0083dc018e4546bd5a02b301}{
+\index{parameters@{parameters}!GVALUE@{GVALUE}}
+\index{GVALUE@{GVALUE}!parameters@{parameters}}
+\subsubsection[{GVALUE}]{\setlength{\rightskip}{0pt plus 5cm}REAL {\bf parameters::GVALUE} = 0}}
+\label{namespaceparameters_a3c39b69e0083dc018e4546bd5a02b301}
+
+
+Definition at line 21 of file parameters.f90.
+
+Referenced by subroutines::counter().\hypertarget{namespaceparameters_a2a130bb0e6ad790a2a783d19749cc8ce}{
+\index{parameters@{parameters}!initialatoms@{initialatoms}}
+\index{initialatoms@{initialatoms}!parameters@{parameters}}
+\subsubsection[{initialatoms}]{\setlength{\rightskip}{0pt plus 5cm}integer {\bf parameters::initialatoms} = 0}}
+\label{namespaceparameters_a2a130bb0e6ad790a2a783d19749cc8ce}
+
+
+Definition at line 20 of file parameters.f90.
+
+Referenced by subroutines::counter(), and main().\hypertarget{namespaceparameters_a660ab08d014ed8f467dc504ed8585591}{
+\index{parameters@{parameters}!IONLIST@{IONLIST}}
+\index{IONLIST@{IONLIST}!parameters@{parameters}}
+\subsubsection[{IONLIST}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,allocatable {\bf parameters::IONLIST}}}
+\label{namespaceparameters_a660ab08d014ed8f467dc504ed8585591}
+
+
+Definition at line 12 of file parameters.f90.
+
+Referenced by readinput::buildnetwork(), subroutines::fallout(), subroutines::new\_\-electron(), and qbert().\hypertarget{namespaceparameters_a6f164e68568bd1b2cfd14c1584c3aa4a}{
+\index{parameters@{parameters}!IONS@{IONS}}
+\index{IONS@{IONS}!parameters@{parameters}}
+\subsubsection[{IONS}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::IONS} = 6}}
+\label{namespaceparameters_a6f164e68568bd1b2cfd14c1584c3aa4a}
+
+
+Definition at line 96 of file parameters.f90.\hypertarget{namespaceparameters_a3353739a07b03f983c7528bce590be69}{
+\index{parameters@{parameters}!ISBARRIER@{ISBARRIER}}
+\index{ISBARRIER@{ISBARRIER}!parameters@{parameters}}
+\subsubsection[{ISBARRIER}]{\setlength{\rightskip}{0pt plus 5cm}LOGICAL {\bf parameters::ISBARRIER} = .FALSE.}}
+\label{namespaceparameters_a3353739a07b03f983c7528bce590be69}
+
+
+Definition at line 173 of file parameters.f90.
+
+Referenced by subroutines::new\_\-reaction().\hypertarget{namespaceparameters_a144dd87a3ad4a40138cad0b8d26ee282}{
+\index{parameters@{parameters}!KIN\_\-TEMP@{KIN\_\-TEMP}}
+\index{KIN\_\-TEMP@{KIN\_\-TEMP}!parameters@{parameters}}
+\subsubsection[{KIN\_\-TEMP}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::KIN\_\-TEMP} = 5.0D0}}
+\label{namespaceparameters_a144dd87a3ad4a40138cad0b8d26ee282}
+
+
+Definition at line 59 of file parameters.f90.
+
+Referenced by functiondefs::arrhenius().\hypertarget{namespaceparameters_a1d2ec6532bce135a8fc18f3542969a8d}{
+\index{parameters@{parameters}!MATRIX@{MATRIX}}
+\index{MATRIX@{MATRIX}!parameters@{parameters}}
+\subsubsection[{MATRIX}]{\setlength{\rightskip}{0pt plus 5cm}TYPE({\bf node}),allocatable,target {\bf parameters::MATRIX}}}
+\label{namespaceparameters_a1d2ec6532bce135a8fc18f3542969a8d}
+
+
+Definition at line 7 of file parameters.f90.
+
+Referenced by subroutines::counter(), subroutines::fallout(), subroutines::find\_\-empty\_\-site(), main(), subroutines::new\_\-electron(), subroutines::new\_\-reaction(), subroutines::wait\_\-calc(), and subroutines::wipe\_\-node().\hypertarget{namespaceparameters_a8834adf2777bfd145f2ba3e2ca2d5f46}{
+\index{parameters@{parameters}!MNUM@{MNUM}}
+\index{MNUM@{MNUM}!parameters@{parameters}}
+\subsubsection[{MNUM}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::MNUM} = 0}}
+\label{namespaceparameters_a8834adf2777bfd145f2ba3e2ca2d5f46}
+
+
+Definition at line 146 of file parameters.f90.
+
+Referenced by readinput::buildnetwork(), and main().\hypertarget{namespaceparameters_a6d254c62ce30ae2227377164deadbabe}{
+\index{parameters@{parameters}!MO1@{MO1}}
+\index{MO1@{MO1}!parameters@{parameters}}
+\subsubsection[{MO1}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::MO1} = 8}}
+\label{namespaceparameters_a6d254c62ce30ae2227377164deadbabe}
+
+
+Definition at line 86 of file parameters.f90.
+
+Referenced by subroutines::psigma\_\-suite().\hypertarget{namespaceparameters_a8f3ca9bcf2af3dccca1f89e678dd9149}{
+\index{parameters@{parameters}!MO2@{MO2}}
+\index{MO2@{MO2}!parameters@{parameters}}
+\subsubsection[{MO2}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::MO2} = 16}}
+\label{namespaceparameters_a8f3ca9bcf2af3dccca1f89e678dd9149}
+
+
+Definition at line 85 of file parameters.f90.
+
+Referenced by subroutines::elastic\_\-event(), and subroutines::psigma\_\-suite().\hypertarget{namespaceparameters_a9fe3ba34735e9bd271a5dfa94242d60f}{
+\index{parameters@{parameters}!MO3@{MO3}}
+\index{MO3@{MO3}!parameters@{parameters}}
+\subsubsection[{MO3}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::MO3} = 24}}
+\label{namespaceparameters_a9fe3ba34735e9bd271a5dfa94242d60f}
+
+
+Definition at line 84 of file parameters.f90.
+
+Referenced by subroutines::psigma\_\-suite().\hypertarget{namespaceparameters_a55c34135e7a3b750b692c7fe5c44d996}{
+\index{parameters@{parameters}!MP@{MP}}
+\index{MP@{MP}!parameters@{parameters}}
+\subsubsection[{MP}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::MP} = 1}}
+\label{namespaceparameters_a55c34135e7a3b750b692c7fe5c44d996}
+
+
+Definition at line 83 of file parameters.f90.
+
+Referenced by subroutines::elastic\_\-event(), and subroutines::psigma\_\-suite().\hypertarget{namespaceparameters_aa23f74ffe716d5e4093a0f9e951ff501}{
+\index{parameters@{parameters}!N\_\-O3HOP@{N\_\-O3HOP}}
+\index{N\_\-O3HOP@{N\_\-O3HOP}!parameters@{parameters}}
+\subsubsection[{N\_\-O3HOP}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::N\_\-O3HOP} = 0}}
+\label{namespaceparameters_aa23f74ffe716d5e4093a0f9e951ff501}
+
+
+Definition at line 133 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_a8301da447de4717dd79fa37a925bc787}{
+\index{parameters@{parameters}!N\_\-OHOP@{N\_\-OHOP}}
+\index{N\_\-OHOP@{N\_\-OHOP}!parameters@{parameters}}
+\subsubsection[{N\_\-OHOP}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::N\_\-OHOP} = 0}}
+\label{namespaceparameters_a8301da447de4717dd79fa37a925bc787}
+
+
+Definition at line 132 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_a3f72bf9fb376fde5e0eaf3da242d4f06}{
+\index{parameters@{parameters}!NEDGE@{NEDGE}}
+\index{NEDGE@{NEDGE}!parameters@{parameters}}
+\subsubsection[{NEDGE}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::NEDGE} = FLOOR(({\bf NELEM}/{\bf TER})$\ast$$\ast$(1./3.))}}
+\label{namespaceparameters_a3f72bf9fb376fde5e0eaf3da242d4f06}
+
+
+Definition at line 65 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_a20c80b2e34c240feef7ac6887646115d}{
+\index{parameters@{parameters}!NELEM@{NELEM}}
+\index{NELEM@{NELEM}!parameters@{parameters}}
+\subsubsection[{NELEM}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::NELEM} = 3.0$\ast${\bf RHO}$\ast$({\bf THICK}$\ast${\bf EDGE}$\ast${\bf EDGE})}}
+\label{namespaceparameters_a20c80b2e34c240feef7ac6887646115d}
+
+
+Definition at line 63 of file parameters.f90.\hypertarget{namespaceparameters_ae0e5e8861d2de5239c52be62c3baebcb}{
+\index{parameters@{parameters}!NO\_\-OUTPUT@{NO\_\-OUTPUT}}
+\index{NO\_\-OUTPUT@{NO\_\-OUTPUT}!parameters@{parameters}}
+\subsubsection[{NO\_\-OUTPUT}]{\setlength{\rightskip}{0pt plus 5cm}LOGICAL,parameter {\bf parameters::NO\_\-OUTPUT} = .FALSE.}}
+\label{namespaceparameters_ae0e5e8861d2de5239c52be62c3baebcb}
+
+
+Definition at line 165 of file parameters.f90.
+
+Referenced by subroutines::counter().\hypertarget{namespaceparameters_adf37b75c4792b28d45484737d230ead3}{
+\index{parameters@{parameters}!NTHICK@{NTHICK}}
+\index{NTHICK@{NTHICK}!parameters@{parameters}}
+\subsubsection[{NTHICK}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::NTHICK} = FLOOR({\bf NEDGE}$\ast${\bf TER})}}
+\label{namespaceparameters_adf37b75c4792b28d45484737d230ead3}
+
+
+Definition at line 66 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_a1462d3a8d5ef4ee00ffc9c0beac695b2}{
+\index{parameters@{parameters}!NUM\_\-REACTS@{NUM\_\-REACTS}}
+\index{NUM\_\-REACTS@{NUM\_\-REACTS}!parameters@{parameters}}
+\subsubsection[{NUM\_\-REACTS}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::NUM\_\-REACTS} = 0}}
+\label{namespaceparameters_a1462d3a8d5ef4ee00ffc9c0beac695b2}
+
+
+Definition at line 16 of file parameters.f90.
+
+Referenced by readinput::buildnetwork(), and qbert().\hypertarget{namespaceparameters_aed3ebeff9daeb47edfa593ae2b72d4db}{
+\index{parameters@{parameters}!NUM\_\-SPECIES@{NUM\_\-SPECIES}}
+\index{NUM\_\-SPECIES@{NUM\_\-SPECIES}!parameters@{parameters}}
+\subsubsection[{NUM\_\-SPECIES}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::NUM\_\-SPECIES} = 0}}
+\label{namespaceparameters_aed3ebeff9daeb47edfa593ae2b72d4db}
+
+
+Definition at line 15 of file parameters.f90.
+
+Referenced by readinput::buildnetwork(), main(), qbert(), and subroutines::writereactions().\hypertarget{namespaceparameters_abf21c9c60fbc062ca9e84d2746c7388a}{
+\index{parameters@{parameters}!NUMPROTONS@{NUMPROTONS}}
+\index{NUMPROTONS@{NUMPROTONS}!parameters@{parameters}}
+\subsubsection[{NUMPROTONS}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::NUMPROTONS} = 0}}
+\label{namespaceparameters_abf21c9c60fbc062ca9e84d2746c7388a}
+
+
+Definition at line 17 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_aa660e855c3fab9dbfe8096b783003413}{
+\index{parameters@{parameters}!O2\_\-ABUNDANCE@{O2\_\-ABUNDANCE}}
+\index{O2\_\-ABUNDANCE@{O2\_\-ABUNDANCE}!parameters@{parameters}}
+\subsubsection[{O2\_\-ABUNDANCE}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::O2\_\-ABUNDANCE} = 0}}
+\label{namespaceparameters_aa660e855c3fab9dbfe8096b783003413}
+
+
+Definition at line 130 of file parameters.f90.
+
+Referenced by subroutines::counter(), and main().\hypertarget{namespaceparameters_aaa919dd1f480e5e72fff4b51292e7c94}{
+\index{parameters@{parameters}!O2NUM@{O2NUM}}
+\index{O2NUM@{O2NUM}!parameters@{parameters}}
+\subsubsection[{O2NUM}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::O2NUM} = 1}}
+\label{namespaceparameters_aaa919dd1f480e5e72fff4b51292e7c94}
+
+
+Definition at line 148 of file parameters.f90.
+
+Referenced by branchmod::branching(), and subroutines::counter().\hypertarget{namespaceparameters_afd3b212b264c188754486b14476cd875}{
+\index{parameters@{parameters}!O2STARNUM@{O2STARNUM}}
+\index{O2STARNUM@{O2STARNUM}!parameters@{parameters}}
+\subsubsection[{O2STARNUM}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::O2STARNUM} = 10}}
+\label{namespaceparameters_afd3b212b264c188754486b14476cd875}
+
+
+Definition at line 151 of file parameters.f90.
+
+Referenced by subroutines::counter().\hypertarget{namespaceparameters_a9d6097883f1419481b04c256065f6d24}{
+\index{parameters@{parameters}!O3\_\-ABUNDANCE@{O3\_\-ABUNDANCE}}
+\index{O3\_\-ABUNDANCE@{O3\_\-ABUNDANCE}!parameters@{parameters}}
+\subsubsection[{O3\_\-ABUNDANCE}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::O3\_\-ABUNDANCE} = 0}}
+\label{namespaceparameters_a9d6097883f1419481b04c256065f6d24}
+
+
+Definition at line 131 of file parameters.f90.
+
+Referenced by subroutines::counter(), and main().\hypertarget{namespaceparameters_aba22684f89f881fe4dc9d78bd30d6f5b}{
+\index{parameters@{parameters}!O3\_\-ANALYTICS@{O3\_\-ANALYTICS}}
+\index{O3\_\-ANALYTICS@{O3\_\-ANALYTICS}!parameters@{parameters}}
+\subsubsection[{O3\_\-ANALYTICS}]{\setlength{\rightskip}{0pt plus 5cm}LOGICAL,parameter {\bf parameters::O3\_\-ANALYTICS} = .TRUE.}}
+\label{namespaceparameters_aba22684f89f881fe4dc9d78bd30d6f5b}
+
+
+Definition at line 170 of file parameters.f90.
+
+Referenced by branchmod::branching(), and main().\hypertarget{namespaceparameters_a5d2edd19cb37ff34b422b6a5fdcf4358}{
+\index{parameters@{parameters}!O3NUM@{O3NUM}}
+\index{O3NUM@{O3NUM}!parameters@{parameters}}
+\subsubsection[{O3NUM}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::O3NUM} = 7}}
+\label{namespaceparameters_a5d2edd19cb37ff34b422b6a5fdcf4358}
+
+
+Definition at line 147 of file parameters.f90.
+
+Referenced by branchmod::branching(), subroutines::counter(), subroutines::e\_\-ex\_\-select(), subroutines::e\_\-ion\_\-select(), main(), subroutines::p\_\-ex\_\-select(), and subroutines::p\_\-ion\_\-select().\hypertarget{namespaceparameters_a882e51984a7c32da2dc6a56dc6afca79}{
+\index{parameters@{parameters}!O3STARNUM@{O3STARNUM}}
+\index{O3STARNUM@{O3STARNUM}!parameters@{parameters}}
+\subsubsection[{O3STARNUM}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::O3STARNUM} = 12}}
+\label{namespaceparameters_a882e51984a7c32da2dc6a56dc6afca79}
+
+
+Definition at line 152 of file parameters.f90.
+
+Referenced by subroutines::counter(), subroutines::e\_\-ex\_\-select(), subroutines::e\_\-ion\_\-select(), subroutines::p\_\-ex\_\-select(), and subroutines::p\_\-ion\_\-select().\hypertarget{namespaceparameters_a94daa6cedb27148cbfae307910b4acf0}{
+\index{parameters@{parameters}!O\_\-ABUNDANCE@{O\_\-ABUNDANCE}}
+\index{O\_\-ABUNDANCE@{O\_\-ABUNDANCE}!parameters@{parameters}}
+\subsubsection[{O\_\-ABUNDANCE}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::O\_\-ABUNDANCE} = 0}}
+\label{namespaceparameters_a94daa6cedb27148cbfae307910b4acf0}
+
+
+Definition at line 129 of file parameters.f90.
+
+Referenced by subroutines::counter(), and main().\hypertarget{namespaceparameters_a726526c727d771bb10d9af8e2d3240f5}{
+\index{parameters@{parameters}!ONUM@{ONUM}}
+\index{ONUM@{ONUM}!parameters@{parameters}}
+\subsubsection[{ONUM}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::ONUM} = 4}}
+\label{namespaceparameters_a726526c727d771bb10d9af8e2d3240f5}
+
+
+Definition at line 149 of file parameters.f90.
+
+Referenced by branchmod::branching(), subroutines::counter(), subroutines::e\_\-ex\_\-select(), subroutines::e\_\-ion\_\-select(), main(), subroutines::p\_\-ex\_\-select(), and subroutines::p\_\-ion\_\-select().\hypertarget{namespaceparameters_a7f259c2e69027b208f7e09e6d672574d}{
+\index{parameters@{parameters}!OSTARNUM@{OSTARNUM}}
+\index{OSTARNUM@{OSTARNUM}!parameters@{parameters}}
+\subsubsection[{OSTARNUM}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::OSTARNUM} = 11}}
+\label{namespaceparameters_a7f259c2e69027b208f7e09e6d672574d}
+
+
+Definition at line 150 of file parameters.f90.
+
+Referenced by subroutines::counter(), subroutines::e\_\-ex\_\-select(), subroutines::e\_\-ion\_\-select(), subroutines::p\_\-ex\_\-select(), and subroutines::p\_\-ion\_\-select().\hypertarget{namespaceparameters_adf79c33c6ebf2e4f00fa0fdaf34d1ba1}{
+\index{parameters@{parameters}!PARAMS\_\-FILE@{PARAMS\_\-FILE}}
+\index{PARAMS\_\-FILE@{PARAMS\_\-FILE}!parameters@{parameters}}
+\subsubsection[{PARAMS\_\-FILE}]{\setlength{\rightskip}{0pt plus 5cm}CHARACTER(LEN=80),parameter {\bf parameters::PARAMS\_\-FILE}}}
+\label{namespaceparameters_adf79c33c6ebf2e4f00fa0fdaf34d1ba1}
+
+
+Definition at line 31 of file parameters.f90.\hypertarget{namespaceparameters_abb73420de652567f8698014e0df31f53}{
+\index{parameters@{parameters}!PCUTOFF@{PCUTOFF}}
+\index{PCUTOFF@{PCUTOFF}!parameters@{parameters}}
+\subsubsection[{PCUTOFF}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::PCUTOFF} = 4.0D0}}
+\label{namespaceparameters_abb73420de652567f8698014e0df31f53}
+
+
+Definition at line 101 of file parameters.f90.\hypertarget{namespaceparameters_afe0432626bebaa2d97468b2d263e28e7}{
+\index{parameters@{parameters}!PI@{PI}}
+\index{PI@{PI}!parameters@{parameters}}
+\subsubsection[{PI}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::PI} = 4.D0$\ast$DATAN(1.D0)}}
+\label{namespaceparameters_afe0432626bebaa2d97468b2d263e28e7}
+
+
+Definition at line 90 of file parameters.f90.\hypertarget{namespaceparameters_a38fbcf3f41331f232ff4c604194bc76f}{
+\index{parameters@{parameters}!PMODEL@{PMODEL}}
+\index{PMODEL@{PMODEL}!parameters@{parameters}}
+\subsubsection[{PMODEL}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::PMODEL} = 0}}
+\label{namespaceparameters_a38fbcf3f41331f232ff4c604194bc76f}
+
+
+Definition at line 24 of file parameters.f90.
+
+Referenced by subroutines::fallout(), and subroutines::trackwrite().\hypertarget{namespaceparameters_a00c44079184906f8aff60ad7cea2fe4d}{
+\index{parameters@{parameters}!PRODS@{PRODS}}
+\index{PRODS@{PRODS}!parameters@{parameters}}
+\subsubsection[{PRODS}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::PRODS}}}
+\label{namespaceparameters_a00c44079184906f8aff60ad7cea2fe4d}
+
+
+Definition at line 9 of file parameters.f90.\hypertarget{namespaceparameters_a94b6e62dc83358943908a8418bd3e5ae}{
+\index{parameters@{parameters}!PROTON\_\-COLL@{PROTON\_\-COLL}}
+\index{PROTON\_\-COLL@{PROTON\_\-COLL}!parameters@{parameters}}
+\subsubsection[{PROTON\_\-COLL}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::PROTON\_\-COLL} = 0}}
+\label{namespaceparameters_a94b6e62dc83358943908a8418bd3e5ae}
+
+
+Definition at line 134 of file parameters.f90.
+
+Referenced by subroutines::fallout(), and main().\hypertarget{namespaceparameters_a6cb40f66cca5617aa8331c5487829f10}{
+\index{parameters@{parameters}!PROTON\_\-ELOSS@{PROTON\_\-ELOSS}}
+\index{PROTON\_\-ELOSS@{PROTON\_\-ELOSS}!parameters@{parameters}}
+\subsubsection[{PROTON\_\-ELOSS}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION {\bf parameters::PROTON\_\-ELOSS} = 0.d0}}
+\label{namespaceparameters_a6cb40f66cca5617aa8331c5487829f10}
+
+
+Definition at line 136 of file parameters.f90.
+
+Referenced by subroutines::fallout(), and main().\hypertarget{namespaceparameters_a14f18e4e92507c1eb5090ad46ff56fd1}{
+\index{parameters@{parameters}!Q0@{Q0}}
+\index{Q0@{Q0}!parameters@{parameters}}
+\subsubsection[{Q0}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::Q0} = 6.513E-\/14}}
+\label{namespaceparameters_a14f18e4e92507c1eb5090ad46ff56fd1}
+
+
+Definition at line 89 of file parameters.f90.
+
+Referenced by functiondefs::greendutta(), and functiondefs::pjgsigma().\hypertarget{namespaceparameters_a76f6259a6055e7668847d95bb689fbb9}{
+\index{parameters@{parameters}!QUIET@{QUIET}}
+\index{QUIET@{QUIET}!parameters@{parameters}}
+\subsubsection[{QUIET}]{\setlength{\rightskip}{0pt plus 5cm}LOGICAL,parameter {\bf parameters::QUIET} = .FALSE.}}
+\label{namespaceparameters_a76f6259a6055e7668847d95bb689fbb9}
+
+
+Definition at line 166 of file parameters.f90.
+
+Referenced by subroutines::counter().\hypertarget{namespaceparameters_a70e866c6b47264dcb7895af939679a3c}{
+\index{parameters@{parameters}!RATE\_\-LUN@{RATE\_\-LUN}}
+\index{RATE\_\-LUN@{RATE\_\-LUN}!parameters@{parameters}}
+\subsubsection[{RATE\_\-LUN}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::RATE\_\-LUN} = 4}}
+\label{namespaceparameters_a70e866c6b47264dcb7895af939679a3c}
+
+
+Definition at line 116 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_a5725b82ace5b33e1c3394c0622eca5b3}{
+\index{parameters@{parameters}!RATEINFO@{RATEINFO}}
+\index{RATEINFO@{RATEINFO}!parameters@{parameters}}
+\subsubsection[{RATEINFO}]{\setlength{\rightskip}{0pt plus 5cm}TYPE({\bf rate\_\-info}) {\bf parameters::RATEINFO}}}
+\label{namespaceparameters_a5725b82ace5b33e1c3394c0622eca5b3}
+
+
+Definition at line 138 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_aff68a046aeb1fa2a7610db8cd55922d8}{
+\index{parameters@{parameters}!RE\_\-HEAD@{RE\_\-HEAD}}
+\index{RE\_\-HEAD@{RE\_\-HEAD}!parameters@{parameters}}
+\subsubsection[{RE\_\-HEAD}]{\setlength{\rightskip}{0pt plus 5cm}TYPE({\bf reaction}),pointer {\bf parameters::RE\_\-HEAD}}}
+\label{namespaceparameters_aff68a046aeb1fa2a7610db8cd55922d8}
+
+
+Definition at line 19 of file parameters.f90.
+
+Referenced by readinput::buildnetwork(), and subroutines::counter().\hypertarget{namespaceparameters_a40ef599fa2e91d0f27cbd322f1270da8}{
+\index{parameters@{parameters}!REACTIONS\_\-FILE@{REACTIONS\_\-FILE}}
+\index{REACTIONS\_\-FILE@{REACTIONS\_\-FILE}!parameters@{parameters}}
+\subsubsection[{REACTIONS\_\-FILE}]{\setlength{\rightskip}{0pt plus 5cm}CHARACTER(LEN=80),parameter {\bf parameters::REACTIONS\_\-FILE}}}
+\label{namespaceparameters_a40ef599fa2e91d0f27cbd322f1270da8}
+
+
+Definition at line 30 of file parameters.f90.
+
+Referenced by readinput::buildnetwork(), and qbert().\hypertarget{namespaceparameters_a86efd37aa4980c19320f2996464f0a82}{
+\index{parameters@{parameters}!REACTIONS\_\-LUN@{REACTIONS\_\-LUN}}
+\index{REACTIONS\_\-LUN@{REACTIONS\_\-LUN}!parameters@{parameters}}
+\subsubsection[{REACTIONS\_\-LUN}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::REACTIONS\_\-LUN} = 2}}
+\label{namespaceparameters_a86efd37aa4980c19320f2996464f0a82}
+
+
+Definition at line 114 of file parameters.f90.
+
+Referenced by readinput::buildnetwork().\hypertarget{namespaceparameters_ad8323286536365bb131984aa57af99df}{
+\index{parameters@{parameters}!RHO@{RHO}}
+\index{RHO@{RHO}!parameters@{parameters}}
+\subsubsection[{RHO}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::RHO} = 1.313E22}}
+\label{namespaceparameters_ad8323286536365bb131984aa57af99df}
+
+
+Definition at line 47 of file parameters.f90.
+
+Referenced by subroutines::new\_\-electron().\hypertarget{namespaceparameters_a79fa48b917f68e1a12577e33fd8c991c}{
+\index{parameters@{parameters}!RHO2@{RHO2}}
+\index{RHO2@{RHO2}!parameters@{parameters}}
+\subsubsection[{RHO2}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::RHO2} = 0.01313}}
+\label{namespaceparameters_a79fa48b917f68e1a12577e33fd8c991c}
+
+
+Definition at line 48 of file parameters.f90.
+
+Referenced by subroutines::elastic\_\-event().\hypertarget{namespaceparameters_ae0f23566499e10756f5a93adb6160899}{
+\index{parameters@{parameters}!SECELEC@{SECELEC}}
+\index{SECELEC@{SECELEC}!parameters@{parameters}}
+\subsubsection[{SECELEC}]{\setlength{\rightskip}{0pt plus 5cm}LOGICAL,parameter {\bf parameters::SECELEC} = .TRUE.}}
+\label{namespaceparameters_ae0f23566499e10756f5a93adb6160899}
+
+
+Definition at line 167 of file parameters.f90.
+
+Referenced by subroutines::fallout().\hypertarget{namespaceparameters_a8b8f35affe261eb9ad1a1612ca3572a7}{
+\index{parameters@{parameters}!SHORT\_\-TIME@{SHORT\_\-TIME}}
+\index{SHORT\_\-TIME@{SHORT\_\-TIME}!parameters@{parameters}}
+\subsubsection[{SHORT\_\-TIME}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::SHORT\_\-TIME} = 100.0}}
+\label{namespaceparameters_a8b8f35affe261eb9ad1a1612ca3572a7}
+
+
+Definition at line 77 of file parameters.f90.\hypertarget{namespaceparameters_a38878c1dc241cdcfc52f1804563f7b00}{
+\index{parameters@{parameters}!SP\_\-LIST@{SP\_\-LIST}}
+\index{SP\_\-LIST@{SP\_\-LIST}!parameters@{parameters}}
+\subsubsection[{SP\_\-LIST}]{\setlength{\rightskip}{0pt plus 5cm}CHARACTER(LEN=10),allocatable {\bf parameters::SP\_\-LIST}}}
+\label{namespaceparameters_a38878c1dc241cdcfc52f1804563f7b00}
+
+
+Definition at line 11 of file parameters.f90.
+
+Referenced by readinput::buildnetwork(), and qbert().\hypertarget{namespaceparameters_a649c343c05b95e3f84d06401b3a3f6e1}{
+\index{parameters@{parameters}!SP\_\-PROD\_\-DEST@{SP\_\-PROD\_\-DEST}}
+\index{SP\_\-PROD\_\-DEST@{SP\_\-PROD\_\-DEST}!parameters@{parameters}}
+\subsubsection[{SP\_\-PROD\_\-DEST}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,allocatable {\bf parameters::SP\_\-PROD\_\-DEST}}}
+\label{namespaceparameters_a649c343c05b95e3f84d06401b3a3f6e1}
+
+
+Definition at line 13 of file parameters.f90.
+
+Referenced by readinput::buildnetwork(), subroutines::counter(), and subroutines::writereactions().\hypertarget{namespaceparameters_a9a296e15d2f09049ceb473a5f0fb9e5f}{
+\index{parameters@{parameters}!SPECIAL\_\-LIST@{SPECIAL\_\-LIST}}
+\index{SPECIAL\_\-LIST@{SPECIAL\_\-LIST}!parameters@{parameters}}
+\subsubsection[{SPECIAL\_\-LIST}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::SPECIAL\_\-LIST} = 0}}
+\label{namespaceparameters_a9a296e15d2f09049ceb473a5f0fb9e5f}
+
+
+Definition at line 158 of file parameters.f90.
+
+Referenced by readinput::buildnetwork(), subroutines::new\_\-reaction(), and qbert().\hypertarget{namespaceparameters_af23a39fc248303c9a69e3e05c0fb3b41}{
+\index{parameters@{parameters}!SPECIES\_\-FILE@{SPECIES\_\-FILE}}
+\index{SPECIES\_\-FILE@{SPECIES\_\-FILE}!parameters@{parameters}}
+\subsubsection[{SPECIES\_\-FILE}]{\setlength{\rightskip}{0pt plus 5cm}CHARACTER(LEN=80),parameter {\bf parameters::SPECIES\_\-FILE}}}
+\label{namespaceparameters_af23a39fc248303c9a69e3e05c0fb3b41}
+
+
+Definition at line 29 of file parameters.f90.
+
+Referenced by readinput::buildnetwork(), and qbert().\hypertarget{namespaceparameters_a209bdf781f449ab7ff2231fa1b9fa73a}{
+\index{parameters@{parameters}!SPECIES\_\-LUN@{SPECIES\_\-LUN}}
+\index{SPECIES\_\-LUN@{SPECIES\_\-LUN}!parameters@{parameters}}
+\subsubsection[{SPECIES\_\-LUN}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::SPECIES\_\-LUN} = 1}}
+\label{namespaceparameters_a209bdf781f449ab7ff2231fa1b9fa73a}
+
+
+Definition at line 113 of file parameters.f90.
+
+Referenced by readinput::buildnetwork().\hypertarget{namespaceparameters_a2ec73288039fb063a8606dd185f2d6ff}{
+\index{parameters@{parameters}!STEPFAC@{STEPFAC}}
+\index{STEPFAC@{STEPFAC}!parameters@{parameters}}
+\subsubsection[{STEPFAC}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::STEPFAC} = 1}}
+\label{namespaceparameters_a2ec73288039fb063a8606dd185f2d6ff}
+
+
+Definition at line 107 of file parameters.f90.
+
+Referenced by subroutines::fallout().\hypertarget{namespaceparameters_a29056f19e30fd6e33712abbfdcff3f1b}{
+\index{parameters@{parameters}!SUBEXHITPROB@{SUBEXHITPROB}}
+\index{SUBEXHITPROB@{SUBEXHITPROB}!parameters@{parameters}}
+\subsubsection[{SUBEXHITPROB}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::SUBEXHITPROB} = 0.5}}
+\label{namespaceparameters_a29056f19e30fd6e33712abbfdcff3f1b}
+
+
+Definition at line 103 of file parameters.f90.\hypertarget{namespaceparameters_adc91f63a6d2c197941c445a5d64800a3}{
+\index{parameters@{parameters}!TER@{TER}}
+\index{TER@{TER}!parameters@{parameters}}
+\subsubsection[{TER}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::TER} = {\bf THICK}/{\bf EDGE}}}
+\label{namespaceparameters_adc91f63a6d2c197941c445a5d64800a3}
+
+
+Definition at line 64 of file parameters.f90.\hypertarget{namespaceparameters_aacbd355b27d7e7459076fdf3f77fab20}{
+\index{parameters@{parameters}!THICK@{THICK}}
+\index{THICK@{THICK}!parameters@{parameters}}
+\subsubsection[{THICK}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::THICK} = 1.0e-\/5}}
+\label{namespaceparameters_aacbd355b27d7e7459076fdf3f77fab20}
+
+
+Definition at line 56 of file parameters.f90.
+
+Referenced by subroutines::counter(), subroutines::fallout(), and gp::fitness().\hypertarget{namespaceparameters_acf1d338d691bf2082aeabaec6ac27263}{
+\index{parameters@{parameters}!TIME@{TIME}}
+\index{TIME@{TIME}!parameters@{parameters}}
+\subsubsection[{TIME}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION {\bf parameters::TIME} = 0}}
+\label{namespaceparameters_acf1d338d691bf2082aeabaec6ac27263}
+
+
+Definition at line 18 of file parameters.f90.
+
+Referenced by subroutines::counter(), main(), and subroutines::wait\_\-calc().\hypertarget{namespaceparameters_a8095a8c543baf08f84d7e538f64f425b}{
+\index{parameters@{parameters}!TIME\_\-COUNTS@{TIME\_\-COUNTS}}
+\index{TIME\_\-COUNTS@{TIME\_\-COUNTS}!parameters@{parameters}}
+\subsubsection[{TIME\_\-COUNTS}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::TIME\_\-COUNTS} = 2}}
+\label{namespaceparameters_a8095a8c543baf08f84d7e538f64f425b}
+
+
+Definition at line 97 of file parameters.f90.\hypertarget{namespaceparameters_a7a6326e37101f07bd6de0fbdd090126b}{
+\index{parameters@{parameters}!TIME\_\-FREQ@{TIME\_\-FREQ}}
+\index{TIME\_\-FREQ@{TIME\_\-FREQ}!parameters@{parameters}}
+\subsubsection[{TIME\_\-FREQ}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER {\bf parameters::TIME\_\-FREQ} = 1}}
+\label{namespaceparameters_a7a6326e37101f07bd6de0fbdd090126b}
+
+
+Definition at line 159 of file parameters.f90.
+
+Referenced by gp::fitness(), and main().\hypertarget{namespaceparameters_a540e956fa8885214bfcc86f895dc5649}{
+\index{parameters@{parameters}!TIME\_\-TOTAL@{TIME\_\-TOTAL}}
+\index{TIME\_\-TOTAL@{TIME\_\-TOTAL}!parameters@{parameters}}
+\subsubsection[{TIME\_\-TOTAL}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::TIME\_\-TOTAL} = 1D5}}
+\label{namespaceparameters_a540e956fa8885214bfcc86f895dc5649}
+
+
+Definition at line 99 of file parameters.f90.\hypertarget{namespaceparameters_a575bcb79f78ecdcf97d1d21a582128ae}{
+\index{parameters@{parameters}!TOTAL\_\-PROTON\_\-ELOSS@{TOTAL\_\-PROTON\_\-ELOSS}}
+\index{TOTAL\_\-PROTON\_\-ELOSS@{TOTAL\_\-PROTON\_\-ELOSS}!parameters@{parameters}}
+\subsubsection[{TOTAL\_\-PROTON\_\-ELOSS}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION {\bf parameters::TOTAL\_\-PROTON\_\-ELOSS} = 0.d0}}
+\label{namespaceparameters_a575bcb79f78ecdcf97d1d21a582128ae}
+
+
+Definition at line 137 of file parameters.f90.
+
+Referenced by subroutines::counter(), and main().\hypertarget{namespaceparameters_a4146bd3a7b3738c3b8f262e51969231b}{
+\index{parameters@{parameters}!TRACK\_\-AN\_\-LUN@{TRACK\_\-AN\_\-LUN}}
+\index{TRACK\_\-AN\_\-LUN@{TRACK\_\-AN\_\-LUN}!parameters@{parameters}}
+\subsubsection[{TRACK\_\-AN\_\-LUN}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::TRACK\_\-AN\_\-LUN} = 7777}}
+\label{namespaceparameters_a4146bd3a7b3738c3b8f262e51969231b}
+
+
+Definition at line 118 of file parameters.f90.
+
+Referenced by main().\hypertarget{namespaceparameters_ad4575bbb41153e584b501a6238bd4b6c}{
+\index{parameters@{parameters}!TRACK\_\-ANALYTICS@{TRACK\_\-ANALYTICS}}
+\index{TRACK\_\-ANALYTICS@{TRACK\_\-ANALYTICS}!parameters@{parameters}}
+\subsubsection[{TRACK\_\-ANALYTICS}]{\setlength{\rightskip}{0pt plus 5cm}LOGICAL,parameter {\bf parameters::TRACK\_\-ANALYTICS} = .TRUE.}}
+\label{namespaceparameters_ad4575bbb41153e584b501a6238bd4b6c}
+
+
+Definition at line 174 of file parameters.f90.\hypertarget{namespaceparameters_a8ec43c843ac10d7b08208da5c534f70a}{
+\index{parameters@{parameters}!TRACKMAX@{TRACKMAX}}
+\index{TRACKMAX@{TRACKMAX}!parameters@{parameters}}
+\subsubsection[{TRACKMAX}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::TRACKMAX} = 1000000}}
+\label{namespaceparameters_a8ec43c843ac10d7b08208da5c534f70a}
+
+
+Definition at line 124 of file parameters.f90.
+
+Referenced by subroutines::fallout().\hypertarget{namespaceparameters_a3274d98430ff0a8089ad7f2b21e16d17}{
+\index{parameters@{parameters}!TRACKMIN@{TRACKMIN}}
+\index{TRACKMIN@{TRACKMIN}!parameters@{parameters}}
+\subsubsection[{TRACKMIN}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::TRACKMIN} = 5000}}
+\label{namespaceparameters_a3274d98430ff0a8089ad7f2b21e16d17}
+
+
+Definition at line 123 of file parameters.f90.
+
+Referenced by subroutines::fallout().\hypertarget{namespaceparameters_a687b46ca494c1998df909a6461e3b535}{
+\index{parameters@{parameters}!TRACKPLOT@{TRACKPLOT}}
+\index{TRACKPLOT@{TRACKPLOT}!parameters@{parameters}}
+\subsubsection[{TRACKPLOT}]{\setlength{\rightskip}{0pt plus 5cm}LOGICAL,parameter {\bf parameters::TRACKPLOT} = .FALSE.}}
+\label{namespaceparameters_a687b46ca494c1998df909a6461e3b535}
+
+
+Definition at line 169 of file parameters.f90.
+
+Referenced by subroutines::fallout(), and subroutines::new\_\-electron().\hypertarget{namespaceparameters_a0818b4c220711dedc53641b60887957a}{
+\index{parameters@{parameters}!TRACKPLOT\_\-LUN@{TRACKPLOT\_\-LUN}}
+\index{TRACKPLOT\_\-LUN@{TRACKPLOT\_\-LUN}!parameters@{parameters}}
+\subsubsection[{TRACKPLOT\_\-LUN}]{\setlength{\rightskip}{0pt plus 5cm}INTEGER,parameter {\bf parameters::TRACKPLOT\_\-LUN} = 5}}
+\label{namespaceparameters_a0818b4c220711dedc53641b60887957a}
+
+
+Definition at line 117 of file parameters.f90.
+
+Referenced by subroutines::fallout(), and subroutines::trackwrite().\hypertarget{namespaceparameters_ae757acf24cb9ac4ea176759b5ada37c7}{
+\index{parameters@{parameters}!TRL\_\-NU@{TRL\_\-NU}}
+\index{TRL\_\-NU@{TRL\_\-NU}!parameters@{parameters}}
+\subsubsection[{TRL\_\-NU}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::TRL\_\-NU} = 1.0E12}}
+\label{namespaceparameters_ae757acf24cb9ac4ea176759b5ada37c7}
+
+
+Definition at line 106 of file parameters.f90.
+
+Referenced by subroutines::wait\_\-calc().\hypertarget{namespaceparameters_a8a887d07bb62f10ae5578c2a7181a578}{
+\index{parameters@{parameters}!VOLUME@{VOLUME}}
+\index{VOLUME@{VOLUME}!parameters@{parameters}}
+\subsubsection[{VOLUME}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::VOLUME} = {\bf THICK}$\ast${\bf EDGE}$\ast${\bf EDGE}}}
+\label{namespaceparameters_a8a887d07bb62f10ae5578c2a7181a578}
+
+
+Definition at line 58 of file parameters.f90.\hypertarget{namespaceparameters_a1c9d90c36ce0be5595ed197469b6e609}{
+\index{parameters@{parameters}!ZO1@{ZO1}}
+\index{ZO1@{ZO1}!parameters@{parameters}}
+\subsubsection[{ZO1}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::ZO1} = 8.D0}}
+\label{namespaceparameters_a1c9d90c36ce0be5595ed197469b6e609}
+
+
+Definition at line 79 of file parameters.f90.
+
+Referenced by subroutines::psigma\_\-suite().\hypertarget{namespaceparameters_a885e127ecd6c6a8469ca5ed6aba4badf}{
+\index{parameters@{parameters}!ZO2@{ZO2}}
+\index{ZO2@{ZO2}!parameters@{parameters}}
+\subsubsection[{ZO2}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::ZO2} = 16.D0}}
+\label{namespaceparameters_a885e127ecd6c6a8469ca5ed6aba4badf}
+
+
+Definition at line 80 of file parameters.f90.
+
+Referenced by subroutines::elastic\_\-event(), and subroutines::psigma\_\-suite().\hypertarget{namespaceparameters_ac4b8f44af44db753a988dc78c534c94d}{
+\index{parameters@{parameters}!ZO3@{ZO3}}
+\index{ZO3@{ZO3}!parameters@{parameters}}
+\subsubsection[{ZO3}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::ZO3} = 24.D0}}
+\label{namespaceparameters_ac4b8f44af44db753a988dc78c534c94d}
+
+
+Definition at line 81 of file parameters.f90.
+
+Referenced by subroutines::esigma\_\-suite(), and subroutines::psigma\_\-suite().\hypertarget{namespaceparameters_af5f3e31c772340991fe768468c6a0dad}{
+\index{parameters@{parameters}!ZP@{ZP}}
+\index{ZP@{ZP}!parameters@{parameters}}
+\subsubsection[{ZP}]{\setlength{\rightskip}{0pt plus 5cm}DOUBLE PRECISION,parameter {\bf parameters::ZP} = 1.D0}}
+\label{namespaceparameters_af5f3e31c772340991fe768468c6a0dad}
+
+
+Definition at line 78 of file parameters.f90.
+
+Referenced by subroutines::elastic\_\-event(), and subroutines::psigma\_\-suite().

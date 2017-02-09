@@ -1,0 +1,139 @@
+\hypertarget{namespacebsimple}{
+\section{bsimple Module Reference}
+\label{namespacebsimple}\index{bsimple@{bsimple}}
+}
+\subsection*{Data Types}
+\begin{DoxyCompactItemize}
+\item 
+interface \hyperlink{interfacebsimple_1_1OPERATOR_07_4_08}{OPERATOR($>$)}
+\item 
+interface {\bfseries OPERATOR($<$)}
+\item 
+interface {\bfseries OPERATOR(==)}
+\end{DoxyCompactItemize}
+\subsection*{Functions/Subroutines}
+\begin{DoxyCompactItemize}
+\item 
+subroutine \hyperlink{namespacebsimple_a98a0fa9db2215d588a0a87c08065809f}{add\_\-node} (ptr, new\_\-node)
+\item 
+subroutine \hyperlink{namespacebsimple_ae6c8fc172ff255d4d825b1f507d9fd82}{write\_\-node} (ptr)
+\item 
+subroutine \hyperlink{namespacebsimple_abe5b608758a905e30ed8661e177395d6}{find\_\-node} (ptr, search, error)
+\item 
+subroutine \hyperlink{namespacebsimple_a021b297f11aa3649405b7931d0979be9}{find\_\-previous} (ptr, search, prevNode, leftRight, error)
+\item 
+subroutine \hyperlink{namespacebsimple_a11b24c82d3405b40e38891f5b2de1eeb}{find\_\-min} (ptr, search)
+\item 
+subroutine \hyperlink{namespacebsimple_a4cb5aa13e4c5a527c7573ccbd5234162}{delete\_\-node} (root, toDelete, prevNode, nextNode, error)
+\end{DoxyCompactItemize}
+
+
+\subsection{Function/Subroutine Documentation}
+\hypertarget{namespacebsimple_a98a0fa9db2215d588a0a87c08065809f}{
+\index{bsimple@{bsimple}!add\_\-node@{add\_\-node}}
+\index{add\_\-node@{add\_\-node}!bsimple@{bsimple}}
+\subsubsection[{add\_\-node}]{\setlength{\rightskip}{0pt plus 5cm}subroutine bsimple::add\_\-node (TYPE (node),pointer {\em ptr}, \/  TYPE (node),pointer {\em new\_\-node})}}
+\label{namespacebsimple_a98a0fa9db2215d588a0a87c08065809f}
+
+
+Definition at line 48 of file bsimple.f90.
+
+Referenced by subroutines::init\_\-node(), main(), and subroutines::new\_\-reaction().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=379pt]{namespacebsimple_a98a0fa9db2215d588a0a87c08065809f_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacebsimple_a4cb5aa13e4c5a527c7573ccbd5234162}{
+\index{bsimple@{bsimple}!delete\_\-node@{delete\_\-node}}
+\index{delete\_\-node@{delete\_\-node}!bsimple@{bsimple}}
+\subsubsection[{delete\_\-node}]{\setlength{\rightskip}{0pt plus 5cm}subroutine bsimple::delete\_\-node (TYPE (node),pointer {\em root}, \/  TYPE (node),pointer {\em toDelete}, \/  TYPE (node),pointer {\em prevNode}, \/  TYPE (node),pointer {\em nextNode}, \/  INTEGER {\em error})}}
+\label{namespacebsimple_a4cb5aa13e4c5a527c7573ccbd5234162}
+
+
+Definition at line 219 of file bsimple.f90.
+
+References parameters::DEBUG, find\_\-min(), and write\_\-node().
+
+Referenced by main(), and subroutines::new\_\-reaction().
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=163pt]{namespacebsimple_a4cb5aa13e4c5a527c7573ccbd5234162_cgraph}
+\end{center}
+\end{figure}
+
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=387pt]{namespacebsimple_a4cb5aa13e4c5a527c7573ccbd5234162_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacebsimple_a11b24c82d3405b40e38891f5b2de1eeb}{
+\index{bsimple@{bsimple}!find\_\-min@{find\_\-min}}
+\index{find\_\-min@{find\_\-min}!bsimple@{bsimple}}
+\subsubsection[{find\_\-min}]{\setlength{\rightskip}{0pt plus 5cm}subroutine bsimple::find\_\-min (TYPE (node),pointer {\em ptr}, \/  TYPE (node),pointer {\em search})}}
+\label{namespacebsimple_a11b24c82d3405b40e38891f5b2de1eeb}
+
+
+Definition at line 207 of file bsimple.f90.
+
+Referenced by delete\_\-node(), and main().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=420pt]{namespacebsimple_a11b24c82d3405b40e38891f5b2de1eeb_icgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacebsimple_abe5b608758a905e30ed8661e177395d6}{
+\index{bsimple@{bsimple}!find\_\-node@{find\_\-node}}
+\index{find\_\-node@{find\_\-node}!bsimple@{bsimple}}
+\subsubsection[{find\_\-node}]{\setlength{\rightskip}{0pt plus 5cm}subroutine bsimple::find\_\-node (TYPE (node),pointer {\em ptr}, \/  TYPE (node),pointer {\em search}, \/  INTEGER {\em error})}}
+\label{namespacebsimple_abe5b608758a905e30ed8661e177395d6}
+
+
+Definition at line 102 of file bsimple.f90.\hypertarget{namespacebsimple_a021b297f11aa3649405b7931d0979be9}{
+\index{bsimple@{bsimple}!find\_\-previous@{find\_\-previous}}
+\index{find\_\-previous@{find\_\-previous}!bsimple@{bsimple}}
+\subsubsection[{find\_\-previous}]{\setlength{\rightskip}{0pt plus 5cm}subroutine bsimple::find\_\-previous (TYPE (node),pointer {\em ptr}, \/  TYPE (node),pointer {\em search}, \/  TYPE (node),pointer {\em prevNode}, \/  INTEGER {\em leftRight}, \/  INTEGER {\em error})}}
+\label{namespacebsimple_a021b297f11aa3649405b7931d0979be9}
+
+
+Definition at line 132 of file bsimple.f90.
+
+References write\_\-node().
+
+Here is the call graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=164pt]{namespacebsimple_a021b297f11aa3649405b7931d0979be9_cgraph}
+\end{center}
+\end{figure}
+\hypertarget{namespacebsimple_ae6c8fc172ff255d4d825b1f507d9fd82}{
+\index{bsimple@{bsimple}!write\_\-node@{write\_\-node}}
+\index{write\_\-node@{write\_\-node}!bsimple@{bsimple}}
+\subsubsection[{write\_\-node}]{\setlength{\rightskip}{0pt plus 5cm}subroutine bsimple::write\_\-node (TYPE (node),pointer {\em ptr})}}
+\label{namespacebsimple_ae6c8fc172ff255d4d825b1f507d9fd82}
+
+
+Definition at line 80 of file bsimple.f90.
+
+Referenced by delete\_\-node(), and find\_\-previous().
+
+Here is the caller graph for this function:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=420pt]{namespacebsimple_ae6c8fc172ff255d4d825b1f507d9fd82_icgraph}
+\end{center}
+\end{figure}

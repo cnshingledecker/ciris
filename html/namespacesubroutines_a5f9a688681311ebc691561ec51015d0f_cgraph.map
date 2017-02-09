@@ -1,0 +1,12 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$namespacebsimple.html#a98a0fa9db2215d588a0a87c08065809f" title="bsimple::add_node" alt="" coords="292,5,439,35"/>
+<area shape="rect" id="node5" href="$namespacebranchmod.html#afe047e9cf349dd7beea43ce0113ab24b" title="branchmod::branching" alt="" coords="280,59,451,88"/>
+<area shape="rect" id="node7" href="$namespacebsimple.html#a4cb5aa13e4c5a527c7573ccbd5234162" title="bsimple::delete_node" alt="" coords="281,112,449,141"/>
+<area shape="rect" id="node13" href="$namespacesubroutines.html#af4c69699bd3e0e4aa05607a7e94044dc" title="subroutines::find_empty_site" alt="" coords="256,165,475,195"/>
+<area shape="rect" id="node20" href="$namespacesubroutines.html#ac847bd99eab89bdc881d885b2808624d" title="subroutines::wait_calc" alt="" coords="523,269,696,299"/>
+<area shape="rect" id="node23" href="$namespacesubroutines.html#a7580fc0416f20d44b3cfa79ebc20a839" title="subroutines::wipe_node" alt="" coords="275,269,456,299"/>
+<area shape="rect" id="node9" href="$namespacebsimple.html#a11b24c82d3405b40e38891f5b2de1eeb" title="bsimple::find_min" alt="" coords="540,59,679,88"/>
+<area shape="rect" id="node11" href="$namespacebsimple.html#ae6c8fc172ff255d4d825b1f507d9fd82" title="bsimple::write_node" alt="" coords="531,112,688,141"/>
+<area shape="rect" id="node15" href="$namespacesubroutines.html#ad97e0b9db9cfe6329f9f8fdb886077e7" title="subroutines::hopping" alt="" coords="745,216,905,245"/>
+<area shape="rect" id="node17" href="$namespacesubroutines.html#a0a51843cbd2415487f29e4314e1de97a" title="subroutines::transport" alt="" coords="523,216,696,245"/>
+</map>

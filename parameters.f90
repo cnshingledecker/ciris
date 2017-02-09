@@ -21,6 +21,7 @@ MODULE parameters
   REAL                                   :: GVALUE(3) = 0
   REAL                                   :: CUIRCT(3) = 0
   REAL                                   :: CUPREL = 0
+  INTEGER                                :: PMODEL = 0
 
   !******************************************************************************
   ! Input file names
