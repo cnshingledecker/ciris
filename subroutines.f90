@@ -915,12 +915,13 @@ CONTAINS
        call exit()
     end if
 
+
+    ! Write output
     IF ( NO_OUTPUT .EQV. .FALSE. ) THEN
-       varfmt = "(3ES15.4,7I10)"
+       varfmt = "(2ES15.4,7I10)"
        WRITE(AB_LUN,varfmt) &
             FLUENCE, & ! 1. Float64
             TIME,    & ! 3. Float64
-            REAL(O3_ABUNDANCE)/(TOTAL_PROTON_ELOSS/100.0), &
             o2_count, & ! 4. Int64
             o_count, & ! 5. Int64
             o3_count, &          ! 6. Int64
@@ -930,7 +931,25 @@ CONTAINS
             numatoms
     END IF
 
+    GVALUE = 0
+    GVALUE = CUIRCT(:)/(TOTAL_PROTON_ELOSS/100.0)
+    varfmt = "(9ES15.4)"
+    WRITE(GEMINACY_LUN,varfmt) &
+      GVALUE(1), &
+      SP_PROD_DEST(ONUM,1)/(TOTAL_PROTON_ELOSS/100.0), &
+      (SP_PROD_DEST(ONUM,1)-SP_PROD_DEST(ONUM,2))/(TOTAL_PROTON_ELOSS/100.0), &
+      GVALUE(2), &
+      SP_PROD_DEST(O2NUM,1)/(TOTAL_PROTON_ELOSS/100.0), &
+      (SP_PROD_DEST(O2NUM,1)-SP_PROD_DEST(O2NUM,2))/(TOTAL_PROTON_ELOSS/100.0), &
+      GVALUE(3), &
+      SP_PROD_DEST(O3NUM,1)/(TOTAL_PROTON_ELOSS/100.0), &
+      (SP_PROD_DEST(O3NUM,1)-SP_PROD_DEST(O3NUM,2))/(TOTAL_PROTON_ELOSS/100.0)
+
+    CUIRCT = 0
+    TOTAL_PROTON_ELOSS = 0
+
     if ( o3_analytics .eqv. .true. ) call writereactions(RE_HEAD)
+
 
     IF ( QUIET .EQV. .FALSE. ) THEN
        varfmt = "(A6,ES10.4,A9,ES10.4)"
@@ -941,8 +960,6 @@ CONTAINS
        PRINT *, "O=",O_ABUNDANCE,"O2=",o2_count,"O3=",O3_ABUNDANCE
        PRINT *, "O*=",ostarcount,"O2*=",o2starcount,"O3*=",o3starcount
        print *, "numatoms=",numatoms, "othercount=",othercount
-       PRINT *, '***********************************************************************'
-       PRINT *, "Geminacy=",O3_ABUNDANCE/(TOTAL_PROTON_ELOSS/100.0)
        PRINT *, '***********************************************************************'
 
     END IF

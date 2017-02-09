@@ -69,6 +69,11 @@ PROGRAM main
   basefile = "_reactions.wsv"
 
 
+  OPEN(&
+    FILE=GEMINACY_FILE, &
+    UNIT=GEMINACY_LUN, &
+    POSITION='APPEND', &
+    STATUS='REPLACE')
 
   OPEN(UNIT=AB_LUN,&
        FILE="abundance.wsv",&

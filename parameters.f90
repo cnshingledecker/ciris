@@ -18,6 +18,9 @@ MODULE parameters
   DOUBLE PRECISION                       :: TIME        = 0
   TYPE(reaction), POINTER                :: RE_HEAD
   integer :: initialatoms = 0
+  REAL                                   :: GVALUE(3) = 0
+  REAL                                   :: CUIRCT(3) = 0
+  REAL                                   :: CUPREL = 0
 
   !******************************************************************************
   ! Input file names
@@ -25,6 +28,7 @@ MODULE parameters
   CHARACTER(LEN=80), PARAMETER :: SPECIES_FILE   = 'species.dat'   ! Name of species file
   CHARACTER(LEN=80), PARAMETER :: REACTIONS_FILE = 'reactions.dat' ! Name of reactions file
   CHARACTER(LEN=80), PARAMETER :: PARAMS_FILE    = 'params.dat'    ! Name of constants file (for GP)
+  CHARACTER(LEN=80), PARAMETER :: GEMINACY_FILE  = 'geminacies.wsv'
 
   !******************************************************************************
   ! Initial Ion Energy
@@ -111,6 +115,7 @@ MODULE parameters
   INTEGER         , PARAMETER :: RATE_LUN      = 4 ! Rate output file
   INTEGER         , PARAMETER :: TRACKPLOT_LUN = 5 ! Track file
   INTEGER         , PARAMETER :: TRACK_AN_LUN  = 7777
+  INTEGER         , PARAMETER :: GEMINACY_LUN  = 8888
   !******************************************************************************
   ! Analytics Parameters
   !******************************************************************************
