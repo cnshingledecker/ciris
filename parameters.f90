@@ -22,6 +22,7 @@ MODULE parameters
   REAL                                   :: CUIRCT(3) = 0
   REAL                                   :: CUPREL = 0
   INTEGER                                :: PMODEL = 0
+  INTEGER                                :: NTRACK(3)
 
   !******************************************************************************
   ! Input file names
@@ -53,8 +54,8 @@ MODULE parameters
   INTEGER         , PARAMETER :: FIX1     = 150
   INTEGER         , PARAMETER :: FIX2     = 150
   INTEGER         , PARAMETER :: FIX3     = 150
-  DOUBLE PRECISION, PARAMETER :: THICK    = 1.0e-5                      !1.0e-5 ! Thickness of the ice in cm
-  DOUBLE PRECISION, PARAMETER :: EDGE     = 3.5e-6                      !1.0e-7 ! The edge of the crystal in cm
+  DOUBLE PRECISION, PARAMETER :: THICK    = 1.3e-5                      !1.0e-5 ! Thickness of the ice in cm
+  DOUBLE PRECISION, PARAMETER :: EDGE     = 1.3e-5                      !1.0e-7 ! The edge of the crystal in cm
   DOUBLE PRECISION, PARAMETER :: VOLUME   = THICK*EDGE*EDGE             ! Volume of ice chunk
   DOUBLE PRECISION, PARAMETER :: KIN_TEMP = 5.0D0                       ! Kinetic temperature in Kelvin
   DOUBLE PRECISION, PARAMETER :: AREA     = EDGE*EDGE                   ! Area of irradiated surface in cm
@@ -105,6 +106,7 @@ MODULE parameters
   DOUBLE PRECISION, PARAMETER :: ELASTIC_LOSS      = 0.0    ! Percent of Etot lost per electron hop
   DOUBLE PRECISION, PARAMETER :: TRL_NU            = 1.0E12 ! Trial frequency, for the rates, in 1/s
   INTEGER         , PARAMETER :: STEPFAC           = 1  ! Determines freq. between colls. for protons
+  DOUBLE PRECISION, PARAMETER :: AVAL              = 33.0d0 !21.0d0     ! Parameter for Gamma distribution
 
 
   !******************************************************************************
@@ -120,7 +122,7 @@ MODULE parameters
   !******************************************************************************
   ! Analytics Parameters
   !******************************************************************************
-  INTEGER         , PARAMETER :: TRACKMIN     = 5000
+  INTEGER         , PARAMETER :: TRACKMIN     = 100
   INTEGER         , PARAMETER :: TRACKMAX     = 1000000
   INTEGER                     :: COUNT_COUNT  = 0.0
   INTEGER                     :: FIND_EMPTY_COUNT = 0
@@ -174,8 +176,4 @@ MODULE parameters
   LOGICAL         , PARAMETER :: TRACK_ANALYTICS = .TRUE.
   LOGICAL         , PARAMETER :: FIXED_STEP   = .FALSE.
 
-  !******************************************************************************
-  ! Fitting parameters
-  !******************************************************************************
-  DOUBLE PRECISION :: AVAL         = 33.0d0 !21.0d0     ! Parameter for Gamma distribution
 END MODULE parameters

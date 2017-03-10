@@ -281,6 +281,7 @@ CONTAINS
     BI_CALLS = 0
     PROTON_ELOSS = 0
     PROTON_COLL = 0
+    NTRACK = 0
 
     ! Calculate the initial cross-sections based on the initial ion energy
     ! For O2
@@ -335,6 +336,9 @@ CONTAINS
       x = 1 + FLOOR( DIMENS(3)*p )
       y = 1 + FLOOR( DIMENS(2)*u )
       z = 1
+      NTRACK(1) = z
+      NTRACK(2) = y
+      NTRACK(3) = x
       IF ( TRACKPLOT .EQV. .TRUE. ) THEN
         PRINT *, "Trackplot on"
         IF ( x .GT. ((DIMENS(3)/2)-(DIMENS(3)*0.1)) .AND. &
@@ -2504,9 +2508,13 @@ END DO
     LOGICAL, INTENT(IN) :: electron ! TRUE if the particle is an electron
     CHARACTER(LEN=10) :: particle
     CHARACTER(LEN=30) :: fmt
+    REAL              :: outcoords(3)
 
-    fmt = "(A5,ES10.4,5I10)"
+    fmt = "(A5,4ES10.4,2I10)"
 
+    outcoords(1) = REAL(NTRACK(1) - coords(1))*BDIM*1.0e8
+    outcoords(2) = REAL(NTRACK(2) - coords(2))*BDIM*1.0e8
+    outcoords(3) = REAL(NTRACK(3) - coords(3))*BDIM*1.0e8
 
     IF ( electron .EQV. .TRUE. ) THEN
       particle = "ELE"
@@ -2517,9 +2525,9 @@ END DO
     WRITE(TRACKPLOT_LUN,fmt) &
       particle ,&
       energy   ,&
-      coords(1),&
-      coords(2),&
-      coords(3),&
+      outcoords(1),&
+      outcoords(2),&
+      outcoords(3),&
       PMODEL   ,&
       e_branch
   END SUBROUTINE trackwrite

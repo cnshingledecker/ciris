@@ -1,0 +1,448 @@
+\contentsline {chapter}{\numberline {1}Modules Index}{1}{chapter.1}
+\contentsline {section}{\numberline {1.1}Modules List}{1}{section.1.1}
+\contentsline {chapter}{\numberline {2}Data Type Index}{3}{chapter.2}
+\contentsline {section}{\numberline {2.1}Data Types List}{3}{section.2.1}
+\contentsline {chapter}{\numberline {3}File Index}{5}{chapter.3}
+\contentsline {section}{\numberline {3.1}File List}{5}{section.3.1}
+\contentsline {chapter}{\numberline {4}Module Documentation}{7}{chapter.4}
+\contentsline {section}{\numberline {4.1}branchmod Module Reference}{7}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}Function/Subroutine Documentation}{7}{subsection.4.1.1}
+\contentsline {subsubsection}{\numberline {4.1.1.1}branching}{7}{subsubsection.4.1.1.1}
+\contentsline {subsubsection}{\numberline {4.1.1.2}bumpreaction}{8}{subsubsection.4.1.1.2}
+\contentsline {subsubsection}{\numberline {4.1.1.3}selectbranch}{8}{subsubsection.4.1.1.3}
+\contentsline {section}{\numberline {4.2}bsimple Module Reference}{9}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}Function/Subroutine Documentation}{9}{subsection.4.2.1}
+\contentsline {subsubsection}{\numberline {4.2.1.1}add\_\discretionary {-}{}{}node}{9}{subsubsection.4.2.1.1}
+\contentsline {subsubsection}{\numberline {4.2.1.2}delete\_\discretionary {-}{}{}node}{9}{subsubsection.4.2.1.2}
+\contentsline {subsubsection}{\numberline {4.2.1.3}find\_\discretionary {-}{}{}min}{10}{subsubsection.4.2.1.3}
+\contentsline {subsubsection}{\numberline {4.2.1.4}find\_\discretionary {-}{}{}node}{10}{subsubsection.4.2.1.4}
+\contentsline {subsubsection}{\numberline {4.2.1.5}find\_\discretionary {-}{}{}previous}{11}{subsubsection.4.2.1.5}
+\contentsline {subsubsection}{\numberline {4.2.1.6}write\_\discretionary {-}{}{}node}{11}{subsubsection.4.2.1.6}
+\contentsline {section}{\numberline {4.3}functiondefs Module Reference}{12}{section.4.3}
+\contentsline {subsection}{\numberline {4.3.1}Function/Subroutine Documentation}{12}{subsection.4.3.1}
+\contentsline {subsubsection}{\numberline {4.3.1.1}a\_\discretionary {-}{}{}gs}{12}{subsubsection.4.3.1.1}
+\contentsline {subsubsection}{\numberline {4.3.1.2}arrhenius}{13}{subsubsection.4.3.1.2}
+\contentsline {subsubsection}{\numberline {4.3.1.3}au}{13}{subsubsection.4.3.1.3}
+\contentsline {subsubsection}{\numberline {4.3.1.4}b\_\discretionary {-}{}{}magic}{13}{subsubsection.4.3.1.4}
+\contentsline {subsubsection}{\numberline {4.3.1.5}eps}{13}{subsubsection.4.3.1.5}
+\contentsline {subsubsection}{\numberline {4.3.1.6}gamma\_\discretionary {-}{}{}gs}{14}{subsubsection.4.3.1.6}
+\contentsline {subsubsection}{\numberline {4.3.1.7}green\_\discretionary {-}{}{}mcneal}{14}{subsubsection.4.3.1.7}
+\contentsline {subsubsection}{\numberline {4.3.1.8}green\_\discretionary {-}{}{}sawada}{15}{subsubsection.4.3.1.8}
+\contentsline {subsubsection}{\numberline {4.3.1.9}greendutta}{15}{subsubsection.4.3.1.9}
+\contentsline {subsubsection}{\numberline {4.3.1.10}lab\_\discretionary {-}{}{}theta}{15}{subsubsection.4.3.1.10}
+\contentsline {subsubsection}{\numberline {4.3.1.11}magic}{16}{subsubsection.4.3.1.11}
+\contentsline {subsubsection}{\numberline {4.3.1.12}mass\_\discretionary {-}{}{}fac}{16}{subsubsection.4.3.1.12}
+\contentsline {subsubsection}{\numberline {4.3.1.13}ne\_\discretionary {-}{}{}mg}{16}{subsubsection.4.3.1.13}
+\contentsline {subsubsection}{\numberline {4.3.1.14}pelsig}{16}{subsubsection.4.3.1.14}
+\contentsline {subsubsection}{\numberline {4.3.1.15}pjgsigma}{17}{subsubsection.4.3.1.15}
+\contentsline {subsubsection}{\numberline {4.3.1.16}sne}{17}{subsubsection.4.3.1.16}
+\contentsline {subsubsection}{\numberline {4.3.1.17}sneps}{18}{subsubsection.4.3.1.17}
+\contentsline {subsubsection}{\numberline {4.3.1.18}t\_\discretionary {-}{}{}0\_\discretionary {-}{}{}gs}{18}{subsubsection.4.3.1.18}
+\contentsline {subsubsection}{\numberline {4.3.1.19}t\_\discretionary {-}{}{}coll}{18}{subsubsection.4.3.1.19}
+\contentsline {subsubsection}{\numberline {4.3.1.20}t\_\discretionary {-}{}{}max\_\discretionary {-}{}{}gs}{19}{subsubsection.4.3.1.20}
+\contentsline {section}{\numberline {4.4}gp Module Reference}{20}{section.4.4}
+\contentsline {subsection}{\numberline {4.4.1}Function/Subroutine Documentation}{20}{subsection.4.4.1}
+\contentsline {subsubsection}{\numberline {4.4.1.1}fitness}{20}{subsubsection.4.4.1.1}
+\contentsline {subsubsection}{\numberline {4.4.1.2}store\_\discretionary {-}{}{}rand}{20}{subsubsection.4.4.1.2}
+\contentsline {section}{\numberline {4.5}mc\_\discretionary {-}{}{}toolbox Module Reference}{21}{section.4.5}
+\contentsline {subsection}{\numberline {4.5.1}Function/Subroutine Documentation}{21}{subsection.4.5.1}
+\contentsline {subsubsection}{\numberline {4.5.1.1}r8\_\discretionary {-}{}{}normal\_\discretionary {-}{}{}01}{21}{subsubsection.4.5.1.1}
+\contentsline {subsubsection}{\numberline {4.5.1.2}r8\_\discretionary {-}{}{}normal\_\discretionary {-}{}{}ab}{21}{subsubsection.4.5.1.2}
+\contentsline {subsubsection}{\numberline {4.5.1.3}r8\_\discretionary {-}{}{}uniform\_\discretionary {-}{}{}01}{21}{subsubsection.4.5.1.3}
+\contentsline {subsubsection}{\numberline {4.5.1.4}rgamma}{21}{subsubsection.4.5.1.4}
+\contentsline {subsection}{\numberline {4.5.2}Variable Documentation}{22}{subsection.4.5.2}
+\contentsline {subsubsection}{\numberline {4.5.2.1}GSEED}{22}{subsubsection.4.5.2.1}
+\contentsline {subsubsection}{\numberline {4.5.2.2}MEANVAL}{22}{subsubsection.4.5.2.2}
+\contentsline {subsubsection}{\numberline {4.5.2.3}SDEV}{22}{subsubsection.4.5.2.3}
+\contentsline {section}{\numberline {4.6}newmod Module Reference}{23}{section.4.6}
+\contentsline {subsection}{\numberline {4.6.1}Function/Subroutine Documentation}{23}{subsection.4.6.1}
+\contentsline {subsubsection}{\numberline {4.6.1.1}lookup}{23}{subsubsection.4.6.1.1}
+\contentsline {section}{\numberline {4.7}parameters Module Reference}{24}{section.4.7}
+\contentsline {subsection}{\numberline {4.7.1}Variable Documentation}{27}{subsection.4.7.1}
+\contentsline {subsubsection}{\numberline {4.7.1.1}A0}{27}{subsubsection.4.7.1.1}
+\contentsline {subsubsection}{\numberline {4.7.1.2}AB\_\discretionary {-}{}{}LUN}{27}{subsubsection.4.7.1.2}
+\contentsline {subsubsection}{\numberline {4.7.1.3}ADIM}{27}{subsubsection.4.7.1.3}
+\contentsline {subsubsection}{\numberline {4.7.1.4}AREA}{27}{subsubsection.4.7.1.4}
+\contentsline {subsubsection}{\numberline {4.7.1.5}AVAL}{27}{subsubsection.4.7.1.5}
+\contentsline {subsubsection}{\numberline {4.7.1.6}BDIM}{27}{subsubsection.4.7.1.6}
+\contentsline {subsubsection}{\numberline {4.7.1.7}BETACRYS}{27}{subsubsection.4.7.1.7}
+\contentsline {subsubsection}{\numberline {4.7.1.8}BI\_\discretionary {-}{}{}CALLS}{27}{subsubsection.4.7.1.8}
+\contentsline {subsubsection}{\numberline {4.7.1.9}C\_\discretionary {-}{}{}PR}{28}{subsubsection.4.7.1.9}
+\contentsline {subsubsection}{\numberline {4.7.1.10}CALC\_\discretionary {-}{}{}RATES}{28}{subsubsection.4.7.1.10}
+\contentsline {subsubsection}{\numberline {4.7.1.11}CDIM}{28}{subsubsection.4.7.1.11}
+\contentsline {subsubsection}{\numberline {4.7.1.12}COUNT\_\discretionary {-}{}{}COUNT}{28}{subsubsection.4.7.1.12}
+\contentsline {subsubsection}{\numberline {4.7.1.13}CR\_\discretionary {-}{}{}FLUX}{28}{subsubsection.4.7.1.13}
+\contentsline {subsubsection}{\numberline {4.7.1.14}CR\_\discretionary {-}{}{}RATE}{28}{subsubsection.4.7.1.14}
+\contentsline {subsubsection}{\numberline {4.7.1.15}CRPNUM}{28}{subsubsection.4.7.1.15}
+\contentsline {subsubsection}{\numberline {4.7.1.16}CUIRCT}{28}{subsubsection.4.7.1.16}
+\contentsline {subsubsection}{\numberline {4.7.1.17}CUPREL}{29}{subsubsection.4.7.1.17}
+\contentsline {subsubsection}{\numberline {4.7.1.18}DEBUG}{29}{subsubsection.4.7.1.18}
+\contentsline {subsubsection}{\numberline {4.7.1.19}DELTA\_\discretionary {-}{}{}TIME}{29}{subsubsection.4.7.1.19}
+\contentsline {subsubsection}{\numberline {4.7.1.20}DIMENS}{29}{subsubsection.4.7.1.20}
+\contentsline {subsubsection}{\numberline {4.7.1.21}E\_\discretionary {-}{}{}BULK}{29}{subsubsection.4.7.1.21}
+\contentsline {subsubsection}{\numberline {4.7.1.22}E\_\discretionary {-}{}{}SURF}{29}{subsubsection.4.7.1.22}
+\contentsline {subsubsection}{\numberline {4.7.1.23}EBASE}{29}{subsubsection.4.7.1.23}
+\contentsline {subsubsection}{\numberline {4.7.1.24}ECHARG2}{30}{subsubsection.4.7.1.24}
+\contentsline {subsubsection}{\numberline {4.7.1.25}ECUTOFF}{30}{subsubsection.4.7.1.25}
+\contentsline {subsubsection}{\numberline {4.7.1.26}EDGE}{30}{subsubsection.4.7.1.26}
+\contentsline {subsubsection}{\numberline {4.7.1.27}EINIT}{30}{subsubsection.4.7.1.27}
+\contentsline {subsubsection}{\numberline {4.7.1.28}ELASTIC\_\discretionary {-}{}{}LOSS}{30}{subsubsection.4.7.1.28}
+\contentsline {subsubsection}{\numberline {4.7.1.29}ELECNUM}{30}{subsubsection.4.7.1.29}
+\contentsline {subsubsection}{\numberline {4.7.1.30}EN\_\discretionary {-}{}{}LIST}{30}{subsubsection.4.7.1.30}
+\contentsline {subsubsection}{\numberline {4.7.1.31}ENERG}{31}{subsubsection.4.7.1.31}
+\contentsline {subsubsection}{\numberline {4.7.1.32}EXCNUM}{31}{subsubsection.4.7.1.32}
+\contentsline {subsubsection}{\numberline {4.7.1.33}fast\_\discretionary {-}{}{}reacts}{31}{subsubsection.4.7.1.33}
+\contentsline {subsubsection}{\numberline {4.7.1.34}FIND\_\discretionary {-}{}{}EMPTY\_\discretionary {-}{}{}COUNT}{31}{subsubsection.4.7.1.34}
+\contentsline {subsubsection}{\numberline {4.7.1.35}FINDMAX}{31}{subsubsection.4.7.1.35}
+\contentsline {subsubsection}{\numberline {4.7.1.36}FITNESS\_\discretionary {-}{}{}THRESHOLD}{31}{subsubsection.4.7.1.36}
+\contentsline {subsubsection}{\numberline {4.7.1.37}FIX1}{31}{subsubsection.4.7.1.37}
+\contentsline {subsubsection}{\numberline {4.7.1.38}FIX2}{32}{subsubsection.4.7.1.38}
+\contentsline {subsubsection}{\numberline {4.7.1.39}FIX3}{32}{subsubsection.4.7.1.39}
+\contentsline {subsubsection}{\numberline {4.7.1.40}FIX\_\discretionary {-}{}{}FREQ}{32}{subsubsection.4.7.1.40}
+\contentsline {subsubsection}{\numberline {4.7.1.41}FIXED\_\discretionary {-}{}{}SIZE}{32}{subsubsection.4.7.1.41}
+\contentsline {subsubsection}{\numberline {4.7.1.42}FIXED\_\discretionary {-}{}{}STEP}{32}{subsubsection.4.7.1.42}
+\contentsline {subsubsection}{\numberline {4.7.1.43}FLUENCE}{32}{subsubsection.4.7.1.43}
+\contentsline {subsubsection}{\numberline {4.7.1.44}FLUENCE\_\discretionary {-}{}{}TOTAL}{32}{subsubsection.4.7.1.44}
+\contentsline {subsubsection}{\numberline {4.7.1.45}GEMINACY\_\discretionary {-}{}{}FILE}{33}{subsubsection.4.7.1.45}
+\contentsline {subsubsection}{\numberline {4.7.1.46}GEMINACY\_\discretionary {-}{}{}LUN}{33}{subsubsection.4.7.1.46}
+\contentsline {subsubsection}{\numberline {4.7.1.47}GVALUE}{33}{subsubsection.4.7.1.47}
+\contentsline {subsubsection}{\numberline {4.7.1.48}initialatoms}{33}{subsubsection.4.7.1.48}
+\contentsline {subsubsection}{\numberline {4.7.1.49}IONLIST}{33}{subsubsection.4.7.1.49}
+\contentsline {subsubsection}{\numberline {4.7.1.50}IONS}{33}{subsubsection.4.7.1.50}
+\contentsline {subsubsection}{\numberline {4.7.1.51}ISBARRIER}{33}{subsubsection.4.7.1.51}
+\contentsline {subsubsection}{\numberline {4.7.1.52}KIN\_\discretionary {-}{}{}TEMP}{33}{subsubsection.4.7.1.52}
+\contentsline {subsubsection}{\numberline {4.7.1.53}MATRIX}{34}{subsubsection.4.7.1.53}
+\contentsline {subsubsection}{\numberline {4.7.1.54}MNUM}{34}{subsubsection.4.7.1.54}
+\contentsline {subsubsection}{\numberline {4.7.1.55}MO1}{34}{subsubsection.4.7.1.55}
+\contentsline {subsubsection}{\numberline {4.7.1.56}MO2}{34}{subsubsection.4.7.1.56}
+\contentsline {subsubsection}{\numberline {4.7.1.57}MO3}{34}{subsubsection.4.7.1.57}
+\contentsline {subsubsection}{\numberline {4.7.1.58}MP}{34}{subsubsection.4.7.1.58}
+\contentsline {subsubsection}{\numberline {4.7.1.59}N\_\discretionary {-}{}{}O3HOP}{34}{subsubsection.4.7.1.59}
+\contentsline {subsubsection}{\numberline {4.7.1.60}N\_\discretionary {-}{}{}OHOP}{35}{subsubsection.4.7.1.60}
+\contentsline {subsubsection}{\numberline {4.7.1.61}NEDGE}{35}{subsubsection.4.7.1.61}
+\contentsline {subsubsection}{\numberline {4.7.1.62}NELEM}{35}{subsubsection.4.7.1.62}
+\contentsline {subsubsection}{\numberline {4.7.1.63}NO\_\discretionary {-}{}{}OUTPUT}{35}{subsubsection.4.7.1.63}
+\contentsline {subsubsection}{\numberline {4.7.1.64}NTHICK}{35}{subsubsection.4.7.1.64}
+\contentsline {subsubsection}{\numberline {4.7.1.65}NUM\_\discretionary {-}{}{}REACTS}{35}{subsubsection.4.7.1.65}
+\contentsline {subsubsection}{\numberline {4.7.1.66}NUM\_\discretionary {-}{}{}SPECIES}{35}{subsubsection.4.7.1.66}
+\contentsline {subsubsection}{\numberline {4.7.1.67}NUMPROTONS}{36}{subsubsection.4.7.1.67}
+\contentsline {subsubsection}{\numberline {4.7.1.68}O2\_\discretionary {-}{}{}ABUNDANCE}{36}{subsubsection.4.7.1.68}
+\contentsline {subsubsection}{\numberline {4.7.1.69}O2NUM}{36}{subsubsection.4.7.1.69}
+\contentsline {subsubsection}{\numberline {4.7.1.70}O2STARNUM}{36}{subsubsection.4.7.1.70}
+\contentsline {subsubsection}{\numberline {4.7.1.71}O3\_\discretionary {-}{}{}ABUNDANCE}{36}{subsubsection.4.7.1.71}
+\contentsline {subsubsection}{\numberline {4.7.1.72}O3\_\discretionary {-}{}{}ANALYTICS}{36}{subsubsection.4.7.1.72}
+\contentsline {subsubsection}{\numberline {4.7.1.73}O3NUM}{36}{subsubsection.4.7.1.73}
+\contentsline {subsubsection}{\numberline {4.7.1.74}O3STARNUM}{37}{subsubsection.4.7.1.74}
+\contentsline {subsubsection}{\numberline {4.7.1.75}O\_\discretionary {-}{}{}ABUNDANCE}{37}{subsubsection.4.7.1.75}
+\contentsline {subsubsection}{\numberline {4.7.1.76}ONUM}{37}{subsubsection.4.7.1.76}
+\contentsline {subsubsection}{\numberline {4.7.1.77}OSTARNUM}{37}{subsubsection.4.7.1.77}
+\contentsline {subsubsection}{\numberline {4.7.1.78}PARAMS\_\discretionary {-}{}{}FILE}{37}{subsubsection.4.7.1.78}
+\contentsline {subsubsection}{\numberline {4.7.1.79}PCUTOFF}{37}{subsubsection.4.7.1.79}
+\contentsline {subsubsection}{\numberline {4.7.1.80}PI}{37}{subsubsection.4.7.1.80}
+\contentsline {subsubsection}{\numberline {4.7.1.81}PMODEL}{38}{subsubsection.4.7.1.81}
+\contentsline {subsubsection}{\numberline {4.7.1.82}PRODS}{38}{subsubsection.4.7.1.82}
+\contentsline {subsubsection}{\numberline {4.7.1.83}PROTON\_\discretionary {-}{}{}COLL}{38}{subsubsection.4.7.1.83}
+\contentsline {subsubsection}{\numberline {4.7.1.84}PROTON\_\discretionary {-}{}{}ELOSS}{38}{subsubsection.4.7.1.84}
+\contentsline {subsubsection}{\numberline {4.7.1.85}Q0}{38}{subsubsection.4.7.1.85}
+\contentsline {subsubsection}{\numberline {4.7.1.86}QUIET}{38}{subsubsection.4.7.1.86}
+\contentsline {subsubsection}{\numberline {4.7.1.87}RATE\_\discretionary {-}{}{}LUN}{38}{subsubsection.4.7.1.87}
+\contentsline {subsubsection}{\numberline {4.7.1.88}RATEINFO}{38}{subsubsection.4.7.1.88}
+\contentsline {subsubsection}{\numberline {4.7.1.89}RE\_\discretionary {-}{}{}HEAD}{39}{subsubsection.4.7.1.89}
+\contentsline {subsubsection}{\numberline {4.7.1.90}REACTIONS\_\discretionary {-}{}{}FILE}{39}{subsubsection.4.7.1.90}
+\contentsline {subsubsection}{\numberline {4.7.1.91}REACTIONS\_\discretionary {-}{}{}LUN}{39}{subsubsection.4.7.1.91}
+\contentsline {subsubsection}{\numberline {4.7.1.92}RHO}{39}{subsubsection.4.7.1.92}
+\contentsline {subsubsection}{\numberline {4.7.1.93}RHO2}{39}{subsubsection.4.7.1.93}
+\contentsline {subsubsection}{\numberline {4.7.1.94}SECELEC}{39}{subsubsection.4.7.1.94}
+\contentsline {subsubsection}{\numberline {4.7.1.95}SHORT\_\discretionary {-}{}{}TIME}{39}{subsubsection.4.7.1.95}
+\contentsline {subsubsection}{\numberline {4.7.1.96}SP\_\discretionary {-}{}{}LIST}{39}{subsubsection.4.7.1.96}
+\contentsline {subsubsection}{\numberline {4.7.1.97}SP\_\discretionary {-}{}{}PROD\_\discretionary {-}{}{}DEST}{40}{subsubsection.4.7.1.97}
+\contentsline {subsubsection}{\numberline {4.7.1.98}SPECIAL\_\discretionary {-}{}{}LIST}{40}{subsubsection.4.7.1.98}
+\contentsline {subsubsection}{\numberline {4.7.1.99}SPECIES\_\discretionary {-}{}{}FILE}{40}{subsubsection.4.7.1.99}
+\contentsline {subsubsection}{\numberline {4.7.1.100}SPECIES\_\discretionary {-}{}{}LUN}{40}{subsubsection.4.7.1.100}
+\contentsline {subsubsection}{\numberline {4.7.1.101}STEPFAC}{40}{subsubsection.4.7.1.101}
+\contentsline {subsubsection}{\numberline {4.7.1.102}SUBEXHITPROB}{40}{subsubsection.4.7.1.102}
+\contentsline {subsubsection}{\numberline {4.7.1.103}TER}{40}{subsubsection.4.7.1.103}
+\contentsline {subsubsection}{\numberline {4.7.1.104}THICK}{41}{subsubsection.4.7.1.104}
+\contentsline {subsubsection}{\numberline {4.7.1.105}TIME}{41}{subsubsection.4.7.1.105}
+\contentsline {subsubsection}{\numberline {4.7.1.106}TIME\_\discretionary {-}{}{}COUNTS}{41}{subsubsection.4.7.1.106}
+\contentsline {subsubsection}{\numberline {4.7.1.107}TIME\_\discretionary {-}{}{}FREQ}{41}{subsubsection.4.7.1.107}
+\contentsline {subsubsection}{\numberline {4.7.1.108}TIME\_\discretionary {-}{}{}TOTAL}{41}{subsubsection.4.7.1.108}
+\contentsline {subsubsection}{\numberline {4.7.1.109}TOTAL\_\discretionary {-}{}{}PROTON\_\discretionary {-}{}{}ELOSS}{41}{subsubsection.4.7.1.109}
+\contentsline {subsubsection}{\numberline {4.7.1.110}TRACK\_\discretionary {-}{}{}AN\_\discretionary {-}{}{}LUN}{41}{subsubsection.4.7.1.110}
+\contentsline {subsubsection}{\numberline {4.7.1.111}TRACK\_\discretionary {-}{}{}ANALYTICS}{41}{subsubsection.4.7.1.111}
+\contentsline {subsubsection}{\numberline {4.7.1.112}TRACKMAX}{42}{subsubsection.4.7.1.112}
+\contentsline {subsubsection}{\numberline {4.7.1.113}TRACKMIN}{42}{subsubsection.4.7.1.113}
+\contentsline {subsubsection}{\numberline {4.7.1.114}TRACKPLOT}{42}{subsubsection.4.7.1.114}
+\contentsline {subsubsection}{\numberline {4.7.1.115}TRACKPLOT\_\discretionary {-}{}{}LUN}{42}{subsubsection.4.7.1.115}
+\contentsline {subsubsection}{\numberline {4.7.1.116}TRL\_\discretionary {-}{}{}NU}{42}{subsubsection.4.7.1.116}
+\contentsline {subsubsection}{\numberline {4.7.1.117}VOLUME}{42}{subsubsection.4.7.1.117}
+\contentsline {subsubsection}{\numberline {4.7.1.118}ZO1}{42}{subsubsection.4.7.1.118}
+\contentsline {subsubsection}{\numberline {4.7.1.119}ZO2}{42}{subsubsection.4.7.1.119}
+\contentsline {subsubsection}{\numberline {4.7.1.120}ZO3}{43}{subsubsection.4.7.1.120}
+\contentsline {subsubsection}{\numberline {4.7.1.121}ZP}{43}{subsubsection.4.7.1.121}
+\contentsline {section}{\numberline {4.8}readinput Module Reference}{44}{section.4.8}
+\contentsline {subsection}{\numberline {4.8.1}Function/Subroutine Documentation}{44}{subsection.4.8.1}
+\contentsline {subsubsection}{\numberline {4.8.1.1}buildnetwork}{44}{subsubsection.4.8.1.1}
+\contentsline {section}{\numberline {4.9}specdata Module Reference}{45}{section.4.9}
+\contentsline {subsection}{\numberline {4.9.1}Variable Documentation}{46}{subsection.4.9.1}
+\contentsline {subsubsection}{\numberline {4.9.1.1}o2\_\discretionary {-}{}{}e\_\discretionary {-}{}{}ex\_\discretionary {-}{}{}alwd}{46}{subsubsection.4.9.1.1}
+\contentsline {subsubsection}{\numberline {4.9.1.2}o2\_\discretionary {-}{}{}e\_\discretionary {-}{}{}ex\_\discretionary {-}{}{}fbdn}{46}{subsubsection.4.9.1.2}
+\contentsline {subsubsection}{\numberline {4.9.1.3}o2\_\discretionary {-}{}{}e\_\discretionary {-}{}{}ion}{46}{subsubsection.4.9.1.3}
+\contentsline {subsubsection}{\numberline {4.9.1.4}o2\_\discretionary {-}{}{}p\_\discretionary {-}{}{}ex}{46}{subsubsection.4.9.1.4}
+\contentsline {subsubsection}{\numberline {4.9.1.5}o2\_\discretionary {-}{}{}p\_\discretionary {-}{}{}ion}{47}{subsubsection.4.9.1.5}
+\contentsline {subsubsection}{\numberline {4.9.1.6}o3\_\discretionary {-}{}{}p\_\discretionary {-}{}{}ex}{47}{subsubsection.4.9.1.6}
+\contentsline {subsubsection}{\numberline {4.9.1.7}o3\_\discretionary {-}{}{}p\_\discretionary {-}{}{}ion}{47}{subsubsection.4.9.1.7}
+\contentsline {subsubsection}{\numberline {4.9.1.8}o\_\discretionary {-}{}{}e\_\discretionary {-}{}{}ex\_\discretionary {-}{}{}alwd}{47}{subsubsection.4.9.1.8}
+\contentsline {subsubsection}{\numberline {4.9.1.9}o\_\discretionary {-}{}{}e\_\discretionary {-}{}{}ex\_\discretionary {-}{}{}fbdn}{47}{subsubsection.4.9.1.9}
+\contentsline {subsubsection}{\numberline {4.9.1.10}o\_\discretionary {-}{}{}e\_\discretionary {-}{}{}ion}{48}{subsubsection.4.9.1.10}
+\contentsline {subsubsection}{\numberline {4.9.1.11}o\_\discretionary {-}{}{}p\_\discretionary {-}{}{}ex}{48}{subsubsection.4.9.1.11}
+\contentsline {subsubsection}{\numberline {4.9.1.12}o\_\discretionary {-}{}{}p\_\discretionary {-}{}{}ion}{48}{subsubsection.4.9.1.12}
+\contentsline {section}{\numberline {4.10}subroutines Module Reference}{49}{section.4.10}
+\contentsline {subsection}{\numberline {4.10.1}Function/Subroutine Documentation}{49}{subsection.4.10.1}
+\contentsline {subsubsection}{\numberline {4.10.1.1}analyzereaction}{49}{subsubsection.4.10.1.1}
+\contentsline {subsubsection}{\numberline {4.10.1.2}counter}{50}{subsubsection.4.10.1.2}
+\contentsline {subsubsection}{\numberline {4.10.1.3}e\_\discretionary {-}{}{}ex\_\discretionary {-}{}{}select}{50}{subsubsection.4.10.1.3}
+\contentsline {subsubsection}{\numberline {4.10.1.4}e\_\discretionary {-}{}{}ion\_\discretionary {-}{}{}select}{51}{subsubsection.4.10.1.4}
+\contentsline {subsubsection}{\numberline {4.10.1.5}elastic\_\discretionary {-}{}{}event}{51}{subsubsection.4.10.1.5}
+\contentsline {subsubsection}{\numberline {4.10.1.6}esigma\_\discretionary {-}{}{}suite}{52}{subsubsection.4.10.1.6}
+\contentsline {subsubsection}{\numberline {4.10.1.7}fallout}{53}{subsubsection.4.10.1.7}
+\contentsline {subsubsection}{\numberline {4.10.1.8}find\_\discretionary {-}{}{}empty\_\discretionary {-}{}{}site}{54}{subsubsection.4.10.1.8}
+\contentsline {subsubsection}{\numberline {4.10.1.9}hopping}{55}{subsubsection.4.10.1.9}
+\contentsline {subsubsection}{\numberline {4.10.1.10}init\_\discretionary {-}{}{}node}{56}{subsubsection.4.10.1.10}
+\contentsline {subsubsection}{\numberline {4.10.1.11}lookup}{56}{subsubsection.4.10.1.11}
+\contentsline {subsubsection}{\numberline {4.10.1.12}new\_\discretionary {-}{}{}electron}{56}{subsubsection.4.10.1.12}
+\contentsline {subsubsection}{\numberline {4.10.1.13}new\_\discretionary {-}{}{}reaction}{58}{subsubsection.4.10.1.13}
+\contentsline {subsubsection}{\numberline {4.10.1.14}p\_\discretionary {-}{}{}ex\_\discretionary {-}{}{}select}{58}{subsubsection.4.10.1.14}
+\contentsline {subsubsection}{\numberline {4.10.1.15}p\_\discretionary {-}{}{}ion\_\discretionary {-}{}{}select}{59}{subsubsection.4.10.1.15}
+\contentsline {subsubsection}{\numberline {4.10.1.16}psigma\_\discretionary {-}{}{}suite}{59}{subsubsection.4.10.1.16}
+\contentsline {subsubsection}{\numberline {4.10.1.17}se\_\discretionary {-}{}{}info\_\discretionary {-}{}{}garbage}{60}{subsubsection.4.10.1.17}
+\contentsline {subsubsection}{\numberline {4.10.1.18}se\_\discretionary {-}{}{}info\_\discretionary {-}{}{}init}{61}{subsubsection.4.10.1.18}
+\contentsline {subsubsection}{\numberline {4.10.1.19}trackwrite}{61}{subsubsection.4.10.1.19}
+\contentsline {subsubsection}{\numberline {4.10.1.20}transport}{61}{subsubsection.4.10.1.20}
+\contentsline {subsubsection}{\numberline {4.10.1.21}wait\_\discretionary {-}{}{}calc}{62}{subsubsection.4.10.1.21}
+\contentsline {subsubsection}{\numberline {4.10.1.22}wipe\_\discretionary {-}{}{}node}{62}{subsubsection.4.10.1.22}
+\contentsline {subsubsection}{\numberline {4.10.1.23}writereactions}{63}{subsubsection.4.10.1.23}
+\contentsline {section}{\numberline {4.11}typedefs Module Reference}{64}{section.4.11}
+\contentsline {chapter}{\numberline {5}Data Type Documentation}{65}{chapter.5}
+\contentsline {section}{\numberline {5.1}typedefs::alwd\_\discretionary {-}{}{}exstate Type Reference}{65}{section.5.1}
+\contentsline {subsection}{\numberline {5.1.1}Detailed Description}{65}{subsection.5.1.1}
+\contentsline {subsection}{\numberline {5.1.2}Member Data Documentation}{65}{subsection.5.1.2}
+\contentsline {subsubsection}{\numberline {5.1.2.1}alpha\_\discretionary {-}{}{}alwd}{65}{subsubsection.5.1.2.1}
+\contentsline {subsubsection}{\numberline {5.1.2.2}beta\_\discretionary {-}{}{}alwd}{65}{subsubsection.5.1.2.2}
+\contentsline {subsubsection}{\numberline {5.1.2.3}cj\_\discretionary {-}{}{}alwd}{66}{subsubsection.5.1.2.3}
+\contentsline {subsubsection}{\numberline {5.1.2.4}fj\_\discretionary {-}{}{}alwd}{66}{subsubsection.5.1.2.4}
+\contentsline {subsubsection}{\numberline {5.1.2.5}termsym\_\discretionary {-}{}{}alwd}{66}{subsubsection.5.1.2.5}
+\contentsline {subsubsection}{\numberline {5.1.2.6}wj\_\discretionary {-}{}{}alwd}{66}{subsubsection.5.1.2.6}
+\contentsline {section}{\numberline {5.2}typedefs::epg\_\discretionary {-}{}{}exstate Type Reference}{67}{section.5.2}
+\contentsline {subsection}{\numberline {5.2.1}Detailed Description}{67}{subsection.5.2.1}
+\contentsline {subsection}{\numberline {5.2.2}Member Data Documentation}{67}{subsection.5.2.2}
+\contentsline {subsubsection}{\numberline {5.2.2.1}a\_\discretionary {-}{}{}epgex}{67}{subsubsection.5.2.2.1}
+\contentsline {subsubsection}{\numberline {5.2.2.2}j\_\discretionary {-}{}{}epgex}{67}{subsubsection.5.2.2.2}
+\contentsline {subsubsection}{\numberline {5.2.2.3}nu\_\discretionary {-}{}{}epgex}{67}{subsubsection.5.2.2.3}
+\contentsline {subsubsection}{\numberline {5.2.2.4}omega\_\discretionary {-}{}{}epgex}{67}{subsubsection.5.2.2.4}
+\contentsline {subsubsection}{\numberline {5.2.2.5}termsym\_\discretionary {-}{}{}epgex}{67}{subsubsection.5.2.2.5}
+\contentsline {subsubsection}{\numberline {5.2.2.6}w\_\discretionary {-}{}{}epgex}{68}{subsubsection.5.2.2.6}
+\contentsline {section}{\numberline {5.3}typedefs::epg\_\discretionary {-}{}{}ionstate Type Reference}{69}{section.5.3}
+\contentsline {subsection}{\numberline {5.3.1}Detailed Description}{69}{subsection.5.3.1}
+\contentsline {subsection}{\numberline {5.3.2}Member Data Documentation}{69}{subsection.5.3.2}
+\contentsline {subsubsection}{\numberline {5.3.2.1}a\_\discretionary {-}{}{}epgion}{69}{subsubsection.5.3.2.1}
+\contentsline {subsubsection}{\numberline {5.3.2.2}i\_\discretionary {-}{}{}epgion}{69}{subsubsection.5.3.2.2}
+\contentsline {subsubsection}{\numberline {5.3.2.3}j\_\discretionary {-}{}{}epgion}{69}{subsubsection.5.3.2.3}
+\contentsline {subsubsection}{\numberline {5.3.2.4}nu\_\discretionary {-}{}{}epgion}{69}{subsubsection.5.3.2.4}
+\contentsline {subsubsection}{\numberline {5.3.2.5}omega\_\discretionary {-}{}{}epgion}{69}{subsubsection.5.3.2.5}
+\contentsline {subsubsection}{\numberline {5.3.2.6}termsym\_\discretionary {-}{}{}epgion}{70}{subsubsection.5.3.2.6}
+\contentsline {section}{\numberline {5.4}typedefs::fbdn\_\discretionary {-}{}{}exstate Type Reference}{71}{section.5.4}
+\contentsline {subsection}{\numberline {5.4.1}Detailed Description}{71}{subsection.5.4.1}
+\contentsline {subsection}{\numberline {5.4.2}Member Data Documentation}{71}{subsection.5.4.2}
+\contentsline {subsubsection}{\numberline {5.4.2.1}alpha\_\discretionary {-}{}{}fbdn}{71}{subsubsection.5.4.2.1}
+\contentsline {subsubsection}{\numberline {5.4.2.2}beta\_\discretionary {-}{}{}fbdn}{71}{subsubsection.5.4.2.2}
+\contentsline {subsubsection}{\numberline {5.4.2.3}fj\_\discretionary {-}{}{}fbdn}{71}{subsubsection.5.4.2.3}
+\contentsline {subsubsection}{\numberline {5.4.2.4}omega\_\discretionary {-}{}{}fbdn}{71}{subsubsection.5.4.2.4}
+\contentsline {subsubsection}{\numberline {5.4.2.5}termsym\_\discretionary {-}{}{}fbdn}{71}{subsubsection.5.4.2.5}
+\contentsline {subsubsection}{\numberline {5.4.2.6}wj\_\discretionary {-}{}{}fbdn}{72}{subsubsection.5.4.2.6}
+\contentsline {section}{\numberline {5.5}typedefs::ionstate Type Reference}{73}{section.5.5}
+\contentsline {subsection}{\numberline {5.5.1}Detailed Description}{73}{subsection.5.5.1}
+\contentsline {subsection}{\numberline {5.5.2}Member Data Documentation}{73}{subsection.5.5.2}
+\contentsline {subsubsection}{\numberline {5.5.2.1}gamb\_\discretionary {-}{}{}ion}{73}{subsubsection.5.5.2.1}
+\contentsline {subsubsection}{\numberline {5.5.2.2}gams\_\discretionary {-}{}{}ion}{73}{subsubsection.5.5.2.2}
+\contentsline {subsubsection}{\numberline {5.5.2.3}i\_\discretionary {-}{}{}energy}{73}{subsubsection.5.5.2.3}
+\contentsline {subsubsection}{\numberline {5.5.2.4}j\_\discretionary {-}{}{}ion}{73}{subsubsection.5.5.2.4}
+\contentsline {subsubsection}{\numberline {5.5.2.5}jb\_\discretionary {-}{}{}ion}{74}{subsubsection.5.5.2.5}
+\contentsline {subsubsection}{\numberline {5.5.2.6}jc\_\discretionary {-}{}{}ion}{74}{subsubsection.5.5.2.6}
+\contentsline {subsubsection}{\numberline {5.5.2.7}k\_\discretionary {-}{}{}ion}{74}{subsubsection.5.5.2.7}
+\contentsline {subsubsection}{\numberline {5.5.2.8}kb\_\discretionary {-}{}{}ion}{74}{subsubsection.5.5.2.8}
+\contentsline {subsubsection}{\numberline {5.5.2.9}ta\_\discretionary {-}{}{}ion}{74}{subsubsection.5.5.2.9}
+\contentsline {subsubsection}{\numberline {5.5.2.10}tb\_\discretionary {-}{}{}ion}{74}{subsubsection.5.5.2.10}
+\contentsline {subsubsection}{\numberline {5.5.2.11}termsym\_\discretionary {-}{}{}ion}{74}{subsubsection.5.5.2.11}
+\contentsline {subsubsection}{\numberline {5.5.2.12}ts\_\discretionary {-}{}{}ion}{74}{subsubsection.5.5.2.12}
+\contentsline {section}{\numberline {5.6}typedefs::node Type Reference}{75}{section.5.6}
+\contentsline {subsection}{\numberline {5.6.1}Detailed Description}{75}{subsection.5.6.1}
+\contentsline {subsection}{\numberline {5.6.2}Member Data Documentation}{75}{subsection.5.6.2}
+\contentsline {subsubsection}{\numberline {5.6.2.1}act\_\discretionary {-}{}{}type}{75}{subsubsection.5.6.2.1}
+\contentsline {subsubsection}{\numberline {5.6.2.2}after}{75}{subsubsection.5.6.2.2}
+\contentsline {subsubsection}{\numberline {5.6.2.3}before}{76}{subsubsection.5.6.2.3}
+\contentsline {subsubsection}{\numberline {5.6.2.4}coord1}{76}{subsubsection.5.6.2.4}
+\contentsline {subsubsection}{\numberline {5.6.2.5}coord2}{76}{subsubsection.5.6.2.5}
+\contentsline {subsubsection}{\numberline {5.6.2.6}coord3}{76}{subsubsection.5.6.2.6}
+\contentsline {subsubsection}{\numberline {5.6.2.7}hop\_\discretionary {-}{}{}dir}{76}{subsubsection.5.6.2.7}
+\contentsline {subsubsection}{\numberline {5.6.2.8}interstitial}{76}{subsubsection.5.6.2.8}
+\contentsline {subsubsection}{\numberline {5.6.2.9}leftRight}{76}{subsubsection.5.6.2.9}
+\contentsline {subsubsection}{\numberline {5.6.2.10}normal}{76}{subsubsection.5.6.2.10}
+\contentsline {subsubsection}{\numberline {5.6.2.11}parent}{76}{subsubsection.5.6.2.11}
+\contentsline {subsubsection}{\numberline {5.6.2.12}sec\_\discretionary {-}{}{}sp\_\discretionary {-}{}{}num}{76}{subsubsection.5.6.2.12}
+\contentsline {subsubsection}{\numberline {5.6.2.13}sp\_\discretionary {-}{}{}num}{77}{subsubsection.5.6.2.13}
+\contentsline {subsubsection}{\numberline {5.6.2.14}wait\_\discretionary {-}{}{}time}{77}{subsubsection.5.6.2.14}
+\contentsline {section}{\numberline {5.7}bsimple::OPERATOR($>$) Interface Reference}{78}{section.5.7}
+\contentsline {subsection}{\numberline {5.7.1}Detailed Description}{78}{subsection.5.7.1}
+\contentsline {section}{\numberline {5.8}typedefs::rate\_\discretionary {-}{}{}info Type Reference}{79}{section.5.8}
+\contentsline {subsection}{\numberline {5.8.1}Detailed Description}{79}{subsection.5.8.1}
+\contentsline {subsection}{\numberline {5.8.2}Member Data Documentation}{79}{subsection.5.8.2}
+\contentsline {subsubsection}{\numberline {5.8.2.1}count}{79}{subsubsection.5.8.2.1}
+\contentsline {subsubsection}{\numberline {5.8.2.2}r1}{79}{subsubsection.5.8.2.2}
+\contentsline {subsubsection}{\numberline {5.8.2.3}r2}{79}{subsubsection.5.8.2.3}
+\contentsline {section}{\numberline {5.9}typedefs::reaction Type Reference}{80}{section.5.9}
+\contentsline {subsection}{\numberline {5.9.1}Detailed Description}{80}{subsection.5.9.1}
+\contentsline {subsection}{\numberline {5.9.2}Member Data Documentation}{80}{subsection.5.9.2}
+\contentsline {subsubsection}{\numberline {5.9.2.1}arrh\_\discretionary {-}{}{}alpha}{80}{subsubsection.5.9.2.1}
+\contentsline {subsubsection}{\numberline {5.9.2.2}arrh\_\discretionary {-}{}{}beta}{80}{subsubsection.5.9.2.2}
+\contentsline {subsubsection}{\numberline {5.9.2.3}arrh\_\discretionary {-}{}{}gamma}{81}{subsubsection.5.9.2.3}
+\contentsline {subsubsection}{\numberline {5.9.2.4}count}{81}{subsubsection.5.9.2.4}
+\contentsline {subsubsection}{\numberline {5.9.2.5}id}{81}{subsubsection.5.9.2.5}
+\contentsline {subsubsection}{\numberline {5.9.2.6}next}{81}{subsubsection.5.9.2.6}
+\contentsline {subsubsection}{\numberline {5.9.2.7}np1}{81}{subsubsection.5.9.2.7}
+\contentsline {subsubsection}{\numberline {5.9.2.8}np2}{81}{subsubsection.5.9.2.8}
+\contentsline {subsubsection}{\numberline {5.9.2.9}np3}{81}{subsubsection.5.9.2.9}
+\contentsline {subsubsection}{\numberline {5.9.2.10}nr1}{81}{subsubsection.5.9.2.10}
+\contentsline {subsubsection}{\numberline {5.9.2.11}nr2}{81}{subsubsection.5.9.2.11}
+\contentsline {subsubsection}{\numberline {5.9.2.12}p1}{81}{subsubsection.5.9.2.12}
+\contentsline {subsubsection}{\numberline {5.9.2.13}p2}{82}{subsubsection.5.9.2.13}
+\contentsline {subsubsection}{\numberline {5.9.2.14}p3}{82}{subsubsection.5.9.2.14}
+\contentsline {subsubsection}{\numberline {5.9.2.15}r1}{82}{subsubsection.5.9.2.15}
+\contentsline {subsubsection}{\numberline {5.9.2.16}r2}{82}{subsubsection.5.9.2.16}
+\contentsline {subsubsection}{\numberline {5.9.2.17}rtype}{82}{subsubsection.5.9.2.17}
+\contentsline {section}{\numberline {5.10}newmod::reaction Type Reference}{83}{section.5.10}
+\contentsline {subsection}{\numberline {5.10.1}Detailed Description}{83}{subsection.5.10.1}
+\contentsline {subsection}{\numberline {5.10.2}Member Data Documentation}{83}{subsection.5.10.2}
+\contentsline {subsubsection}{\numberline {5.10.2.1}arrh\_\discretionary {-}{}{}alpha}{83}{subsubsection.5.10.2.1}
+\contentsline {subsubsection}{\numberline {5.10.2.2}arrh\_\discretionary {-}{}{}beta}{83}{subsubsection.5.10.2.2}
+\contentsline {subsubsection}{\numberline {5.10.2.3}arrh\_\discretionary {-}{}{}gamma}{84}{subsubsection.5.10.2.3}
+\contentsline {subsubsection}{\numberline {5.10.2.4}next}{84}{subsubsection.5.10.2.4}
+\contentsline {subsubsection}{\numberline {5.10.2.5}np1}{84}{subsubsection.5.10.2.5}
+\contentsline {subsubsection}{\numberline {5.10.2.6}np2}{84}{subsubsection.5.10.2.6}
+\contentsline {subsubsection}{\numberline {5.10.2.7}np3}{84}{subsubsection.5.10.2.7}
+\contentsline {subsubsection}{\numberline {5.10.2.8}nr1}{84}{subsubsection.5.10.2.8}
+\contentsline {subsubsection}{\numberline {5.10.2.9}nr2}{84}{subsubsection.5.10.2.9}
+\contentsline {subsubsection}{\numberline {5.10.2.10}p1}{84}{subsubsection.5.10.2.10}
+\contentsline {subsubsection}{\numberline {5.10.2.11}p2}{84}{subsubsection.5.10.2.11}
+\contentsline {subsubsection}{\numberline {5.10.2.12}p3}{84}{subsubsection.5.10.2.12}
+\contentsline {subsubsection}{\numberline {5.10.2.13}r1}{85}{subsubsection.5.10.2.13}
+\contentsline {subsubsection}{\numberline {5.10.2.14}r2}{85}{subsubsection.5.10.2.14}
+\contentsline {subsubsection}{\numberline {5.10.2.15}rtype}{85}{subsubsection.5.10.2.15}
+\contentsline {section}{\numberline {5.11}typedefs::reaction\_\discretionary {-}{}{}info Type Reference}{86}{section.5.11}
+\contentsline {subsection}{\numberline {5.11.1}Detailed Description}{86}{subsection.5.11.1}
+\contentsline {subsection}{\numberline {5.11.2}Member Data Documentation}{86}{subsection.5.11.2}
+\contentsline {subsubsection}{\numberline {5.11.2.1}arrh\_\discretionary {-}{}{}alpha}{86}{subsubsection.5.11.2.1}
+\contentsline {subsubsection}{\numberline {5.11.2.2}arrh\_\discretionary {-}{}{}beta}{86}{subsubsection.5.11.2.2}
+\contentsline {subsubsection}{\numberline {5.11.2.3}arrh\_\discretionary {-}{}{}gamma}{86}{subsubsection.5.11.2.3}
+\contentsline {subsubsection}{\numberline {5.11.2.4}id}{86}{subsubsection.5.11.2.4}
+\contentsline {subsubsection}{\numberline {5.11.2.5}np1}{86}{subsubsection.5.11.2.5}
+\contentsline {subsubsection}{\numberline {5.11.2.6}np2}{87}{subsubsection.5.11.2.6}
+\contentsline {subsubsection}{\numberline {5.11.2.7}np3}{87}{subsubsection.5.11.2.7}
+\contentsline {subsubsection}{\numberline {5.11.2.8}nr1}{87}{subsubsection.5.11.2.8}
+\contentsline {subsubsection}{\numberline {5.11.2.9}nr2}{87}{subsubsection.5.11.2.9}
+\contentsline {subsubsection}{\numberline {5.11.2.10}rtype}{87}{subsubsection.5.11.2.10}
+\contentsline {section}{\numberline {5.12}typedefs::se\_\discretionary {-}{}{}info Type Reference}{88}{section.5.12}
+\contentsline {subsection}{\numberline {5.12.1}Detailed Description}{89}{subsection.5.12.1}
+\contentsline {subsection}{\numberline {5.12.2}Member Data Documentation}{89}{subsection.5.12.2}
+\contentsline {subsubsection}{\numberline {5.12.2.1}generation}{89}{subsubsection.5.12.2.1}
+\contentsline {subsubsection}{\numberline {5.12.2.2}parent\_\discretionary {-}{}{}coords}{89}{subsubsection.5.12.2.2}
+\contentsline {subsubsection}{\numberline {5.12.2.3}se\_\discretionary {-}{}{}alwd}{89}{subsubsection.5.12.2.3}
+\contentsline {subsubsection}{\numberline {5.12.2.4}se\_\discretionary {-}{}{}alwd\_\discretionary {-}{}{}extot}{89}{subsubsection.5.12.2.4}
+\contentsline {subsubsection}{\numberline {5.12.2.5}se\_\discretionary {-}{}{}alwdsigs}{89}{subsubsection.5.12.2.5}
+\contentsline {subsubsection}{\numberline {5.12.2.6}se\_\discretionary {-}{}{}energy}{89}{subsubsection.5.12.2.6}
+\contentsline {subsubsection}{\numberline {5.12.2.7}se\_\discretionary {-}{}{}extot}{89}{subsubsection.5.12.2.7}
+\contentsline {subsubsection}{\numberline {5.12.2.8}se\_\discretionary {-}{}{}fbdn}{89}{subsubsection.5.12.2.8}
+\contentsline {subsubsection}{\numberline {5.12.2.9}se\_\discretionary {-}{}{}fbdn\_\discretionary {-}{}{}extot}{90}{subsubsection.5.12.2.9}
+\contentsline {subsubsection}{\numberline {5.12.2.10}se\_\discretionary {-}{}{}fbdnsigs}{90}{subsubsection.5.12.2.10}
+\contentsline {subsubsection}{\numberline {5.12.2.11}se\_\discretionary {-}{}{}ineltot}{90}{subsubsection.5.12.2.11}
+\contentsline {subsubsection}{\numberline {5.12.2.12}se\_\discretionary {-}{}{}ionsigs}{90}{subsubsection.5.12.2.12}
+\contentsline {subsubsection}{\numberline {5.12.2.13}se\_\discretionary {-}{}{}ionst}{90}{subsubsection.5.12.2.13}
+\contentsline {subsubsection}{\numberline {5.12.2.14}se\_\discretionary {-}{}{}iontot}{90}{subsubsection.5.12.2.14}
+\contentsline {subsubsection}{\numberline {5.12.2.15}se\_\discretionary {-}{}{}o3\_\discretionary {-}{}{}extot}{90}{subsubsection.5.12.2.15}
+\contentsline {subsubsection}{\numberline {5.12.2.16}se\_\discretionary {-}{}{}o3\_\discretionary {-}{}{}iontot}{90}{subsubsection.5.12.2.16}
+\contentsline {subsubsection}{\numberline {5.12.2.17}se\_\discretionary {-}{}{}o\_\discretionary {-}{}{}alwd}{90}{subsubsection.5.12.2.17}
+\contentsline {subsubsection}{\numberline {5.12.2.18}se\_\discretionary {-}{}{}o\_\discretionary {-}{}{}alwd\_\discretionary {-}{}{}extot}{91}{subsubsection.5.12.2.18}
+\contentsline {subsubsection}{\numberline {5.12.2.19}se\_\discretionary {-}{}{}o\_\discretionary {-}{}{}alwdsigs}{91}{subsubsection.5.12.2.19}
+\contentsline {subsubsection}{\numberline {5.12.2.20}se\_\discretionary {-}{}{}o\_\discretionary {-}{}{}extot}{91}{subsubsection.5.12.2.20}
+\contentsline {subsubsection}{\numberline {5.12.2.21}se\_\discretionary {-}{}{}o\_\discretionary {-}{}{}fbdn}{91}{subsubsection.5.12.2.21}
+\contentsline {subsubsection}{\numberline {5.12.2.22}se\_\discretionary {-}{}{}o\_\discretionary {-}{}{}fbdn\_\discretionary {-}{}{}extot}{91}{subsubsection.5.12.2.22}
+\contentsline {subsubsection}{\numberline {5.12.2.23}se\_\discretionary {-}{}{}o\_\discretionary {-}{}{}fbdnsigs}{91}{subsubsection.5.12.2.23}
+\contentsline {subsubsection}{\numberline {5.12.2.24}se\_\discretionary {-}{}{}o\_\discretionary {-}{}{}ineltot}{91}{subsubsection.5.12.2.24}
+\contentsline {subsubsection}{\numberline {5.12.2.25}se\_\discretionary {-}{}{}o\_\discretionary {-}{}{}ionsigs}{91}{subsubsection.5.12.2.25}
+\contentsline {subsubsection}{\numberline {5.12.2.26}se\_\discretionary {-}{}{}o\_\discretionary {-}{}{}ionst}{91}{subsubsection.5.12.2.26}
+\contentsline {subsubsection}{\numberline {5.12.2.27}se\_\discretionary {-}{}{}o\_\discretionary {-}{}{}iontot}{92}{subsubsection.5.12.2.27}
+\contentsline {section}{\numberline {5.13}typedefs::sigma\_\discretionary {-}{}{}box Type Reference}{93}{section.5.13}
+\contentsline {subsection}{\numberline {5.13.1}Detailed Description}{93}{subsection.5.13.1}
+\contentsline {subsection}{\numberline {5.13.2}Member Data Documentation}{93}{subsection.5.13.2}
+\contentsline {subsubsection}{\numberline {5.13.2.1}cross\_\discretionary {-}{}{}section}{93}{subsubsection.5.13.2.1}
+\contentsline {subsubsection}{\numberline {5.13.2.2}description}{93}{subsubsection.5.13.2.2}
+\contentsline {section}{\numberline {5.14}typedefs::species Type Reference}{94}{section.5.14}
+\contentsline {subsection}{\numberline {5.14.1}Detailed Description}{94}{subsection.5.14.1}
+\contentsline {subsection}{\numberline {5.14.2}Member Data Documentation}{94}{subsection.5.14.2}
+\contentsline {subsubsection}{\numberline {5.14.2.1}atoms}{94}{subsubsection.5.14.2.1}
+\contentsline {subsubsection}{\numberline {5.14.2.2}charge}{94}{subsubsection.5.14.2.2}
+\contentsline {subsubsection}{\numberline {5.14.2.3}e\_\discretionary {-}{}{}d}{94}{subsubsection.5.14.2.3}
+\contentsline {subsubsection}{\numberline {5.14.2.4}exc}{95}{subsubsection.5.14.2.4}
+\contentsline {subsubsection}{\numberline {5.14.2.5}id}{95}{subsubsection.5.14.2.5}
+\contentsline {subsubsection}{\numberline {5.14.2.6}ion}{95}{subsubsection.5.14.2.6}
+\contentsline {subsubsection}{\numberline {5.14.2.7}name}{95}{subsubsection.5.14.2.7}
+\contentsline {subsubsection}{\numberline {5.14.2.8}next}{95}{subsubsection.5.14.2.8}
+\contentsline {subsubsection}{\numberline {5.14.2.9}special}{95}{subsubsection.5.14.2.9}
+\contentsline {section}{\numberline {5.15}newmod::species Type Reference}{96}{section.5.15}
+\contentsline {subsection}{\numberline {5.15.1}Detailed Description}{96}{subsection.5.15.1}
+\contentsline {subsection}{\numberline {5.15.2}Member Data Documentation}{96}{subsection.5.15.2}
+\contentsline {subsubsection}{\numberline {5.15.2.1}e\_\discretionary {-}{}{}d}{96}{subsubsection.5.15.2.1}
+\contentsline {subsubsection}{\numberline {5.15.2.2}id}{96}{subsubsection.5.15.2.2}
+\contentsline {subsubsection}{\numberline {5.15.2.3}ion}{96}{subsubsection.5.15.2.3}
+\contentsline {subsubsection}{\numberline {5.15.2.4}name}{96}{subsubsection.5.15.2.4}
+\contentsline {subsubsection}{\numberline {5.15.2.5}next}{97}{subsubsection.5.15.2.5}
+\contentsline {subsubsection}{\numberline {5.15.2.6}special}{97}{subsubsection.5.15.2.6}
+\contentsline {section}{\numberline {5.16}typedefs::wait\_\discretionary {-}{}{}info Type Reference}{98}{section.5.16}
+\contentsline {subsection}{\numberline {5.16.1}Detailed Description}{98}{subsection.5.16.1}
+\contentsline {subsection}{\numberline {5.16.2}Member Data Documentation}{98}{subsection.5.16.2}
+\contentsline {subsubsection}{\numberline {5.16.2.1}act\_\discretionary {-}{}{}type}{98}{subsubsection.5.16.2.1}
+\contentsline {subsubsection}{\numberline {5.16.2.2}i}{98}{subsubsection.5.16.2.2}
+\contentsline {subsubsection}{\numberline {5.16.2.3}j}{98}{subsubsection.5.16.2.3}
+\contentsline {subsubsection}{\numberline {5.16.2.4}k}{98}{subsubsection.5.16.2.4}
+\contentsline {subsubsection}{\numberline {5.16.2.5}sp\_\discretionary {-}{}{}num}{98}{subsubsection.5.16.2.5}
+\contentsline {subsubsection}{\numberline {5.16.2.6}wait\_\discretionary {-}{}{}time}{99}{subsubsection.5.16.2.6}
+\contentsline {chapter}{\numberline {6}File Documentation}{101}{chapter.6}
+\contentsline {section}{\numberline {6.1}branchmod.f90 File Reference}{101}{section.6.1}
+\contentsline {section}{\numberline {6.2}bresenham.f90 File Reference}{102}{section.6.2}
+\contentsline {subsection}{\numberline {6.2.1}Function Documentation}{102}{subsection.6.2.1}
+\contentsline {subsubsection}{\numberline {6.2.1.1}bresenham}{102}{subsubsection.6.2.1.1}
+\contentsline {section}{\numberline {6.3}bsimple.f90 File Reference}{103}{section.6.3}
+\contentsline {section}{\numberline {6.4}functiondefs.f90 File Reference}{104}{section.6.4}
+\contentsline {section}{\numberline {6.5}gp.f90 File Reference}{105}{section.6.5}
+\contentsline {section}{\numberline {6.6}main.f90 File Reference}{106}{section.6.6}
+\contentsline {subsection}{\numberline {6.6.1}Function Documentation}{106}{subsection.6.6.1}
+\contentsline {subsubsection}{\numberline {6.6.1.1}main}{106}{subsubsection.6.6.1.1}
+\contentsline {section}{\numberline {6.7}mc\_\discretionary {-}{}{}toolbox.f90 File Reference}{108}{section.6.7}
+\contentsline {section}{\numberline {6.8}newbranch.f90 File Reference}{109}{section.6.8}
+\contentsline {section}{\numberline {6.9}newmod.f90 File Reference}{110}{section.6.9}
+\contentsline {section}{\numberline {6.10}newnet.f90 File Reference}{111}{section.6.10}
+\contentsline {subsection}{\numberline {6.10.1}Function Documentation}{111}{subsection.6.10.1}
+\contentsline {subsubsection}{\numberline {6.10.1.1}newnet}{111}{subsubsection.6.10.1.1}
+\contentsline {section}{\numberline {6.11}old\_\discretionary {-}{}{}branchmod.f90 File Reference}{112}{section.6.11}
+\contentsline {section}{\numberline {6.12}parameters.f90 File Reference}{113}{section.6.12}
+\contentsline {section}{\numberline {6.13}qbert.f90 File Reference}{117}{section.6.13}
+\contentsline {subsection}{\numberline {6.13.1}Function Documentation}{117}{subsection.6.13.1}
+\contentsline {subsubsection}{\numberline {6.13.1.1}qbert}{117}{subsubsection.6.13.1.1}
+\contentsline {subsubsection}{\numberline {6.13.1.2}sort\_\discretionary {-}{}{}energies}{117}{subsubsection.6.13.1.2}
+\contentsline {section}{\numberline {6.14}readinput.f90 File Reference}{118}{section.6.14}
+\contentsline {section}{\numberline {6.15}sigma\_\discretionary {-}{}{}test.f90 File Reference}{119}{section.6.15}
+\contentsline {subsection}{\numberline {6.15.1}Function Documentation}{119}{subsection.6.15.1}
+\contentsline {subsubsection}{\numberline {6.15.1.1}sigma\_\discretionary {-}{}{}test}{119}{subsubsection.6.15.1.1}
+\contentsline {section}{\numberline {6.16}specdata.f90 File Reference}{120}{section.6.16}
+\contentsline {section}{\numberline {6.17}subroutines.f90 File Reference}{122}{section.6.17}
+\contentsline {section}{\numberline {6.18}typedefs.f90 File Reference}{123}{section.6.18}
