@@ -171,12 +171,8 @@ FUNCTION r8_uniform_01 ( seedy )
   real ( kind = 8 ) r8_uniform_01
   integer ( kind = 4 ) seedy
 
-  PRINT *, '*******/Now in R8_UNIFORM_01/*******'
-  PRINT *, 'Seed is:',seedy
   k = seedy / 127773
-  PRINT *, 'k=',k
   seedy = 16807 * ( seedy - k * 127773 ) - k * 2836
-  PRINT *, 'seedy now =',seedy
 
 
   if ( seedy < 0 ) then
@@ -187,7 +183,6 @@ FUNCTION r8_uniform_01 ( seedy )
 !  it generally cannot be represented exactly as a 32 bit real number!
 !
   r8_uniform_01 = real ( seedy, kind = 8 ) * 4.656612875D-10
-  PRINT *, 'The uniform RN is:',r8_uniform_01
   return
 END FUNCTION r8_uniform_01
 

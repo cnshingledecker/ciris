@@ -85,12 +85,12 @@ t1         = 0
 
 ! Open files
 hopping_file = "hopping_data.txt"
-OPEN(UNIT=1009,FILE="abundance.csv",POSITION='APPEND', STATUS='REPLACE')
+OPEN(UNIT=1009,FILE="abundance.csv",STATUS='REPLACE')
 !OPEN(UNIT=1011,FILE=hopping_file)
 !OPEN(UNIT=1013,FILE="time_data.csv")
 !Below for debugging and analytics
-IF ( DEBUG .EQV. .TRUE. ) OPEN(UNIT=777,FILE='reaction_analytics.csv',STATUS='REPLACE',POSITION='APPEND')
-IF ( O3_ANALYTICS .EQV. .TRUE. ) OPEN(UNIT=O3_NUM,FILE='ozone_reactions.wsv', STATUS='REPLACE',POSITION='APPEND')
+IF ( DEBUG .EQV. .TRUE. ) OPEN(UNIT=777,FILE='reaction_analytics.csv',STATUS='REPLACE')
+IF ( O3_ANALYTICS .EQV. .TRUE. ) OPEN(UNIT=O3_NUM,FILE='ozone_reactions.wsv', STATUS='REPLACE')
 ! Nullify pointers
 NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len,o3_prod,o3_dest )
 
@@ -303,11 +303,12 @@ CLOSE(1009)
 !CLOSE(1011)
 !CLOSE(1013)
 IF ( DEBUG .EQV. .TRUE. ) CLOSE(777)
+IF ( O3_ANALYTICS .EQV. .TRUE. ) CLOSE(O3_NUM)
 
 !PRINT *, "wait_len is: ",wait_len
 !PRINT *, "Number of normal sites is:",SIZE(matrix)/3
 !PRINT *, "wait_list is size ",SIZE(wait_list)
 !PRINT *, 'Area is:',AREA
-NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len )
+NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len,o3_prod,o3_dest )
 DEALLOCATE( qube, sp_list, en_list, matrix,wait_target )
 END PROGRAM main

@@ -28,7 +28,7 @@ MODULE parameters
   REAL(KIND=DBL)  , PARAMETER :: BDIM        = 6.668e-8                    !    "
   REAL(KIND=DBL)  , PARAMETER :: ADIM        = 9.225e-8                    !    "
   REAL(KIND=DBL)  , PARAMETER :: BETACRYS    = 85.05                       ! Beta parameter in deg
-  REAL(KIND=DBL)  , PARAMETER :: C_PR        = CDIM*COS(90-BETACRYS)       ! Actual height of the crystal cube
+  REAL(KIND=DBL)  , PARAMETER :: C_PR        = CDIM*COS((90.D0-BETACRYS)*(4.D0*DATAN(1.D0))/180.D0) ! Actual height of the crystal cube
   REAL(KIND=DBL)  , PARAMETER :: RHO         = 1.313E22                    !4.78E27  ! Crystal density in cm^-3
   DOUBLE PRECISION, PARAMETER :: RHO2        = 0.01313                     !0.0286   !in Angstrom^-3
 
@@ -61,9 +61,9 @@ MODULE parameters
   DOUBLE PRECISION, PARAMETER :: ZP          = 1.D0                        ! Proton number
   DOUBLE PRECISION, PARAMETER :: ZO1         = 8.D0                        ! Atomic oxygen proton number
   DOUBLE PRECISION, PARAMETER :: ZO2         = 16.D0                       ! Molecular oxygen proton number
-  DOUBLE PRECISION, PARAMETER :: ENERG       = 100*1E3                     ! Ion energy in eV
-  DOUBLE PRECISION, PARAMETER :: MP          = 1                           ! Ion mass in amu
-  DOUBLE PRECISION, PARAMETER :: MO2         = 16                          ! Target mass in amu
+  DOUBLE PRECISION, PARAMETER :: ENERG       = 1.0D5                       ! Ion energy in eV
+  DOUBLE PRECISION, PARAMETER :: MP          = 1.D0                        ! Ion mass in amu
+  DOUBLE PRECISION, PARAMETER :: MO2         = 16.D0                       ! Target mass in amu
   DOUBLE PRECISION, PARAMETER :: A0          = 0.529177                    ! Bohr radius in Angstroms
   DOUBLE PRECISION, PARAMETER :: ECHARG2     = 14.39                       ! Fundamental charge**2 in eV*Angstroms
   DOUBLE PRECISION, PARAMETER :: Q0          = 6.513E-14                   ! (eV*cm)**2
@@ -121,7 +121,7 @@ MODULE parameters
   LOGICAL, PARAMETER :: TEST_WRONG = .FALSE.
   LOGICAL, PARAMETER :: TRACKPLOT  = .FALSE.
   LOGICAL, PARAMETER :: O3_ANALYTICS = .TRUE.
-  INTEGER, PARAMETER :: O3_NUM = 777
+  INTEGER, PARAMETER :: O3_NUM = 778
 
   CONTAINS
 

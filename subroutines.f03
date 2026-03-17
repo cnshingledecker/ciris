@@ -45,6 +45,7 @@
       DO i=1,nlines
         IF ( TRIM(string_arr(1)) .EQ. TRIM(array(i)) )THEN
           n=i
+          EXIT
         END IF
       END DO
     END SUBROUTINE lookup
@@ -195,6 +196,11 @@
         ELSE
           i_out = i_in-1
         END IF
+        j_out = j_in
+        k_out = k_in
+      CASE DEFAULT
+        PRINT *, 'ERROR in hopping: invalid direction prob=', prob
+        i_out = i_in
         j_out = j_in
         k_out = k_in
       END SELECT
@@ -484,6 +490,7 @@
         END DO
       END IF
   !    PRINT *, "The coords are: ",coords, "ending Solarlottery"
+      DEALLOCATE(temp_arr)
 
     END SUBROUTINE solarlottery
 

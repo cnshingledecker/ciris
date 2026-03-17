@@ -1,7 +1,8 @@
-! This subroutine implements the bresenham algorithm. Included with the
-! subroutine is a test. 
+MODULE bresenham_mod
 
-SUBROUTINE bresenham( x1,y1,x2,y2 ) 
+CONTAINS
+
+SUBROUTINE bresenham( x1,y1,x2,y2 )
 IMPLICIT NONE
 INTEGER, INTENT(IN) :: x1,y1,x2,y2
 INTEGER :: dx, dy, i, e
@@ -28,7 +29,7 @@ IF ( dx .GT. dy ) THEN
     IF ( e .GE. 0 ) THEN
       y = y + incy
       e = e + inc1
-    ELSE 
+    ELSE
       e = e + inc2
     END IF
     x = x + incx
@@ -49,6 +50,8 @@ ELSE
     y = y + incy
     PRINT *, x,y
   END DO
-END IF 
+END IF
 
 END SUBROUTINE bresenham
+
+END MODULE bresenham_mod

@@ -355,7 +355,7 @@ MODULE functiondefs
       p       = 0
 
       ! Perform calculation
-      p = SQRT(rn/(3.14159*(rho**(2./3.))))
+      p = SQRT(rn/(PI*(rho**(2./3.))))
       b_magic = p/a
       RETURN
     END FUNCTION b_magic
