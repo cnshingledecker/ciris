@@ -1,0 +1,163 @@
+================================================================================
+                     CIRIS  —  NEW FEATURE INSTRUCTIONS
+                     Chemistry of Ionizing Radiation In Solids
+                                  Version 1.1
+================================================================================
+
+
+--------------------------------------------------------------------------------
+FEATURE 1: NO_HOPPING — Disable Species Diffusion
+--------------------------------------------------------------------------------
+
+PURPOSE:
+  When enabled, all species diffusion (hopping) is disabled. This simulates
+  conditions where species are immobile in the ice lattice — analogous to a
+  cryogenic environment where thermal diffusion is suppressed, or to probe
+  purely radiation-driven (non-diffusive) chemistry.
+
+  Surface species retain the ability to thermally DESORB, but cannot hop
+  laterally or into the bulk. Bulk species are completely frozen.
+
+  As a result of no hopping, reactive radicals cannot find one another, and
+  bimolecular surface chemistry (e.g., O + O2 -> O3) goes to zero.
+
+HOW TO ENABLE:
+  Add the following line to gp.dat:
+
+      NO_HOPPING .TRUE.
+
+  To disable (default behavior), either omit the line or set:
+
+      NO_HOPPING .FALSE.
+
+WHAT CHANGES INTERNALLY:
+  - Surface species: rate b = b_des only (desorption rate)
+                     act_type is always 2 (desorption)
+  - Bulk species:    wait_time = HUGE (effectively frozen, never selected)
+
+NOTES:
+  - Compatible with matrix isolation (MATRIX_FRACTION). The two features
+    can be used independently or together.
+  - Default value: .FALSE. (hopping enabled)
+
+
+--------------------------------------------------------------------------------
+FEATURE 2: MATRIX ISOLATION — Inert Diluent Species in the Ice
+--------------------------------------------------------------------------------
+
+PURPOSE:
+  Populates a fraction of the initial ice lattice sites with a chemically
+  inert species (e.g., Ar, N2, Ne). This dilutes the reactive ice, spatially
+  separating reactive species from one another — directly analogous to the
+  matrix isolation spectroscopy technique used in laboratory experiments.
+
+  In matrix isolation spectroscopy, reactive molecules or radicals are
+  embedded in a large excess of inert gas (commonly Ar) frozen into a solid.
+  The inert matrix physically prevents reactions between the reactive guests
+  by keeping them separated. CIRIS now allows the same experimental geometry
+  to be modelled computationally.
+
+  At the specified concentration, the proton track will pass through inert
+  matrix sites without producing chemistry. The inert species is invisible
+  to all reaction pathways.
+
+HOW TO ENABLE:
+  Step 1 — Add the inert species to species.dat:
+
+      Ar        0.001
+
+      Format: <name> <binding energy in eV>
+      Use a low binding energy (e.g., 0.001 eV) for a weakly bound noble gas.
+      The name must be 10 characters or fewer.
+
+  Step 2 — Do NOT add any reactions involving the inert species to
+      reactions.dat. It must be entirely non-reactive.
+
+  Step 3 — Add the following lines to gp.dat:
+
+      MATRIX_FRACTION 0.30
+      MATRIX_SP_NAME  Ar
+
+      MATRIX_FRACTION is the fraction of lattice sites to fill with the
+      inert species, expressed as a decimal between 0.0 and 1.0.
+      Example values:
+          0.10  =>  ~10% of ice sites replaced (lightly doped)
+          0.50  =>  ~50% of ice sites replaced (heavily diluted)
+          0.90  =>  ~90% of ice sites replaced (extreme isolation)
+
+      MATRIX_SP_NAME is the name of the inert species exactly as it
+      appears in species.dat (case-sensitive, no extra whitespace).
+
+  To disable (default), either omit the lines or set:
+
+      MATRIX_FRACTION 0.0
+
+WHAT CHANGES INTERNALLY:
+  - After the ice lattice is initialised, each normal lattice site (-1)
+    is visited. A uniform random number is drawn; if it falls below
+    MATRIX_FRACTION, the site is replaced with -MATRIX_SP_IDX (the
+    frozen inert species index).
+  - The replacement is stochastic, so the actual fraction will be
+    approximately MATRIX_FRACTION with normal statistical variation.
+  - When the proton track strikes an inert matrix site, CIRIS recognises
+    it as a null chemistry event and moves on silently. No products are
+    generated and no wait-list entries are created.
+
+NOTES:
+  - The inert species name (MATRIX_SP_NAME) defaults to 'Ar'. Change it
+    to whatever species name you define in species.dat.
+  - If MATRIX_SP_NAME is not found in species.dat, a warning is printed
+    and matrix isolation is disabled for that run.
+  - Compatible with NO_HOPPING. Using both together models a fully static
+    matrix-isolated ice: no diffusion, no reactions, only direct
+    radiation-induced events at occupied sites.
+  - Default values: MATRIX_FRACTION = 0.0 (disabled), MATRIX_SP_NAME = Ar
+
+
+--------------------------------------------------------------------------------
+EXAMPLE gp.dat — Matrix Isolation Experiment, No Hopping
+--------------------------------------------------------------------------------
+
+    TRL_NU          2.6E11
+    DISPROB         0.0
+    NSUBEX          3
+    STEPFAC         0.01
+    AVAL            13.0
+    NO_HOPPING      .TRUE.
+    MATRIX_FRACTION 0.50
+    MATRIX_SP_NAME  Ar
+
+
+--------------------------------------------------------------------------------
+EXAMPLE species.dat entry for argon matrix
+--------------------------------------------------------------------------------
+
+    Add this line anywhere in species.dat (before the pseudo-species
+    e, CRP, and * at the bottom is recommended):
+
+    Ar        0.001
+
+
+--------------------------------------------------------------------------------
+SUMMARY OF ALL gp.dat PARAMETERS (as of v1.1)
+--------------------------------------------------------------------------------
+
+    Parameter           Default     Description
+    ---------           -------     -----------
+    TRL_NU              2.6E11      Trial/attempt frequency (s^-1)
+    DISPROB             0.0         Excitative dissociation probability
+    NSUBEX              3           Number of sub-excitation interactions
+    STEPFAC             0.01        Collision step size factor
+    AVAL                13.0        Gamma distribution shape parameter
+    O_O2_BRANCHING      0.5         O + O2 -> O3 branching ratio
+    O2_ION_BRANCHING    0.0         O2- + O2+ -> O3 + O branching ratio
+    O_O2_ION_BRANCHING  0.0         O+ + O2- / O- + O2+ -> O3 branching ratio
+    FRAGILE             21          Species index that dissociates easily
+    FAST_REACTS         21          Species index that reacts upon formation
+    NO_HOPPING          .FALSE.     Disable all species hopping/diffusion
+    MATRIX_FRACTION     0.0         Fraction of lattice sites to fill with
+                                    inert matrix species (0.0 = disabled)
+    MATRIX_SP_NAME      Ar          Name of inert matrix isolation species
+
+
+================================================================================
