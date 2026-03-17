@@ -8,7 +8,7 @@
        ╚██████╗██║██║  ██║██║███████║
         ╚═════╝╚═╝╚═╝  ╚═╝╚═╝╚══════╝
 
-   Cosmic-ray  Induced  Reactivity  in  Ices  Simulation
+   Chemistry  of  Ionizing  Radiation  In  Solids
    -------------------------------------------------------
               >> KINETIC MONTE CARLO ENGINE <<
                       V E R S I O N   1 . 1
@@ -29,6 +29,12 @@ prescribed fluence is reached.
 
 The name honours the *[Iris]* family of pigments: bright, radiation-sensitive,
 and irreversibly altered by light — much like the ices CIRIS is designed to study.
+
+> **Cite this code:**
+> C. N. Shingledecker, R. Le Gal & E. Herbst,
+> *"A new model of the chemistry of ionizing radiation in solids: CIRIS"*,
+> **Phys. Chem. Chem. Phys.**, 2017, **19**, 11043–11056.
+> DOI: [10.1039/C7CP01472D](https://doi.org/10.1039/C7CP01472D)
 
 ---
 
