@@ -168,6 +168,35 @@ FORALL ( i=1:dimens(1),j=1:dimens(2),k=1:dimens(3), MOD(k,2) .EQ. 1 .AND. MOD(j,
   matrix(i,j,k) = -1
 END FORALL
 
+!******************************************************************************
+! Matrix isolation: randomly replace a fraction of lattice sites with an
+! inert species, effectively diluting the reactive ice (matrix isolation
+! spectroscopy analogue). Controlled by MATRIX_FRACTION and MATRIX_SP_NAME
+! in gp.dat. Set MATRIX_FRACTION = 0 (default) to disable.
+!******************************************************************************
+matrix_sp_idx = 0
+IF ( MATRIX_FRACTION .GT. 0.0D0 ) THEN
+  CALL lookup( TRIM(MATRIX_SP_NAME), num_species, sp_list, MATRIX_SP_IDX )
+  IF ( MATRIX_SP_IDX .EQ. 0 ) THEN
+    PRINT *, "WARNING: Matrix species '", TRIM(MATRIX_SP_NAME), &
+             "' not found in species list. Matrix isolation disabled."
+  ELSE
+    PRINT *, "Matrix isolation: replacing ~", MATRIX_FRACTION*100.0D0, &
+             "% of lattice sites with '", TRIM(MATRIX_SP_NAME), &
+             "' (species index ", MATRIX_SP_IDX, ")"
+    DO k=1,dimens(3)
+      DO j=1,dimens(2)
+        DO i=1,dimens(1)
+          IF ( matrix(i,j,k) .EQ. -1 ) THEN
+            CALL RANDOM_NUMBER(rndnum)
+            IF ( rndnum .LT. MATRIX_FRACTION ) matrix(i,j,k) = -matrix_sp_idx
+          END IF
+        END DO
+      END DO
+    END DO
+  END IF
+END IF
+
 ! Associate the pointer to the matrix
 matrix_ptr => matrix
 
@@ -312,5 +341,5 @@ IF ( O3_ANALYTICS .EQV. .TRUE. ) CLOSE(O3_NUM)
 !PRINT *, 'Area is:',AREA
 NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len,o3_prod,o3_dest )
 DEALLOCATE( qube, sp_list, en_list, matrix, wait_target )
-DEALLOCATE( b_surf_precomp, b_bulk_precomp, comp_frac_precomp )
+DEALLOCATE( b_surf_precomp, b_bulk_precomp, b_des_precomp, comp_frac_precomp )
 END PROGRAM main

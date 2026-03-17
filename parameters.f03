@@ -123,6 +123,12 @@ MODULE parameters
   LOGICAL, PARAMETER :: O3_ANALYTICS = .TRUE.
   INTEGER, PARAMETER :: O3_NUM = 778
 
+  ! Feature flags (settable in gp.dat)
+  LOGICAL            :: NO_HOPPING      = .FALSE.  ! Disable all species diffusion
+  REAL(KIND=DBL)     :: MATRIX_FRACTION = 0.0D0    ! Fraction of lattice sites occupied by inert matrix species (0 = off)
+  CHARACTER(LEN=10)  :: MATRIX_SP_NAME  = 'Ar'     ! Name of the inert matrix isolation species
+  INTEGER            :: MATRIX_SP_IDX   = 0        ! Species index of the inert matrix species (set at runtime after lookup)
+
   CONTAINS
 
   SUBROUTINE initconstants ()
@@ -163,6 +169,12 @@ MODULE parameters
               READ(val, *) FRAGILE
           CASE ("FAST_REACTS")
               READ(val, *) FAST_REACTS
+          CASE ("NO_HOPPING")
+              READ(val, *) NO_HOPPING
+          CASE ("MATRIX_FRACTION")
+              READ(val, *) MATRIX_FRACTION
+          CASE ("MATRIX_SP_NAME")
+              READ(val, *) MATRIX_SP_NAME
           CASE DEFAULT
               PRINT *, "WARNING: Unexpect variable name '", var, "'. Ignoring..."
         END SELECT

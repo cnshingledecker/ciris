@@ -8,6 +8,7 @@
   ! Precomputed rate arrays (initialized by precompute_rates after species data is loaded)
   REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: b_surf_precomp    ! b_hop + b_des for surface species
   REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: b_bulk_precomp    ! b_bulk for bulk species
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: b_des_precomp     ! b_des only (used when NO_HOPPING=.TRUE.)
   REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: comp_frac_precomp ! b_hop/(b_hop+b_des) for action_figure
 
   CONTAINS
@@ -25,8 +26,9 @@
 
     IF ( ALLOCATED(b_surf_precomp)    ) DEALLOCATE(b_surf_precomp)
     IF ( ALLOCATED(b_bulk_precomp)    ) DEALLOCATE(b_bulk_precomp)
+    IF ( ALLOCATED(b_des_precomp)     ) DEALLOCATE(b_des_precomp)
     IF ( ALLOCATED(comp_frac_precomp) ) DEALLOCATE(comp_frac_precomp)
-    ALLOCATE( b_surf_precomp(nspec), b_bulk_precomp(nspec), comp_frac_precomp(nspec) )
+    ALLOCATE( b_surf_precomp(nspec), b_bulk_precomp(nspec), b_des_precomp(nspec), comp_frac_precomp(nspec) )
 
     DO s = 1, nspec
       b1 = TRL_NU * EXP( -( DBLE(en_list(s)) * E_SURF ) / KIN_TEMP )
@@ -34,6 +36,7 @@
       b3 = TRL_NU * EXP( -( DBLE(en_list(s)) * E_BULK  ) / KIN_TEMP )
       b_surf_precomp(s)    = b1 + b2
       b_bulk_precomp(s)    = b3
+      b_des_precomp(s)     = b2
       comp_frac_precomp(s) = b1 / (b1 + b2)
     END DO
   END SUBROUTINE precompute_rates
@@ -910,6 +913,11 @@
       END IF
 
       IF ( prods(1) .EQ. 0 ) THEN
+        ! Null event: inert matrix species absorbs the event without chemistry
+        IF ( MATRIX_SP_IDX .GT. 0 .AND. r2 .EQ. MATRIX_SP_IDX ) THEN
+          null = 1
+          RETURN
+        END IF
         PRINT *, 'Uh-oh, we have a problem in Cern!'
         PRINT *, 'r1=',r1,'r2=',r2
         PRINT *, 'prods=',prods
@@ -2443,7 +2451,21 @@
     REAL                       , DIMENSION(:)  , POINTER :: en_list    !binding/diffusion energy list
     TYPE (wait_info)           , DIMENSION(:)  , POINTER :: wait_list !list of mobile species
 
-      ! Use precomputed rates to avoid redundant EXP() calls
+      IF ( NO_HOPPING ) THEN
+        ! Hopping disabled: surface species can only desorb; bulk species are frozen
+        IF ( wait_list(index)%i .EQ. 1 ) THEN
+          b = b_des_precomp(wait_list(index)%sp_num)
+          CALL RANDOM_NUMBER(rand_num)
+          wait_list(index)%wait_time = (-LOG(rand_num) / b) + time
+          wait_list(index)%act_type  = 2  ! Desorption only
+        ELSE
+          wait_list(index)%wait_time = HUGE(1.0D0)  ! Bulk: frozen
+          wait_list(index)%act_type  = 1
+        END IF
+        RETURN
+      END IF
+
+      ! Normal path: use precomputed rates
       IF ( wait_list(index)%i .EQ. 1 ) THEN
         b = b_surf_precomp(wait_list(index)%sp_num)
       ELSE
