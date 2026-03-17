@@ -131,6 +131,7 @@ sp_list = "0"
 PRINT *, 'size of species list=',SIZE(sp_list)
 anion_list => anion_target
 CALL qbert(num_species,num_reacts,qube,en_list,sp_list ,anion_list)
+CALL precompute_rates(en_list, num_species)
 
 PRINT *, 'The anion list is:',anion_list
 
@@ -310,5 +311,6 @@ IF ( O3_ANALYTICS .EQV. .TRUE. ) CLOSE(O3_NUM)
 !PRINT *, "wait_list is size ",SIZE(wait_list)
 !PRINT *, 'Area is:',AREA
 NULLIFY ( wait_list,anion_list,matrix_ptr,qube_ptr,sp_ptr,time,wait_len,o3_prod,o3_dest )
-DEALLOCATE( qube, sp_list, en_list, matrix,wait_target )
+DEALLOCATE( qube, sp_list, en_list, matrix, wait_target )
+DEALLOCATE( b_surf_precomp, b_bulk_precomp, comp_frac_precomp )
 END PROGRAM main

@@ -5,8 +5,38 @@
     USE mc_toolbox
     USE specdata
 
+  ! Precomputed rate arrays (initialized by precompute_rates after species data is loaded)
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: b_surf_precomp    ! b_hop + b_des for surface species
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: b_bulk_precomp    ! b_bulk for bulk species
+  REAL(KIND=DBL), ALLOCATABLE, DIMENSION(:) :: comp_frac_precomp ! b_hop/(b_hop+b_des) for action_figure
 
   CONTAINS
+
+  SUBROUTINE precompute_rates(en_list, nspec)
+  ! Purpose:
+  !   Precompute the thermal rate constants for all species so that
+  !   wait_calc and action_figure avoid redundant EXP() calls in the
+  !   inner simulation loop.
+    IMPLICIT NONE
+    REAL,    INTENT(IN), DIMENSION(:) :: en_list
+    INTEGER, INTENT(IN)               :: nspec
+    REAL(KIND=DBL) :: b1, b2, b3
+    INTEGER        :: s
+
+    IF ( ALLOCATED(b_surf_precomp)    ) DEALLOCATE(b_surf_precomp)
+    IF ( ALLOCATED(b_bulk_precomp)    ) DEALLOCATE(b_bulk_precomp)
+    IF ( ALLOCATED(comp_frac_precomp) ) DEALLOCATE(comp_frac_precomp)
+    ALLOCATE( b_surf_precomp(nspec), b_bulk_precomp(nspec), comp_frac_precomp(nspec) )
+
+    DO s = 1, nspec
+      b1 = TRL_NU * EXP( -( DBLE(en_list(s)) * E_SURF ) / KIN_TEMP )
+      b2 = TRL_NU * EXP( -( DBLE(en_list(s))           ) / KIN_TEMP )
+      b3 = TRL_NU * EXP( -( DBLE(en_list(s)) * E_BULK  ) / KIN_TEMP )
+      b_surf_precomp(s)    = b1 + b2
+      b_bulk_precomp(s)    = b3
+      comp_frac_precomp(s) = b1 / (b1 + b2)
+    END DO
+  END SUBROUTINE precompute_rates
   ! *********************************************************
   ! ******* SUBROUTINES *************************************
   ! *********************************************************
@@ -434,8 +464,9 @@
       !****************
       ! Local variables
       !****************
-      INTEGER            , ALLOCATABLE, DIMENSION(:,:)               :: temp_arr !temporary array of coordinates
+      INTEGER                         , DIMENSION(6,3)               :: temp_arr !temporary array of coordinates
       INTEGER                                                        :: i,n   !counters
+      INTEGER                                                        :: nfound  !actual entries in temp_arr
       INTEGER                                                        :: lucky    !index of selected coords
       REAL                                                           :: rand     !random number
 
@@ -444,28 +475,25 @@
   !    PRINT *, "small_count is: ", small_count
 
       i = 1
+      temp_arr = 0
       IF ( large_count .NE. 0 ) THEN ! Check if any same type reactants exist
-        ALLOCATE ( temp_arr(large_count,3) )
+        nfound = large_count
         DO n=1,SIZE(large_temp,1)
           IF ( large_temp(n,4) .NE. 0 ) THEN
             temp_arr(i,1) = large_temp(n,1)
             temp_arr(i,2) = large_temp(n,2)
             temp_arr(i,3) = large_temp(n,3)
             i = i + 1
-          ELSE
-            CONTINUE
           END IF
         END DO
       ELSE ! See if any opposite type reactants exist
-        ALLOCATE ( temp_arr(small_count,3) )
+        nfound = small_count
         DO n=1,SIZE(small_temp,1)
           IF ( small_temp(n,4) .NE. 0 ) THEN
             temp_arr(i,1) = small_temp(n,1)
             temp_arr(i,2) = small_temp(n,2)
             temp_arr(i,3) = small_temp(n,3)
             i = i + 1
-          ELSE
-            CONTINUE
           END IF
         END DO
       END IF
@@ -478,19 +506,13 @@
 
       CALL RANDOM_NUMBER(rand) ! Choose a random temp_arr element
       coords = 0
-      IF ( SIZE(temp_arr,1) .EQ. 1 ) THEN
-         coords = temp_arr(1,:)
-  !      DO n=1,3
-  !        coords(n) = temp_arr(1,n)
-  !      END DO
+      IF ( nfound .EQ. 1 ) THEN
+        coords = temp_arr(1,:)
       ELSE
-        lucky = INT(rand*SIZE(temp_arr,1)) + 1
-        DO n=1,3
-          coords(n) = temp_arr(lucky,n)
-        END DO
+        lucky = INT(rand*nfound) + 1
+        coords = temp_arr(lucky,:)
       END IF
   !    PRINT *, "The coords are: ",coords, "ending Solarlottery"
-      DEALLOCATE(temp_arr)
 
     END SUBROUTINE solarlottery
 
@@ -1490,7 +1512,8 @@
     INTEGER                         , DIMENSION(3)               :: dimens !dimensions of ice matrix
     INTEGER                         , DIMENSION(6,3)             :: large_temp
     INTEGER                         , DIMENSION(4,3)             :: small_temp
-    INTEGER            , ALLOCATABLE, DIMENSION(:,:)             :: temp_arr !temporary empty site array
+    INTEGER                         , DIMENSION(6,3)             :: temp_arr !temporary empty site array
+    INTEGER                                                      :: nfound   !actual entries in temp_arr
     REAL                                                         :: rand !random number
 
 !    PRINT *, 'In krell, in_coords=',in_coords
@@ -1601,33 +1624,25 @@
     ! populate the temp_arr such that it consists of only
     ! coordinates where there are empty spaces
     i = 1
+    temp_arr = 0
     IF ( large_count .EQ. 0 ) THEN
-      ALLOCATE( temp_arr(small_count,3) )
-      temp_arr = 0
-      n = 0
-!      PRINT *, 'The contents of int_arr are:'
+      nfound = small_count
       DO n=1,SIZE(small_temp,1)
         IF ( ANY( small_temp(n,:) .NE. 0 ) ) THEN
           temp_arr(i,1) = small_temp(n,1)
           temp_arr(i,2) = small_temp(n,2)
           temp_arr(i,3) = small_temp(n,3)
           i = i + 1
-        ELSE
-          CONTINUE
         END IF
       END DO
     ELSE
-      ALLOCATE( temp_arr(large_count,3) )
-      temp_arr = 0
-      n = 0
+      nfound = large_count
       DO n=1,SIZE(large_temp,1)
         IF ( ANY( large_temp(n,:) .NE. 0 ) ) THEN
           temp_arr(i,1) = large_temp(n,1)
           temp_arr(i,2) = large_temp(n,2)
           temp_arr(i,3) = large_temp(n,3)
           i = i + 1
-        ELSE
-          CONTINUE
         END IF
       END DO
     END IF
@@ -1639,26 +1654,12 @@
 
     ! choose one at random
     CALL RANDOM_NUMBER(rand)
-    out_coords=0
-    IF (SIZE(temp_arr,1) .EQ. 1) THEN
-      n=0
-      DO n=1,3
-        out_coords(n) = temp_arr(1,n)
-      END DO
+    out_coords = 0
+    IF ( nfound .EQ. 1 ) THEN
+      out_coords = temp_arr(1,:)
     ELSE
-      IF ( large_count .NE. 0 ) THEN
-        lucky = INT(rand*large_count) + 1
-        n=0
-        DO n=1,3
-          out_coords(n) = temp_arr(lucky,n)
-        END DO
-      ELSE
-        lucky = INT(rand*small_count) + 1
-        n=0
-        DO n=1,3
-          out_coords(n) = temp_arr(lucky,n)
-        END DO
-      END IF
+      lucky = INT(rand*nfound) + 1
+      out_coords = temp_arr(lucky,:)
     END IF
 
 !    PRINT *, 'The coordinates of the second site are:'
@@ -1813,31 +1814,20 @@
 
     ! Data dictionary
     INTEGER       , INTENT(IN)                          :: index !index of species to
-    REAL(KIND=DBL)                                      :: b_1 !thermal surface hopping rate
-    REAL(KIND=DBL)                                      :: b_2 !surface desorption rate
-    REAL(KIND=DBL)                                      :: comp_val !to determine which action occurs
     REAL(KIND=DBL), INTENT(IN)                          :: rand_num
     REAL                      , DIMENSION(:)  , POINTER :: en_list
     TYPE (wait_info)          , DIMENSION(:)  , POINTER :: wait_list
 
     ! (1) Decide whether or not the species is on the surface
     IF ( wait_list(index)%i .EQ. 1 ) THEN
-    ! (1a) Species is on the surface
-      ! Calculate b-rates to compare
-      b_1 = trl_nu * EXP( - (  en_list(wait_list(index)%sp_num)*E_SURF / kin_temp  ) )
-      b_2 = trl_nu * EXP( - (  en_list(wait_list(index)%sp_num)        / kin_temp  ) )
-      comp_val = b_1 / (b_1 + b_2)
-      ! Decide whether desorption or hopping occurs
-      IF ( rand_num .LT. comp_val ) THEN
-        ! Diffusion occurs
-        wait_list(index)%act_type = 1
+    ! (1a) Species is on the surface — use precomputed hop/des fraction
+      IF ( rand_num .LT. comp_frac_precomp(wait_list(index)%sp_num) ) THEN
+        wait_list(index)%act_type = 1  ! Diffusion
       ELSE
-        ! Desorption occurs
-        wait_list(index)%act_type = 2
+        wait_list(index)%act_type = 2  ! Desorption
       END IF
     ELSE
     ! (1b) Species is in the bulk
-      ! Only hopping (diffusion) can occur
       wait_list(index)%act_type = 1
     END IF
 
@@ -2372,7 +2362,7 @@
     INTEGER                        , DIMENSION(:,:,:), POINTER :: matrix_rr
     TYPE (wait_info)               , DIMENSION(:)    , POINTER :: wait_list
 
-    OPEN(UNIT=1015,FILE="remove_row_list.txt",POSITION="append")
+    IF ( DEBUG ) OPEN(UNIT=1015,FILE="remove_row_list.txt",POSITION="append")
     IF ( index .NE. wait_len ) THEN
       ! Copy information in last entry to index
       wait_list(index)%wait_time    = wait_list(wait_len)%wait_time
@@ -2395,12 +2385,12 @@
 
       ! Update number of non-zero species by -1
       wait_len = wait_len - 1
-      WRITE(1015,*) 'Index=',index,"wait_len=",wait_len,"matrix=",&
+      IF ( DEBUG ) WRITE(1015,*) 'Index=',index,"wait_len=",wait_len,"matrix=",&
                      matrix_rr(wait_list(index)%i,wait_list(index)%j,wait_list(index)%k), &
                     'coords=', wait_list(index)%i,wait_list(index)%j,wait_list(index)%k
     ELSE IF ( index .EQ. wait_len ) THEN
       ! Make info in last entry equal to 0
-      WRITE(1015,*) 'Index=',index,"wait_len=",wait_len,"matrix=", &
+      IF ( DEBUG ) WRITE(1015,*) 'Index=',index,"wait_len=",wait_len,"matrix=", &
                      matrix_rr(wait_list(index)%i,wait_list(index)%j,wait_list(index)%k), &
                     'coords=', wait_list(index)%i,wait_list(index)%j,wait_list(index)%k
 
@@ -2413,7 +2403,7 @@
 
       wait_len = wait_len - 1
     END IF
-    CLOSE(1015)
+    IF ( DEBUG ) CLOSE(1015)
 
   END SUBROUTINE reactant_remove
 
@@ -2449,32 +2439,19 @@
     INTEGER       , INTENT(IN)                           :: index     !index of species
     REAL(KIND=DBL)                             , POINTER :: time      !total simulation time
     REAL(KIND=DBL)                                       :: rand_num  !pseudorandom number
-    REAL(KIND=DBL)                                       :: b_1       !surface thermal hopping rate
-    REAL(KIND=DBL)                                       :: b_2       !surface desorption rate
-    REAL(KIND=DBL)                                       :: b_3       !bulk diffusion rate
     REAL(KIND=DBL)                                       :: b         !total rate, from CH14
     REAL                       , DIMENSION(:)  , POINTER :: en_list    !binding/diffusion energy list
     TYPE (wait_info)           , DIMENSION(:)  , POINTER :: wait_list !list of mobile species
 
-
-!    IF ( ANY(FAST_REACTS .EQ. wait_list(index)%sp_num) ) THEN
-!      wait_list(index)%wait_time = 1.0D-14 + time
-!    ELSE
+      ! Use precomputed rates to avoid redundant EXP() calls
       IF ( wait_list(index)%i .EQ. 1 ) THEN
-        ! Surface species, separate rates for
-        ! desorption and diffusion
-        b_1 = trl_nu*EXP( - ( ( en_list(wait_list(index)%sp_num)*E_SURF) / kin_temp ) )
-        b_2 = trl_nu*EXP( - ( en_list(wait_list(index)%sp_num)           / kin_temp ) )
-        b = b_1 + b_2
+        b = b_surf_precomp(wait_list(index)%sp_num)
       ELSE
-        ! Bulk species, only bulk diffusion
-        b_3 = trl_nu*EXP( - ( en_list(wait_list(index)%sp_num)*E_BULK    / kin_temp ) )
-        b = b_3
+        b = b_bulk_precomp(wait_list(index)%sp_num)
       END IF
       CALL RANDOM_NUMBER(rand_num)
       ! Calculate waiting time
       wait_list(index)%wait_time = (-LOG(rand_num) / b) + time
-!    END IF
 
     ! Assign action type for next move
     CALL action_figure(wait_list,index,rand_num,en_list)
@@ -3305,13 +3282,11 @@
     INTEGER            , INTENT(OUT)                     :: null
 
     !Data dictionary: Local variables
-    DOUBLE PRECISION                                     :: e_ion,e_se,e_exc
+    DOUBLE PRECISION                                     :: e_ion,e_se
     DOUBLE PRECISION                                     :: sigtot
     DOUBLE PRECISION                                     :: prob,prevprob
     DOUBLE PRECISION                                     :: rn
-    DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:)        :: arr,temparr
-    INTEGER                                              :: n, arrcount,i
-    INTEGER                                              :: incount
+    INTEGER                                              :: n
 
     !Ensure that there is not a null event
     null = 0
@@ -3323,60 +3298,27 @@
       RETURN
     END IF
 
-    !Initialize values
-    e_ion = 0D0
-    e_se  = 0D0
-    e_exc = 0D0
+    e_ion  = 0D0
+    e_se   = 0D0
     e_loss = 0D0
+    sigtot = se_box%se_iontot
 
-    !Initialize integers
-    n        = 0
-    arrcount = 0
-    i        = 0
-    incount  = 0
-
-    !DETERMINE WHICH TYPE OF TRANSITION WILL OCCUR
-    ALLOCATE(arr(SIZE(se_box%se_ionsigs),2))
-    arr = 0
-    arr(:,1) = se_box%se_ionsigs
-    arr(:,2) = se_box%se_ionst%i_energy
-    sigtot   = se_box%se_iontot
-
-    !Populate a new array with possible transitions
-    DO n=1,SIZE(arr,1)
-      IF ( arr(n,1) .NE. 0.0 ) arrcount = arrcount + 1
-      IF ( n .EQ. SIZE(arr,1) ) THEN
-        ALLOCATE(temparr(arrcount,2))
-        temparr = 0
-        incount = 1
-        DO i=1,SIZE(arr,1)
-          IF ( arr(i,1) .NE. 0.0 ) THEN
-            temparr(incount,1) = arr(i,1)
-            temparr(incount,2) = arr(i,2)
-            incount = incount + 1
-          END IF
-        END DO
-      END IF
-    END DO
-
-    !Draw a random number and determine the precise amount of energy lost.
+    !Draw a random number and select the ionization state directly
     rn       = RAND()
-    prevprob = 0d0
-    prob     = 0D0
-    DO n=1,SIZE(temparr,1)
-      prob = (temparr(n,1)/sigtot) + prevprob
-      IF ( rn .GT. prevprob .AND. rn .LE. prob ) THEN
-        e_ion = temparr(n,2)
-        RETURN
+    prevprob = 0D0
+    DO n=1,SIZE(se_box%se_ionsigs)
+      IF ( se_box%se_ionsigs(n) .NE. 0.0D0 ) THEN
+        prob = (se_box%se_ionsigs(n)/sigtot) + prevprob
+        IF ( rn .GT. prevprob .AND. rn .LE. prob ) THEN
+          e_ion = se_box%se_ionst(n)%i_energy
+          EXIT
+        END IF
+        prevprob = prob
       END IF
-      prevprob = prob
     END DO
 
-    !Draw another pseudo-random number, this time from a Gamma distribution
-    !to determine the kinetic energy of the low-energy electron.
-    !
-    !NB: The input to rgamma, aval, is a global parameter
-    e_se = rgamma(AVAL)
+    !Draw from Gamma distribution for secondary electron kinetic energy
+    e_se   = rgamma(AVAL)
     e_loss = e_ion + e_se
     RETURN
   END SUBROUTINE e_ion_select
@@ -3400,20 +3342,12 @@
     !Data dicitonary: Local variables
     DOUBLE PRECISION                                     :: prob,prevprob,rn
     DOUBLE PRECISION                                     :: sigtot
-    DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:)        :: arr,temparr
-    INTEGER                                              :: n, arrcount,i
-    INTEGER                                              :: incount
+    INTEGER                                              :: n
+    LOGICAL                                              :: use_fbdn
 
-
-    !Initialize values
-    e_exc = 0D0
-    prob  = 0D0
+    e_exc    = 0D0
+    prob     = 0D0
     prevprob = 0D0
-    rn       = 0D0
-    n        = 0
-    arrcount = 0
-    i        = 0
-    incount  = 0
 
     !Ensure that there is not a null event
     IF ( se_box%se_ineltot .EQ. 0.0 ) THEN
@@ -3424,52 +3358,42 @@
       RETURN
     END IF
 
-    !Determine which type of transition will occur
-    rn       = RAND()
-    prob = (se_box%se_alwd_extot/se_box%se_ineltot)
-    IF ( rn .GT. prob ) THEN
-      ALLOCATE(arr(SIZE(se_box%se_fbdnsigs),2))
-      arr = 0
-      arr(:,1) = se_box%se_fbdnsigs
-      arr(:,2) = se_box%se_fbdn%wj_fbdn
-      sigtot   = se_box%se_fbdn_extot
+    !Determine which transition class (forbidden vs allowed) will occur
+    rn = RAND()
+    use_fbdn = ( rn .GT. (se_box%se_alwd_extot/se_box%se_ineltot) )
+
+    IF ( use_fbdn ) THEN
+      sigtot = se_box%se_fbdn_extot
     ELSE
-      ALLOCATE(arr(SIZE(se_box%se_alwdsigs),2))
-      arr = 0
-      arr(:,1) = se_box%se_alwdsigs
-      arr(:,2) = se_box%se_alwd%wj_alwd
-      sigtot   = se_box%se_alwd_extot
+      sigtot = se_box%se_alwd_extot
     END IF
 
-    !Populate a new array with possible transitions
-    DO n=1,SIZE(arr,1)
-      IF ( arr(n,1) .NE. 0.0 ) arrcount = arrcount + 1
-      IF ( n .EQ. SIZE(arr,1) ) THEN
-        ALLOCATE(temparr(arrcount,2))
-        temparr = 0
-        incount = 1
-        DO i=1,SIZE(arr,1)
-          IF ( arr(i,1) .NE. 0.0 ) THEN
-            temparr(incount,1) = arr(i,1)
-            temparr(incount,2) = arr(i,2)
-            incount = incount + 1
-          END IF
-        END DO
-      END IF
-    END DO
-
-    !Draw a random number and determine the precise amount of energy lost.
+    !Draw a random number and select the excited state directly
     rn       = RAND()
-    prevprob = 0d0
-    e_exc = 0d0 !Just to know what's happening for debugging
-    DO n=1,SIZE(temparr,1)
-      prob = (temparr(n,1)/sigtot) + prevprob
-      IF ( rn .GT. prevprob .AND. rn .LE. prob ) THEN
-        e_exc = temparr(n,2)
-        RETURN
-      END IF
-      prevprob = prob
-    END DO
+    prevprob = 0D0
+    IF ( use_fbdn ) THEN
+      DO n=1,SIZE(se_box%se_fbdnsigs)
+        IF ( se_box%se_fbdnsigs(n) .NE. 0.0D0 ) THEN
+          prob = (se_box%se_fbdnsigs(n)/sigtot) + prevprob
+          IF ( rn .GT. prevprob .AND. rn .LE. prob ) THEN
+            e_exc = se_box%se_fbdn(n)%wj_fbdn
+            RETURN
+          END IF
+          prevprob = prob
+        END IF
+      END DO
+    ELSE
+      DO n=1,SIZE(se_box%se_alwdsigs)
+        IF ( se_box%se_alwdsigs(n) .NE. 0.0D0 ) THEN
+          prob = (se_box%se_alwdsigs(n)/sigtot) + prevprob
+          IF ( rn .GT. prevprob .AND. rn .LE. prob ) THEN
+            e_exc = se_box%se_alwd(n)%wj_alwd
+            RETURN
+          END IF
+          prevprob = prob
+        END IF
+      END DO
+    END IF
   END SUBROUTINE e_ex_select
 
   SUBROUTINE elastic_event(energy,e_loss,labtheta)
