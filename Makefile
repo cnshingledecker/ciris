@@ -6,7 +6,7 @@ FC = gfortran
 #FCFLAGS = -g -march=native -fbounds-check -Wall
 FCFLAGS = -march=native -O3 -ffast-math
 
-PROGRAM = losalamos
+PROGRAM = ciris
 
 OBJECTS = typedefs.o parameters.o mc_toolbox.o functiondefs.o specdata.o \
           gp.o subroutines.o qbert.o bresenham.o main.o
