@@ -27,8 +27,6 @@ punches through the solid, generates a shower of secondary electrons, and watche
 the resulting radical chemistry unfold — site by site, hop by hop — until a
 prescribed fluence is reached.
 
-The name honours the *[Iris]* family of pigments: bright, radiation-sensitive,
-and irreversibly altered by light — much like the ices CIRIS is designed to study.
 
 > **Cite this code:**
 > C. N. Shingledecker, R. Le Gal & E. Herbst,
@@ -307,7 +305,7 @@ FC = ifort
 
 ```
   ╔══════════════════════════════════════════════════════════════════════╗
-  ║  THE SHOULDERS OF GIANTS  —  KEY LITERATURE                         ║
+  ║  REFERENCES                                                          ║
   ╠══════════════════════════════════════════════════════════════════════╣
   ║                                                                      ║
   ║  Biersack & Haggmark (1980)                                          ║
